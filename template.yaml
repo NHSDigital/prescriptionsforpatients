@@ -1,0 +1,105 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  prescriptions api
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 256
+
+Parameters:
+  EndpointUrl:
+    Type: String
+    Description: EndpointUrl
+    Default: none
+
+# Example of Mappings
+# Mappings:
+#   EnvVariables:
+#     stage:
+#         var1: user1
+#         API_BASE_URL: https://baseurl1.com
+#     prod:
+#         var1: user2
+#         API_BASE_URL: https://baseurl2.com
+
+# SAM Connectors: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/reference-sam-connector.html
+# https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-connector.html
+# More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+# More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+
+Resources:
+  AuthzFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: packages/authz/
+      Handler: app.lambdaHandler
+      Runtime: nodejs18.x
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          EndpointUrl: !Ref EndpointUrl
+      Events:
+        authz:
+          Type: Api
+          Properties:
+            Path: /authz
+            Method: get
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints: 
+        - app.ts
+
+  GetMyPrescriptions:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: packages/getMyPrescriptions
+      Handler: app.lambdaHandler
+      Runtime: nodejs18.x
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          EndpointUrl: !Ref EndpointUrl
+      Events:
+        authz:
+          Type: Api
+          Properties:
+            Path: /getMyPrescriptions
+            Method: get
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints: 
+        - app.ts
+
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  PrescriptionApi:
+    Description: "API Gateway endpoint URL for Prod stage for the Main function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  AuthzFunction:
+    Description: "Authz Lambda Function ARN"
+    Value: !GetAtt Authz.Arn
+  AuthzFunctionIamRole:
+    Description: "Implicit IAM Role created for the Authz function"
+    Value: !GetAtt Authz.Arn
+  GetMyPrescriptionsFunction:
+    Description: "Authz Lambda Function ARN"
+    Value: !GetAtt GetMyPrescriptions.Arn
+  GetMyPrescriptionsFunctionIamRole:
+    Description: "Implicit IAM Role created for the Authz function"
+    Value: !GetAtt GetMyPrescriptions.Arn

@@ -1,0 +1,83 @@
+{
+	"folders": [
+		{
+			"name": "prescriptions-api-monorepo",
+			"path": ".."
+		},
+		{
+			"name": "packages/authz",
+			"path": "../packages/authz"
+		},
+		{
+			"name": "packages/getMyPrescriptions",
+			"path": "../packages/getMyPrescriptions"
+		}
+	],
+	"settings": {
+		"jest.disabledWorkspaceFolders": [
+			"prescriptions-api-monorepo"
+		],
+		"files.exclude": {
+			"packages/": true,
+		},
+        "cSpell.words": [
+			"Caldicott",
+			"canonicalise",
+			"Canonicaliser",
+			"canonicalization",
+			"Canonicalized",
+			"Codeable",
+			"codeinline",
+			"codesystem",
+			"devcontainer",
+			"fhir",
+			"Formik",
+			"Fulfillment",
+			"Hashable",
+			"Helpdesk",
+			"homecare",
+			"HSCN",
+			"liter",
+			"milliliter",
+			"NHSD",
+			"NOSONAR",
+			"Orthoptist",
+			"Payor",
+			"pino",
+			"pollable",
+			"Prosthetist",
+			"serialisation",
+			"smartcard",
+			"smartcards",
+			"Snomed",
+			"URID",
+			"URPID",
+			"whens"
+		],
+		"cSpell.dictionaries": [
+			"en-GB"
+		]
+	},
+	"extensions": {
+		"recommendations": [
+        "AmazonWebServices.aws-toolkit-vscode",
+        "redhat.vscode-yaml",
+        "ms-python.python",
+        "ms-python.flake8",
+        "eamodio.gitlens",
+        "github.vscode-pull-request-github",
+        "orta.vscode-jest",
+        "42crunch.vscode-openapi",
+        "mermade.openapi-lint",
+        "rvest.vs-code-prettier-eslint",
+        "redhat.vscode-yaml",
+        "christian-kohler.npm-intellisense",
+        "dbaeumer.vscode-eslint",
+        "lfm.vscode-makefile-term",
+        "GrapeCity.gc-excelviewer",
+        "redhat.vscode-xml",
+        "streetsidesoftware.code-spell-checker",
+        "timonwong.shellcheck"
+		]
+	}
+}

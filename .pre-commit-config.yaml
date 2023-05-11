@@ -1,0 +1,40 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-merge-conflict
+        name: Check for merge conflict strings
+
+      - id: end-of-file-fixer
+        name: Fix missing newline at the end of files
+
+      - id: check-shebang-scripts-are-executable
+        name: Check shell scripts are executable
+        types: [bash, shell]
+
+      - id: check-yaml
+        name: Check pipelines configuration
+        files: ^(azure|packages\/tool\/azure)
+
+  - repo: local
+    hooks:
+      - id: lint-authz
+        name: Lint authz
+        entry: npm
+        args: ["run", "--prefix=packages/authz", "lint"]
+        language: system
+        files: ^packages\/authz
+        types_or: [ts, tsx, javascript, jsx, json]
+        pass_filenames: false
+
+      - id: lint-getMyPrescriptions
+        name: Lint getMyPrescriptions
+        entry: npm
+        args: ["run", "--prefix=packages/getMyPrescriptions", "lint"]
+        language: system
+        files: ^packages\/getMyPrescriptions
+        types_or: [ts, tsx, javascript, jsx, json]
+        pass_filenames: false
+
+fail_fast: true
+default_stages: [commit]
