@@ -1,0 +1,32 @@
+#########################################################################
+# Dependabot configuration file
+# -----------------------------
+# Checks for updates for the following components:
+# - API Specification (OAS): npm
+# - E2E Tests (Pact tests): npm
+# - EPS API (Coordinator): npm + Docker
+# - EPS API Tool (EPSAT): npm + Docker
+#
+# rebase-strategy is set to 'disabled', as automated rebasing was causing
+# too many CI environments to be created, reducing available capacity for
+# us and other teams as well.
+#########################################################################
+
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    # Workflow files stored in the
+    # default location of `.github/workflows`
+    directory: "/"
+    schedule:
+      interval: "daily"
+
+  ###################################
+  # NPM workspace  ##################
+  ###################################
+  - package-ecosystem: "npm"
+    directory: "/"
+    rebase-strategy: "disabled"
+    schedule:
+      interval: "daily"
+    versioning-strategy: increase
