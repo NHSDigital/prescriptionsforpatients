@@ -9,15 +9,25 @@ env:
   BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
 
 jobs:
-  quality-checks:
+  unit-test:
     runs-on: ubuntu-latest
     steps:
-      # remove once self-hosted runners are available
-      - uses: ./.github/actions/temp-dependencies/
-      
-      # enable once self-hosted runners are available
-      # - name: dependencies
-      #   uses: ./.github/actions/dependencies/
+      # dependencies can be removed once self-hosted runners are being used #
+      # additions to this block need to be added to the scripts and packer template in the ci repo #
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16.14.2'
+      - uses: actions/setup-python@v1
+        with:
+          python-version: "3.8"
+      - run: |
+          pip install -U pip
+          pip install poetry
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'microsoft'
+          java-version: '17'
+      # /dependencies #
 
       - uses: actions/checkout@v3
         with:
