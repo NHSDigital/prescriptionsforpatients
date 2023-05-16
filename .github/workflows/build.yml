@@ -16,7 +16,7 @@ jobs:
       # additions to this block need to be added to the scripts and packer template in the ci repo #
       - uses: actions/setup-node@v3
         with:
-          node-version: '16.14.2'
+          node-version: '18.16.0'
       - uses: actions/setup-python@v1
         with:
           python-version: "3.8"
