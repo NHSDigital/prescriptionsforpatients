@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # dependencies can be removed once self-hosted runners are being used #
-      # additions to this block need to be added to the scripts and packer template in the ci repo #
+      # additions to this block need to be added to the scripts and packer template in the ci repo or to the asdf install action #
       - uses: actions/setup-node@v3
         with:
-          node-version: '16.14.2'
+          node-version: '18.16.0'
       - uses: actions/setup-python@v1
         with:
           python-version: "3.8"
