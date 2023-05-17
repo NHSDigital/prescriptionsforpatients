@@ -27,10 +27,96 @@ See https://code.visualstudio.com/docs/devcontainers/containers for details on h
 There is also a workspace file in .vscode that should be opened once you have started the devcontainer. The workspace file can also be opened outside of a devcontainer if you wish.  
 The project uses [SAM](https://aws.amazon.com/serverless/sam/) to develop and deploy the APIs
 
+### SAM setup and usage
+
+The project uses [SAM](https://aws.amazon.com/serverless/sam/) to define, build and deploy resources. This also allows simple local development and deployment to AWS for development and testing.
+
+### Setup
+
+Ensure you have the following lines in the file .envrc
+
+```
+export AWS_DEFAULT_PROFILE=prescription-dev
+export stack_name=<UNIQUE_NAME_FOR_YOU>
+```
+
+UNIQUE_NAME_FOR_YOU should be a unique name for you with no underscores in it - eg anthony-brown-1
+
+Start a new terminal in vscode and run this command to authenticate against AWS
+
+```
+make login-aws
+```
+
+Put the following values in:
+
+```
+SSO session name (Recommended): sso-session
+SSO start URL [None]: https://d-9c67018f89.awsapps.com/start
+SSO region [None]: eu-west-2
+SSO registration scopes [sso:account:access]:
+```
+
+This will then open a browser window and you should authenticate with your hscic credentials
+You should then select the development account and set default region to be eu-west-2.
+
+You will now be able to use AWS and SAM CLI commands to access the dev account. You can also use the AWS extension to view resources
+
+### Continuos deployment for testing
+
+You can run the following command to deploy the code to AWS for testing
+
+```
+make sam-sync
+```
+
+This will take a few minutes to deploy - you will see something like this when deployment finishes
+
+```
+CloudFormation outputs from deployed stack
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Outputs
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Key                 AuthzFunctionIamRole
+Description         Implicit IAM Role created for the Authz function
+Value               arn:aws:iam::591291862413:role/anthony-brown-1-AuthzFunctionRole-8GNN62CX5ZKL
+
+Key                 AuthzFunction
+Description         Authz Lambda Function ARN
+Value               arn:aws:lambda:eu-west-2:591291862413:function:anthony-brown-1-AuthzFunction-H5sJ6x9lue3m
+
+Key                 GetMyPrescriptionsFunctionIamRole
+Description         Implicit IAM Role created for the GetMyPrescriptions function
+Value               arn:aws:iam::591291862413:role/anthony-brown-1-GetMyPrescriptionsRole-11UP8H33K2UPT
+
+Key                 PrescriptionApi
+Description         API Gateway endpoint URL for Prod stage for the Main function
+Value               https://juzzbrgm97.execute-api.eu-west-2.amazonaws.com/Prod/
+
+Key                 GetMyPrescriptionsFunction
+Description         GetMyPrescriptions Lambda Function ARN
+Value               arn:aws:lambda:eu-west-2:591291862413:function:anthony-brown-1-GetMyPrescriptions-cLwkpIBkBDNN
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Stack update succeeded. Sync infra completed.
+```
+
+Note - the command will keep running and should not be stopped.
+You can call the api using the prescription API from the output - eg
+
+```
+curl https://juzzbrgm97.execute-api.eu-west-2.amazonaws.com/Prod/getMyPrescriptions
+```
+
+You can also use the AWS vscode extension to invoke the API or lambda directly
+
+Any code changes you make are automatically uploaded to AWS while `make sam-sync` is running allowing you to quickly test any changes you make
+
 ### Pre-commit hooks
 
-Some pre-commit hooks are installed as part of the install above to ensure you can't commit invalid spec changes by accident and to run basic lint checks.  
-The pre-commit hook uses python package pre-commit and is configured in the file .pre-commit-config.yaml.  
+Some pre-commit hooks are installed as part of the install above to ensure you can't commit invalid spec changes by accident and to run basic lint checks.
+The pre-commit hook uses python package pre-commit and is configured in the file .pre-commit-config.yaml.
 A combination of these checks are also run in CI.
 
 ### Make commands
@@ -50,11 +136,11 @@ These are used to do common commands
 
 - `sam-build` -- Prepares the lambdas and SAM definiton file to be used in subsequent steps
 - `sam-run-local` -- Run the API and lambdas locally
-- `sam-sync` -- Sync the API and lambda to AWS
+- `sam-sync` -- Sync the API and lambda to AWS. This needs AWS_DEFAULT_PROFILE and stack_name environment variables set
 
 #### Clean and deep-clean targets
 
-The clean target clears up any files that have been generated by building or testing locally.  
+The clean target clears up any files that have been generated by building or testing locally.
 The deep-clean target runs clean and also removes any node_modules and python libraries installed locally.
 
 #### Linting and testing
@@ -65,3 +151,11 @@ The deep-clean target runs clean and also removes any node_modules and python li
 #### Check licenses
 
 - `check-licenses` checks licensces for all packages used
+
+#### CLI Login to AWS
+
+- `login-aws` connects to AWS from the CLI using SSO
+
+```
+
+```

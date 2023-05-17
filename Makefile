@@ -24,7 +24,7 @@ sam-run-local: sam-build
 	sam local start-api
 
 sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name
-	sam sync --stack-name ab-test-1 --watch
+	sam sync --stack-name $$stack_name --watch
 
 lint:
 	npm run lint --workspace packages/authz
@@ -49,4 +49,4 @@ check-licenses:
 	scripts/check_python_licenses.sh
 
 login-aws:
-	aws configure sso --endpoint-url https://d-9c67018f89.awsapps.com/start# --region eu-west-2
+	aws configure sso --region eu-west-2
