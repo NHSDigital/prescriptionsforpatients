@@ -1,0 +1,18 @@
+name: temp-dependencies
+description: |
+  temporary install dependencies
+  this action can be removed once self-hosted runners are being used
+  additions to this action need to be added to the dependencies action and to the install-asdf.sh script in the ci repo
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 18.16.0
+    - uses: actions/setup-python@v1
+      with:
+        python-version: 3.8
+    - shell: bash
+      run: |
+        pip install -U pip
+        pip install poetry
