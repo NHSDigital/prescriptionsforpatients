@@ -12,6 +12,10 @@ jobs:
   quality-checks:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ env.BRANCH_NAME }}
+
       # remove once self-hosted runners are available
       - uses: ./.github/actions/temp-dependencies/
       
@@ -19,11 +23,6 @@ jobs:
       # - name: dependencies
       #   uses: ./.github/actions/dependencies/
 
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ env.BRANCH_NAME }}
-        env:
-          POETRY_VIRTUALENVS_CREATE: false
       - run: make install
       - run: make check-licenses
       - run: make lint
