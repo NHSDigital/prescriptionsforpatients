@@ -2,8 +2,8 @@ name: build
 
 on:
   pull_request:
-    types: ['opened', 'reopened']
-    branches: ['AEA-**']
+    types: [opened, reopened]
+    branches: [main]
 
 env:
   BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
