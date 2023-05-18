@@ -26,6 +26,21 @@ sam-run-local: sam-build
 sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam sync --stack-name $$stack_name --watch
 
+sam-deploy: guard-AWS_DEFAULT_PROFILE guard-stack_name
+	sam deploy --stack-name $$stack_name
+
+sam-delete: guard-AWS_DEFAULT_PROFILE guard-stack_name
+	sam delete --stack-name $$stack_name
+
+sam-list-endpoints: guard-AWS_DEFAULT_PROFILE guard-stack_name
+	sam list endpoints --stack-name $$stack_name
+
+sam-list-resources: guard-AWS_DEFAULT_PROFILE guard-stack_name
+	sam list resources --stack-name $$stack_name
+
+sam-list-outputs: guard-AWS_DEFAULT_PROFILE guard-stack_name
+	sam list stack-outputs --stack-name $$stack_name
+
 lint:
 	npm run lint --workspace packages/authz
 	npm run lint --workspace packages/getMyPrescriptions
@@ -48,5 +63,8 @@ check-licenses:
 	npm run check-licenses --workspace packages/getMyPrescriptions
 	scripts/check_python_licenses.sh
 
-login-aws:
+aws-configure:
 	aws configure sso --region eu-west-2
+
+aws-login:
+	aws sso login --sso-session sso-session
