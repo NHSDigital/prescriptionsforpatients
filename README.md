@@ -1,4 +1,4 @@
-# Electronic Prescription Service API
+# Prescriptions API
 
 ![Build](https://github.com/NHSDigital/prescriptions-api/workflows/Build/badge.svg?branch=main)
 
@@ -25,11 +25,12 @@ The contents of this repository are protected by Crown Copyright (C).
 It is recommended that you use visual studio code and a devcontainer as this will install all necessary components and correct versions of tools and languages.  
 See https://code.visualstudio.com/docs/devcontainers/containers for details on how to set this up on your host machine.  
 There is also a workspace file in .vscode that should be opened once you have started the devcontainer. The workspace file can also be opened outside of a devcontainer if you wish.  
-The project uses [SAM](https://aws.amazon.com/serverless/sam/) to develop and deploy the APIs and associated resources
+The project uses [SAM](https://aws.amazon.com/serverless/sam/) to develop and deploy the APIs and associated resources.  
+All commits must be made using [signed commits](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits)
 
 ### SAM setup and usage
 
-[SAM](https://aws.amazon.com/serverless/sam/) allows simple local development and deployment to AWS for development and testing.
+[SAM](https://aws.amazon.com/serverless/sam/) allows rapid local development and deployment to AWS for development and testing.
 
 ### Setup
 
