@@ -77,7 +77,8 @@
         "GrapeCity.gc-excelviewer",
         "redhat.vscode-xml",
         "streetsidesoftware.code-spell-checker",
-        "timonwong.shellcheck"
+        "timonwong.shellcheck",
+		"mkhl.direnv"
 		]
 	}
 }

@@ -1,4 +1,4 @@
-# Electronic Prescription Service API
+# Prescriptions API
 
 ![Build](https://github.com/NHSDigital/prescriptions-api/workflows/Build/badge.svg?branch=main)
 
@@ -25,12 +25,101 @@ The contents of this repository are protected by Crown Copyright (C).
 It is recommended that you use visual studio code and a devcontainer as this will install all necessary components and correct versions of tools and languages.  
 See https://code.visualstudio.com/docs/devcontainers/containers for details on how to set this up on your host machine.  
 There is also a workspace file in .vscode that should be opened once you have started the devcontainer. The workspace file can also be opened outside of a devcontainer if you wish.  
-The project uses [SAM](https://aws.amazon.com/serverless/sam/) to develop and deploy the APIs
+The project uses [SAM](https://aws.amazon.com/serverless/sam/) to develop and deploy the APIs and associated resources.  
+All commits must be made using [signed commits](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits)
+
+### SAM setup and usage
+
+[SAM](https://aws.amazon.com/serverless/sam/) allows rapid local development and deployment to AWS for development and testing.
+
+### Setup
+
+Ensure you have the following lines in the file .envrc
+
+```
+export AWS_DEFAULT_PROFILE=prescription-dev
+export stack_name=<UNIQUE_NAME_FOR_YOU>
+```
+
+UNIQUE_NAME_FOR_YOU should be a unique name for you with no underscores in it - eg anthony-brown-1
+
+Once you have saved .envrc, start a new terminal in vscode and run this command to authenticate against AWS
+
+```
+make aws-configure
+```
+
+Put the following values in:
+
+```
+SSO session name (Recommended): sso-session
+SSO start URL [None]: https://d-9c67018f89.awsapps.com/start
+SSO region [None]: eu-west-2
+SSO registration scopes [sso:account:access]:
+```
+
+This will then open a browser window and you should authenticate with your hscic credentials
+You should then select the development account and set default region to be eu-west-2.
+
+You will now be able to use AWS and SAM CLI commands to access the dev account. You can also use the AWS extension to view resources.
+
+When the token expires, you may need to reauthorise using `make aws-login`
+
+### Continuos deployment for testing
+
+You can run the following command to deploy the code to AWS for testing
+
+```
+make sam-sync
+```
+
+This will take a few minutes to deploy - you will see something like this when deployment finishes
+
+```
+CloudFormation outputs from deployed stack
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Outputs
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Key                 AuthzFunctionIamRole
+Description         Implicit IAM Role created for the Authz function
+Value               arn:aws:iam::591291862413:role/anthony-brown-1-AuthzFunctionRole-8GNN62CX5ZKL
+
+Key                 AuthzFunction
+Description         Authz Lambda Function ARN
+Value               arn:aws:lambda:eu-west-2:591291862413:function:anthony-brown-1-AuthzFunction-H5sJ6x9lue3m
+
+Key                 GetMyPrescriptionsFunctionIamRole
+Description         Implicit IAM Role created for the GetMyPrescriptions function
+Value               arn:aws:iam::591291862413:role/anthony-brown-1-GetMyPrescriptionsRole-11UP8H33K2UPT
+
+Key                 PrescriptionApi
+Description         API Gateway endpoint URL for Prod stage for the Main function
+Value               https://juzzbrgm97.execute-api.eu-west-2.amazonaws.com/Prod/
+
+Key                 GetMyPrescriptionsFunction
+Description         GetMyPrescriptions Lambda Function ARN
+Value               arn:aws:lambda:eu-west-2:591291862413:function:anthony-brown-1-GetMyPrescriptions-cLwkpIBkBDNN
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Stack update succeeded. Sync infra completed.
+```
+
+Note - the command will keep running and should not be stopped.
+You can call the api using the prescription API from the output - eg
+
+```
+curl https://juzzbrgm97.execute-api.eu-west-2.amazonaws.com/Prod/getMyPrescriptions
+```
+
+You can also use the AWS vscode extension to invoke the API or lambda directly
+
+Any code changes you make are automatically uploaded to AWS while `make sam-sync` is running allowing you to quickly test any changes you make
 
 ### Pre-commit hooks
 
-Some pre-commit hooks are installed as part of the install above to ensure you can't commit invalid spec changes by accident and to run basic lint checks.  
-The pre-commit hook uses python package pre-commit and is configured in the file .pre-commit-config.yaml.  
+Some pre-commit hooks are installed as part of the install above to ensure you can't commit invalid spec changes by accident and to run basic lint checks.
+The pre-commit hook uses python package pre-commit and is configured in the file .pre-commit-config.yaml.
 A combination of these checks are also run in CI.
 
 ### Make commands
@@ -48,14 +137,19 @@ There are `make` commands that are run as part of the CI pipeline and help alias
 
 These are used to do common commands
 
-- `sam-build` -- Prepares the lambdas and SAM definiton file to be used in subsequent steps
-- `sam-run-local` -- Run the API and lambdas locally
-- `sam-sync` -- Sync the API and lambda to AWS
+- `sam-build` prepares the lambdas and SAM definition file to be used in subsequent steps
+- `sam-run-local` run the API and lambdas locally
+- `sam-sync` sync the API and lambda to AWS. This keeps running and automatically uploads any changes to lambda code made locally. Needs AWS_DEFAULT_PROFILE and stack_name environment variables set.
+- `sam-deploy` deploys the compiled SAM template from sam-build to AWS. Needs AWS_DEFAULT_PROFILE and stack_name environment variables set.
+- `sam-delete` deletes the deployed SAM cloud formation stack and associated resources. Needs AWS_DEFAULT_PROFILE and stack_name environment variables set.
+- `sam-list-endpoints` lists endpoints created for the current stack. Needs AWS_DEFAULT_PROFILE and stack_name environment variables set.
+- `sam-list-resources` lists resources created for the current stack. Needs AWS_DEFAULT_PROFILE and stack_name environment variables set.
+- `sam-list-outputs` lists outputs from the current stack. Needs AWS_DEFAULT_PROFILE and stack_name environment variables set.
 
 #### Clean and deep-clean targets
 
-The clean target clears up any files that have been generated by building or testing locally.  
-The deep-clean target runs clean and also removes any node_modules and python libraries installed locally.
+- `clean` clears up any files that have been generated by building or testing locally.
+- `deep-clean` runs clean target and also removes any node_modules and python libraries installed locally.
 
 #### Linting and testing
 
@@ -65,3 +159,8 @@ The deep-clean target runs clean and also removes any node_modules and python li
 #### Check licenses
 
 - `check-licenses` checks licensces for all packages used
+
+#### CLI Login to AWS
+
+- `aws-configure` configures a connection to AWS
+- `aws-login` reconnects to AWS from a previously configured connection
