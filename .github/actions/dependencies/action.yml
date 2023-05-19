@@ -3,10 +3,8 @@ description: install dependencies
 runs:
   using: composite
   steps:
+    # - name: asdf install and plugins
     - name: asdf install and reshim
       shell: bash
       run: |
         asdf install
-        asdf reshim python
-        asdf reshim poetry
-        asdf reshim nodejs
