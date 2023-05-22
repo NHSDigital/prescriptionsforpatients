@@ -53,7 +53,7 @@ Put the following values in:
 
 ```
 SSO session name (Recommended): sso-session
-SSO start URL [None]: https://d-9c67018f89.awsapps.com/start
+SSO start URL [None]: <USE VALUE OF SSO START URL FROM AWS LOGIN COMMAND LINE ACCESS INSTRUCTIONS ACCESSED FROM https://myapps.microsoft.com>
 SSO region [None]: eu-west-2
 SSO registration scopes [sso:account:access]:
 ```
