@@ -3,11 +3,10 @@ description: install dependencies
 runs:
   using: composite
   steps:
-    # - name: asdf install and plugins
     - name: asdf install
       shell: bash
       run: |
-        whoami
-        sudo su - ubuntu
-        whoami
+        echo $PATH
+        export PATH="$PATH:$HOME/.asdf/bin/"
+        echo $PATH
         asdf install
