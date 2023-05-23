@@ -8,3 +8,4 @@ runs:
       run: |
         export PATH="$PATH:$HOME/.asdf/bin/"
         asdf install
+        asdf reshim poetry
