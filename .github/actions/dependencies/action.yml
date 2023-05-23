@@ -3,9 +3,9 @@ description: install dependencies
 runs:
   using: composite
   steps:
-    - name: asdf install
+    - name: Install asdf & plugins
       shell: bash
-      run: |
-        export PATH="$PATH:$HOME/.asdf/bin/"
-        asdf install
-        asdf reshim poetry
+      run: ./.github/scripts/install-asdf.sh
+    - name: Run asdf install
+      shell: bash
+      run: asdf install
