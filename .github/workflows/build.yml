@@ -18,6 +18,7 @@ jobs:
       - uses: ./.github/actions/dependencies/
 
       - run: make --version
+      - run: echo $PATH
       - run: poetry --version
       - run: make install
       - run: make check-licenses
