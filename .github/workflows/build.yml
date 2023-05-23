@@ -17,7 +17,8 @@ jobs:
 
       - uses: ./.github/actions/dependencies/
 
-      - run: which make
+      - run: make --version
+      - run: poetry --version
       - run: make install
       - run: make check-licenses
       - run: make lint
