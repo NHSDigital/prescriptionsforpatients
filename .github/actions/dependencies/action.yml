@@ -7,5 +7,7 @@ runs:
     - name: asdf install
       shell: bash
       run: |
+        whoami
         sudo su - ubuntu
+        whoami
         asdf install
