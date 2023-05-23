@@ -6,7 +6,5 @@ runs:
     - name: asdf install
       shell: bash
       run: |
-        echo $PATH
         export PATH="$PATH:$HOME/.asdf/bin/"
-        echo $PATH
         asdf install

@@ -15,12 +15,9 @@ jobs:
         with:
           ref: ${{ env.BRANCH_NAME }}
 
-      # remove once self-hosted runners are available
-      # - uses: ./.github/actions/temp-dependencies/
-
-      # enable once self-hosted runners are available
       - uses: ./.github/actions/dependencies/
 
+      - run: which make
       - run: make install
       - run: make check-licenses
       - run: make lint
