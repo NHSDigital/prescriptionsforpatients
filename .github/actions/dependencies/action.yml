@@ -4,7 +4,7 @@ runs:
   using: composite
   steps:
     # - name: asdf install and plugins
-    - name: asdf install and reshim
+    - name: asdf install
       shell: bash
       run: |
         asdf install
