@@ -1,4 +1,11 @@
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
+import {Logger, injectLambdaContext} from "@aws-lambda-powertools/logger"
+import middy from "@middy/core"
+import errorLogger from "@middy/error-logger"
+import inputOutputLogger from "@middy/input-output-logger"
+import errorHandler from "@schibsted/middy-error-handler"
+
+const logger = new Logger({serviceName: "authz"})
 
 /* eslint-disable  max-len */
 /**
@@ -11,21 +18,32 @@ import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
  *
  */
 
-export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  try {
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        message: "hello world"
-      })
-    }
-  } catch (err) {
-    console.log(err)
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        message: "some error happened"
-      })
-    }
+/* eslint-disable-next-line  @typescript-eslint/no-unused-vars */
+const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  logger.info("hello world from authz logger")
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify({
+      message: "hello world from authz lambda"
+    })
   }
 }
+
+export const handler = middy(lambdaHandler)
+  .use(injectLambdaContext(logger))
+  .use(
+    inputOutputLogger({
+      logger: (request) => {
+        logger.info(request)
+      }
+    })
+  )
+  .use(
+    errorLogger({
+      logger: (request) => {
+        logger.error(request)
+      }
+    })
+  )
+  .use(errorHandler({logger}))

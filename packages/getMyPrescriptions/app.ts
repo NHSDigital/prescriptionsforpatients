@@ -1,4 +1,11 @@
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
+import {Logger, injectLambdaContext} from "@aws-lambda-powertools/logger"
+import middy from "@middy/core"
+import errorLogger from "@middy/error-logger"
+import inputOutputLogger from "@middy/input-output-logger"
+import errorHandler from "@schibsted/middy-error-handler"
+
+const logger = new Logger({serviceName: "getMyPrescriptions"})
 
 /* eslint-disable  max-len */
 
@@ -12,21 +19,50 @@ import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
  *
  */
 
-export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  try {
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        message: "hello world"
-      })
+const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  logger.info("hello world from getMyPrescriptions logger")
+
+  const returnType = event.queryStringParameters?.returnType
+  logger.info({message: "value of returnType", returnType})
+  switch (returnType) {
+    case "teapot": {
+      return {
+        statusCode: 418,
+        body: JSON.stringify({
+          message: "I am a teapot short and stout"
+        })
+      }
+      break
     }
-  } catch (err) {
-    console.log(err)
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        message: "some error happened"
-      })
+    case "error": {
+      throw Error("error running lambda")
+      break
+    }
+    default: {
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          message: "hello world from getMyPrescriptions lambda"
+        })
+      }
     }
   }
 }
+
+export const handler = middy(lambdaHandler)
+  .use(injectLambdaContext(logger))
+  .use(
+    inputOutputLogger({
+      logger: (request) => {
+        logger.info(request)
+      }
+    })
+  )
+  .use(
+    errorLogger({
+      logger: (request) => {
+        logger.error(request)
+      }
+    })
+  )
+  .use(errorHandler({logger}))

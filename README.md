@@ -145,6 +145,7 @@ These are used to do common commands
 - `sam-list-endpoints` lists endpoints created for the current stack. Needs AWS_DEFAULT_PROFILE and stack_name environment variables set.
 - `sam-list-resources` lists resources created for the current stack. Needs AWS_DEFAULT_PROFILE and stack_name environment variables set.
 - `sam-list-outputs` lists outputs from the current stack. Needs AWS_DEFAULT_PROFILE and stack_name environment variables set.
+- `sam-validate` validates the SAM template.
 
 #### Clean and deep-clean targets
 

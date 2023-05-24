@@ -7,11 +7,17 @@
   "license": "MIT",
   "scripts": {
     "unit": "jest",
-    "lint": "eslint '*.ts' --quiet --fix",
+    "lint": "eslint . --ext .ts --max-warnings 0 --fix",
     "compile": "tsc",
     "test": "npm run compile && npm run unit",
     "check-licenses": "license-checker --failOn GPL --failOn LGPL --start ../.."
   },
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    "@aws-lambda-powertools/commons": "^1.8.0",
+    "@aws-lambda-powertools/logger": "^1.8.0",
+    "@middy/core": "^4.4.3",
+    "@middy/error-logger": "^4.4.3",
+    "@middy/input-output-logger": "^4.4.3",
+    "@schibsted/middy-error-handler": "^4.2.2"
+  }
 }

@@ -1,6 +1,25 @@
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
-import {lambdaHandler} from "../../app"
+import {handler} from "../../app"
 import {expect, describe, it} from "@jest/globals"
+import {Context} from "aws-lambda"
+
+const sampleContext: Context = {
+  callbackWaitsForEmptyEventLoop: true,
+  functionName: "",
+  functionVersion: "",
+  invokedFunctionArn: "",
+  memoryLimitInMB: "234",
+  awsRequestId: "",
+  logGroupName: "",
+  logStreamName: "",
+  getRemainingTimeInMillis: (): number => 1,
+  /* eslint-disable-next-line  @typescript-eslint/no-empty-function */
+  done: () => {},
+  /* eslint-disable-next-line  @typescript-eslint/no-empty-function */
+  fail: () => {},
+  /* eslint-disable-next-line  @typescript-eslint/no-empty-function */
+  succeed: () => {}
+}
 
 describe("Unit test for app handler", function () {
   it("verifies successful response", async () => {
@@ -53,12 +72,12 @@ describe("Unit test for app handler", function () {
       resource: "",
       stageVariables: {}
     }
-    const result: APIGatewayProxyResult = await lambdaHandler(event)
+    const result: APIGatewayProxyResult = (await handler(event, sampleContext)) as APIGatewayProxyResult
 
     expect(result.statusCode).toEqual(200)
     expect(result.body).toEqual(
       JSON.stringify({
-        message: "hello world"
+        message: "hello world from authz lambda"
       })
     )
   })

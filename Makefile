@@ -41,6 +41,30 @@ sam-list-resources: guard-AWS_DEFAULT_PROFILE guard-stack_name
 sam-list-outputs: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam list stack-outputs --stack-name $$stack_name
 
+sam-validate: 
+	sam validate
+
+sam-package: sam-validate guard-artifact-bucket guard-artifact-bucket-prefix
+	sam package \
+		--template-file template.yaml \
+		--output-template-file packaged-service.yml \
+		--s3-bucket $$artifact-bucket \
+		--config-file samconfig_package_and_deploy.toml \
+		--s3-prefix $$artifact-bucket-prefix
+	aws s3 cp packaged-service.yml s3://$$artifact-bucket/$$artifact-bucket-prefix
+
+sam-deploy-package: guard-artifact-bucket guard-artifact-bucket-prefix guard-stack-name
+	aws s3 cp s3://$$artifact-bucket/$$artifact-bucket-prefix/packaged-service.yml .
+	sam deploy \
+		packaged-service.yml \
+		--stack-name $$stack-name \
+		--capabilities CAPABILITY_NAMED_IAM \
+		--region eu-west-2 \
+		--s3-bucket $$artifact-bucket \
+		--s3-prefix $$artifact-bucket-prefix
+		--config-file samconfig_package_and_deploy.toml \
+		--no-fail-on-empty-changeset
+
 lint:
 	npm run lint --workspace packages/authz
 	npm run lint --workspace packages/getMyPrescriptions
