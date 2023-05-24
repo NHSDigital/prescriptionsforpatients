@@ -11,5 +11,3 @@ runs:
       run: |
         PATH="$PATH:$HOME/.asdf/bin/"
         asdf install
-        export PATH="/home/ubuntu/.asdf/installs/poetry/1.3.1/bin:$PATH"
-        echo $PATH
