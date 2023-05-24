@@ -9,6 +9,4 @@ runs:
     - name: Run asdf install
       shell: bash
       run: |
-        echo "$HOME/.asdf/bin/" >> $GITHUB_PATH
-        echo $PATH
         asdf install
