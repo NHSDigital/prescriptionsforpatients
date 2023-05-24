@@ -15,14 +15,8 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: ${{ env.BRANCH_NAME }}
-
-      # remove once self-hosted runners are available
-      - uses: ./.github/actions/temp-dependencies/
-      
-      # enable once self-hosted runners are available
-      # - name: dependencies
-      #   uses: ./.github/actions/dependencies/
-
+      - uses: ./.github/actions/fix-path/
+      - uses: ./.github/actions/dependencies/
       - run: make install
       - run: make check-licenses
       - run: make lint
