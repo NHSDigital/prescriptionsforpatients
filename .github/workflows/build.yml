@@ -17,6 +17,9 @@ jobs:
       - run: ./.github/scripts/fix-path.sh
         shell: bash
       - uses: ./.github/actions/dependencies/
+      - run: |
+          echo $PATH
+          poetry --version
       - run: make install
       - run: make check-licenses
       - run: make lint
