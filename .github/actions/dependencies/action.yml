@@ -8,5 +8,4 @@ runs:
       run: ./.github/scripts/install-asdf.sh
     - name: Run asdf install
       shell: bash
-      run: |
-        asdf install
+      run: asdf install

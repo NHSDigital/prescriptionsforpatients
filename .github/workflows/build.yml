@@ -15,7 +15,6 @@ jobs:
         with:
           ref: ${{ env.BRANCH_NAME }}
       - run: ./.github/scripts/fix-path.sh
-        shell: bash
       - uses: ./.github/actions/dependencies/
       - run: make install
       - run: make check-licenses
