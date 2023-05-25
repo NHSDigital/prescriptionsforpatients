@@ -44,26 +44,25 @@ sam-list-outputs: guard-AWS_DEFAULT_PROFILE guard-stack_name
 sam-validate: 
 	sam validate
 
-sam-package: sam-validate guard-artifact-bucket guard-artifact-bucket-prefix
+sam-package: sam-validate guard-artifact_bucket guard-artifact_bucket_prefix guard-template_file
 	sam package \
 		--template-file template.yaml \
-		--output-template-file packaged-service.yml \
-		--s3-bucket $$artifact-bucket \
+		--output-template-file $$template_file \
+		--s3-bucket $$artifact_bucket \
 		--config-file samconfig_package_and_deploy.toml \
-		--s3-prefix $$artifact-bucket-prefix
-	aws s3 cp packaged-service.yml s3://$$artifact-bucket/$$artifact-bucket-prefix
+		--s3-prefix $$artifact_bucket_prefix
 
-sam-deploy-package: guard-artifact-bucket guard-artifact-bucket-prefix guard-stack-name
-	aws s3 cp s3://$$artifact-bucket/$$artifact-bucket-prefix/packaged-service.yml .
+sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role
 	sam deploy \
-		packaged-service.yml \
-		--stack-name $$stack-name \
+		$$template_file \
+		--stack-name $$stack_name \
 		--capabilities CAPABILITY_NAMED_IAM \
 		--region eu-west-2 \
-		--s3-bucket $$artifact-bucket \
-		--s3-prefix $$artifact-bucket-prefix
+		--s3-bucket $$artifact_bucket \
+		--s3-prefix $$artifact_bucket_prefix \
 		--config-file samconfig_package_and_deploy.toml \
-		--no-fail-on-empty-changeset
+		--no-fail-on-empty-changeset \
+		--role-arn $$cloud_formation_execution_role
 
 lint:
 	npm run lint --workspace packages/authz

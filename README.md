@@ -146,6 +146,16 @@ These are used to do common commands
 - `sam-list-resources` lists resources created for the current stack. Needs AWS_DEFAULT_PROFILE and stack_name environment variables set.
 - `sam-list-outputs` lists outputs from the current stack. Needs AWS_DEFAULT_PROFILE and stack_name environment variables set.
 - `sam-validate` validates the SAM template.
+- `sam-package` packages the SAM application and uploads to S3 for use in sam-deploy-package target. Needs the following environment variables set
+  - artifact_bucket - bucket to upload packaged files to
+  - artifact_bucket_prefix - prefix to use in the bucket when uploading files
+  - template_file - name of template file to output that can be used in sam-deploy-package
+- `sam-deploy-package` deploys a package created by sam-package. Needs the following environment variables set
+  - artifact_bucket - bucket where uploaded packaged files are
+  - artifact_bucket_prefix - prefix in bucket of where uploaded packaged files ore
+  - stack_name - name of stack to deploy
+  - template_file - name of template file created by sam-package
+  - cloud_formation_execution_role - ARN of role that cloud formation assumes when applying the changeset
 
 #### Clean and deep-clean targets
 
