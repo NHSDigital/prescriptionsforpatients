@@ -18,6 +18,7 @@ jobs:
           ref: ${{ env.BRANCH_NAME }}
       - name: Install asdf dependencies
         uses: asdf-vm/actions/install@v2
+      - run: asdf --version
       - run: make install
       - run: make check-licenses
       - run: make lint
