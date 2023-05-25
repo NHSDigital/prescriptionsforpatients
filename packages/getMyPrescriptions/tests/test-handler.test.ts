@@ -1,25 +1,9 @@
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
 import {handler} from "../src/app"
 import {expect, describe, it} from "@jest/globals"
-import {Context} from "aws-lambda"
+import {ContextExamples} from "@aws-lambda-powertools/commons"
 
-const sampleContext: Context = {
-  callbackWaitsForEmptyEventLoop: true,
-  functionName: "",
-  functionVersion: "",
-  invokedFunctionArn: "",
-  memoryLimitInMB: "234",
-  awsRequestId: "",
-  logGroupName: "",
-  logStreamName: "",
-  getRemainingTimeInMillis: (): number => 1,
-  /* eslint-disable-next-line  @typescript-eslint/no-empty-function */
-  done: () => {},
-  /* eslint-disable-next-line  @typescript-eslint/no-empty-function */
-  fail: () => {},
-  /* eslint-disable-next-line  @typescript-eslint/no-empty-function */
-  succeed: () => {}
-}
+const dummyContext = ContextExamples.helloworldContext
 
 describe("Unit test for app handler", function () {
   it("verifies successful response with no params", async () => {
@@ -72,7 +56,7 @@ describe("Unit test for app handler", function () {
       resource: "",
       stageVariables: {}
     }
-    const result: APIGatewayProxyResult = (await handler(event, sampleContext)) as APIGatewayProxyResult
+    const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
     expect(result.statusCode).toEqual(200)
     expect(result.body).toEqual(
@@ -134,7 +118,7 @@ describe("Unit test for app handler", function () {
       resource: "",
       stageVariables: {}
     }
-    const result: APIGatewayProxyResult = (await handler(event, sampleContext)) as APIGatewayProxyResult
+    const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
     expect(result.statusCode).toEqual(418)
     expect(result.body).toEqual(
@@ -196,7 +180,7 @@ describe("Unit test for app handler", function () {
       resource: "",
       stageVariables: {}
     }
-    const result: APIGatewayProxyResult = (await handler(event, sampleContext)) as APIGatewayProxyResult
+    const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
     expect(result.statusCode).toEqual(500)
     expect(result.body).toEqual(
