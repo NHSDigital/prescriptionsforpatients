@@ -1,5 +1,5 @@
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
-import {handler} from "../../app"
+import {handler} from "../src/app"
 import {expect, describe, it} from "@jest/globals"
 import {Context} from "aws-lambda"
 

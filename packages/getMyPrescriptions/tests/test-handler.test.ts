@@ -1,5 +1,5 @@
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
-import {handler} from "../../app"
+import {handler} from "../src/app"
 import {expect, describe, it} from "@jest/globals"
 import {Context} from "aws-lambda"
 
@@ -201,7 +201,7 @@ describe("Unit test for app handler", function () {
     expect(result.statusCode).toEqual(500)
     expect(result.body).toEqual(
       JSON.stringify({
-        message: "error running lambda"
+        message: "System problem"
       })
     )
   })
