@@ -12,11 +12,12 @@ jobs:
   quality-checks:
     runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
         with:
           ref: ${{ env.BRANCH_NAME }}
-      - uses: ./.github/actions/fix-path/
-      - uses: ./.github/actions/dependencies/
+      - name: Install asdf dependencies
+        uses: asdf-vm/actions/install@v2
       - run: make install
       - run: make check-licenses
       - run: make lint

@@ -41,7 +41,8 @@
         "redhat.vscode-xml",
         "streetsidesoftware.code-spell-checker",
         "timonwong.shellcheck",
-        "mkhl.direnv"
+        "mkhl.direnv",
+        "github.vscode-github-actions"
       ],
       "settings": {
         "python.defaultInterpreterPath": "/workspaces/prescriptions-api/.venv/bin/python",
