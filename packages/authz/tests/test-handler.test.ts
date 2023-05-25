@@ -1,6 +1,9 @@
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
-import {lambdaHandler} from "../../app"
+import {handler} from "../src/app"
 import {expect, describe, it} from "@jest/globals"
+import {ContextExamples} from "@aws-lambda-powertools/commons"
+
+const dummyContext = ContextExamples.helloworldContext
 
 describe("Unit test for app handler", function () {
   it("verifies successful response", async () => {
@@ -53,12 +56,12 @@ describe("Unit test for app handler", function () {
       resource: "",
       stageVariables: {}
     }
-    const result: APIGatewayProxyResult = await lambdaHandler(event)
+    const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
     expect(result.statusCode).toEqual(200)
     expect(result.body).toEqual(
       JSON.stringify({
-        message: "hello world"
+        message: "hello world from authz lambda"
       })
     )
   })

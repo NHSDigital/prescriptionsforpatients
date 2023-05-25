@@ -118,8 +118,8 @@ Resources:
   AuthzFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: packages/authz/
-      Handler: app.lambdaHandler
+      CodeUri: packages/authz/src
+      Handler: app.handler
       Runtime: nodejs18.x
       Role: !GetAtt AuthzFunctionRole.Arn
       Architectures:
@@ -127,6 +127,7 @@ Resources:
       Environment:
         Variables:
           EndpointUrl: !Ref EndpointUrl
+          NODE_OPTIONS: --enable-source-maps
       Events:
         authz:
           Type: Api
@@ -165,8 +166,8 @@ Resources:
               - logs:CreateLogStream
               - logs:PutLogEvents
             Resource:
-              - !Sub "arn:aws:logs:${AWS::Region}::${AWS::AccountId}:log-group:${GetMyPrescriptionsLogGroup}"
-              - !Sub "arn:aws:logs:${AWS::Region}::${AWS::AccountId}:log-group:${GetMyPrescriptionsLogGroup}:log-stream:*"
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${GetMyPrescriptionsLogGroup}"
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${GetMyPrescriptionsLogGroup}:log-stream:*"
       Roles:
         - !Ref GetMyPrescriptionsRole
   GetMyPrescriptionsKMSPolicy:
@@ -195,8 +196,8 @@ Resources:
   GetMyPrescriptions:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: packages/getMyPrescriptions
-      Handler: app.lambdaHandler
+      CodeUri: packages/getMyPrescriptions/src
+      Handler: app.handler
       Runtime: nodejs18.x
       Role: !GetAtt GetMyPrescriptionsRole.Arn
       Architectures:
@@ -204,12 +205,16 @@ Resources:
       Environment:
         Variables:
           EndpointUrl: !Ref EndpointUrl
+          NODE_OPTIONS: --enable-source-maps
       Events:
         authz:
           Type: Api
           Properties:
             Path: /getMyPrescriptions
             Method: get
+            RequestParameters:
+              - method.request.querystring.returnType:
+                  Required: false
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
       BuildProperties:
