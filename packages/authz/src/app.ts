@@ -1,9 +1,8 @@
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
 import {Logger, injectLambdaContext} from "@aws-lambda-powertools/logger"
 import middy from "@middy/core"
-import errorLogger from "@middy/error-logger"
 import inputOutputLogger from "@middy/input-output-logger"
-import httpErrorHandler from "@middy/http-error-handler"
+import errorHandler from "@schibsted/middy-error-handler"
 
 const logger = new Logger({serviceName: "authz"})
 
@@ -39,20 +38,4 @@ export const handler = middy(lambdaHandler)
       }
     })
   )
-  .use(
-    errorLogger({
-      logger: (request) => {
-        logger.error(request)
-      }
-    })
-  )
-  .use(
-    httpErrorHandler({
-      logger: (request) => {
-        logger.error(request)
-      },
-      fallbackMessage: JSON.stringify({
-        message: "System problem"
-      })
-    })
-  )
+  .use(errorHandler({logger}))
