@@ -19,7 +19,6 @@ jobs:
         run: rm -rf ~/.asdf
       - name: Install asdf and dependencies
         uses: asdf-vm/actions/install@v2
-      - run: asdf --version
       - run: make install
       - run: make check-licenses
       - run: make lint
