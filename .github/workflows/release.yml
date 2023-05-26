@@ -2,7 +2,7 @@ name: release
 
 on:
   push:
-    branches: ['main']
+    branches: [main]
     tags: [v**]
 
 env:
@@ -10,20 +10,16 @@ env:
 
 jobs:
   quality-checks:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-      # remove once self-hosted runners are available
-      - uses: ./.github/actions/temp-dependencies/
-      
-      # enable once self-hosted runners are available
-      # - name: dependencies
-      #   uses: ./.github/actions/dependencies/
-
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
         with:
           ref: ${{ env.BRANCH_NAME }}
-        env:
-          POETRY_VIRTUALENVS_CREATE: false
+      - name: Remove existing asdf
+        run: rm -rf ~/.asdf
+      - name: Install asdf and dependencies
+        uses: asdf-vm/actions/install@v2
       - run: make install
       - run: make check-licenses
       - run: make lint
