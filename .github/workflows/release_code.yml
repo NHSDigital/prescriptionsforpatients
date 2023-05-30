@@ -25,11 +25,11 @@ jobs:
         with:
           ref: ${{ env.BRANCH_NAME }}
 
-      - name: Install asdf and dependencies
-        uses: asdf-vm/actions/install@v2
+      #     - name: Install asdf and dependencies
+      #       uses: asdf-vm/actions/install@v2
 
-      - name: make install
-        run: make install
+      #     - name: make install
+      #       run: make install
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
