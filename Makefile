@@ -55,7 +55,7 @@ sam-package: sam-validate guard-artifact_bucket guard-artifact_bucket_prefix gua
 
 sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role
 	sam deploy \
-		$$template_file \
+		--template-file $$template_file \
 		--stack-name $$stack_name \
 		--capabilities CAPABILITY_NAMED_IAM \
 		--region eu-west-2 \
