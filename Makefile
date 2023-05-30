@@ -50,7 +50,8 @@ sam-package: sam-validate guard-artifact_bucket guard-artifact_bucket_prefix gua
 		--output-template-file $$template_file \
 		--s3-bucket $$artifact_bucket \
 		--config-file samconfig_package_and_deploy.toml \
-		--s3-prefix $$artifact_bucket_prefix
+		--s3-prefix $$artifact_bucket_prefix \
+		--force-upload
 
 sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role
 	sam deploy \
