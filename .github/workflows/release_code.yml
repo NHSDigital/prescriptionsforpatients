@@ -14,7 +14,7 @@ on:
         type: string
 
 jobs:
-  package_release:
+  release_code:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
