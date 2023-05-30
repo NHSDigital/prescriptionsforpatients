@@ -1,4 +1,4 @@
-name: release
+name: release workflow
 
 on:
   push:
@@ -9,18 +9,135 @@ env:
   BRANCH_NAME: ${{ github.event.ref.BRANCH_NAME }}
 
 jobs:
-  quality-checks:
-    runs-on: self-hosted
+  quality_checks:
+    uses: ./.github/workflows/quality_checks.yml
+
+  tag_release:
+    needs: quality_checks
+    runs-on: ubuntu-latest
+    outputs:
+        spec_version: ${{steps.output_spec_version.outputs.SPEC_VERSION}}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ env.BRANCH_NAME }}
-      - name: Remove existing asdf
-        run: rm -rf ~/.asdf
-      - name: Install asdf and dependencies
-        uses: asdf-vm/actions/install@v2
-      - run: make install
-      - run: make check-licenses
-      - run: make lint
-      - run: make test
+        - name: Checkout code
+          uses: actions/checkout@v3
+          with:
+            ref: ${{ env.BRANCH_NAME }}
+            fetch-depth: 0
+
+        - name: Install asdf and dependencies
+          uses: asdf-vm/actions/install@v2
+        - name: Install python packages
+          run: poetry install
+        - name: Set SPEC_VERSION env var for merges to main
+          run: echo "SPEC_VERSION=$(poetry run python scripts/calculate_version.py)" >> $GITHUB_ENV
+          if: github.ref == 'refs/heads/main'
+
+        - name: Set SPEC_VERSION env var for tags
+          run: echo "SPEC_VERSION=${{  github.ref_name }}" >> $GITHUB_ENV
+          if: github.ref != 'refs/heads/main'
+
+        - name: Create release (tags and main)
+          id: create-release
+          uses: actions/create-release@v1
+          continue-on-error: true
+          env:
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+              tag_name: ${{ env.SPEC_VERSION }}
+              release_name: ${{ env.SPEC_VERSION }}
+
+        - name: output SPEC_VERSION
+          id: output_spec_version
+          run: echo SPEC_VERSION=${{ env.SPEC_VERSION }} >> $GITHUB_OUTPUT
+
+  package_dev_code:
+    needs: tag_release
+    uses: ./.github/workflows/sam_package_code.yml
+    with:
+      TEMPLATE_FILE: dev-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      CLOUD_FORMATION_DEPLOY_ROLE: vars_DEV_CLOUD_FORMATION_DEPLOY_ROLE
+          
+  package_ref_code:
+    needs: tag_release
+    uses: ./.github/workflows/sam_package_code.yml
+    with:
+      TEMPLATE_FILE: ref-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      CLOUD_FORMATION_DEPLOY_ROLE: vars_REF_CLOUD_FORMATION_DEPLOY_ROLE
+    
+  package_qa_code:
+    needs: tag_release
+    uses: ./.github/workflows/sam_package_code.yml
+    with:
+      TEMPLATE_FILE: qa-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      CLOUD_FORMATION_DEPLOY_ROLE: vars_QA_CLOUD_FORMATION_DEPLOY_ROLE
+
+  package_int_code:
+    needs: tag_release
+    uses: ./.github/workflows/sam_package_code.yml
+    with:
+      TEMPLATE_FILE: int-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      CLOUD_FORMATION_DEPLOY_ROLE: vars_INT_CLOUD_FORMATION_DEPLOY_ROLE
+          
+  package_prod_code:
+    needs: tag_release
+    uses: ./.github/workflows/sam_package_code.yml
+    with:
+      TEMPLATE_FILE: prod-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      CLOUD_FORMATION_DEPLOY_ROLE: vars_PROD_CLOUD_FORMATION_DEPLOY_ROLE
+    
+
+  release_dev:
+    needs: [tag_release, package_dev_code]
+    uses: ./.github/workflows/sam_release_code.yml
+    with:
+      TEMPLATE_FILE: dev-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      STACK_NAME: dev-ci
+      CLOUD_FORMATION_DEPLOY_ROLE: vars_DEV_CLOUD_FORMATION_DEPLOY_ROLE
+      TARGET_ENVIRONMENT: dev
+      
+  release_ref:
+    needs: [tag_release, release_dev, package_ref_code]
+    uses: ./.github/workflows/sam_release_code.yml
+    with:
+      TEMPLATE_FILE: ref-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      STACK_NAME: ref-ci
+      CLOUD_FORMATION_DEPLOY_ROLE: vars_REF_CLOUD_FORMATION_DEPLOY_ROLE
+      TARGET_ENVIRONMENT: ref
+
+  release_qa:
+    needs: [tag_release, release_dev, package_qa_code]
+    uses: ./.github/workflows/sam_release_code.yml
+    with:
+      TEMPLATE_FILE: qa-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      STACK_NAME: qa-ci
+      CLOUD_FORMATION_DEPLOY_ROLE: vars_REF_CLOUD_FORMATION_DEPLOY_ROLE
+      TARGET_ENVIRONMENT: qa
+
+  release_int:
+    needs: [tag_release, release_qa, package_int_code]
+    uses: ./.github/workflows/sam_release_code.yml
+    with:
+      TEMPLATE_FILE: int-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      STACK_NAME: int-ci
+      CLOUD_FORMATION_DEPLOY_ROLE: vars_INT_CLOUD_FORMATION_DEPLOY_ROLE
+      TARGET_ENVIRONMENT: int
+
+  release_prod:
+    needs: [tag_release, release_int, package_prod_code]
+    uses: ./.github/workflows/sam_release_code.yml
+    with:
+      TEMPLATE_FILE: prod-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      STACK_NAME: prod-ci
+      CLOUD_FORMATION_DEPLOY_ROLE: vars_PROD_CLOUD_FORMATION_DEPLOY_ROLE
+      TARGET_ENVIRONMENT: prod
+          
