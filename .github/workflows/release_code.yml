@@ -38,6 +38,11 @@ jobs:
           role-to-assume: ${{ inputs.CLOUD_FORMATION_DEPLOY_ROLE }}
           role-session-name: github-actions
 
+      - uses: actions/download-artifact@v3
+        name: download template_file
+        with:
+          name: ${{ inputs.TEMPLATE_FILE }}
+
       - shell: bash
         name: package code
         run: |
@@ -47,10 +52,6 @@ jobs:
             jq -r '.Exports[] | select(.Name == "dev-ci-resources:ArtifactsBucket") | .Value' |grep -o '[^:]*$')
           export artifact_bucket_prefix=${{ inputs.STACK_NAME }}
           export template_file=${{ inputs.TEMPLATE_FILE }}
-          make sam-package
-
-      - uses: actions/upload-artifact@v3
-        name: upload template_file
-        with:
-          name: ${{ inputs.TEMPLATE_FILE }}
-          path: ${{ inputs.TEMPLATE_FILE }}
+          export cloud_formation_execution_role=$(aws cloudformation list-exports --output json | \
+              jq -r '.Exports[] | select(.Name == "dev-ci-resources:CloudFormationExecutionRole") | .Value' )
+          make sam-deploy-package
