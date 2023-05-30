@@ -1,4 +1,4 @@
-name: package_release
+name: release_code
 
 on:
   workflow_call:
@@ -44,7 +44,7 @@ jobs:
           name: ${{ inputs.TEMPLATE_FILE }}
 
       - shell: bash
-        name: package code
+        name: release code
         run: |
           echo "STACK_NAME: ${{ inputs.STACK_NAME}}"
           echo "TEMPLATE_FILE: ${{ inputs.TEMPLATE_FILE}}"
@@ -52,6 +52,7 @@ jobs:
             jq -r '.Exports[] | select(.Name == "dev-ci-resources:ArtifactsBucket") | .Value' |grep -o '[^:]*$')
           export artifact_bucket_prefix=${{ inputs.STACK_NAME }}
           export template_file=${{ inputs.TEMPLATE_FILE }}
+          export stack_name=${{ inputs.STACK_NAME }}
           export cloud_formation_execution_role=$(aws cloudformation list-exports --output json | \
               jq -r '.Exports[] | select(.Name == "dev-ci-resources:CloudFormationExecutionRole") | .Value' )
           make sam-deploy-package

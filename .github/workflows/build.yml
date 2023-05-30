@@ -46,7 +46,7 @@ jobs:
       STACK_NAME: PR-${{needs.get_issue_number.outputs.issue_number}}
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ vars.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
 
-  release-code:
+  release_code:
     needs: [get_issue_number, package_code]
     uses: ./.github/workflows/release_code.yml
     with:
