@@ -9,6 +9,9 @@ on:
       STACK_NAME:
         required: true
         type: string
+      ARTIFACT_BUCKET_PREFIX:
+          required: true
+          type: string
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
         type: string
@@ -49,7 +52,7 @@ jobs:
           echo "TARGET_ENVIRONMENT: ${{ inputs.TARGET_ENVIRONMENT}}"
           export artifact_bucket=$(aws cloudformation list-exports --output json | \
             jq -r '.Exports[] | select(.Name == "dev-ci-resources:ArtifactsBucket") | .Value' |grep -o '[^:]*$')
-          export artifact_bucket_prefix=${{ inputs.STACK_NAME }}
+          export artifact_bucket_prefix=${{ inputs.ARTIFACT_BUCKET_PREFIX }}
           export template_file=${{ inputs.TEMPLATE_FILE }}
           export stack_name=${{ inputs.STACK_NAME }}
           export cloud_formation_execution_role=$(aws cloudformation list-exports --output json | \

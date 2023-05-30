@@ -43,7 +43,7 @@ jobs:
     uses: ./.github/workflows/package_code.yml
     with:
       TEMPLATE_FILE: PR-${{needs.get_issue_number.outputs.issue_number}}-deploy.yaml
-      STACK_NAME: PR-${{needs.get_issue_number.outputs.issue_number}}
+      ARTIFACT_BUCKET_PREFIX: PR-${{needs.get_issue_number.outputs.issue_number}}
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ vars.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
 
   release_code:
@@ -52,5 +52,6 @@ jobs:
     with:
       TEMPLATE_FILE: PR-${{needs.get_issue_number.outputs.issue_number}}-deploy.yaml
       STACK_NAME: PR-${{needs.get_issue_number.outputs.issue_number}}
+      ARTIFACT_BUCKET_PREFIX: PR-${{needs.get_issue_number.outputs.issue_number}}
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ vars.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_ENVIRONMENT: dev-pr

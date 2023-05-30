@@ -6,7 +6,7 @@ on:
       TEMPLATE_FILE:
         required: true
         type: string
-      STACK_NAME:
+      ARTIFACT_BUCKET_PREFIX:
         required: true
         type: string
       CLOUD_FORMATION_DEPLOY_ROLE:
@@ -41,11 +41,9 @@ jobs:
       - shell: bash
         name: package code
         run: |
-          echo "STACK_NAME: ${{ inputs.STACK_NAME}}"
-          echo "TEMPLATE_FILE: ${{ inputs.TEMPLATE_FILE}}"
           export artifact_bucket=$(aws cloudformation list-exports --output json | \
             jq -r '.Exports[] | select(.Name == "dev-ci-resources:ArtifactsBucket") | .Value' |grep -o '[^:]*$')
-          export artifact_bucket_prefix=${{ inputs.STACK_NAME }}
+          export artifact_bucket_prefix=${{ inputs.ARTIFACT_BUCKET_PREFIX }}
           export template_file=${{ inputs.TEMPLATE_FILE }}
           make sam-package
 
