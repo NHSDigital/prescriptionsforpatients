@@ -9,6 +9,9 @@ on:
       STACK_NAME:
         required: true
         type: string
+      CLOUD_FORMATION_DEPLOY_ROLE:
+        required: true
+        type: string
 
 jobs:
   package_release:
@@ -32,7 +35,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: eu-west-2
-          role-to-assume: ${{ vars.CLOUD_FORMATION_DEPLOY_ROLE }}
+          role-to-assume: ${{ inputs.CLOUD_FORMATION_DEPLOY_ROLE }}
           role-session-name: github-actions
 
       - uses: actions/github-script@v6

@@ -5,10 +5,6 @@ on: workflow_call
 jobs:
   quality-checks:
     runs-on: ubuntu-latest
-    environment: dev
-    permissions:
-      id-token: write
-      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
