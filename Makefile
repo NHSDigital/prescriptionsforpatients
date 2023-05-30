@@ -44,19 +44,6 @@ sam-list-outputs: guard-AWS_DEFAULT_PROFILE guard-stack_name
 sam-validate: 
 	sam validate
 
-sam-deploy-PR: sam-validate guard-AWS_PROFILE guard-stack_name guard-artifact_bucket guard-artifact_bucket_prefix guard-cloud_formation_execution_role
-	sam deploy \
-		--template-file template.yaml \
-		--stack-name $$stack_name \
-		--s3-bucket $$artifact_bucket \
-		--s3-prefix $$artifact_bucket_prefix \
-		--capabilities CAPABILITY_NAMED_IAM \
-		--config-file samconfig_package_and_deploy.toml \
-		--region eu-west-2 \
-		--no-fail-on-empty-changeset \
-		--role-arn $$cloud_formation_execution_role
-
-
 sam-package: sam-validate guard-artifact_bucket guard-artifact_bucket_prefix guard-template_file
 	sam package \
 		--template-file template.yaml \
