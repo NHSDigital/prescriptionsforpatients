@@ -1,0 +1,31 @@
+name: quality checks
+
+on: workflow_call
+
+jobs:
+  quality-checks:
+    runs-on: ubuntu-latest
+    environment: dev
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.BRANCH_NAME }}
+
+      - name: Install asdf and dependencies
+        uses: asdf-vm/actions/install@v2
+
+      - name: make install
+        run: make install
+
+      - name: run check-licenses
+        run: make check-licenses
+
+      - name: run lint
+        run: make lint
+
+      - name: run unit tests
+        run: make test

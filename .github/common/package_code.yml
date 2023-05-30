@@ -1,0 +1,69 @@
+name: package_release
+
+on:
+  workflow_call:
+    inputs:
+      TEMPLATE_FILE:
+        required: true
+        type: string
+      STACK_NAME:
+        required: true
+        type: string
+
+jobs:
+  package_release:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.BRANCH_NAME }}
+
+      - name: Install asdf and dependencies
+        uses: asdf-vm/actions/install@v2
+
+      - name: make install
+        run: make install
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: eu-west-2
+          role-to-assume: ${{ vars.CLOUD_FORMATION_DEPLOY_ROLE }}
+          role-session-name: github-actions
+
+      - uses: actions/github-script@v6
+        name: get issue number
+        id: get_issue_number
+        with:
+          script: |
+            if (context.issue.number) {
+              // Return issue number if present
+              return context.issue.number;
+            } else {
+              // Otherwise return issue number from commit
+              return (
+                await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                  commit_sha: context.sha,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                })
+              ).data[0].number;
+            }
+          result-encoding: string
+
+      - shell: bash
+        name: deploy code
+        env:
+          PULL_REQUEST_ID: ${{steps.get_issue_number.outputs.result}}
+        run: |
+          artifact_bucket=$(aws cloudformation list-exports --output json | \
+            jq -r '.Exports[] | select(.Name == "dev-ci-resources:ArtifactsBucket") | .Value' |grep -o '[^:]*$')
+          artifact_bucket_prefix=${{ inputs.STACK_NAME }}
+          template_file=${{ inputs.TEMPLATE_FILE }}
+          cloud_formation_execution_role=$(aws cloudformation list-exports --output json | \
+              jq -r '.Exports[] | select(.Name == "dev-ci-resources:CloudFormationExecutionRole") | .Value' )
+          make sam-deploy-PR

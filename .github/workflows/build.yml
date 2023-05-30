@@ -8,40 +8,16 @@ env:
   BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
 
 jobs:
-  quality-checks:
+  quality_checks:
+    uses: ./.github/common/quality_checks.yml
+
+  get_issue_number:
     runs-on: ubuntu-latest
-    environment: dev
-    permissions:
-      id-token: write
-      contents: read
+    needs: quality_checks
+    outputs:
+      issue_number: ${{steps.get_issue_number.outputs.result}}
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ env.BRANCH_NAME }}
-
-      - name: Install asdf and dependencies
-        uses: asdf-vm/actions/install@v2
-
-      - name: make install
-        run: make install
-
-      - name: run check-licenses
-        run: make check-licenses
-
-      - name: run lint
-        run: make lint
-
-      - name: run unit tests
-        run: make test
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-region: eu-west-2
-          role-to-assume: ${{ vars.CLOUD_FORMATION_DEPLOY_ROLE }}
-          role-session-name: github-actions
-
       - uses: actions/github-script@v6
         name: get issue number
         id: get_issue_number
@@ -62,16 +38,9 @@ jobs:
             }
           result-encoding: string
 
-      - shell: bash
-        name: deploy code
-        env:
-          PULL_REQUEST_ID: ${{steps.get_issue_number.outputs.result}}
-        run: |
-          artifact_bucket=$(aws cloudformation list-exports --output json | \
-            jq -r '.Exports[] | select(.Name == "dev-ci-resources:ArtifactsBucket") | .Value' |grep -o '[^:]*$')
-          artifact_bucket_prefix=PR-${PULL_REQUEST_ID}
-          template_file=dev-deploy.yaml
-          stack_name=dev-pr-${PULL_REQUEST_ID}-deployment
-          cloud_formation_execution_role=$(aws cloudformation list-exports --output json | \
-              jq -r '.Exports[] | select(.Name == "dev-ci-resources:CloudFormationExecutionRole") | .Value' )
-          make sam-deploy-PR
+  package-code:
+    needs: get_issue_number
+    uses: ./.github/common/package_code.yml
+    with:
+      TEMPLATE_FILE: PR-${{needs.get_issue_number.outputs.issue_number}}-deploy.yaml
+      STACK_NAME: PR-${{needs.get_issue_number.outputs.issue_number}}
