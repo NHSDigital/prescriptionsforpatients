@@ -38,31 +38,11 @@ jobs:
           role-to-assume: ${{ inputs.CLOUD_FORMATION_DEPLOY_ROLE }}
           role-session-name: github-actions
 
-      - uses: actions/github-script@v6
-        name: get issue number
-        id: get_issue_number
-        with:
-          script: |
-            if (context.issue.number) {
-              // Return issue number if present
-              return context.issue.number;
-            } else {
-              // Otherwise return issue number from commit
-              return (
-                await github.rest.repos.listPullRequestsAssociatedWithCommit({
-                  commit_sha: context.sha,
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                })
-              ).data[0].number;
-            }
-          result-encoding: string
-
       - shell: bash
-        name: deploy code
-        env:
-          PULL_REQUEST_ID: ${{steps.get_issue_number.outputs.result}}
+        name: package code
         run: |
+          echo "STACK_NAME: ${{ inputs.STACK_NAME}}"
+          echo "TEMPLATE_FILE: ${{ inputs.TEMPLATE_FILE}}"
           artifact_bucket=$(aws cloudformation list-exports --output json | \
             jq -r '.Exports[] | select(.Name == "dev-ci-resources:ArtifactsBucket") | .Value' |grep -o '[^:]*$')
           artifact_bucket_prefix=${{ inputs.STACK_NAME }}
