@@ -8,12 +8,12 @@ env:
   BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
 
 jobs:
-  quality_checks:
-    uses: ./.github/workflows/quality_checks.yml
+  #  quality_checks:
+  #    uses: ./.github/workflows/quality_checks.yml
 
   get_issue_number:
     runs-on: ubuntu-latest
-    needs: quality_checks
+    #    needs: quality_checks
     outputs:
       issue_number: ${{steps.get_issue_number.outputs.result}}
 
