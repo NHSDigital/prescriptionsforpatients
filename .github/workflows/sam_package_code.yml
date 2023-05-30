@@ -12,7 +12,7 @@ on:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
         type: string
-
+  
 jobs:
   package_release:
     runs-on: ubuntu-latest
@@ -42,7 +42,7 @@ jobs:
         name: package code
         run: |
           export artifact_bucket=$(aws cloudformation list-exports --output json | \
-            jq -r '.Exports[] | select(.Name == "dev-ci-resources:ArtifactsBucket") | .Value' |grep -o '[^:]*$')
+            jq -r '.Exports[] | select(.Name == "ci-resources:ArtifactsBucket") | .Value' |grep -o '[^:]*$')
           export artifact_bucket_prefix=${{ inputs.ARTIFACT_BUCKET_PREFIX }}
           export template_file=${{ inputs.TEMPLATE_FILE }}
           make sam-package
