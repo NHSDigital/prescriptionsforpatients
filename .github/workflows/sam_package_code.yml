@@ -46,9 +46,4 @@ jobs:
           export artifact_bucket_prefix=${{ inputs.ARTIFACT_BUCKET_PREFIX }}
           export template_file=${{ inputs.TEMPLATE_FILE }}
           make sam-package
-
-      - uses: actions/upload-artifact@v3
-        name: upload template_file
-        with:
-          name: ${{ inputs.TEMPLATE_FILE }}
-          path: ${{ inputs.TEMPLATE_FILE }}
+          aws s3 cp ${{ inputs.TEMPLATE_FILE }} s3://${artifact_bucket}/${artifact_bucket_prefix}/
