@@ -44,7 +44,7 @@ jobs:
     with:
       TEMPLATE_FILE: PR-${{needs.get_issue_number.outputs.issue_number}}-deploy.yaml
       ARTIFACT_BUCKET_PREFIX: PR-${{needs.get_issue_number.outputs.issue_number}}
-      CLOUD_FORMATION_DEPLOY_ROLE: ${{ vars.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      CLOUD_FORMATION_DEPLOY_ROLE_SECRET_NAME: DEV_CLOUD_FORMATION_DEPLOY_ROLE
 
   release_code:
     needs: [get_issue_number, package_code]
@@ -53,5 +53,5 @@ jobs:
       TEMPLATE_FILE: PR-${{needs.get_issue_number.outputs.issue_number}}-deploy.yaml
       STACK_NAME: PR-${{needs.get_issue_number.outputs.issue_number}}
       ARTIFACT_BUCKET_PREFIX: PR-${{needs.get_issue_number.outputs.issue_number}}
-      CLOUD_FORMATION_DEPLOY_ROLE: ${{ vars.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      CLOUD_FORMATION_DEPLOY_ROLE_SECRET_NAME: DEV_CLOUD_FORMATION_DEPLOY_ROLE
       TARGET_ENVIRONMENT: dev-pr
