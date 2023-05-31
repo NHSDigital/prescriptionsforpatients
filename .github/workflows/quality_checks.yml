@@ -12,7 +12,7 @@ jobs:
           ref: ${{ env.BRANCH_NAME }}
 
       - name: Install asdf and dependencies
-        uses: asdf-vm/actions/install@v2
+        uses: asdf-vm/actions/install@6a442392015fbbdd8b48696d41e0051b2698b2e4
 
       - name: make install
         run: make install
