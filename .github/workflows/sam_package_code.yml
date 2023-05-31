@@ -35,7 +35,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: eu-west-2
-          role-to-assume: ${{ secrets[format('{0}', inputs.CLOUD_FORMATION_DEPLOY_ROLE_SECRET_NAME)] }}
+          role-to-assume: ${{ secrets[inputs.CLOUD_FORMATION_DEPLOY_ROLE_SECRET_NAME] }}
           role-session-name: github-actions
 
       - shell: bash
