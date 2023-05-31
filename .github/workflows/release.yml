@@ -56,7 +56,7 @@ jobs:
     with:
       TEMPLATE_FILE: dev-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
-      CLOUD_FORMATION_DEPLOY_ROLE_SECRET_NAME: DEV_CLOUD_FORMATION_DEPLOY_ROLE
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
           
   package_ref_code:
     needs: tag_release
@@ -64,7 +64,7 @@ jobs:
     with:
       TEMPLATE_FILE: ref-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
-      CLOUD_FORMATION_DEPLOY_ROLE_SECRET_NAME: REF_CLOUD_FORMATION_DEPLOY_ROLE
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.REF_CLOUD_FORMATION_DEPLOY_ROLE }}
     
   package_qa_code:
     needs: tag_release
@@ -72,7 +72,7 @@ jobs:
     with:
       TEMPLATE_FILE: qa-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
-      CLOUD_FORMATION_DEPLOY_ROLE_SECRET_NAME: QA_CLOUD_FORMATION_DEPLOY_ROLE
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.QA_CLOUD_FORMATION_DEPLOY_ROLE }}
 
   package_int_code:
     needs: tag_release
@@ -80,7 +80,7 @@ jobs:
     with:
       TEMPLATE_FILE: int-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
-      CLOUD_FORMATION_DEPLOY_ROLE_SECRET_NAME: INT_CLOUD_FORMATION_DEPLOY_ROLE
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
           
   package_prod_code:
     needs: tag_release
@@ -88,7 +88,7 @@ jobs:
     with:
       TEMPLATE_FILE: prod-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
-      CLOUD_FORMATION_DEPLOY_ROLE_SECRET_NAME: PROD_CLOUD_FORMATION_DEPLOY_ROLE
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
     
 
   release_dev:
@@ -98,7 +98,7 @@ jobs:
       TEMPLATE_FILE: dev-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: dev-ci
-      CLOUD_FORMATION_DEPLOY_ROLE_SECRET_NAME: DEV_CLOUD_FORMATION_DEPLOY_ROLE
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_ENVIRONMENT: dev
       
   release_ref:
@@ -108,7 +108,7 @@ jobs:
       TEMPLATE_FILE: ref-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: ref-ci
-      CLOUD_FORMATION_DEPLOY_ROLE_SECRET_NAME: REF_CLOUD_FORMATION_DEPLOY_ROLE
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.REF_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_ENVIRONMENT: ref
 
   release_qa:
@@ -118,7 +118,7 @@ jobs:
       TEMPLATE_FILE: qa-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: qa-ci
-      CLOUD_FORMATION_DEPLOY_ROLE_SECRET_NAME: QA_CLOUD_FORMATION_DEPLOY_ROLE
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.QA_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_ENVIRONMENT: qa
 
   release_int:
@@ -128,7 +128,7 @@ jobs:
       TEMPLATE_FILE: int-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: int-ci
-      CLOUD_FORMATION_DEPLOY_ROLE_SECRET_NAME: INT_CLOUD_FORMATION_DEPLOY_ROLE
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_ENVIRONMENT: int
 
   release_prod:
@@ -138,6 +138,6 @@ jobs:
       TEMPLATE_FILE: prod-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: prod-ci
-      CLOUD_FORMATION_DEPLOY_ROLE_SECRET_NAME: PROD_CLOUD_FORMATION_DEPLOY_ROLE
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_ENVIRONMENT: prod
           

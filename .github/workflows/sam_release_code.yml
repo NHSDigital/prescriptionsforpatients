@@ -12,12 +12,12 @@ on:
       ARTIFACT_BUCKET_PREFIX:
           required: true
           type: string
-      CLOUD_FORMATION_DEPLOY_ROLE_SECRET_NAME:
-        required: true
-        type: string
       TARGET_ENVIRONMENT:
         required: true
         type: string
+    secrets:
+      CLOUD_FORMATION_DEPLOY_ROLE:
+        required: true
 
 jobs:
   release_code:
@@ -33,10 +33,10 @@ jobs:
           ref: ${{ env.BRANCH_NAME }}
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-region: eu-west-2
-          role-to-assume: ${{ secrets[inputs.CLOUD_FORMATION_DEPLOY_ROLE_SECRET_NAME] }}
+          role-to-assume: ${{ secrets.CLOUD_FORMATION_DEPLOY_ROLE }}
           role-session-name: github-actions
 
       - uses: actions/download-artifact@v3

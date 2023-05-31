@@ -11,13 +11,6 @@ jobs:
         with:
           ref: ${{ env.BRANCH_NAME }}
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-region: eu-west-2
-          role-to-assume: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
-          role-session-name: github-actions
-  
       - name: Install asdf and dependencies
         uses: asdf-vm/actions/install@v2
 
