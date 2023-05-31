@@ -12,7 +12,7 @@ on:
       ARTIFACT_BUCKET_PREFIX:
           required: true
           type: string
-      CLOUD_FORMATION_DEPLOY_ROLE:
+      CLOUD_FORMATION_DEPLOY_ROLE_SECRET_NAME:
         required: true
         type: string
       TARGET_ENVIRONMENT:
