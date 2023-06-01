@@ -3,7 +3,7 @@ name: quality checks
 on: workflow_call
 
 jobs:
-  quality-checks:
+  quality_checks:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -16,14 +16,7 @@ jobs:
         uses: asdf-vm/actions/install@6a442392015fbbdd8b48696d41e0051b2698b2e4
 
       - name: make install
-        run: |
-          which node
-          which npm
-          asdf reshim nodejs
-          which node
-          which npm
-          make install
-
+        run: make install
 
       - name: run check-licenses
         run: make check-licenses

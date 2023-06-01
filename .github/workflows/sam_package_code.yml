@@ -1,10 +1,10 @@
-name: package_release
+name: sam package code
 
 on:
   workflow_call:
 
 jobs:
-  package_release:
+  sam_package_code:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
