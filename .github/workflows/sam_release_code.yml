@@ -42,10 +42,6 @@ jobs:
           name: packaged_code
           path: build
 
-      - name: Display structure of downloaded files
-        run: ls -R
-        working-directory: build
-
       - shell: bash
         name: release code
         run: |
