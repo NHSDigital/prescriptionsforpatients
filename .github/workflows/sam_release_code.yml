@@ -24,11 +24,6 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ env.BRANCH_NAME }}
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -40,16 +35,15 @@ jobs:
         name: download build artifact
         with:
           name: packaged_code
-          path: build
+          path: .
 
       - shell: bash
         name: release code
         run: |
-          cp samconfig_package_and_deploy.toml build/
           export artifact_bucket=$(aws cloudformation list-exports --output json | \
             jq -r '.Exports[] | select(.Name == "ci-resources:ArtifactsBucket") | .Value' |grep -o '[^:]*$')
           export artifact_bucket_prefix=${{ inputs.ARTIFACT_BUCKET_PREFIX }}
-          export template_file=build/template.yaml
+          export template_file=template.yaml
           export stack_name=${{ inputs.STACK_NAME }}
           export cloud_formation_execution_role=$(aws cloudformation list-exports --output json | \
               jq -r '.Exports[] | select(.Name == "ci-resources:CloudFormationExecutionRole") | .Value' )
