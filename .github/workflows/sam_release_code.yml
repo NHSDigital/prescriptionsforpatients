@@ -7,8 +7,8 @@ on:
         required: true
         type: string
       ARTIFACT_BUCKET_PREFIX:
-          required: true
-          type: string
+        required: true
+        type: string
       TARGET_ENVIRONMENT:
         required: true
         type: string
