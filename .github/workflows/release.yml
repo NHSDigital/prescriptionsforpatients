@@ -25,7 +25,19 @@ jobs:
           fetch-depth: 0
 
       # using git commit sha for version of action to ensure we have stable version
-      - name: Install asdf and dependencies
+      - name: Install asdf
+        uses: asdf-vm/actions/setup@6a442392015fbbdd8b48696d41e0051b2698b2e4
+
+      - name: Cache asdf
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.asdf
+          key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
+          restore-keys: |
+            ${{ runner.os }}-asdf-
+
+      - name: Install asdf dependencies in .tool-versions
         uses: asdf-vm/actions/install@6a442392015fbbdd8b48696d41e0051b2698b2e4
 
       - name: Install python packages
