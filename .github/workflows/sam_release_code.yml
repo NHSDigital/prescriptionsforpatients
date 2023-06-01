@@ -52,6 +52,7 @@ jobs:
       - shell: bash
         name: release code
         run: |
+          cp samconfig_package_and_deploy.toml build/
           export artifact_bucket=$(aws cloudformation list-exports --output json | \
             jq -r '.Exports[] | select(.Name == "ci-resources:ArtifactsBucket") | .Value' |grep -o '[^:]*$')
           export artifact_bucket_prefix=${{ inputs.ARTIFACT_BUCKET_PREFIX }}
