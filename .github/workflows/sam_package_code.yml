@@ -42,9 +42,11 @@ jobs:
       - shell: bash
         name: package code
         run: |
-          export artifact_bucket=$(aws cloudformation list-exports --output json | \
-            jq -r '.Exports[] | select(.Name == "ci-resources:ArtifactsBucket") | .Value' |grep -o '[^:]*$')
-          export artifact_bucket_prefix=${{ inputs.ARTIFACT_BUCKET_PREFIX }}
-          export template_file=${{ inputs.TEMPLATE_FILE }}
-          make sam-package
-          aws s3 cp ${{ inputs.TEMPLATE_FILE }} s3://${artifact_bucket}/${artifact_bucket_prefix}/
+          rm -rf .aws-sam
+          make sam-build
+
+      - uses: actions/upload-artifact@v3
+        name: upload build artifact
+        with:
+          name: packaged_code
+          path: .aws-sam/build

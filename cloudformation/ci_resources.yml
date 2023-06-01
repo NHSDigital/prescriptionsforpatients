@@ -7,7 +7,7 @@ Parameters:
       Subject claim filter for valid tokens.
       Default allows only pull requests of the NHSDigital/prescriptions-api to assume the role.
       See https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect#example-subject-claims
-      for examples of fitlering by branch or deployment environment.
+      for examples of filtering by branch or deployment environment.
 
 Resources:
   GitHubIdentityProvider:
