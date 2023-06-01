@@ -53,57 +53,14 @@ jobs:
           id: output_spec_version
           run: echo SPEC_VERSION=${{ env.SPEC_VERSION }} >> $GITHUB_OUTPUT
 
-  package_dev_code:
+  package_code:
     needs: tag_release
     uses: ./.github/workflows/sam_package_code.yml
-    with:
-      TEMPLATE_FILE: dev-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
-    secrets:
-      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
-          
-  package_ref_code:
-    needs: tag_release
-    uses: ./.github/workflows/sam_package_code.yml
-    with:
-      TEMPLATE_FILE: ref-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
-    secrets:
-      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.REF_CLOUD_FORMATION_DEPLOY_ROLE }}
-    
-  package_qa_code:
-    needs: tag_release
-    uses: ./.github/workflows/sam_package_code.yml
-    with:
-      TEMPLATE_FILE: qa-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
-    secrets:
-      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.QA_CLOUD_FORMATION_DEPLOY_ROLE }}
-
-  package_int_code:
-    needs: tag_release
-    uses: ./.github/workflows/sam_package_code.yml
-    with:
-      TEMPLATE_FILE: int-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
-    secrets:
-      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
-          
-  package_prod_code:
-    needs: tag_release
-    uses: ./.github/workflows/sam_package_code.yml
-    with:
-      TEMPLATE_FILE: prod-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
-    secrets:
-      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
-    
 
   release_dev:
     needs: [tag_release, package_dev_code]
     uses: ./.github/workflows/sam_release_code.yml
     with:
-      TEMPLATE_FILE: dev-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: dev-ci
       TARGET_ENVIRONMENT: dev
@@ -114,7 +71,6 @@ jobs:
     needs: [tag_release, release_dev, package_ref_code]
     uses: ./.github/workflows/sam_release_code.yml
     with:
-      TEMPLATE_FILE: ref-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: ref-ci
       TARGET_ENVIRONMENT: ref
@@ -125,7 +81,6 @@ jobs:
     needs: [tag_release, release_dev, package_qa_code]
     uses: ./.github/workflows/sam_release_code.yml
     with:
-      TEMPLATE_FILE: qa-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: qa-ci
       TARGET_ENVIRONMENT: qa
@@ -136,7 +91,6 @@ jobs:
     needs: [tag_release, release_qa, package_int_code]
     uses: ./.github/workflows/sam_release_code.yml
     with:
-      TEMPLATE_FILE: int-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: int-ci
       TARGET_ENVIRONMENT: int
@@ -147,7 +101,6 @@ jobs:
     needs: [tag_release, release_int, package_prod_code]
     uses: ./.github/workflows/sam_release_code.yml
     with:
-      TEMPLATE_FILE: prod-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: prod-ci
       TARGET_ENVIRONMENT: prod

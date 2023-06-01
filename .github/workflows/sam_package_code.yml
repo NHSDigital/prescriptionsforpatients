@@ -2,16 +2,6 @@ name: package_release
 
 on:
   workflow_call:
-    inputs:
-      TEMPLATE_FILE:
-        required: true
-        type: string
-      ARTIFACT_BUCKET_PREFIX:
-        required: true
-        type: string
-    secrets:
-      CLOUD_FORMATION_DEPLOY_ROLE:
-        required: true
 
 jobs:
   package_release:
@@ -31,13 +21,6 @@ jobs:
 
       - name: make install
         run: make install
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-region: eu-west-2
-          role-to-assume: ${{ secrets.CLOUD_FORMATION_DEPLOY_ROLE }}
-          role-session-name: github-actions
 
       - shell: bash
         name: package code

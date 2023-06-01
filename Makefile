@@ -65,8 +65,7 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 		--no-fail-on-empty-changeset \
 		--role-arn $$cloud_formation_execution_role \
 		--no-confirm-changeset \
-		--force-upload \
-		--debug
+		--force-upload
 
 lint:
 	npm run lint --workspace packages/authz

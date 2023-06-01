@@ -3,9 +3,6 @@ name: release_code
 on:
   workflow_call:
     inputs:
-      TEMPLATE_FILE:
-        required: true
-        type: string
       STACK_NAME:
         required: true
         type: string
