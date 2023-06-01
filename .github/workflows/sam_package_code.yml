@@ -48,7 +48,9 @@ jobs:
       - shell: bash
         name: package code
         run: |
-          rm -rf .aws-sam
+          asdf current
+          which npm
+          cat `which npm`
           make sam-build
 
       - uses: actions/upload-artifact@v3
