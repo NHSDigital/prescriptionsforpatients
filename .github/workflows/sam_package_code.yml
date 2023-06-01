@@ -43,6 +43,7 @@ jobs:
         name: package code
         run: |
           cp .tool-versions ~/
+          export PATH=$PATH:$PWD/node_modules/.bin
           make sam-build
 
       - uses: actions/upload-artifact@v3

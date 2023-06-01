@@ -18,7 +18,7 @@ install-hooks: install-python
 	poetry run pre-commit install --install-hooks --overwrite
 
 sam-build:
-	sam build --debug
+	sam build
 
 sam-run-local: sam-build
 	sam local start-api
