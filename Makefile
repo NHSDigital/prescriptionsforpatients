@@ -17,7 +17,7 @@ install-python:
 install-hooks: install-python
 	poetry run pre-commit install --install-hooks --overwrite
 
-sam-build:
+sam-build: sam-validate
 	sam build
 
 sam-run-local: sam-build
@@ -43,15 +43,6 @@ sam-list-outputs: guard-AWS_DEFAULT_PROFILE guard-stack_name
 
 sam-validate: 
 	sam validate
-
-sam-package: sam-validate guard-artifact_bucket guard-artifact_bucket_prefix guard-template_file
-	sam package \
-		--template-file template.yaml \
-		--output-template-file $$template_file \
-		--s3-bucket $$artifact_bucket \
-		--config-file samconfig_package_and_deploy.toml \
-		--s3-prefix $$artifact_bucket_prefix \
-		--force-upload
 
 sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role
 	sam deploy \
