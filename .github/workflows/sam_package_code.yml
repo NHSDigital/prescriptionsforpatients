@@ -12,7 +12,7 @@ on:
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
-  
+
 jobs:
   package_release:
     runs-on: ubuntu-latest
@@ -30,7 +30,13 @@ jobs:
         uses: asdf-vm/actions/install@6a442392015fbbdd8b48696d41e0051b2698b2e4
 
       - name: make install
-        run: make install
+        run: |
+          which node
+          which npm
+          asdf reshim nodejs
+          which node
+          which npm
+          make install
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
