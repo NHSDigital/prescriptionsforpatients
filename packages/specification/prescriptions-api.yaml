@@ -112,6 +112,7 @@ components:
               - $ref: "#/components/schemas/Patient-Resource"
               - $ref: "#/components/schemas/Practitioner-Resource"
               - $ref: "#/components/schemas/PractitionerRole-Resource"
+    # Remove, trim-down fragments/extensions
     CommunicationRequest-Resource:
       type: object
       description: CommunicationRequest
@@ -122,6 +123,7 @@ components:
           example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6
         resource:
           $ref: schemas/resources/CommunicationRequest.yaml
+    # Remove, trim-down fragments/extensions
     List-Resource:
       type: object
       description: List
@@ -142,6 +144,7 @@ components:
           example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49bb6
         resource:
           $ref: schemas/resources/MedicationRequest.yaml
+    # Remove, trim-down fragments/extensions
     MessageHeader-Resource:
       type: object
       description: MessageHeader
@@ -162,6 +165,7 @@ components:
           example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6
         resource:
           $ref: schemas/resources/Organisation.yaml
+    # Remove, trim-down fragments/extensions
     Patient-Resource:
       type: object
       description: Patient
@@ -192,25 +196,3 @@ components:
           example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6
         resource:
           $ref: schemas/resources/PractitionerRole.yaml
-
-    # Might be needed
-    Location-Resource:
-      type: object
-      description: Location
-      properties:
-        fullUrl:
-          type: string
-          description: Object URL for the resource.
-          example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6
-        resource:
-          $ref: schemas/resources/Location.yaml
-    Provenance-Resource:
-      type: object
-      description: Provenance
-      properties:
-        fullUrl:
-          type: string
-          description: Object URL for the resource.
-          example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6
-        resource:
-          $ref: schemas/resources/Provenance.yaml
