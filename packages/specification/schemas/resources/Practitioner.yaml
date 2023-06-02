@@ -1,0 +1,43 @@
+type: object
+required: [resourceType, identifier, name]
+description: Details of the author or responsible party of a prescription.
+properties:
+  resourceType:
+    type: string
+    description: FHIR resource type.
+    enum: [Practitioner]
+  identifier:
+    type: array
+    description: An array containing the prescriber's professional codes and identifiers.
+    items:
+      type: object
+      properties:
+        oneOf:
+          - $ref: ../fragments/identifiers.yaml#/SdsUserId
+          - $ref: ../fragments/identifiers.yaml#/DinNumber
+          - $ref: ../fragments/identifiers.yaml#/GmcNumber
+          - $ref: ../fragments/identifiers.yaml#/GphcNumber
+          - $ref: ../fragments/identifiers.yaml#/HcpcNumber
+          - $ref: ../fragments/identifiers.yaml#/NmcNumber
+  name:
+    type: array
+    description: The prescriber's name.
+    items:
+      type: object
+      properties:
+        family:
+          type: string
+          description: Family name (often called Surname).
+          example: Toboggan
+        given:
+          type: array
+          description: Given names, including any middle names.
+          items:
+            type: string
+            example: Mantis
+        prefix:
+          type: array
+          description: Name prefixes, titles, and prenominals.
+          items:
+            type: string
+            example: Dr
