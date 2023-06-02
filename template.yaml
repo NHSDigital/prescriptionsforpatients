@@ -65,6 +65,20 @@ Resources:
       AliasName: !Sub "alias/${AWS::StackName}-CloudWatchKMSAlias"
       TargetKeyId: !Ref CloudWatchKMSKey
 
+  # Kinesis Splunk Firehose stuff
+  SplunkDataStream:
+    Type: "AWS::Kinesis::Stream"
+    Properties:
+      Name: "splunk-data-stream"
+      RetentionPeriodHours: 720 # 30 days of log retention
+      StreamModeDetails:
+        StreamMode: "ON_DEMAND"
+        # Using on demand as provisioned + dev deployments would be expensive
+        # May want to change for prod if needed
+      StreamEncryption:
+        EncryptionType: KMS
+        KeyId: !GetAtt CloudWatchKMSKey.Arn
+
   # Authz function stuff
   AuthzFunctionRole:
     Type: "AWS::IAM::Role"
