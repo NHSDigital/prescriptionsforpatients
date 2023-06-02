@@ -69,7 +69,6 @@ Resources:
   SplunkDataStream:
     Type: "AWS::Kinesis::Stream"
     Properties:
-      Name: "splunk-data-stream"
       RetentionPeriodHours: 720 # 30 days of log retention
       StreamModeDetails:
         StreamMode: "ON_DEMAND"
