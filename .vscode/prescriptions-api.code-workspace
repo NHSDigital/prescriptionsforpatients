@@ -11,6 +11,10 @@
 		{
 			"name": "packages/getMyPrescriptions",
 			"path": "../packages/getMyPrescriptions"
+		},
+		{
+			"name": "packages/specification",
+			"path": "../packages/specification"
 		}
 	],
 	"settings": {
@@ -68,25 +72,25 @@
 	},
 	"extensions": {
 		"recommendations": [
-        "AmazonWebServices.aws-toolkit-vscode",
-        "redhat.vscode-yaml",
-        "ms-python.python",
-        "ms-python.flake8",
-        "eamodio.gitlens",
-        "github.vscode-pull-request-github",
-        "orta.vscode-jest",
-        "42crunch.vscode-openapi",
-        "mermade.openapi-lint",
-        "rvest.vs-code-prettier-eslint",
-        "redhat.vscode-yaml",
-        "christian-kohler.npm-intellisense",
-        "dbaeumer.vscode-eslint",
-        "lfm.vscode-makefile-term",
-        "GrapeCity.gc-excelviewer",
-        "redhat.vscode-xml",
-        "streetsidesoftware.code-spell-checker",
-        "timonwong.shellcheck",
-		"mkhl.direnv"
+			"AmazonWebServices.aws-toolkit-vscode",
+			"redhat.vscode-yaml",
+			"ms-python.python",
+			"ms-python.flake8",
+			"eamodio.gitlens",
+			"github.vscode-pull-request-github",
+			"orta.vscode-jest",
+			"42crunch.vscode-openapi",
+			"mermade.openapi-lint",
+			"rvest.vs-code-prettier-eslint",
+			"redhat.vscode-yaml",
+			"christian-kohler.npm-intellisense",
+			"dbaeumer.vscode-eslint",
+			"lfm.vscode-makefile-term",
+			"GrapeCity.gc-excelviewer",
+			"redhat.vscode-xml",
+			"streetsidesoftware.code-spell-checker",
+			"timonwong.shellcheck",
+			"mkhl.direnv"
 		]
 	}
 }
