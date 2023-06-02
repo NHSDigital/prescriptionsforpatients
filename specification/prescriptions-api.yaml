@@ -1,0 +1,228 @@
+# This is an OpenAPI Specification (https://swagger.io/specification/)
+# for the Prescriptions API
+# owned by NHS Digital (https://digital.nhs.uk/)
+
+openapi: 3.0.0
+x-nhs-api-spec-guid: 816f3e79-1d81-4ae7-af54-dcd4a739d01a
+info:
+  title: Prescriptions API
+  version: "{VERSION}"
+  contact:
+    name: Prescriptions API Support
+    url: https://digital.nhs.uk/developer/help-and-support
+    email: api.management@nhs.net
+
+x-spec-publication:
+  operation-order:
+    - operations:
+        - method: POST
+          path: /GetMyPrescriptions/Bundle
+
+paths:
+  /GetMyPrescriptions/Bundle:
+    get:
+      operationId: get-my-prescriptions-bundle
+      summary: Get prescriptions for the given user
+      description: |
+        ## Overview
+        Use this endpoint to get a Bundle containing a list of the user's prescriptions.
+      parameters:
+        - $ref: "#/components/parameters/BearerAuthorization"
+        - $ref: "#/components/parameters/NhsNumber"
+      responses:
+        "200":
+          description: Successful retrieval.
+          content:
+            application/fhir+json:
+              schema:
+                $ref: "#/components/schemas/bundle-response"
+              examples:
+                example:
+                  description: A successful response to a GetMyPrescriptions/Bundle request.
+                  value:
+                    $ref: examples/GetMyPrescriptions/Bundle/success.json
+        "4XX":
+          description: Invalid request.
+          content:
+            application/fhir+json:
+              schema:
+                $ref: "#/components/schemas/operation-outcome"
+              examples:
+                example:
+                  description: |
+                    An error response to a GetMyPrescriptions/Bundle request.
+                    Resource not found for the given NHS number.
+                  value:
+                    $ref: examples/GetMyPrescriptions/Bundle/error.json
+
+components:
+  parameters:
+    BearerAuthorization:
+      in: header
+      name: Authorization
+      description: |
+        An [OAuth 2.0 bearer token](https://digital.nhs.uk/developer/guides-and-documentation/security-and-authorisation#user-restricted-apis).
+        Required in all environments except sandbox.
+      required: true
+      schema:
+        type: string
+        format: ^Bearer\ [[:ascii:]]+$
+        example: Bearer g1112R_ccQ1Ebbb4gtHBP1aaaNM
+    NhsNumber:
+      in: header
+      name: NHS-Number
+      description: The NHS number of the patient whose prescriptions are to be returned.
+      required: true
+      schema:
+        type: string
+        example: "9434765919"
+  schemas:
+    operation-outcome:
+      $ref: schemas/components/OperationOutcome.yaml
+    bundle-response:
+      type: object
+      required:
+        - resourceType
+        - identifier
+        - type
+        - entry
+      description: A FHIR Bundle.
+      properties:
+        resourceType:
+          type: string
+          description: FHIR resource type.
+          default: Bundle
+        id:
+          type: string
+          description: Object ID for the Bundle.
+          example: 164996aa-29eb-4f14-a5ac-4b556a7baf6e
+        identifier:
+          type: object
+          properties:
+            system:
+              type: string
+              description: Codesystem URL for identifiers.
+              enum: [https://tools.ietf.org/html/rfc4122]
+            value:
+              type: string
+              description: The X-Request ID for the message.
+              example: 164996aa-29eb-4f14-a5ac-4b556a7baf6e
+        type:
+          type: string
+          description: The reason why a series of resources and objects are grouped together.
+          enum: [message]
+        entry:
+          type: array
+          description: A collection of resources contained within the Bundle.
+          items:
+            oneOf:
+              - $ref: "#/components/schemas/CommunicationRequest-Resource"
+              - $ref: "#/components/schemas/List-Resource"
+              - $ref: "#/components/schemas/MedicationRequest-Resource"
+              - $ref: "#/components/schemas/MessageHeader-Resource"
+              - $ref: "#/components/schemas/Organization-Resource"
+              - $ref: "#/components/schemas/Patient-Resource"
+              - $ref: "#/components/schemas/Practitioner-Resource"
+              - $ref: "#/components/schemas/PractitionerRole-Resource"
+    CommunicationRequest-Resource:
+      type: object
+      description: CommunicationRequest
+      properties:
+        fullUrl:
+          type: string
+          description: Object URL for the resource.
+          example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6
+        resource:
+          $ref: schemas/components/CommunicationRequest.yaml
+    List-Resource:
+      type: object
+      description: List
+      properties:
+        fullUrl:
+          type: string
+          description: Object URL for the resource.
+          example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6
+        resource:
+          $ref: schemas/components/List.yaml
+    MedicationRequest-Resource:
+      type: object
+      description: MedicationRequest
+      properties:
+        fullUrl:
+          type: string
+          description: Object URL for the resource.
+          example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49bb6
+        resource:
+          $ref: schemas/components/MedicationRequest.yaml
+    MessageHeader-Resource:
+      type: object
+      description: MessageHeader
+      properties:
+        fullUrl:
+          type: string
+          description: Object URL for the resource.
+          example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6
+        resource:
+          $ref: schemas/components/MessageHeader.yaml
+    Organization-Resource:
+      type: object
+      description: Organization
+      properties:
+        fullUrl:
+          type: string
+          description: Object URL for the resource.
+          example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6
+        resource:
+          $ref: schemas/components/Organization.yaml
+    Patient-Resource:
+      type: object
+      description: Patient
+      properties:
+        fullUrl:
+          type: string
+          description: Object URL for the resource.
+          example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6
+        resource:
+          $ref: schemas/components/Patient.yaml
+    Practitioner-Resource:
+      type: object
+      description: Practitioner
+      properties:
+        fullUrl:
+          type: string
+          description: Object URL for the resource.
+          example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6
+        resource:
+          $ref: schemas/components/Practitioner.yaml
+    PractitionerRole-Resource:
+      type: object
+      description: PractitionerRole
+      properties:
+        fullUrl:
+          type: string
+          description: Object URL for the resource.
+          example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6
+        resource:
+          $ref: schemas/components/PractitionerRole.yaml
+
+    # Might be needed
+    Location-Resource:
+      type: object
+      description: Location
+      properties:
+        fullUrl:
+          type: string
+          description: Object URL for the resource.
+          example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6
+        resource:
+          $ref: schemas/components/Location.yaml
+    Provenance-Resource:
+      type: object
+      description: Provenance
+      properties:
+        fullUrl:
+          type: string
+          description: Object URL for the resource.
+          example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6
+        resource:
+          $ref: schemas/components/Provenance.yaml
