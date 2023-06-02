@@ -1,3 +1,158 @@
+EpsTaskDispenseReturnStatusReason:
+  type: object
+  required: [system, code]
+  properties:
+    system:
+      type: string
+      enum:
+        [https://fhir.nhs.uk/CodeSystem/EPS-task-dispense-return-status-reason]
+    code:
+      type: string
+      example: "0003"
+    display:
+      type: string
+      example: Patient requested release
+MedicationRequestCategory:
+  type: object
+  required: [system, code]
+  properties:
+    system:
+      type: string
+      description: Codesystem URL for the prescription category.
+      enum: [http://terminology.hl7.org/CodeSystem/medicationrequest-category]
+    code:
+      type: string
+      description: Code for the prescription category.
+      enum: [inpatient, outpatient, community, discharge]
+    display:
+      type: string
+      description: Display value for the prescription category.
+      enum: [Inpatient, Outpatient, Community, Discharge]
+MedicationRequestCourseOfTherapy:
+  type: object
+  required: [system, code]
+  properties:
+    system:
+      type: string
+      description: Codesystem URL for the prescription treatment type.
+      enum:
+        - http://terminology.hl7.org/CodeSystem/medicationrequest-course-of-therapy
+    code:
+      type: string
+      description: |
+        Code identifying the prescription treatment type.
+        * acute: acute prescriptions
+        * continuous: repeat prescriptions
+        * continuous-repeat-dispensing: eRD prescriptions
+      enum: [acute, continuous, continuous-repeat-dispensing]
+    display:
+      type: string
+      description: Display value for the prescription treatment type.
+      enum:
+        - Short course (acute) therapy
+        - Continuous long term therapy
+        - Continuous long term (repeat dispensing)
+MedicationRequestEndorsement:
+  type: object
+  required: [system, code]
+  properties:
+    system:
+      type: string
+      description: Codesystem URL for endorsements.
+      enum: [https://fhir.nhs.uk/CodeSystem/medicationrequest-endorsement]
+    code:
+      type: string
+      description: The endorsement code.
+      enum: [ACBS, AF, CC, FS, SLS]
+MedicationRequestStatusReason:
+  type: object
+  required: [system, code]
+  properties:
+    system:
+      type: string
+      description: Codesystem URL for the cancellation reason.
+      enum: [https://fhir.nhs.uk/CodeSystem/medicationrequest-status-reason]
+    code:
+      type: string
+      description: Cancel reason code.
+      example: "0004"
+      enum:
+        ["0001", "0002", "0003", "0004", "0005", "0006", "0007", "0008", "0009"]
+    display:
+      type: string
+      description: The display accompanying the cancel reason code.
+      example: Clinical grounds
+      enum:
+        - Prescribing error
+        - Clinical contra-indication
+        - Change to medication treatment regime
+        - Clinical grounds
+        - At the Patient's request
+        - At the Pharmacist's request
+        - Notification of Death
+        - Patient deducted - other reason
+        - Patient deducted- registered with new practice
+OrganisationRole:
+  type: object
+  required: [system, code]
+  properties:
+    system:
+      type: string
+      enum: [https://fhir.nhs.uk/CodeSystem/organisation-role]
+    code:
+      type: string
+      example: "182"
+    display:
+      type: string
+      example: PHARMACY
+SdsJobRoleCode:
+  type: object
+  required: [system, code]
+  properties:
+    system:
+      type: string
+      description: Codesystem URL for the job role code.
+      enum: [https://fhir.nhs.uk/CodeSystem/NHSDigital-SDS-JobRoleCode]
+    code:
+      type: string
+      description: The SDS job role code.
+      example: S0030:G0100:R0620
+    display:
+      type: string
+      description: Display text for the SDS job role code.
+      example: Staff Nurse
+SnomedSctConsumption:
+  type: object
+  required: [system, code]
+  properties:
+    system:
+      type: string
+      description: SNOMED codesystem URL.
+      enum: [http://snomed.info/sct]
+    code:
+      type: integer
+      description: Valid SNOMED code identifying how the medication should be consumed.
+      example: 26643006
+    display:
+      type: string
+      description: Human readable name for the method of consumption.
+      example: Oral
+SnomedSctMedication:
+  type: object
+  required: [system, code]
+  properties:
+    system:
+      type: string
+      description: SNOMED codesystem URL.
+      enum: [http://snomed.info/sct]
+    code:
+      type: string
+      description: SNOMED code for the medication, as defined in the dm+d.
+      example: "321196004"
+    display:
+      type: string
+      description: Human readable name for the medication.
+      example: Diazepam 2mg tablets
 SpineErrorOrWarningCode:
   type: object
   required: [system, code]
@@ -14,3 +169,16 @@ SpineErrorOrWarningCode:
       type: string
       description: Representation defined by the system.
       example: Provided value is invalid
+TaskCode:
+  type: object
+  required: [system, code]
+  properties:
+    system:
+      type: string
+      enum: [http://hl7.org/fhir/CodeSystem/task-code]
+    code:
+      type: string
+      example: fulfill
+    display:
+      type: string
+      example: Fulfill the focal request
