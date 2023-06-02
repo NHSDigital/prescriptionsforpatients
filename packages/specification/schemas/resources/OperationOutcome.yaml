@@ -61,7 +61,7 @@ properties:
             coding:
               type: array
               items:
-                $ref: ./fragments/codes.yaml#/SpineErrorOrWarningCode
+                $ref: ../fragments/codes.yaml#/SpineErrorOrWarningCode
         expression:
           type: string
           description: FHIR Path of element(s) related to the error.

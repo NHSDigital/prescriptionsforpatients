@@ -78,7 +78,7 @@ components:
         example: "9434765919"
   schemas:
     operation-outcome:
-      $ref: schemas/components/OperationOutcome.yaml
+      $ref: schemas/resources/OperationOutcome.yaml
     bundle-response:
       type: object
       required:
@@ -133,7 +133,7 @@ components:
           description: Object URL for the resource.
           example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6
         resource:
-          $ref: schemas/components/CommunicationRequest.yaml
+          $ref: schemas/resources/CommunicationRequest.yaml
     List-Resource:
       type: object
       description: List
@@ -143,7 +143,7 @@ components:
           description: Object URL for the resource.
           example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6
         resource:
-          $ref: schemas/components/List.yaml
+          $ref: schemas/resources/List.yaml
     MedicationRequest-Resource:
       type: object
       description: MedicationRequest
@@ -153,7 +153,7 @@ components:
           description: Object URL for the resource.
           example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49bb6
         resource:
-          $ref: schemas/components/MedicationRequest.yaml
+          $ref: schemas/resources/MedicationRequest.yaml
     MessageHeader-Resource:
       type: object
       description: MessageHeader
@@ -163,7 +163,7 @@ components:
           description: Object URL for the resource.
           example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6
         resource:
-          $ref: schemas/components/MessageHeader.yaml
+          $ref: schemas/resources/MessageHeader.yaml
     Organization-Resource:
       type: object
       description: Organization
@@ -173,7 +173,7 @@ components:
           description: Object URL for the resource.
           example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6
         resource:
-          $ref: schemas/components/Organization.yaml
+          $ref: schemas/resources/Organization.yaml
     Patient-Resource:
       type: object
       description: Patient
@@ -183,7 +183,7 @@ components:
           description: Object URL for the resource.
           example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6
         resource:
-          $ref: schemas/components/Patient.yaml
+          $ref: schemas/resources/Patient.yaml
     Practitioner-Resource:
       type: object
       description: Practitioner
@@ -193,7 +193,7 @@ components:
           description: Object URL for the resource.
           example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6
         resource:
-          $ref: schemas/components/Practitioner.yaml
+          $ref: schemas/resources/Practitioner.yaml
     PractitionerRole-Resource:
       type: object
       description: PractitionerRole
@@ -203,7 +203,7 @@ components:
           description: Object URL for the resource.
           example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6
         resource:
-          $ref: schemas/components/PractitionerRole.yaml
+          $ref: schemas/resources/PractitionerRole.yaml
 
     # Might be needed
     Location-Resource:
@@ -215,7 +215,7 @@ components:
           description: Object URL for the resource.
           example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6
         resource:
-          $ref: schemas/components/Location.yaml
+          $ref: schemas/resources/Location.yaml
     Provenance-Resource:
       type: object
       description: Provenance
@@ -225,4 +225,4 @@ components:
           description: Object URL for the resource.
           example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6
         resource:
-          $ref: schemas/components/Provenance.yaml
+          $ref: schemas/resources/Provenance.yaml
