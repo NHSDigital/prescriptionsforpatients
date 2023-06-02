@@ -1,0 +1,50 @@
+name: sam release code
+
+on:
+  workflow_call:
+    inputs:
+      STACK_NAME:
+        required: true
+        type: string
+      ARTIFACT_BUCKET_PREFIX:
+        required: true
+        type: string
+      TARGET_ENVIRONMENT:
+        required: true
+        type: string
+    secrets:
+      CLOUD_FORMATION_DEPLOY_ROLE:
+        required: true
+
+jobs:
+  sam_release_code:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.TARGET_ENVIRONMENT }}
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: eu-west-2
+          role-to-assume: ${{ secrets.CLOUD_FORMATION_DEPLOY_ROLE }}
+          role-session-name: github-actions
+
+      - uses: actions/download-artifact@v3
+        name: download build artifact
+        with:
+          name: packaged_code
+          path: .
+
+      - shell: bash
+        name: release code
+        run: |
+          export artifact_bucket=$(aws cloudformation list-exports --output json | \
+            jq -r '.Exports[] | select(.Name == "ci-resources:ArtifactsBucket") | .Value' |grep -o '[^:]*$')
+          export artifact_bucket_prefix=${{ inputs.ARTIFACT_BUCKET_PREFIX }}
+          export template_file=template.yaml
+          export stack_name=${{ inputs.STACK_NAME }}
+          export cloud_formation_execution_role=$(aws cloudformation list-exports --output json | \
+              jq -r '.Exports[] | select(.Name == "ci-resources:CloudFormationExecutionRole") | .Value' )
+          make sam-deploy-package

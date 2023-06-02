@@ -1,4 +1,4 @@
-name: release
+name: release workflow
 
 on:
   push:
@@ -9,18 +9,110 @@ env:
   BRANCH_NAME: ${{ github.event.ref.BRANCH_NAME }}
 
 jobs:
-  quality-checks:
-    runs-on: self-hosted
+  quality_checks:
+    uses: ./.github/workflows/quality_checks.yml
+
+  tag_release:
+    needs: quality_checks
+    runs-on: ubuntu-latest
+    outputs:
+      spec_version: ${{steps.output_spec_version.outputs.SPEC_VERSION}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
           ref: ${{ env.BRANCH_NAME }}
-      - name: Remove existing asdf
-        run: rm -rf ~/.asdf
-      - name: Install asdf and dependencies
-        uses: asdf-vm/actions/install@v2
-      - run: make install
-      - run: make check-licenses
-      - run: make lint
-      - run: make test
+          fetch-depth: 0
+
+      # using git commit sha for version of action to ensure we have stable version
+      - name: Install asdf
+        uses: asdf-vm/actions/setup@6a442392015fbbdd8b48696d41e0051b2698b2e4
+
+      - name: Cache asdf
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.asdf
+          key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
+          restore-keys: |
+            ${{ runner.os }}-asdf-
+
+      - name: Install asdf dependencies in .tool-versions
+        uses: asdf-vm/actions/install@6a442392015fbbdd8b48696d41e0051b2698b2e4
+
+      - name: Install python packages
+        run: poetry install
+
+      - name: Set SPEC_VERSION env var for merges to main
+        run: echo "SPEC_VERSION=$(poetry run python scripts/calculate_version.py)" >> $GITHUB_ENV
+        if: github.ref == 'refs/heads/main'
+
+      - name: Set SPEC_VERSION env var for tags
+        run: echo "SPEC_VERSION=${{  github.ref_name }}" >> $GITHUB_ENV
+        if: github.ref != 'refs/heads/main'
+
+      - name: Create github release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.SPEC_VERSION }}
+          release_name: ${{ env.SPEC_VERSION }}
+
+      - name: output SPEC_VERSION
+        id: output_spec_version
+        run: echo SPEC_VERSION=${{ env.SPEC_VERSION }} >> $GITHUB_OUTPUT
+
+  package_code:
+    needs: tag_release
+    uses: ./.github/workflows/sam_package_code.yml
+
+  release_dev:
+    needs: [tag_release, package_code]
+    uses: ./.github/workflows/sam_release_code.yml
+    with:
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      STACK_NAME: dev-ci
+      TARGET_ENVIRONMENT: dev
+    secrets:
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+
+  release_ref:
+    needs: [tag_release, release_dev, package_code]
+    uses: ./.github/workflows/sam_release_code.yml
+    with:
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      STACK_NAME: ref-ci
+      TARGET_ENVIRONMENT: ref
+    secrets:
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.REF_CLOUD_FORMATION_DEPLOY_ROLE }}
+
+  release_qa:
+    needs: [tag_release, release_dev, package_code]
+    uses: ./.github/workflows/sam_release_code.yml
+    with:
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      STACK_NAME: qa-ci
+      TARGET_ENVIRONMENT: qa
+    secrets:
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.QA_CLOUD_FORMATION_DEPLOY_ROLE }}
+
+  release_int:
+    needs: [tag_release, release_qa, package_code]
+    uses: ./.github/workflows/sam_release_code.yml
+    with:
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      STACK_NAME: int-ci
+      TARGET_ENVIRONMENT: int
+    secrets:
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
+
+  release_prod:
+    needs: [tag_release, release_int, package_code]
+    uses: ./.github/workflows/sam_release_code.yml
+    with:
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      STACK_NAME: prod-ci
+      TARGET_ENVIRONMENT: prod
+    secrets:
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
