@@ -1,4 +1,4 @@
-OdsOrganizationCode:
+OdsOrganisationCode:
   type: object
   required: [system, value]
   properties:

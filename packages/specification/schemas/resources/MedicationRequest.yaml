@@ -178,7 +178,7 @@ properties:
           The ODS code of the nominated pharmacy that a prescription will go to.
         properties:
           identifier:
-            $ref: ../fragments/identifiers.yaml#/OdsOrganizationCode
+            $ref: ../fragments/identifiers.yaml#/OdsOrganisationCode
       quantity:
         type: object
         description: The quantity of a prescribed medication item.

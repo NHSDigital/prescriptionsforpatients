@@ -33,7 +33,7 @@ properties:
           type: object
           properties:
             identifier:
-              $ref: ../fragments/identifiers.yaml#/OdsOrganizationCode
+              $ref: ../fragments/identifiers.yaml#/OdsOrganisationCode
             display:
               type: string
               example: The Simple Pharmacy
@@ -41,7 +41,7 @@ properties:
     type: object
     properties:
       identifier:
-        $ref: ../fragments/identifiers.yaml#/OdsOrganizationCode
+        $ref: ../fragments/identifiers.yaml#/OdsOrganisationCode
       display:
         type: string
         example: HALLGARTH SURGERY

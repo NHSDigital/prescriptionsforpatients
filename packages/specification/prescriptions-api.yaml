@@ -120,7 +120,7 @@ components:
               - $ref: "#/components/schemas/List-Resource"
               - $ref: "#/components/schemas/MedicationRequest-Resource"
               - $ref: "#/components/schemas/MessageHeader-Resource"
-              - $ref: "#/components/schemas/Organization-Resource"
+              - $ref: "#/components/schemas/Organisation-Resource"
               - $ref: "#/components/schemas/Patient-Resource"
               - $ref: "#/components/schemas/Practitioner-Resource"
               - $ref: "#/components/schemas/PractitionerRole-Resource"
@@ -164,16 +164,16 @@ components:
           example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6
         resource:
           $ref: schemas/resources/MessageHeader.yaml
-    Organization-Resource:
+    Organisation-Resource:
       type: object
-      description: Organization
+      description: Organisation
       properties:
         fullUrl:
           type: string
           description: Object URL for the resource.
           example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6
         resource:
-          $ref: schemas/resources/Organization.yaml
+          $ref: schemas/resources/Organisation.yaml
     Patient-Resource:
       type: object
       description: Patient
