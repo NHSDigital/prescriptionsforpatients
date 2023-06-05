@@ -50,6 +50,22 @@ MedicationRequestEndorsement:
       type: string
       description: The endorsement code.
       enum: [ACBS, AF, CC, FS, SLS]
+SdsJobRoleCode:
+  type: object
+  required: [system, code]
+  properties:
+    system:
+      type: string
+      description: Codesystem URL for the job role code.
+      enum: [https://fhir.nhs.uk/CodeSystem/NHSDigital-SDS-JobRoleCode]
+    code:
+      type: string
+      description: The SDS job role code.
+      example: S0030:G0100:R0620
+    display:
+      type: string
+      description: Display text for the SDS job role code.
+      example: Staff Nurse
 SnomedSctConsumption:
   type: object
   required: [system, code]
