@@ -29,7 +29,6 @@ properties:
         - $ref: ../extensions/DMResponsiblePractitioner.yaml
         - $ref: ../extensions/DispensingInformation.yaml
         - $ref: ../extensions/MedicationRepeatInformation.yaml
-        - $ref: ../extensions/NHSBSAPrescriptionType.yaml
         - $ref: ../extensions/PrescriptionEndorsement.yaml
   identifier:
     type: array
