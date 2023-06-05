@@ -7,7 +7,7 @@ guard-%:
 remove_rollbacks:
 	@ if [ $(shell aws cloudformation describe-stacks --stack-name $$stack_name | jq '.["Stacks"][0]["StackStatus"]') = "ROLLBACK_COMPLETE" ]; then \
 		echo "Removing rolled back stack"; \
-		$(MAKE) sam-delete-no-prompts; \
+		$(MAKE) sam-delete-no-prompt; \
 	fi
 
 .PHONY: install build test publish release clean
