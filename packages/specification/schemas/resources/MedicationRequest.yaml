@@ -67,14 +67,10 @@ properties:
           $ref: ../fragments/codes.yaml#/SnomedSctMedication
   subject:
     type: object
-    description: |
-      Reference object to identify the patient a prescription is for.
-      A Patient resource within the Bundle will be referenced.
+    description: Reference to the patient a prescription is for.
     properties:
-      reference:
-        type: string
-        description: A reference to a Patient resource within the Bundle.
-        example: urn:uuid:78d3c2eb-009e-4ec8-a358-b042954aa9b2
+      identifier:
+        $ref: ../fragments/identifiers.yaml#/NhsNumber
   authoredOn:
     type: string
     description: The time at which the prescription was authored and signed.
