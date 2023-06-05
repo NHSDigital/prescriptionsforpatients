@@ -169,6 +169,42 @@ Resources:
                   - "/*"
       Roles:
         - !Ref SplunkDeliveryStreamBackupBucketRole
+  # Bucket and Role for a data stream destination bucket used as a test until Splunk HEC information is found
+  SplunkDeliveryStreamDestinationBucket:
+    Type: AWS::S3::Bucket
+  SplunkDeliveryStreamDestinationBucketRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "firehose.amazonaws.com"
+            Action: "sts:AssumeRole"
+  SplunkDeliveryStreamDestinationBucketPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-get-data-stream-records"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:AbortMultipartUpload
+              - s3:GetBucketLocation
+              - s3:GetObject
+              - s3:ListBucket
+              - s3:ListBucketMultipartUploads
+              - s3:PutObject
+            Resource:
+              - !GetAtt SplunkDeliveryStreamDestinationBucket.Arn
+              - !Join # Access to bucket contents
+                - ""
+                - - !GetAtt SplunkDeliveryStreamDestinationBucket.Arn
+                  - "/*"
+      Roles:
+        - !Ref SplunkDeliveryStreamDestinationBucketRole
 
   # Authz function stuff
   AuthzFunctionRole:
