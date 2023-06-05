@@ -127,6 +127,48 @@ Resources:
               - !GetAtt SplunkDataStream.Arn
       Roles:
         - !Ref SplunkDeliveryStreamDataStreamAccessRole
+  SplunkDeliveryStreamBackupBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - BucketKeyEnabled: false
+            ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !GetAtt CloudWatchKMSKey.Arn # TODO - Do we need a different KMS key for this?
+  SplunkDeliveryStreamBackupBucketRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "s3.amazonaws.com"
+            Action: "sts:AssumeRole"
+  SplunkDeliveryStreamBackupBucketPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-get-data-stream-records"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:AbortMultipartUpload
+              - s3:GetBucketLocation
+              - s3:GetObject
+              - s3:ListBucket
+              - s3:ListBucketMultipartUploads
+              - s3:PutObject
+            Resource:
+              - !GetAtt SplunkDeliveryStreamBackupBucket.Arn
+              - !Join # Access to bucket contents
+                - ""
+                - - !GetAtt SplunkDeliveryStreamBackupBucket.Arn
+                  - "/*"
+      Roles:
+        - !Ref SplunkDeliveryStreamBackupBucketRole
 
   # Authz function stuff
   AuthzFunctionRole:
