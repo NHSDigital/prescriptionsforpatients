@@ -216,6 +216,23 @@ Resources:
                   - "/*"
       Roles:
         - !Ref SplunkDeliveryStreamBackupBucketRole
+  SplunkDeliveryStreamProcessor:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: packages/splunkProcessor/src
+      Handler: app.handler
+      Runtime: nodejs18.x
+      Role: !GetAtt SplunkDeliveryStreamProcessorRole.Arn
+      Architectures:
+        - x86_64
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - app.js
   # Bucket and Role for a data stream destination bucket used as a test until Splunk HEC information is found
   SplunkDeliveryStreamDestinationBucket:
     Type: AWS::S3::Bucket
