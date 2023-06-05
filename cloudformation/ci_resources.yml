@@ -71,14 +71,6 @@ Resources:
                   - "kms:ReEncrypt*"
                   - "kms:Decrypt"
                 Resource: !GetAtt ArtifactsBucketKMSKey.Arn
-        - PolicyName: CreateS3Buckets
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - "s3:CreateBucket"
-                Resource: "*"
 
   CloudFormationExecutionRole:
     Type: AWS::IAM::Role
@@ -148,6 +140,7 @@ Resources:
                   - "apigateway:POST"
                   - "apigateway:PATCH"
                   - "apigateway:PUT"
+                  - "s3:CreateBucket"
                 Resource: "*"
 
   # KMS S3 encryption key
