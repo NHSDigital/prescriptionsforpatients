@@ -26,8 +26,8 @@ properties:
     items:
       oneOf:
         - $ref: ../extensions/ControlledDrug.yaml
-        - $ref: ../extensions/DMResponsiblePractitioner.yaml
         - $ref: ../extensions/DispensingInformation.yaml
+        - $ref: ../extensions/DMResponsiblePractitioner.yaml
         - $ref: ../extensions/MedicationRepeatInformation.yaml
         - $ref: ../extensions/PrescriptionEndorsement.yaml
   identifier:

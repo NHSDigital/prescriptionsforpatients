@@ -1,17 +1,3 @@
-EpsTaskDispenseReturnStatusReason:
-  type: object
-  required: [system, code]
-  properties:
-    system:
-      type: string
-      enum:
-        [https://fhir.nhs.uk/CodeSystem/EPS-task-dispense-return-status-reason]
-    code:
-      type: string
-      example: "0003"
-    display:
-      type: string
-      example: Patient requested release
 MedicationRequestCategory:
   type: object
   required: [system, code]
@@ -64,63 +50,6 @@ MedicationRequestEndorsement:
       type: string
       description: The endorsement code.
       enum: [ACBS, AF, CC, FS, SLS]
-MedicationRequestStatusReason:
-  type: object
-  required: [system, code]
-  properties:
-    system:
-      type: string
-      description: Codesystem URL for the cancellation reason.
-      enum: [https://fhir.nhs.uk/CodeSystem/medicationrequest-status-reason]
-    code:
-      type: string
-      description: Cancel reason code.
-      example: "0004"
-      enum:
-        ["0001", "0002", "0003", "0004", "0005", "0006", "0007", "0008", "0009"]
-    display:
-      type: string
-      description: The display accompanying the cancel reason code.
-      example: Clinical grounds
-      enum:
-        - Prescribing error
-        - Clinical contra-indication
-        - Change to medication treatment regime
-        - Clinical grounds
-        - At the Patient's request
-        - At the Pharmacist's request
-        - Notification of Death
-        - Patient deducted - other reason
-        - Patient deducted- registered with new practice
-OrganisationRole:
-  type: object
-  required: [system, code]
-  properties:
-    system:
-      type: string
-      enum: [https://fhir.nhs.uk/CodeSystem/organisation-role]
-    code:
-      type: string
-      example: "182"
-    display:
-      type: string
-      example: PHARMACY
-SdsJobRoleCode:
-  type: object
-  required: [system, code]
-  properties:
-    system:
-      type: string
-      description: Codesystem URL for the job role code.
-      enum: [https://fhir.nhs.uk/CodeSystem/NHSDigital-SDS-JobRoleCode]
-    code:
-      type: string
-      description: The SDS job role code.
-      example: S0030:G0100:R0620
-    display:
-      type: string
-      description: Display text for the SDS job role code.
-      example: Staff Nurse
 SnomedSctConsumption:
   type: object
   required: [system, code]
@@ -169,16 +98,3 @@ SpineErrorOrWarningCode:
       type: string
       description: Representation defined by the system.
       example: Provided value is invalid
-TaskCode:
-  type: object
-  required: [system, code]
-  properties:
-    system:
-      type: string
-      enum: [http://hl7.org/fhir/CodeSystem/task-code]
-    code:
-      type: string
-      example: fulfill
-    display:
-      type: string
-      example: Fulfill the focal request
