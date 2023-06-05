@@ -11,6 +11,64 @@ info:
     name: Prescriptions API Support
     url: https://digital.nhs.uk/developer/help-and-support
     email: api.management@nhs.net
+  description: |
+    ## Overview
+    Use this API to access the Patient Facing Services (PFS) capabilities of the
+    [Electronic Prescription Service (EPS)](https://digital.nhs.uk/services/electronic-prescription-service).
+
+    EPS is the national service used to send electronic prescription messages between prescribers and community dispensers.
+
+    ## Who can use this API
+    This API can only be used where there is a legal basis to do so. Make sure you have a [valid use case](https://digital.nhs.uk/services/electronic-prescription-service/enabling-eps-for-your-service) before you go too far with your development. 
+
+    You must get approval before you can go live. For more information, see the 'Onboarding' section.
+
+    ## Technology
+    This API is [RESTful](https://digital.nhs.uk/developer/guides-and-documentation/our-api-technologies#basic-rest).
+
+    It conforms to the [FHIR](https://digital.nhs.uk/developer/guides-and-documentation/our-api-technologies#fhir) global standard for health care data exchange, specifically to [FHIR R4 (v4.0.1)](https://hl7.org/fhir/r4/), except that it does not support the [capabilities](http://hl7.org/fhir/R4/http.html#capabilities) interaction.
+
+    It includes some country-specific FHIR extensions, which are built against [FHIR UK Core, specifically [UKcore.stu1 0.5.1](https://simplifier.net/packages/fhir.r4.ukcore.stu1/0.5.1).
+
+    You do not need to know much about FHIR to use this API - FHIR APIs are just RESTful APIs that follow specific rules. In particular:
+    * resource names are capitalised and singular, for example `/Patient` not `/patients`
+    * array names are singular, for example `line` not `lines` for address lines
+    * data items that are country-specific and thus not included in the FHIR global base resources are usually wrapped in an `extension` object
+
+    There are [libraries and software development kits available](https://digital.nhs.uk/developer/guides-and-documentation/api-technologies-at-nhs-digital#fhir-libraries-and-sdks) to help with FHIR API integration.
+
+    ## Network access
+    This API is available on the internet and, indirectly, on the [Health and Social Care Network (HSCN)](https://digital.nhs.uk/services/health-and-social-care-network).
+
+    For more details see [Network access for APIs](https://digital.nhs.uk/developer/guides-and-documentation/network-access-for-apis).
+
+    ## Security and authorisation
+    This API has one access mode:
+    * user-restricted access
+
+    ### User-restricted access
+    Use this access mode to search for a patient's prescription data.
+
+    To use this access mode, see the Patient access section here:
+    * [User-restricted RESTful API - using NHS Login - separate authentication and authorisation](https://digital.nhs.uk/developer/guides-and-documentation/security-and-authorisation#user-restricted-apis)
+
+    ## Errors
+    ### API wide errors
+    | HTTP Status   | Error Code             | Description                                                                      |
+    | --------------| ---------------------- | -------------------------------------------------------------------------------- |
+    | 400           | BAD_REQUEST            | Invalid request.                                                                 |
+    | 404           | NOT_FOUND              | Resource not found.                                                              |
+
+    ### Platform wide errors
+    | HTTP Status   | Error Code            | Description                                                                                                                           |
+    | ------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+    | 401           | ACCESS_DENIED         | User does not have permission for a particular request.                                                                               |
+    | 403           | FORBIDDEN             | Insufficient authorization.                                                                                                           |
+    | 404           | NOT_FOUND             | Route not found.                                                                                                                      |
+    | 500           | INTERNAL SERVER ERROR | The server has encountered a situation it does not know how to handle.                                                                |
+    | 504           | GATEWAY_TIMEOUT       | If your request has not been fully processed within 59 seconds, you will get this response. Retry the request with identical payload. |
+
+    For further details on common error codes, see [HTTP status codes](https://digital.nhs.uk/developer/guides-and-documentation/reference-guide#http-status-codes)
 
 x-spec-publication:
   operation-order:
