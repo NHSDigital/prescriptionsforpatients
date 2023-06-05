@@ -96,12 +96,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/bundle-response"
               examples:
-                example:
-                  description: A successful response to a GetMyPrescriptions/Bundle request.
+                prescriptions-present:
+                  description: A successful response to a GetMyPrescriptions/Bundle request, containing one or more prescriptions.
                   value:
-                    oneOf:
-                      - $ref: examples/GetMyPrescriptions/Bundle/success.json
-                      - $ref: examples/GetMyPrescriptions/Bundle/success-empty.json
+                    $ref: examples/GetMyPrescriptions/Bundle/success.json
+                prescriptions-not-present:
+                  description: A successful response to a GetMyPrescriptions/Bundle request, where no prescriptions were found.
+                  value:
+                    $ref: examples/GetMyPrescriptions/Bundle/success-empty.json
         "4XX":
           description: Invalid request.
           content:
