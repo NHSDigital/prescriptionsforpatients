@@ -292,6 +292,14 @@ Resources:
       LogGroupName: !Sub "/aws/lambda/${AuthzFunction}"
       RetentionInDays: 90
       KmsKeyId: !GetAtt CloudWatchKMSKey.Arn
+  AuthzSplunkSubscriptionFilter:
+    Type: "AWS::Logs::SubscriptionFilter"
+    Properties:
+      RoleArn: !GetAtt SplunkSubscriptionFilterRole.Arn
+      LogGroupName: !Ref AuthzFunctionLogGroup
+      Distribution: "Random"
+      FilterPattern: " " # Replace as needed
+      DestinationArn: !GetAtt SplunkDataStream.Arn
   AuthzFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -370,6 +378,13 @@ Resources:
       LogGroupName: !Sub "/aws/lambda/${GetMyPrescriptions}"
       RetentionInDays: 90
       KmsKeyId: !GetAtt CloudWatchKMSKey.Arn
+  GetMyPrescriptionsSplunkSubscriptionFilter:
+    Type: "AWS::Logs::SubscriptionFilter"
+    Properties:
+      RoleArn: !GetAtt SplunkSubscriptionFilterRole.Arn
+      LogGroupName: !Ref GetMyPrescriptionsLogGroup
+      FilterPattern: " " # Replace as needed
+      DestinationArn: !GetAtt SplunkDataStream.Arn
   GetMyPrescriptions:
     Type: AWS::Serverless::Function
     Properties:
