@@ -2,10 +2,6 @@
 # for the Prescriptions API
 # owned by NHS Digital (https://digital.nhs.uk/)
 
-# Remove message header
-# Bearer token header
-# X request ID header
-
 openapi: 3.1.0
 x-nhs-api-spec-guid: 816f3e79-1d81-4ae7-af54-dcd4a739d01a
 info:
@@ -31,7 +27,9 @@ paths:
         ## Overview
         Use this endpoint to get a Bundle containing a list of the user's prescriptions.
       parameters:
+        - $ref: "#/components/parameters/BearerAuthorisation"
         - $ref: "#/components/parameters/NhsNumber"
+        - $ref: "#/components/parameters/RequestID"
       responses:
         "200":
           description: Successful retrieval.
@@ -60,6 +58,16 @@ paths:
 
 components:
   parameters:
+    BearerAuthorisation:
+      in: header
+      name: Authorization
+      description: |
+        An [OAuth 2.0 bearer token](https://digital.nhs.uk/developer/guides-and-documentation/security-and-authorisation#user-restricted-apis).
+      required: true
+      schema:
+        type: string
+        format: '^Bearer\ [[:ascii:]]+$'
+        example: "Bearer g1112R_ccQ1Ebbb4gtHBP1aaaNM"
     NhsNumber:
       in: header
       name: NHS-Number
@@ -68,6 +76,19 @@ components:
       schema:
         type: string
         example: "9434765919"
+    RequestID:
+      in: header
+      name: X-Request-ID
+      required: true
+      description: |
+        A globally unique identifier (GUID) for the request, which we use to de-duplicate repeated requests and to trace the request if you contact our helpdesk.
+        Must be a universally unique identifier (UUID) (ideally version 4).
+        Mirrored back in a response header.
+        If you re-send a failed request, use the same value in this header.
+      schema:
+        type: string
+        pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+        example: 60E0B220-8136-4CA5-AE46-1D97EF59D068
   schemas:
     operation-outcome:
       $ref: schemas/resources/OperationOutcome.yaml
