@@ -9,6 +9,7 @@ properties:
     items:
       oneOf:
         - type: object
+          description: The status of a line item on the prescription.
           properties:
             url:
               type: string

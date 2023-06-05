@@ -14,7 +14,7 @@ required:
   - dosageInstruction
   - dispenseRequest
   - substitution
-description: A prescription will contain at least one and up to four MedicationRequest objects. This is equivalent to an item on a prescription.
+description: Information about a specific line item within a prescription.
 properties:
   resourceType:
     type: string
@@ -59,7 +59,7 @@ properties:
             $ref: ../fragments/codes.yaml#/MedicationRequestCategory
   medicationCodeableConcept:
     type: object
-    description: The medication that was prescribed, represented using a VMP or AMP concept from the dm+d.
+    description: The medication prescribed to a patient.
     properties:
       coding:
         type: array
@@ -78,9 +78,7 @@ properties:
     example: "2023-06-02T10:11:12+00:00"
   requester:
     type: object
-    description: |
-      Reference object to identify the author of a prescription. 
-      A PractitionerRole resource within the Bundle will be referenced.
+    description: Useful if the patient or dispenser has a query about the prescription
     properties:
       reference:
         type: string
@@ -90,7 +88,7 @@ properties:
     $ref: ../fragments/groupIdentifier.yaml
   courseOfTherapyType:
     type: object
-    description: Denotes whether a prescription is an acute, a repeat, or an eRD.
+    description: Whether this prescription is acute, repeat or eRD.
     properties:
       coding:
         type: array
@@ -100,7 +98,7 @@ properties:
     $ref: ../fragments/dosageInstruction.yaml
   note:
     type: array
-    description: Specific additional instructions for a prescription line item, e.g. a change in dosage.
+    description: Additional instructions, provided by the prescriber for a specific Line Item.
     items:
       type: object
       properties:
@@ -111,8 +109,8 @@ properties:
   dispenseRequest:
     type: object
     description: |
-      A FHIR object containing information relevant to how the prescription should be dispensed. 
-      These values will be consistent across all MedicationRequests in a Bundle.
+      Details of the nomination for the prescription - P1, P2, P3 or 0004.
+      Only used for non nominated prescriptions.
     required: [quantity]
     properties:
       extension:
@@ -122,18 +120,14 @@ properties:
           $ref: ../extensions/DMPerformerSiteType.yaml
       numberOfRepeatsAllowed:
         type: integer
-        description: |
-          For eRD and repeat prescriptions only.
-          The number of repeats a line item was issued for, in addition to the existing issue.
-          E.g. If a prescription is valid for 6 issues in total, the value entered will be 5. 
-          For repeat prescriptions, this value will always default to 0.
+        description: eRD only - Allows patients to know how many issues have been authorised.
       validityPeriod:
         type: object
         description: The start and end dates of a prescription.
         properties:
           start:
             type: string
-            description: Start date of an issue. Sometimes same as prescription's start date.
+            description: The start date of an eRD issue; same as the prescription's start date.
             format: date
             example: "2023-06-02"
           end:
@@ -168,15 +162,13 @@ properties:
             example: d
       performer:
         type: object
-        description: |
-          For nominated prescriptions only, including one-off nominations.
-          The ODS code of the nominated pharmacy that a prescription will go to.
+        description: Returns the ODS code of the nominated dispensing site.
         properties:
           identifier:
             $ref: ../fragments/identifiers.yaml#/OdsOrganisationCode
       quantity:
         type: object
-        description: The quantity of a prescribed medication item.
+        description: The quantity of medication prescribed.
         properties:
           value:
             type: integer

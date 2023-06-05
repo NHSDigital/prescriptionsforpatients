@@ -84,6 +84,15 @@ components:
           type: string
           description: Object ID for the Bundle.
           example: 164996aa-29eb-4f14-a5ac-4b556a7baf6e
+        meta:
+          type: object
+          required: [lastUpdated]
+          properties:
+            lastUpdated:
+              type: string
+              description: The start date of a prescription. Helps the patient in knowing when the prescription is valid from.
+              format: date-time
+              example: "2023-06-05T10:11:12+00:00"
         identifier:
           type: object
           properties:
@@ -105,6 +114,7 @@ components:
           items:
             oneOf:
               - $ref: "#/components/schemas/MedicationRequest-Resource"
+              - $ref: "#/components/schemas/MessageHeader-Resource"
               - $ref: "#/components/schemas/Organisation-Resource"
               - $ref: "#/components/schemas/Practitioner-Resource"
               - $ref: "#/components/schemas/PractitionerRole-Resource"
@@ -118,6 +128,16 @@ components:
           example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49bb6
         resource:
           $ref: schemas/resources/MedicationRequest.yaml
+    MessageHeader-Resource:
+      type: object
+      description: MessageHeader
+      properties:
+        fullUrl:
+          type: string
+          description: Object URL for the resource.
+          example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49bb6
+        resource:
+          $ref: schemas/resources/MessageHeader.yaml
     Organisation-Resource:
       type: object
       description: Organisation

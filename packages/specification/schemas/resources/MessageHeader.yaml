@@ -1,0 +1,23 @@
+type: object
+required: [resourceType, eventCoding]
+properties:
+  resourceType:
+    type: string
+    description: FHIR resource type.
+    enum: [MessageHeader]
+  eventCoding:
+    type: object
+    description: The type of message event.
+    properties:
+      system:
+        type: string
+        description: Codesystem URL for message events.
+        enum: [https://fhir.nhs.uk/CodeSystem/message-event]
+      code:
+        type: string
+        description: Code for the message event.
+        enum: [prescription-order]
+      display:
+        type: string
+        description: Display value accompanying the code for the message event.
+        enum: [Prescription Order]

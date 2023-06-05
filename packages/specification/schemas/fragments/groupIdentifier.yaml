@@ -1,6 +1,6 @@
 type: object
 required: [value]
-description: An object containing the short-form and long-form Prescription ID.
+description: Prescription ID to facilitate accessing a prescription in the event that a barcode scanner was inoperable.
 properties:
   system:
     type: string
