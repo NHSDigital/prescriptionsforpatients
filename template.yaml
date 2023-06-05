@@ -102,6 +102,27 @@ Resources:
               - !GetAtt SplunkDataStream.Arn
       Roles:
         - !Ref SplunkSubscriptionFilterRole
+  SplunkDeliveryStream:
+    Type: AWS::KinesisFirehose::DeliveryStream
+    Properties:
+      DeliveryStreamType: KinesisStreamAsSource
+      KinesisStreamSourceConfiguration:
+        KinesisStreamARN: !GetAtt SplunkDataStream.Arn
+        RoleARN: !GetAtt SplunkDeliveryStreamDataStreamAccessRole.Arn
+      # Template SplunkDestinationConfiguration for when we get HEC information (Untested)
+      # SplunkDestinationConfiguration:
+      #   HECEndpoint: "" # TODO - Get HEC Endpoint info
+      #   HECEndpointType: "Raw"/"Event" # TODO - Get HEC Endpoint type
+      #   HECToken: "" # TODO - Get HEC Token
+      #   S3Configuration:
+      #     BucketARN: !GetAtt SplunkDeliveryStreamBackupBucket.Arn
+      #     RoleARN: !GetAtt SplunkDeliveryStreamBackupBucketRole.Arn
+      #     EncryptionConfiguration:
+      #       KMSEncryptionConfig:
+      #         AWSKMSKeyARN: !GetAtt CloudWatchKMSKey.Arn # TODO - Do we need a different KMS key for this?
+      S3DestinationConfiguration:
+        BucketARN: !GetAtt SplunkDeliveryStreamDestinationBucket.Arn
+        RoleARN: !GetAtt SplunkDeliveryStreamDestinationBucketRole.Arn
   SplunkDeliveryStreamDataStreamAccessRole:
     Type: "AWS::IAM::Role"
     Properties:
