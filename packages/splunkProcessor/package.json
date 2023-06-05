@@ -1,0 +1,16 @@
+{
+  "name": "splunkProcessor",
+  "version": "1.0.0",
+  "description": "authz",
+  "main": "app.js",
+  "author": "SAM CLI",
+  "license": "MIT",
+  "scripts": {
+    "unit": "jest",
+    "lint": "eslint . --ext .ts --max-warnings 0 --fix",
+    "compile": "tsc",
+    "test": "npm run compile && npm run unit",
+    "check-licenses": "license-checker --failOn GPL --failOn LGPL --start ../.."
+  },
+  "dependencies": {}
+}
