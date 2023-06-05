@@ -99,7 +99,9 @@ paths:
                 example:
                   description: A successful response to a GetMyPrescriptions/Bundle request.
                   value:
-                    $ref: examples/GetMyPrescriptions/Bundle/success.json
+                    oneOf:
+                      - $ref: examples/GetMyPrescriptions/Bundle/success.json
+                      - $ref: examples/GetMyPrescriptions/Bundle/success-empty.json
         "4XX":
           description: Invalid request.
           content:
