@@ -117,6 +117,7 @@ Resources:
       Roles:
         - !Ref SplunkSubscriptionFilterRole
   SplunkDeliveryStream:
+    DependsOn: SplunkDeliveryStreamDataStreamAccessPolicy
     Type: AWS::KinesisFirehose::DeliveryStream
     Properties:
       DeliveryStreamType: KinesisStreamAsSource
