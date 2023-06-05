@@ -233,6 +233,55 @@ Resources:
         Sourcemap: true
         EntryPoints:
           - app.js
+  SplunkDeliveryStreamProcessorRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+  SplunkDeliveryStreamProcessorLambdaPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-lambda-logging"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource:
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${SplunkDeliveryStreamProcessorLogGroup}"
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${SplunkDeliveryStreamProcessorLogGroup}:log-stream:*"
+      Roles:
+        - !Ref SplunkDeliveryStreamProcessorRole
+  SplunkDeliveryStreamProcessorKMSPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-KMS-access"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - kms:DescribeKey
+              - kms:GenerateDataKey*
+              - kms:Encrypt
+              - kms:ReEncrypt*
+            Resource:
+              - !GetAtt CloudWatchKMSKey.Arn
+      Roles:
+        - !Ref SplunkDeliveryStreamProcessorRole
+  SplunkDeliveryStreamProcessorLogGroup:
+    Type: "AWS::Logs::LogGroup"
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${SplunkDeliveryStreamProcessor}"
+      RetentionInDays: 90
+      KmsKeyId: !GetAtt CloudWatchKMSKey.Arn
   # Bucket and Role for a data stream destination bucket used as a test until Splunk HEC information is found
   SplunkDeliveryStreamDestinationBucket:
     Type: AWS::S3::Bucket
