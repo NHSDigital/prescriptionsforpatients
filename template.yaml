@@ -102,6 +102,31 @@ Resources:
               - !GetAtt SplunkDataStream.Arn
       Roles:
         - !Ref SplunkSubscriptionFilterRole
+  SplunkDeliveryStreamDataStreamAccessRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "firehose.amazonaws.com"
+            Action: "sts:AssumeRole"
+  SplunkDeliveryStreamDataStreamAccessPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-access-data-stream"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - kinesis:GetRecords
+              - kinesis:DescribeStream
+            Resource:
+              - !GetAtt SplunkDataStream.Arn
+      Roles:
+        - !Ref SplunkDeliveryStreamDataStreamAccessRole
 
   # Authz function stuff
   AuthzFunctionRole:
