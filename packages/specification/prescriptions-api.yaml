@@ -2,6 +2,11 @@
 # for the Prescriptions API
 # owned by NHS Digital (https://digital.nhs.uk/)
 
+# meta.lastUpdated at top level
+# Remove message header
+# Bearer token header
+# X request ID header
+
 openapi: 3.1.0
 x-nhs-api-spec-guid: 816f3e79-1d81-4ae7-af54-dcd4a739d01a
 info:
@@ -70,11 +75,10 @@ components:
     bundle-response:
       type: object
       required:
-        - resourceType
-        - identifier
-        - type
         - entry
-      description: A FHIR Bundle.
+        - resourceType
+        - type
+      description: A FHIR searchset Bundle.
       properties:
         resourceType:
           type: string
@@ -93,31 +97,55 @@ components:
               description: The start date of a prescription. Helps the patient in knowing when the prescription is valid from.
               format: date-time
               example: "2023-06-05T10:11:12+00:00"
-        identifier:
-          type: object
-          properties:
-            system:
-              type: string
-              description: Codesystem URL for identifiers.
-              enum: [https://tools.ietf.org/html/rfc4122]
-            value:
-              type: string
-              description: The X-Request ID for the message.
-              example: 164996aa-29eb-4f14-a5ac-4b556a7baf6e
         type:
           type: string
-          description: The reason why a series of resources and objects are grouped together.
-          enum: [message]
+          description: Denotes that the bundle is a list of resources returned as a result of a search.
+          enum: [searchset]
         entry:
           type: array
           description: A collection of resources contained within the Bundle.
           items:
-            oneOf:
-              - $ref: "#/components/schemas/MedicationRequest-Resource"
-              - $ref: "#/components/schemas/MessageHeader-Resource"
-              - $ref: "#/components/schemas/Organisation-Resource"
-              - $ref: "#/components/schemas/Practitioner-Resource"
-              - $ref: "#/components/schemas/PractitionerRole-Resource"
+            type: object
+            required:
+              - resourceType
+              - identifier
+              - type
+              - entry
+            description: A FHIR collection Bundle.
+            properties:
+              resourceType:
+                type: string
+                description: FHIR resource type.
+                default: Bundle
+              id:
+                type: string
+                description: Object ID for the Bundle.
+                example: 164996aa-29eb-4f14-a5ac-4b556a7baf6e
+              identifier:
+                type: object
+                properties:
+                  system:
+                    type: string
+                    description: Codesystem URL for identifiers.
+                    enum: [https://tools.ietf.org/html/rfc4122]
+                  value:
+                    type: string
+                    description: The X-Request ID for the message.
+                    example: 164996aa-29eb-4f14-a5ac-4b556a7baf6e
+              type:
+                type: string
+                description: Denotes that the bundle is a collection of resources. Representing a Prescription, in this case.
+                enum: [collection]
+              entry:
+                type: array
+                description: A collection of resources contained within the Bundle.
+                items:
+                  oneOf:
+                    - $ref: "#/components/schemas/MedicationRequest-Resource"
+                    - $ref: "#/components/schemas/MessageHeader-Resource"
+                    - $ref: "#/components/schemas/Organisation-Resource"
+                    - $ref: "#/components/schemas/Practitioner-Resource"
+                    - $ref: "#/components/schemas/PractitionerRole-Resource"
     MedicationRequest-Resource:
       type: object
       description: MedicationRequest
