@@ -1,16 +1,18 @@
 {
-  "name": "splunkProcessor",
+  "name": "splunk_processor",
   "version": "1.0.0",
-  "description": "authz",
+  "description": "Processor lambda for converting cloudwatch logs to splunk",
   "main": "app.js",
   "author": "SAM CLI",
   "license": "MIT",
   "scripts": {
     "unit": "jest",
-    "lint": "eslint . --ext .ts --max-warnings 0 --fix",
-    "compile": "tsc",
+    "lint": "eslint . --ext .js --max-warnings 0 --fix",
     "test": "npm run compile && npm run unit",
     "check-licenses": "license-checker --failOn GPL --failOn LGPL --start ../.."
   },
-  "dependencies": {}
+  "dependencies": {
+    "aws-sdk": "^2.1390.0",
+    "zlib": "^1.0.5"
+  }
 }
