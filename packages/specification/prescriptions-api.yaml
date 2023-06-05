@@ -2,7 +2,6 @@
 # for the Prescriptions API
 # owned by NHS Digital (https://digital.nhs.uk/)
 
-# meta.lastUpdated at top level
 # Remove message header
 # Bearer token header
 # X request ID header
@@ -142,7 +141,6 @@ components:
                 items:
                   oneOf:
                     - $ref: "#/components/schemas/MedicationRequest-Resource"
-                    - $ref: "#/components/schemas/MessageHeader-Resource"
                     - $ref: "#/components/schemas/Organisation-Resource"
                     - $ref: "#/components/schemas/Practitioner-Resource"
                     - $ref: "#/components/schemas/PractitionerRole-Resource"
@@ -156,16 +154,6 @@ components:
           example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49bb6
         resource:
           $ref: schemas/resources/MedicationRequest.yaml
-    MessageHeader-Resource:
-      type: object
-      description: MessageHeader
-      properties:
-        fullUrl:
-          type: string
-          description: Object URL for the resource.
-          example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49bb6
-        resource:
-          $ref: schemas/resources/MessageHeader.yaml
     Organisation-Resource:
       type: object
       description: Organisation
