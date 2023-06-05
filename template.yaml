@@ -66,6 +66,8 @@ Resources:
       TargetKeyId: !Ref CloudWatchKMSKey
 
   # Kinesis Splunk Firehose stuff
+
+  # Data stream
   SplunkDataStream:
     Type: "AWS::Kinesis::Stream"
     Properties:
@@ -77,6 +79,8 @@ Resources:
       StreamEncryption:
         EncryptionType: KMS
         KeyId: !GetAtt CloudWatchKMSKey.Arn
+
+  # Subscription filter roles and policies
   SplunkSubscriptionFilterRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -116,6 +120,8 @@ Resources:
               - !GetAtt CloudWatchKMSKey.Arn
       Roles:
         - !Ref SplunkSubscriptionFilterRole
+
+  # Delivery Stream, roles and policies
   SplunkDeliveryStream:
     # Depends on policy as delivery streams require a role with correct policies to be build, and a role reference doesn't provide a dependency as Stream -> Role <- Policy, so Stream -!> Policy
     DependsOn:
@@ -174,6 +180,8 @@ Resources:
               - !GetAtt SplunkDataStream.Arn
       Roles:
         - !Ref SplunkDeliveryStreamDataStreamAccessRole
+
+  # Backup bucket, roles and policies
   SplunkDeliveryStreamBackupBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -216,6 +224,8 @@ Resources:
                   - "/*"
       Roles:
         - !Ref SplunkDeliveryStreamBackupBucketRole
+
+  # Stream processor, roles,  policies and log groups
   SplunkDeliveryStreamProcessor:
     Type: AWS::Serverless::Function
     Properties:
@@ -282,6 +292,7 @@ Resources:
       LogGroupName: !Sub "/aws/lambda/${SplunkDeliveryStreamProcessor}"
       RetentionInDays: 90
       KmsKeyId: !GetAtt CloudWatchKMSKey.Arn
+
   # Bucket and Role for a data stream destination bucket used as a test until Splunk HEC information is found
   SplunkDeliveryStreamDestinationBucket:
     Type: AWS::S3::Bucket
