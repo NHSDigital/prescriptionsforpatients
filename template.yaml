@@ -117,7 +117,11 @@ Resources:
       Roles:
         - !Ref SplunkSubscriptionFilterRole
   SplunkDeliveryStream:
-    DependsOn: SplunkDeliveryStreamDataStreamAccessPolicy
+    # Depends on policy as delivery streams require a role with correct policies to be build, and a role reference doesn't provide a dependency as Stream -> Role <- Policy, so Stream -!> Policy
+    DependsOn:
+      - SplunkDeliveryStreamDataStreamAccessPolicy
+      - SplunkDeliveryStreamBackupBucketPolicy
+      - SplunkDeliveryStreamDestinationBucketPolicy
     Type: AWS::KinesisFirehose::DeliveryStream
     Properties:
       DeliveryStreamType: KinesisStreamAsSource
@@ -300,6 +304,9 @@ Resources:
       RetentionInDays: 90
       KmsKeyId: !GetAtt CloudWatchKMSKey.Arn
   AuthzSplunkSubscriptionFilter:
+    DependsOn:
+      - SplunkSubscriptionFilterDataStreamPolicy
+      - SplunkSubscriptionFilterKMSPolicy
     Type: "AWS::Logs::SubscriptionFilter"
     Properties:
       RoleArn: !GetAtt SplunkSubscriptionFilterRole.Arn
@@ -386,6 +393,9 @@ Resources:
       RetentionInDays: 90
       KmsKeyId: !GetAtt CloudWatchKMSKey.Arn
   GetMyPrescriptionsSplunkSubscriptionFilter:
+    DependsOn:
+      - SplunkSubscriptionFilterDataStreamPolicy
+      - SplunkSubscriptionFilterKMSPolicy
     Type: "AWS::Logs::SubscriptionFilter"
     Properties:
       RoleArn: !GetAtt SplunkSubscriptionFilterRole.Arn
