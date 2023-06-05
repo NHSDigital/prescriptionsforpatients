@@ -85,9 +85,9 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              Service: "kinesis.amazonaws.com"
+              Service: "logs.amazonaws.com"
             Action: "sts:AssumeRole"
-  SplunkSubscriptionFilterPolicy:
+  SplunkSubscriptionFilterDataStreamPolicy:
     Type: "AWS::IAM::Policy"
     Properties:
       PolicyName: "allow-put-data-stream-records"
@@ -100,6 +100,20 @@ Resources:
               - kinesis:PutRecords
             Resource:
               - !GetAtt SplunkDataStream.Arn
+      Roles:
+        - !Ref SplunkSubscriptionFilterRole
+  SplunkSubscriptionFilterKMSPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-kms-generate-data-key"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - kms:GenerateDataKey
+            Resource:
+              - !GetAtt CloudWatchKMSKey.Arn
       Roles:
         - !Ref SplunkSubscriptionFilterRole
   SplunkDeliveryStream:
@@ -170,7 +184,7 @@ Resources:
   SplunkDeliveryStreamBackupBucketPolicy:
     Type: "AWS::IAM::Policy"
     Properties:
-      PolicyName: "allow-get-data-stream-records"
+      PolicyName: "allow-backup-bucket-access"
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -206,7 +220,7 @@ Resources:
   SplunkDeliveryStreamDestinationBucketPolicy:
     Type: "AWS::IAM::Policy"
     Properties:
-      PolicyName: "allow-get-data-stream-records"
+      PolicyName: "allow-destination-bucket-access"
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
