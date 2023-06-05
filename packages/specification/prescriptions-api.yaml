@@ -2,7 +2,7 @@
 # for the Prescriptions API
 # owned by NHS Digital (https://digital.nhs.uk/)
 
-openapi: 3.0.0
+openapi: 3.1.0
 x-nhs-api-spec-guid: 816f3e79-1d81-4ae7-af54-dcd4a739d01a
 info:
   title: Prescriptions API
