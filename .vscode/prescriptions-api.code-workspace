@@ -21,6 +21,7 @@
 			"packages/": true,
 		},
         "cSpell.words": [
+			"AWSKMS",
 			"Caldicott",
 			"canonicalise",
 			"Canonicaliser",
