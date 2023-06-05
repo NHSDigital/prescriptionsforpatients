@@ -6,7 +6,7 @@ openapi: 3.1.0
 x-nhs-api-spec-guid: 816f3e79-1d81-4ae7-af54-dcd4a739d01a
 info:
   title: Prescriptions API
-  version: "{VERSION}"
+  version: "0.0.1"
   contact:
     name: Prescriptions API Support
     url: https://digital.nhs.uk/developer/help-and-support
