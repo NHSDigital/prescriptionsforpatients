@@ -141,6 +141,13 @@ Resources:
                   - "apigateway:PATCH"
                   - "apigateway:PUT"
                   - "s3:CreateBucket"
+                  - "s3:DeleteBucket"
+                  - "s3:SetBucketEncryption"
+                  - "s3:PutEncryptionConfiguration"
+                  - "kinesis:CreateStream"
+                  - "kinesis:DeleteStream"
+                  - "kinesis:DescribeStream"
+                  - "kinesis:DescribeStreamSummary"
                 Resource: "*"
 
   # KMS S3 encryption key
