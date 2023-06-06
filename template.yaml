@@ -384,12 +384,11 @@ Resources:
     DependsOn:
       - SplunkSubscriptionFilterDataStreamPolicy
       - SplunkSubscriptionFilterKMSPolicy
-    Type: "AWS::Logs::SubscriptionFilter"
+    Type: AWS::Logs::SubscriptionFilter
     Properties:
       RoleArn: !GetAtt SplunkSubscriptionFilterRole.Arn
       LogGroupName: !Ref AuthzFunctionLogGroup
-      Distribution: "Random"
-      FilterPattern: " " # Replace as needed
+      FilterPattern: '" "' # Replace as needed
       DestinationArn: !GetAtt SplunkDataStream.Arn
   AuthzFunction:
     Type: AWS::Serverless::Function
@@ -473,11 +472,11 @@ Resources:
     DependsOn:
       - SplunkSubscriptionFilterDataStreamPolicy
       - SplunkSubscriptionFilterKMSPolicy
-    Type: "AWS::Logs::SubscriptionFilter"
+    Type: AWS::Logs::SubscriptionFilter
     Properties:
       RoleArn: !GetAtt SplunkSubscriptionFilterRole.Arn
       LogGroupName: !Ref GetMyPrescriptionsLogGroup
-      FilterPattern: " " # Replace as needed
+      FilterPattern: '" "' # Replace as needed
       DestinationArn: !GetAtt SplunkDataStream.Arn
   GetMyPrescriptions:
     Type: AWS::Serverless::Function
