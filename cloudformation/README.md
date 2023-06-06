@@ -15,7 +15,7 @@ export AWS_PROFILE=<name of AWS profile defined in ~/.aws/config>
 aws sso login --sso-session sso-session
 
 aws cloudformation deploy \
-          --template-file cloudformation/ci_resources.yaml \
+          --template-file cloudformation/ci_resources.yml \
           --stack-name ci-resources \
           --region eu-west-2 \
           --capabilities CAPABILITY_IAM
