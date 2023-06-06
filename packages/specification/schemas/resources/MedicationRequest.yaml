@@ -25,11 +25,8 @@ properties:
     description: FHIR extension array.
     items:
       oneOf:
-        - $ref: ../extensions/ControlledDrug.yaml
         - $ref: ../extensions/DispensingInformation.yaml
-        - $ref: ../extensions/DMResponsiblePractitioner.yaml
         - $ref: ../extensions/MedicationRepeatInformation.yaml
-        - $ref: ../extensions/PrescriptionEndorsement.yaml
   identifier:
     type: array
     description: The unique identifier for this line item on the prescription.
@@ -43,20 +40,6 @@ properties:
     type: string
     description: The intent of a MedicationRequest object.
     enum: [order, original-order, instance-order]
-  category:
-    type: array
-    description: |
-      Identifies the context in which a prescription was created.
-      For example, a prescription created within primary care will be categorised as "community."
-      Similarly, a prescription created within secondary care will be categorised as "inpatient" or "outpatient."
-      This will be consistent across all MedicationRequests in a Bundle.
-    items:
-      type: object
-      properties:
-        coding:
-          type: array
-          items:
-            $ref: ../fragments/codes.yaml#/MedicationRequestCategory
   medicationCodeableConcept:
     type: object
     description: The medication prescribed to a patient.
@@ -78,7 +61,9 @@ properties:
     example: "2023-06-02T10:11:12+00:00"
   requester:
     type: object
-    description: Useful if the patient or dispenser has a query about the prescription
+    description: |
+      The prescriber who created the prescription.
+      Useful if the patient or dispenser has a query about the prescription.
     properties:
       reference:
         type: string

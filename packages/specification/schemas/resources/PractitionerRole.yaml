@@ -5,7 +5,7 @@ required:
   - organization
   - code
   - telecom
-description: Role-specific details of the author or responsible party of a prescription.
+description: Role-specific details of the prescriber of a prescription.
 properties:
   resourceType:
     type: string
@@ -22,7 +22,7 @@ properties:
           - $ref: ../fragments/identifiers.yaml#/NhsBsaSpuriousCode
   practitioner:
     type: object
-    description: A reference to a Practitioner resource for a given prescriber or dispenser.
+    description: A reference to a Practitioner resource for a given prescriber.
     properties:
       reference:
         type: string

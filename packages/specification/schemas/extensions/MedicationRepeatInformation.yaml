@@ -10,16 +10,26 @@ properties:
     type: array
     description: FHIR extension array.
     items:
-      type: object
-      properties:
-        url:
-          type: string
+      oneOf:
+        - type: object
           description: |
             The review date of the prescription.
             This is a required field for repeat and eRD prescriptions.
             It captures the date at which the prescriber must review the repeat medication that a patient is on.
-          enum: [authorisationExpiryDate]
-        valueDateTime:
-          type: string
-          description: A date value.
-          example: "2023-06-02"
+          properties:
+            url:
+              type: string
+              enum: [authorisationExpiryDate]
+            valueDateTime:
+              type: string
+              description: A date value.
+              example: "2023-06-02"
+        - type: object
+          description: The number of prescriptions that have been issued.
+          properties:
+            url:
+              type: string
+              enum: [numberOfPrescriptionsIssued]
+            valueUnsignedInt:
+              type: int
+              example: 2

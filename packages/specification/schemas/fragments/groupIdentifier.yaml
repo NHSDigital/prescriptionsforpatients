@@ -1,6 +1,8 @@
 type: object
 required: [value]
-description: Prescription ID to facilitate accessing a prescription in the event that a barcode scanner was inoperable.
+description: |
+  Prescription ID to be used by the client to generate a prescription barcode.
+  Can be used directly to facilitate accessing a prescription, in the event that a barcode scanner was inoperable.
 properties:
   system:
     type: string
@@ -10,8 +12,3 @@ properties:
     type: string
     description: The short-form Prescription ID.
     example: 04F4C2-A99968-7F717P
-  extension:
-    type: array
-    description: FHIR extension array containing the long-form Prescription ID.
-    items:
-      $ref: ../extensions/DMPrescriptionId.yaml

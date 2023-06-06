@@ -66,7 +66,6 @@ info:
     | 403           | FORBIDDEN             | Insufficient authorization.                                                                                                           |
     | 404           | NOT_FOUND             | Route not found.                                                                                                                      |
     | 500           | INTERNAL SERVER ERROR | The server has encountered a situation it does not know how to handle.                                                                |
-    | 504           | GATEWAY_TIMEOUT       | If your request has not been fully processed within 59 seconds, you will get this response. Retry the request with identical payload. |
 
     For further details on common error codes, see [HTTP status codes](https://digital.nhs.uk/developer/guides-and-documentation/reference-guide#http-status-codes)
 
@@ -86,7 +85,6 @@ paths:
         Use this endpoint to get a Bundle containing a list of the user's prescriptions.
       parameters:
         - $ref: "#/components/parameters/BearerAuthorisation"
-        - $ref: "#/components/parameters/NhsNumber"
         - $ref: "#/components/parameters/RequestID"
       responses:
         "200":
@@ -130,23 +128,14 @@ components:
         type: string
         format: '^Bearer\ [[:ascii:]]+$'
         example: "Bearer g1112R_ccQ1Ebbb4gtHBP1aaaNM"
-    NhsNumber:
-      in: header
-      name: NHS-Number
-      description: The NHS number of the patient whose prescriptions are to be returned.
-      required: true
-      schema:
-        type: string
-        example: "9434765919"
     RequestID:
       in: header
       name: X-Request-ID
       required: true
       description: |
-        A globally unique identifier (GUID) for the request, which we use to de-duplicate repeated requests and to trace the request if you contact our helpdesk.
+        A globally unique identifier (GUID) for the request, which we use to correlate logs through different components.
         Must be a universally unique identifier (UUID) (ideally version 4).
         Mirrored back in a response header.
-        If you re-send a failed request, use the same value in this header.
       schema:
         type: string
         pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
@@ -203,17 +192,6 @@ components:
                 type: string
                 description: Object ID for the Bundle.
                 example: 164996aa-29eb-4f14-a5ac-4b556a7baf6e
-              identifier:
-                type: object
-                properties:
-                  system:
-                    type: string
-                    description: Codesystem URL for identifiers.
-                    enum: [https://tools.ietf.org/html/rfc4122]
-                  value:
-                    type: string
-                    description: The X-Request ID for the message.
-                    example: 164996aa-29eb-4f14-a5ac-4b556a7baf6e
               type:
                 type: string
                 description: Denotes that the bundle is a collection of resources. Representing a Prescription, in this case.
@@ -231,39 +209,23 @@ components:
       type: object
       description: MedicationRequest
       properties:
-        fullUrl:
-          type: string
-          description: Object URL for the resource.
-          example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49bb6
         resource:
           $ref: schemas/resources/MedicationRequest.yaml
     Organisation-Resource:
       type: object
       description: Organisation
       properties:
-        fullUrl:
-          type: string
-          description: Object URL for the resource.
-          example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6
         resource:
           $ref: schemas/resources/Organisation.yaml
     Practitioner-Resource:
       type: object
       description: Practitioner
       properties:
-        fullUrl:
-          type: string
-          description: Object URL for the resource.
-          example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6
         resource:
           $ref: schemas/resources/Practitioner.yaml
     PractitionerRole-Resource:
       type: object
       description: PractitionerRole
       properties:
-        fullUrl:
-          type: string
-          description: Object URL for the resource.
-          example: urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6
         resource:
           $ref: schemas/resources/PractitionerRole.yaml

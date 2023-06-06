@@ -1,5 +1,6 @@
 OdsOrganisationCode:
   type: object
+  description: The Organisation Data Service (ODS) code.
   required: [system, value]
   properties:
     system:
@@ -12,7 +13,7 @@ OdsOrganisationCode:
       example: A83008
 SdsRoleProfileId:
   type: object
-  description: The prescriber or dispenser's SDS Role Profile ID.
+  description: The prescriber's Spine Directory Service (SDS) Role Profile ID.
   required: [system, value]
   properties:
     system:
@@ -25,7 +26,7 @@ SdsRoleProfileId:
       example: "555086415105"
 NhsBsaSpuriousCode:
   type: object
-  description: The prescriber or dispenser's spurious code.
+  description: The prescriber's NHS Business Services Authority (BSA) spurious code.
   required: [system, value]
   properties:
     system:
@@ -43,7 +44,7 @@ NhsNumber:
     system:
       type: string
       format: url
-      description: FHIR codesystem URL for NHS numbers.
+      description: Codesystem URL for the NHS number.
       enum: [https://fhir.nhs.uk/Id/nhs-number]
     value:
       description: |
@@ -66,7 +67,7 @@ PrescriptionOrderItemNumber:
       example: dd11b07e-e137-488e-bc28-ab50384208b5
 SdsUserId:
   type: object
-  description: The prescriber or dispenser's SDS User Identifier.
+  description: The prescriber's Spine Directory Service (SDS) User Identifier.
   required: [system, value]
   properties:
     system:
@@ -79,11 +80,12 @@ SdsUserId:
       example: "555086689107"
 DinNumber:
   type: object
+  description: The prescriber's Doctors Index Number (DIN).
   required: [system, value]
   properties:
     system:
       type: string
-      description: Codesystem URL for the DIN Number.
+      description: Codesystem URL for the DIN.
       enum: [https://fhir.hl7.org.uk/Id/din-number]
     value:
       type: string
@@ -91,7 +93,7 @@ DinNumber:
       example: "977677"
 GmcNumber:
   type: object
-  description: The prescriber's GMC number.
+  description: The prescriber's General Medical Council (GMC) number.
   properties:
     system:
       type: string
@@ -103,7 +105,7 @@ GmcNumber:
       example: "C6095103"
 GphcNumber:
   type: object
-  description: The prescriber's GPhC number.
+  description: The prescriber's General Pharmaceutical Council (GPhC) number.
   properties:
     system:
       type: string
@@ -115,7 +117,7 @@ GphcNumber:
       example: "2095103"
 HcpcNumber:
   type: object
-  description: The prescriber or dispenser's HCPC number.
+  description: The prescriber's Health and Care Professions Council (HCPC) number.
   required: [system, value]
   properties:
     system:
@@ -128,7 +130,7 @@ HcpcNumber:
       example: CH001234
 NmcNumber:
   type: object
-  description: The prescriber's NMC number.
+  description: The prescriber's Nursing and Midwifery Council (NMC) number.
   required: [system, value]
   properties:
     system:
