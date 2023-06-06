@@ -165,9 +165,7 @@ Resources:
     Type: AWS::KMS::Alias
     Properties:
       AliasName: alias/ArtifactsBucketKMSKeyAlias
-      TargetKeyId:
-        Ref: ArtifactsBucketKMSKey
-
+      TargetKeyId: !Ref ArtifactsBucketKMSKey
   ArtifactsBucket:
     Type: AWS::S3::Bucket
     # TODO uncomment this once happy with everything
