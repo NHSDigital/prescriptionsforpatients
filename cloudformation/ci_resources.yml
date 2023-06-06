@@ -142,6 +142,16 @@ Resources:
                   - "apigateway:PUT"
                   - "s3:CreateBucket"
                 Resource: "*"
+        - PolicyName: GrantCloudFormationCreateS3BucketAccess
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "s3:CreateBucket"
+                NotResource:
+                  - !Join ["", [!GetAtt ArtifactsBucket.Arn, "/*"]]
+                  - !GetAtt ArtifactsBucket.Arn
 
   # KMS S3 encryption key
   ArtifactsBucketKMSKey:
