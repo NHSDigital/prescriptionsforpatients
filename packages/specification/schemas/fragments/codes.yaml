@@ -64,7 +64,7 @@ SnomedSctMedication:
       enum: [http://snomed.info/sct]
     code:
       type: string
-      description: SNOMED code for the medication, as defined in the dm+d.
+      description: SNOMED code for the medication, as defined in the Dictionary of Medicines and Devices (DM+D).
       example: "321196004"
     display:
       type: string
