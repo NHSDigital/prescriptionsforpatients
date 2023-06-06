@@ -4,12 +4,6 @@ guard-%:
 		exit 1; \
 	fi
 
-remove_rollbacks:
-	@ if [ $(shell aws cloudformation describe-stacks --stack-name $$stack_name | jq '.["Stacks"][0]["StackStatus"]') = "ROLLBACK_COMPLETE" ]; then \
-		echo "Removing rolled back stack"; \
-		$(MAKE) sam-delete-no-prompt; \
-	fi
-
 .PHONY: install build test publish release clean
 
 install: install-python install-hooks install-node
@@ -38,9 +32,6 @@ sam-deploy: guard-AWS_DEFAULT_PROFILE guard-stack_name
 sam-delete: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam delete --stack-name $$stack_name
 
-sam-delete-no-prompt: guard-AWS_DEFAULT_PROFILE guard-stack_name
-	sam delete --stack-name $$stack_name --no-prompts
-
 sam-list-endpoints: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam list endpoints --stack-name $$stack_name
 
@@ -53,7 +44,7 @@ sam-list-outputs: guard-AWS_DEFAULT_PROFILE guard-stack_name
 sam-validate: 
 	sam validate
 
-sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role remove_rollbacks
+sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role
 	sam deploy \
 		--template-file $$template_file \
 		--stack-name $$stack_name \
