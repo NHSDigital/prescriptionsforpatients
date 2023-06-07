@@ -134,7 +134,7 @@ jobs:
       TARGET_SPINE_SERVER: sandbox
     
   release_prod:
-    needs: [tag_release, release_int, package_code]
+    needs: [tag_release, release_int, release_sandbox, package_code]
     uses: ./.github/workflows/sam_release_code.yml
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
