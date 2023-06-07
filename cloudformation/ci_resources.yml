@@ -145,6 +145,7 @@ Resources:
                   - "s3:SetBucketEncryption"
                   - "s3:PutEncryptionConfiguration"
                   - "firehose:CreateDeliveryStream"
+                  - "firehose:DescribeDeliveryStream"
                 Resource: "*"
 
   # KMS S3 encryption key
