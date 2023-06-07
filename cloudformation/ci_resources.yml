@@ -114,6 +114,8 @@ Resources:
                   - "logs:TagLogGroup"
                   - "logs:PutRetentionPolicy"
                   - "logs:DeleteRetentionPolicy"
+                  - "logs:DescribeSubscriptionFilters"
+                  - "logs:DeleteSubscriptionFilter"
                   - "lambda:Add*"
                   - "lambda:CreateFunction"
                   - "lambda:Delete*"
@@ -146,6 +148,7 @@ Resources:
                   - "s3:PutEncryptionConfiguration"
                   - "firehose:CreateDeliveryStream"
                   - "firehose:DescribeDeliveryStream"
+                  - "firehose:DeleteDeliveryStream"
                 Resource: "*"
 
   # KMS S3 encryption key
