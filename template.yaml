@@ -91,7 +91,7 @@ Resources:
             Principal:
               Service: "logs.amazonaws.com"
             Action: "sts:AssumeRole"
-  SplunkSubscriptionFilterDataStreamPolicy:
+  SplunkSubscriptionFilterDeliveryStreamPolicy:
     Type: "AWS::IAM::Policy"
     Properties:
       PolicyName: "allow-put-data-stream-records"
@@ -100,10 +100,9 @@ Resources:
         Statement:
           - Effect: Allow
             Action:
-              - kinesis:PutRecord
-              - kinesis:PutRecords
+              - firehose:PutRecord
             Resource:
-              - !GetAtt SplunkDataStream.Arn
+              - !GetAtt SplunkDeliveryStream.Arn
       Roles:
         - !Ref SplunkSubscriptionFilterRole
   SplunkSubscriptionFilterKMSPolicy:
@@ -130,10 +129,10 @@ Resources:
       - SplunkDeliveryStreamDestinationBucketPolicy
     Type: AWS::KinesisFirehose::DeliveryStream
     Properties:
-      DeliveryStreamType: KinesisStreamAsSource
-      KinesisStreamSourceConfiguration:
-        KinesisStreamARN: !GetAtt SplunkDataStream.Arn
-        RoleARN: !GetAtt SplunkDeliveryStreamDataStreamAccessRole.Arn
+      DeliveryStreamType: DirectPut
+      # KinesisStreamSourceConfiguration:
+      #   KinesisStreamARN: !GetAtt SplunkDataStream.Arn
+      #   RoleARN: !GetAtt SplunkDeliveryStreamDataStreamAccessRole.Arn
       # Template SplunkDestinationConfiguration for when we get HEC information (Untested)
       # SplunkDestinationConfiguration:
       #   HECEndpoint: "" # TODO - Get HEC Endpoint info
@@ -382,14 +381,14 @@ Resources:
       KmsKeyId: !GetAtt CloudWatchKMSKey.Arn
   AuthzSplunkSubscriptionFilter:
     DependsOn:
-      - SplunkSubscriptionFilterDataStreamPolicy
+      - SplunkSubscriptionFilterDeliveryStreamPolicy
       - SplunkSubscriptionFilterKMSPolicy
     Type: AWS::Logs::SubscriptionFilter
     Properties:
       RoleArn: !GetAtt SplunkSubscriptionFilterRole.Arn
       LogGroupName: !Ref AuthzFunctionLogGroup
       FilterPattern: '" "' # Replace as needed
-      DestinationArn: !GetAtt SplunkDataStream.Arn
+      DestinationArn: !GetAtt SplunkDeliveryStream.Arn
   AuthzFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -470,14 +469,14 @@ Resources:
       KmsKeyId: !GetAtt CloudWatchKMSKey.Arn
   GetMyPrescriptionsSplunkSubscriptionFilter:
     DependsOn:
-      - SplunkSubscriptionFilterDataStreamPolicy
+      - SplunkSubscriptionFilterDeliveryStreamPolicy
       - SplunkSubscriptionFilterKMSPolicy
     Type: AWS::Logs::SubscriptionFilter
     Properties:
       RoleArn: !GetAtt SplunkSubscriptionFilterRole.Arn
       LogGroupName: !Ref GetMyPrescriptionsLogGroup
       FilterPattern: '" "' # Replace as needed
-      DestinationArn: !GetAtt SplunkDataStream.Arn
+      DestinationArn: !GetAtt SplunkDeliveryStream.Arn
   GetMyPrescriptions:
     Type: AWS::Serverless::Function
     Properties:
