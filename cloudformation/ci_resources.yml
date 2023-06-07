@@ -144,10 +144,7 @@ Resources:
                   - "s3:DeleteBucket"
                   - "s3:SetBucketEncryption"
                   - "s3:PutEncryptionConfiguration"
-                  - "kinesis:CreateStream"
-                  - "kinesis:DeleteStream"
-                  - "kinesis:DescribeStream"
-                  - "kinesis:DescribeStreamSummary"
+                  - "firehose:CreateDeliveryStream"
                 Resource: "*"
 
   # KMS S3 encryption key
