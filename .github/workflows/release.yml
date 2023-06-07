@@ -76,9 +76,21 @@ jobs:
       TARGET_ENVIRONMENT: dev
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_SPINE_SERVER: ${{ secrets.DEV_TARGET_SPINE_SERVER }}
 
+  release_dev_sandbox:
+    needs: [tag_release, package_code]
+    uses: ./.github/workflows/sam_release_code.yml
+    with:
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      STACK_NAME: dev-sandbox
+      TARGET_ENVIRONMENT: dev
+    secrets:
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_SPINE_SERVER: sandbox
+    
   release_ref:
-    needs: [tag_release, release_dev, package_code]
+    needs: [tag_release, release_dev, release_dev_sandbox, package_code]
     uses: ./.github/workflows/sam_release_code.yml
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
@@ -86,9 +98,10 @@ jobs:
       TARGET_ENVIRONMENT: ref
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.REF_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_SPINE_SERVER: ${{ secrets.REF_TARGET_SPINE_SERVER }}
 
   release_qa:
-    needs: [tag_release, release_dev, package_code]
+    needs: [tag_release, release_dev, release_dev_sandbox, package_code]
     uses: ./.github/workflows/sam_release_code.yml
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
@@ -96,6 +109,7 @@ jobs:
       TARGET_ENVIRONMENT: qa
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.QA_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_SPINE_SERVER: ${{ secrets.QA_TARGET_SPINE_SERVER }}
 
   release_int:
     needs: [tag_release, release_qa, package_code]
@@ -106,7 +120,19 @@ jobs:
       TARGET_ENVIRONMENT: int
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_SPINE_SERVER: ${{ secrets.INT_TARGET_SPINE_SERVER }}
 
+  release_sandbox:
+    needs: [tag_release, release_qa, package_code]
+    uses: ./.github/workflows/sam_release_code.yml
+    with:
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      STACK_NAME: int-sandox
+      TARGET_ENVIRONMENT: int
+    secrets:
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_SPINE_SERVER: sandbox
+    
   release_prod:
     needs: [tag_release, release_int, package_code]
     uses: ./.github/workflows/sam_release_code.yml
@@ -116,3 +142,4 @@ jobs:
       TARGET_ENVIRONMENT: prod
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_SPINE_SERVER: ${{ secrets.PROD_TARGET_SPINE_SERVER }}

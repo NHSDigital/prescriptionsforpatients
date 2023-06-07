@@ -10,9 +10,9 @@ Globals:
     MemorySize: 256
 
 Parameters:
-  EndpointUrl:
+  TargetSpineServer:
     Type: String
-    Description: EndpointUrl
+    Description: TargetSpineServer
     Default: none
 
 # Example of Mappings
@@ -126,7 +126,7 @@ Resources:
         - x86_64
       Environment:
         Variables:
-          EndpointUrl: !Ref EndpointUrl
+          TargetSpineServer: !Ref TargetSpineServer
           NODE_OPTIONS: --enable-source-maps
       Events:
         authz:
@@ -204,7 +204,7 @@ Resources:
         - x86_64
       Environment:
         Variables:
-          EndpointUrl: !Ref EndpointUrl
+          TargetSpineServer: !Ref TargetSpineServer
           NODE_OPTIONS: --enable-source-maps
       Events:
         authz:

@@ -51,3 +51,16 @@ jobs:
       TARGET_ENVIRONMENT: dev-pr
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_SPINE_SERVER: ${{ secrets.DEV_TARGET_SPINE_SERVER }}
+
+  release_sandbox_code:
+    needs: [get_issue_number, package_code]
+    uses: ./.github/workflows/sam_release_code.yml
+    with:
+      STACK_NAME: PR-sanddox-${{needs.get_issue_number.outputs.issue_number}}
+      ARTIFACT_BUCKET_PREFIX: PR-sandbox-${{needs.get_issue_number.outputs.issue_number}}
+      TARGET_ENVIRONMENT: dev-pr
+    secrets:
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_SPINE_SERVER: sandbox
+    

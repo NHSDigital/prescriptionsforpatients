@@ -19,7 +19,8 @@ const logger = new Logger({serviceName: "getMyPrescriptions"})
  */
 
 const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  logger.info("hello world from getMyPrescriptions logger")
+  const targetSpineServer = process.env.TargetSpineServer
+  logger.info(`hello world from getMyPrescriptions logger - target spine server ${targetSpineServer}`)
 
   const returnType = event.queryStringParameters?.returnType
   logger.info({message: "value of returnType", returnType})
