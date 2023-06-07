@@ -67,19 +67,6 @@ Resources:
 
   # Kinesis Splunk Firehose stuff
 
-  # Data stream
-  SplunkDataStream:
-    Type: "AWS::Kinesis::Stream"
-    Properties:
-      RetentionPeriodHours: 720 # 30 days of log retention
-      StreamModeDetails:
-        StreamMode: "ON_DEMAND"
-        # Using on demand as provisioned + dev deployments would be expensive
-        # May want to change for prod if needed
-      StreamEncryption:
-        EncryptionType: KMS
-        KeyId: !GetAtt CloudWatchKMSKey.Arn
-
   # Subscription filter roles and policies
   SplunkSubscriptionFilterRole:
     Type: "AWS::IAM::Role"
@@ -124,15 +111,11 @@ Resources:
   SplunkDeliveryStream:
     # Depends on policy as delivery streams require a role with correct policies to be build, and a role reference doesn't provide a dependency as Stream -> Role <- Policy, so Stream -!> Policy
     DependsOn:
-      - SplunkDeliveryStreamDataStreamAccessPolicy
       - SplunkDeliveryStreamBackupBucketPolicy
       - SplunkDeliveryStreamDestinationBucketPolicy
     Type: AWS::KinesisFirehose::DeliveryStream
     Properties:
       DeliveryStreamType: DirectPut
-      # KinesisStreamSourceConfiguration:
-      #   KinesisStreamARN: !GetAtt SplunkDataStream.Arn
-      #   RoleARN: !GetAtt SplunkDeliveryStreamDataStreamAccessRole.Arn
       # Template SplunkDestinationConfiguration for when we get HEC information (Untested)
       # SplunkDestinationConfiguration:
       #   HECEndpoint: "" # TODO - Get HEC Endpoint info
@@ -154,31 +137,6 @@ Resources:
       S3DestinationConfiguration:
         BucketARN: !GetAtt SplunkDeliveryStreamDestinationBucket.Arn
         RoleARN: !GetAtt SplunkDeliveryStreamDestinationBucketRole.Arn
-  SplunkDeliveryStreamDataStreamAccessRole:
-    Type: "AWS::IAM::Role"
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: "firehose.amazonaws.com"
-            Action: "sts:AssumeRole"
-  SplunkDeliveryStreamDataStreamAccessPolicy:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: "allow-access-data-stream"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - kinesis:GetRecords
-              - kinesis:DescribeStream
-            Resource:
-              - !GetAtt SplunkDataStream.Arn
-      Roles:
-        - !Ref SplunkDeliveryStreamDataStreamAccessRole
 
   # Backup bucket, roles and policies
   SplunkDeliveryStreamBackupBucket:
