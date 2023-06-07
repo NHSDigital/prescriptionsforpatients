@@ -202,7 +202,8 @@ components:
                 items:
                   oneOf:
                     - $ref: "#/components/schemas/MedicationRequest-Resource"
-                    - $ref: "#/components/schemas/Organisation-Resource"
+                    - $ref: "#/components/schemas/OrganisationDispensing-Resource"
+                    - $ref: "#/components/schemas/OrganisationPrescribing-Resource"
                     - $ref: "#/components/schemas/Practitioner-Resource"
                     - $ref: "#/components/schemas/PractitionerRole-Resource"
     MedicationRequest-Resource:
@@ -211,12 +212,18 @@ components:
       properties:
         resource:
           $ref: schemas/resources/MedicationRequest.yaml
-    Organisation-Resource:
+    OrganisationDispensing-Resource:
       type: object
-      description: Organisation
+      description: Dispensing Organisation
       properties:
         resource:
-          $ref: schemas/resources/Organisation.yaml
+          $ref: schemas/resources/OrganisationDispensing.yaml
+    OrganisationPrescribing-Resource:
+      type: object
+      description: Prescribing Organisation
+      properties:
+        resource:
+          $ref: schemas/resources/OrganisationPrescribing.yaml
     Practitioner-Resource:
       type: object
       description: Practitioner

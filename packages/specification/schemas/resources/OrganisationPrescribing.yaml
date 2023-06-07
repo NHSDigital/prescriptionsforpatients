@@ -1,5 +1,5 @@
 type: object
-description: Details of prescribing organisation (primary care) or the managing organisation (secondary care) for a prescription.
+description: Details of the prescribing organisation (primary care) or the managing organisation (secondary care) for a prescription.
 properties:
   resourceType:
     type: string
