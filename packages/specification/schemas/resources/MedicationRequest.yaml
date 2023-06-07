@@ -11,7 +11,6 @@ required:
   - requester
   - groupIdentifier
   - courseOfTherapyType
-  - dosageInstruction
   - dispenseRequest
   - substitution
 description: Information about a specific line item within a prescription.
