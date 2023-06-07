@@ -243,6 +243,20 @@ Resources:
               - !GetAtt CloudWatchKMSKey.Arn
       Roles:
         - !Ref SplunkDeliveryStreamProcessorRole
+  SplunkDeliveryStreamProcessorDeliveryStreamPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: "allow-delivery-stream-put-records"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - firehose:PutRecordBatch
+            Resource:
+              - !GetAtt SplunkDeliveryStream.Arn
+      Roles:
+        - !Ref SplunkDeliveryStreamProcessorRole
   SplunkDeliveryStreamProcessorLogGroup:
     Type: "AWS::Logs::LogGroup"
     Properties:
