@@ -114,6 +114,7 @@ Resources:
                   - "logs:TagLogGroup"
                   - "logs:PutRetentionPolicy"
                   - "logs:DeleteRetentionPolicy"
+                  - "logs:PutSubscriptionFilter"
                   - "logs:DescribeSubscriptionFilters"
                   - "logs:DeleteSubscriptionFilter"
                   - "lambda:Add*"
