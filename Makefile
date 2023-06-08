@@ -20,6 +20,9 @@ install-hooks: install-python
 sam-build: sam-validate
 	sam build
 
+sam-build-sandbox: sam-validate-sandbox
+	sam build --template-file sandbox_template.yaml
+
 sam-run-local: sam-build
 	sam local start-api
 
@@ -43,6 +46,9 @@ sam-list-outputs: guard-AWS_DEFAULT_PROFILE guard-stack_name
 
 sam-validate: 
 	sam validate
+
+sam-validate-sandbox: 
+	sam build --template-file sandbox_template.yaml
 
 sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role
 	sam deploy \

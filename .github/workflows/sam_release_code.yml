@@ -12,7 +12,10 @@ on:
       TARGET_ENVIRONMENT:
         required: true
         type: string
-    secrets:
+      BUILD_ARTIFACT:
+        required: true
+        type: string
+      secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
       TARGET_SPINE_SERVER:
@@ -36,7 +39,7 @@ jobs:
       - uses: actions/download-artifact@v3
         name: download build artifact
         with:
-          name: packaged_code
+          name: ${{ inputs.BUILD_ARTIFACT }}
           path: .
 
       - shell: bash

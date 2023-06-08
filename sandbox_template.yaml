@@ -1,0 +1,313 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  prescriptions api
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 256
+
+Parameters:
+  TargetSpineServer:
+    Type: String
+    Description: TargetSpineServer
+    Default: none
+
+# Example of Mappings
+# Mappings:
+#   EnvVariables:
+#     stage:
+#         var1: user1
+#         API_BASE_URL: https://baseurl1.com
+#     prod:
+#         var1: user2
+#         API_BASE_URL: https://baseurl2.com
+
+# SAM Connectors: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/reference-sam-connector.html
+# https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-connector.html
+# More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+# More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+
+Resources:
+  # common KMS key for cloudwatch log groups
+  CloudWatchKMSKey:
+    Type: "AWS::KMS::Key"
+    Properties:
+      KeyPolicy:
+        Version: 2012-10-17
+        Id: key-policy-id
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+            Action: "kms:*"
+            Resource: "*"
+          - Effect: Allow
+            Principal:
+              Service: !Sub "logs.${AWS::Region}.amazonaws.com"
+            Action:
+              - kms:Encrypt*
+              - kms:Decrypt*
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+              - kms:Describe*
+            Resource: "*"
+            Condition:
+              ArnEquals:
+                kms:EncryptionContext:aws:logs:arn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
+
+  CloudWatchKMSKeyAlias:
+    Type: "AWS::KMS::Alias"
+    Properties:
+      AliasName: !Sub "alias/${AWS::StackName}-CloudWatchKMSAlias"
+      TargetKeyId: !Ref CloudWatchKMSKey
+
+  # Authz function stuff
+  AuthzFunctionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+  AuthzFunctionLoggingPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-lambda-logging"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource:
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${AuthzFunctionLogGroup}"
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${AuthzFunctionLogGroup}:log-stream:*"
+      Roles:
+        - !Ref AuthzFunctionRole
+  AuthzFunctionKMSPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-KMS-access"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - kms:DescribeKey
+              - kms:GenerateDataKey*
+              - kms:Encrypt
+              - kms:ReEncrypt*
+            Resource:
+              - !GetAtt CloudWatchKMSKey.Arn
+      Roles:
+        - !Ref AuthzFunctionRole
+  AuthzFunctionLogGroup:
+    Type: "AWS::Logs::LogGroup"
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${AuthzFunction}"
+      RetentionInDays: 90
+      KmsKeyId: !GetAtt CloudWatchKMSKey.Arn
+  AuthzFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: packages/authz/src
+      Handler: app.handler
+      Runtime: nodejs18.x
+      Role: !GetAtt AuthzFunctionRole.Arn
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          TargetSpineServer: !Ref TargetSpineServer
+          NODE_OPTIONS: --enable-source-maps
+      Events:
+        authz:
+          Type: Api
+          Properties:
+            Path: /authz
+            Method: get
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - app.ts
+
+  # getMyPrescription stuff
+  GetMyPrescriptionsRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+  GetMyPrescriptionsLambdaPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-lambda-logging"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource:
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${GetMyPrescriptionsLogGroup}"
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${GetMyPrescriptionsLogGroup}:log-stream:*"
+      Roles:
+        - !Ref GetMyPrescriptionsRole
+  GetMyPrescriptionsKMSPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-KMS-access"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - kms:DescribeKey
+              - kms:GenerateDataKey*
+              - kms:Encrypt
+              - kms:ReEncrypt*
+            Resource:
+              - !GetAtt CloudWatchKMSKey.Arn
+      Roles:
+        - !Ref GetMyPrescriptionsRole
+  GetMyPrescriptionsLogGroup:
+    Type: "AWS::Logs::LogGroup"
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${GetMyPrescriptions}"
+      RetentionInDays: 90
+      KmsKeyId: !GetAtt CloudWatchKMSKey.Arn
+  GetMyPrescriptions:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: packages/getMyPrescriptions/src
+      Handler: app.handler
+      Runtime: nodejs18.x
+      Role: !GetAtt GetMyPrescriptionsRole.Arn
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          TargetSpineServer: !Ref TargetSpineServer
+          NODE_OPTIONS: --enable-source-maps
+      Events:
+        authz:
+          Type: Api
+          Properties:
+            Path: /getMyPrescriptions
+            Method: get
+            RequestParameters:
+              - method.request.querystring.returnType:
+                  Required: false
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - app.ts
+
+  # resources bucket
+  # KMS S3 encryption key
+  ResourceBucketKMSKey:
+    Type: AWS::KMS::Key
+    Properties:
+      KeyPolicy:
+        Version: 2012-10-17
+        Id: key-s3
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Join
+                - ""
+                - - "arn:aws:iam::"
+                  - !Ref "AWS::AccountId"
+                  - ":root"
+            Action: "kms:*"
+            Resource: "*"
+  ResourceBucketKMSKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/ResourceBucketKMSKeyAlias
+      TargetKeyId:
+        Ref: ResourceBucketKMSKey
+
+  ResourceBucket:
+    Type: AWS::S3::Bucket
+    # TODO uncomment this once happy with everything
+    # DeletionPolicy: "Retain"
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              KMSMasterKeyID: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:${ResourceBucketKMSKeyAlias}"
+              SSEAlgorithm: "aws:kms"
+
+  ResourceBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref ResourceBucket
+      PolicyDocument:
+        Statement:
+          - Effect: "Deny"
+            Action: "s3:*"
+            Principal: "*"
+            Resource:
+              - !Join ["", [!GetAtt ResourceBucket.Arn, "/*"]]
+              - !GetAtt ResourceBucket.Arn
+            Condition:
+              Bool:
+                aws:SecureTransport: false
+          - Effect: "Allow"
+            Action:
+              - "s3:GetObject*"
+              - "s3:PutObject*"
+              - "s3:GetBucket*"
+              - "s3:List*"
+            Resource:
+              - !Join ["", [!GetAtt ResourceBucket.Arn, "/*"]]
+              - !GetAtt ResourceBucket.Arn
+            Principal:
+              AWS:
+                - !GetAtt CloudFormationDeployRole.Arn
+                - !GetAtt CloudFormationExecutionRole.Arn
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  PrescriptionApi:
+    Description: "API Gateway endpoint URL for Prod stage for the Main function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  AuthzFunction:
+    Description: "Authz Lambda Function ARN"
+    Value: !GetAtt AuthzFunction.Arn
+  AuthzFunctionIamRole:
+    Description: "Implicit IAM Role created for the Authz function"
+    Value: !GetAtt AuthzFunctionRole.Arn
+  GetMyPrescriptionsFunction:
+    Description: "GetMyPrescriptions Lambda Function ARN"
+    Value: !GetAtt GetMyPrescriptions.Arn
+  GetMyPrescriptionsFunctionIamRole:
+    Description: "Implicit IAM Role created for the GetMyPrescriptions function"
+    Value: !GetAtt GetMyPrescriptionsRole.Arn
