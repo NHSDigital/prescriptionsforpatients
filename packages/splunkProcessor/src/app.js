@@ -170,6 +170,8 @@ function getReingestionRecord(isSas, reIngestionRecord) {
 }
 
 exports.handler = (event, context, callback) => {
+  console.log("Processor called with environment variables\n" + JSON.stringify(process.env, null, 2))
+  console.log("Event\n" + JSON.stringify(event, null, 2))
   Promise.all(
     event.records.map((r) => {
       const buffer = Buffer.from(r.data, "base64")
