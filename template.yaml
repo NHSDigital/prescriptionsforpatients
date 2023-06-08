@@ -192,6 +192,7 @@ Resources:
       Role: !GetAtt SplunkDeliveryStreamProcessorRole.Arn
       Architectures:
         - x86_64
+      Timeout: 60
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
       BuildProperties:
