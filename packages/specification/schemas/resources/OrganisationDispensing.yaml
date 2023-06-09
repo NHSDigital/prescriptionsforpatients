@@ -1,5 +1,5 @@
 type: object
-description: Details of the dispensing organisation for a prescription.
+description: Details of the pharmacy that a prescription is going to be dispensed by.
 properties:
   resourceType:
     type: string
