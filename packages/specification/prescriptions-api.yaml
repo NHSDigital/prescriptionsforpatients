@@ -5,10 +5,10 @@
 openapi: 3.1.0
 x-nhs-api-spec-guid: 816f3e79-1d81-4ae7-af54-dcd4a739d01a
 info:
-  title: Prescriptions API
+  title: Prescriptions for Patients API
   version: "0.0.1"
   contact:
-    name: Prescriptions API Support
+    name: Prescriptions for Patients API Support
     url: https://digital.nhs.uk/developer/help-and-support
     email: api.management@nhs.net
   description: |
@@ -52,6 +52,12 @@ info:
     To use this access mode, see the Patient access section here:
     * [User-restricted RESTful API - using NHS Login - separate authentication and authorisation](https://digital.nhs.uk/developer/guides-and-documentation/security-and-authorisation#user-restricted-apis)
 
+    ## Environment and testing
+    | Environment   | Base URL                                                     |
+    | ------------- | -------------------------------------------------------------|
+    | Integration   | `https://int.api.service.nhs.uk/prescriptions-for-patients`  |
+    | Production    | `https://api.service.nhs.uk/prescriptions-for-patients`      |
+
     ## Errors
     ### API wide errors
     | HTTP Status   | Error Code             | Description                                                                      |
@@ -72,13 +78,19 @@ info:
 x-spec-publication:
   operation-order:
     - operations:
-        - method: POST
-          path: /GetMyPrescriptions/Bundle
+        - method: GET
+          path: /Bundle
+
+servers:
+  - url: 'https://int.api.service.nhs.uk/prescriptions-for-patients'
+    description: 'Integration'
+  - url: 'https://api.service.nhs.uk/prescriptions-for-patients'
+    description: 'Production'
 
 paths:
-  /GetMyPrescriptions/Bundle:
+  /Bundle:
     get:
-      operationId: get-my-prescriptions-bundle
+      operationId: prescriptions-for-patients-bundle
       summary: Get prescriptions for the given user
       description: |
         ## Overview
