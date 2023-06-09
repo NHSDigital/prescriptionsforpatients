@@ -267,10 +267,8 @@ Resources:
       RetentionInDays: 90
       KmsKeyId: !GetAtt CloudWatchKMSKey.Arn
 
-  # Bucket and Role for a data stream destination bucket used as a test until Splunk HEC information is found
-  SplunkDeliveryStreamDestinationBucket:
-    Type: AWS::S3::Bucket
-  SplunkDeliveryStreamDestinationBucketRole:
+  # Role and policy for delivery stream to invoke processor
+  SplunkDeliveryStreamProcessorInvokeRole:
     Type: "AWS::IAM::Role"
     Properties:
       AssumeRolePolicyDocument:
@@ -280,29 +278,20 @@ Resources:
             Principal:
               Service: "firehose.amazonaws.com"
             Action: "sts:AssumeRole"
-  SplunkDeliveryStreamDestinationBucketPolicy:
-    Type: "AWS::IAM::Policy"
+  SplunkDeliveryStreamProcessorInvokePolicy:
+    Type: AWS::IAM::Policy
     Properties:
-      PolicyName: "allow-destination-bucket-access"
+      PolicyName: "allow-delivery-stream-invoke-processor"
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
           - Effect: Allow
             Action:
-              - s3:AbortMultipartUpload
-              - s3:GetBucketLocation
-              - s3:GetObject
-              - s3:ListBucket
-              - s3:ListBucketMultipartUploads
-              - s3:PutObject
+              - lambda:InvokeFunction
             Resource:
-              - !GetAtt SplunkDeliveryStreamDestinationBucket.Arn
-              - !Join # Access to bucket contents
-                - ""
-                - - !GetAtt SplunkDeliveryStreamDestinationBucket.Arn
-                  - "/*"
+              - !GetAtt SplunkDeliveryStreamProcessor.Arn
       Roles:
-        - !Ref SplunkDeliveryStreamDestinationBucketRole
+        - !Ref SplunkDeliveryStreamProcessorInvokeRole
 
   # Authz function stuff
   AuthzFunctionRole:
