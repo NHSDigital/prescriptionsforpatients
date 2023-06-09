@@ -112,31 +112,30 @@ Resources:
     # Depends on policy as delivery streams require a role with correct policies to be build, and a role reference doesn't provide a dependency as Stream -> Role <- Policy, so Stream -!> Policy
     DependsOn:
       - SplunkDeliveryStreamBackupBucketPolicy
-      - SplunkDeliveryStreamDestinationBucketPolicy
+      - SplunkDeliveryStreamProcessorInvokePolicy
     Type: AWS::KinesisFirehose::DeliveryStream
     Properties:
       DeliveryStreamType: DirectPut
       # Template SplunkDestinationConfiguration for when we get HEC information (Untested)
-      # SplunkDestinationConfiguration:
-      #   HECEndpoint: "" # TODO - Get HEC Endpoint info
-      #   HECEndpointType: "Raw"/"Event" # TODO - Get HEC Endpoint type
-      #   HECToken: "" # TODO - Get HEC Token
-      #   ProcessingConfiguration:
-      #     Enabled: true
-      #     Processors:
-      #       - Type: Lambda
-      #         Parameters:
-      #           - ParameterName: LambdaArn
-      #             ParameterValue: !GetAtt SplunkDeliveryStreamProcessor.Arn
-      #   S3Configuration:
-      #     BucketARN: !GetAtt SplunkDeliveryStreamBackupBucket.Arn
-      #     RoleARN: !GetAtt SplunkDeliveryStreamBackupBucketRole.Arn
-      #     EncryptionConfiguration:
-      #       KMSEncryptionConfig:
-      #         AWSKMSKeyARN: !GetAtt CloudWatchKMSKey.Arn # TODO - Do we need a different KMS key for this?
-      S3DestinationConfiguration:
-        BucketARN: !GetAtt SplunkDeliveryStreamDestinationBucket.Arn
-        RoleARN: !GetAtt SplunkDeliveryStreamDestinationBucketRole.Arn
+      SplunkDestinationConfiguration:
+        HECEndpoint: " " # TODO - Get HEC Endpoint info
+        HECEndpointType: "Raw" # TODO - Get HEC Endpoint type (Raw/Event)
+        HECToken: " " # TODO - Get HEC Token
+        ProcessingConfiguration:
+          Enabled: true
+          Processors:
+            - Type: Lambda
+              Parameters:
+                - ParameterName: LambdaArn
+                  ParameterValue: !GetAtt SplunkDeliveryStreamProcessor.Arn
+                - ParameterName: RoleArn
+                  ParameterValue: !GetAtt SplunkDeliveryStreamProcessorInvokeRole.Arn
+        S3Configuration:
+          BucketARN: !GetAtt SplunkDeliveryStreamBackupBucket.Arn
+          RoleARN: !GetAtt SplunkDeliveryStreamBackupBucketRole.Arn
+          EncryptionConfiguration:
+            KMSEncryptionConfig:
+              AWSKMSKeyARN: !GetAtt CloudWatchKMSKey.Arn # TODO - Do we need a different KMS key for this?
 
   # Backup bucket, roles and policies
   SplunkDeliveryStreamBackupBucket:
