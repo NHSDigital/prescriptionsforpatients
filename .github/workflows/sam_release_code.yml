@@ -15,7 +15,7 @@ on:
       BUILD_ARTIFACT:
         required: true
         type: string
-      secrets:
+    secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
       TARGET_SPINE_SERVER:
