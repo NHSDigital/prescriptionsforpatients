@@ -1,0 +1,30 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Parameters:
+  hostedZone:
+    Type: String
+    Default: "pfp.api.platform.nhs.uk"
+    Description: >
+      Domain name we are going to be hosting
+
+Resources:
+  Zone:
+    Type: "AWS::Route53::HostedZone"
+    Properties:
+      HostedZoneConfig:
+        Comment: "My hosted zone for pfp.api.platform.nhs.uk"
+      Name: !Ref hostedZone
+  nsRootHostedZoneRecordSet:
+    Type: "AWS::Route53::RecordSet"
+    Properties:
+      HostedZoneId: !Ref Zone
+      Name: !Join [".", ["dev", !Ref hostedZone, ""]]
+      Type: NS
+      TTL: "900"
+      ResourceRecords:
+        [
+          "ns-2008.awsdns-59.co.uk",
+          "ns-1347.awsdns-40.org",
+          "ns-51.awsdns-06.com",
+          "ns-655.awsdns-17.net",
+        ]
+    DependsOn: Zone

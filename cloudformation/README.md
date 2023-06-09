@@ -1,4 +1,8 @@
-This folder contains a cloudformation definition that is used to create the resources in an AWS account for CI processes to work.  
+This folder contains cloudformation definitions for 'manually' created resources that are only created once per environment. These need to manually applied as they are not created as part of a CI or pull request build
+
+# CI Resources
+
+ci_resources.yml contains resources that are needed for the CI pipeline to work. This should be applied to each environment.  
 It creates the following resources
 
 - OIDC provider allowing github to assume a role in the account
@@ -15,7 +19,7 @@ export AWS_PROFILE=<name of AWS profile defined in ~/.aws/config>
 aws sso login --sso-session sso-session
 
 aws cloudformation deploy \
-          --template-file cloudformation/ci_resources.yaml \
+          --template-file cloudformation/ci_resources.yml \
           --stack-name ci-resources \
           --region eu-west-2 \
           --capabilities CAPABILITY_IAM
@@ -28,3 +32,47 @@ aws cloudformation list-exports
 ```
 
 This value should then be stored in the github project as a repository secret called `<ENVIRONMENT>_CLOUD_FORMATION_DEPLOY_ROLE`
+
+# Route 53 resources - management account
+
+management_route53.yml contains route 53 resources created in the management account. This should only be applied to the management account.  
+It creates the following resources
+
+- route 53 hosted zone for pfp.api.platform.nhs.uk
+- NS records for {dev, int, ref, qa, prod}.pfp.api.platform.nhs.uk pointing to route 53 hosted zones in each account
+
+To deploy the stack, use the following
+
+```
+export AWS_PROFILE=prescription-management
+aws sso login --sso-session sso-session
+
+aws cloudformation deploy \
+          --template-file cloudformation/management_route53.yml \
+          --stack-name route53-resources \
+          --region eu-west-2
+```
+
+# Route 53 resources - environment accounts
+
+environment_route53.yml contains route 53 resources created in each environment account.  
+It creates the following resources
+
+- route 53 hosted zone for {environment}.pfp.api.platform.nhs.uk
+
+It outputs the following as exports as they are used in SAM deployments
+
+- route53-resources:ZoneID - zoneID of zone created -
+- route53-resources:domain - domain name of the hosted zone
+
+To deploy the stack, use the following
+
+```
+export AWS_PROFILE=<name of AWS profile defined in ~/.aws/config>
+aws sso login --sso-session sso-session
+
+aws cloudformation deploy \
+          --template-file cloudformation/environment_route53.yml \
+          --stack-name route53-resources \
+          --region eu-west-2
+```

@@ -132,6 +132,7 @@ Resources:
         authz:
           Type: Api
           Properties:
+            RestApiId: !Ref RestApiGateway
             Path: /authz
             Method: get
     Metadata: # Manage esbuild properties
@@ -210,6 +211,7 @@ Resources:
         authz:
           Type: Api
           Properties:
+            RestApiId: !Ref RestApiGateway
             Path: /getMyPrescriptions
             Method: get
             RequestParameters:
@@ -223,6 +225,56 @@ Resources:
         Sourcemap: true
         EntryPoints:
           - app.ts
+
+  # TLS cert for custom domain
+  GenerateCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName:
+        Fn::Join:
+          [
+            ".",
+            [!Ref "AWS::StackName", Fn::ImportValue: route53-resources:domain],
+          ]
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName:
+            Fn::Join:
+              [
+                ".",
+                [
+                  !Ref "AWS::StackName",
+                  Fn::ImportValue: route53-resources:domain,
+                ],
+              ]
+          HostedZoneId:
+            Fn::ImportValue: route53-resources:ZoneID
+
+  # Create endpoint for our domain
+  RestApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Domain:
+        DomainName: Fn::Join:
+          [
+            ".",
+            [!Ref "AWS::StackName", Fn::ImportValue: route53-resources:domain],
+          ]
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName:
+            Fn::Join:
+              [
+                ".",
+                [
+                  !Ref "AWS::StackName",
+                  Fn::ImportValue: route53-resources:domain,
+                ],
+              ]
+        CertificateArn: !Ref GenerateCertificate
+        Route53:
+          HostedZoneId: Fn::ImportValue: route53-resources:ZoneID
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
