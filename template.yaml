@@ -228,6 +228,7 @@ Resources:
               - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${SplunkDeliveryStreamProcessorLogGroup}:log-stream:*"
       Roles:
         - !Ref SplunkDeliveryStreamProcessorRole
+  # TODO Check if necessary
   SplunkDeliveryStreamProcessorKMSPolicy:
     Type: "AWS::IAM::Policy"
     Properties:
