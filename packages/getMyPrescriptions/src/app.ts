@@ -41,7 +41,7 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       return {
         statusCode: 200,
         body: JSON.stringify({
-          message: "hello world from getMyPrescriptions lambda"
+          message: "Hello Kris from from getMyPrescriptions lambda!"
         })
       }
     }
