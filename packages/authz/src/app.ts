@@ -24,7 +24,7 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
   return {
     statusCode: 200,
     body: JSON.stringify({
-      message: "Wish you a nice weekend from authz!"
+      message: "hello world from authz lambda"
     })
   }
 }
