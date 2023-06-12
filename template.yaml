@@ -119,7 +119,7 @@ Resources:
       # Template SplunkDestinationConfiguration for when we get HEC information (Untested)
       SplunkDestinationConfiguration:
         HECEndpoint: " " # TODO - Get HEC Endpoint info
-        HECEndpointType: "Raw" # TODO - Get HEC Endpoint type (Raw/Event)
+        HECEndpointType: "Event"
         HECToken: " " # TODO - Get HEC Token
         ProcessingConfiguration:
           Enabled: true
