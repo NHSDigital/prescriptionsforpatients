@@ -86,7 +86,8 @@
         "redhat.vscode-xml",
         "streetsidesoftware.code-spell-checker",
         "timonwong.shellcheck",
-		"mkhl.direnv"
+		"mkhl.direnv",
+		"bungcip.better-toml"
 		]
 	}
 }
