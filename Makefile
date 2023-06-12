@@ -23,11 +23,20 @@ sam-build: sam-validate
 sam-run-local: sam-build
 	sam local start-api
 
-sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name
-	sam sync --stack-name $$stack_name --watch
+sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name guard-SPLUNK_HEC_TOKEN guard-SPLUNK_HEC_ENDPOINT
+	sam sync \
+		--stack-name $$stack_name \
+		--watch \
+		--parameter-overrides \
+			SplunkHECToken=$$SPLUNK_HEC_TOKEN \
+			SplunkHECEndpoint=$$SPLUNK_HEC_ENDPOINT
 
-sam-deploy: guard-AWS_DEFAULT_PROFILE guard-stack_name
-	sam deploy --stack-name $$stack_name
+sam-deploy: guard-AWS_DEFAULT_PROFILE guard-stack_name guard-SPLUNK_HEC_TOKEN guard-SPLUNK_HEC_ENDPOINT
+	sam deploy \
+		--stack-name $$stack_name \
+		--parameter-overrides \
+			SplunkHECToken=$$SPLUNK_HEC_TOKEN \
+			SplunkHECEndpoint=$$SPLUNK_HEC_ENDPOINT
 
 sam-delete: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam delete --stack-name $$stack_name
@@ -44,7 +53,7 @@ sam-list-outputs: guard-AWS_DEFAULT_PROFILE guard-stack_name
 sam-validate: 
 	sam validate
 
-sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role
+sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role guard-SPLUNK_HEC_TOKEN guard_SPLUNK_HEC_ENDPOINT
 	sam deploy \
 		--template-file $$template_file \
 		--stack-name $$stack_name \
@@ -56,7 +65,10 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 		--no-fail-on-empty-changeset \
 		--role-arn $$cloud_formation_execution_role \
 		--no-confirm-changeset \
-		--force-upload
+		--force-upload \
+		--parameter-overrides \
+			SplunkHECToken=$$SPLUNK_HEC_TOKEN \
+			SplunkHECEndpoint=$$SPLUNK_HEC_ENDPOINT
 
 lint:
 	npm run lint --workspace packages/authz
