@@ -15,6 +15,10 @@
 		{
 			"name": "packages/splunkProcessor",
 			"path": "../packages/splunkProcessor"
+		},
+		{
+			"name": "packages/specification",
+			"path": "../packages/specification"
 		}
 	],
 	"settings": {
@@ -64,6 +68,12 @@
 		],
 		"cSpell.dictionaries": [
 			"en-GB"
+		],
+		"cSpell.ignorePaths": [
+			"package-lock.json",
+			"node_modules",
+			".vscode",
+			"packages/specification"
 		]
 	},
 	"extensions": {
@@ -86,8 +96,8 @@
         "redhat.vscode-xml",
         "streetsidesoftware.code-spell-checker",
         "timonwong.shellcheck",
-		"mkhl.direnv",
-		"bungcip.better-toml"
+		    "mkhl.direnv",
+		    "bungcip.better-toml"
 		]
 	}
 }

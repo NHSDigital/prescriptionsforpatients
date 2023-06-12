@@ -9,7 +9,7 @@
 __pycache__/
 .envrc
 .idea
-.vscode
+.vscode/settings.json
 ./sign/
 *.key
 .DS_Store
