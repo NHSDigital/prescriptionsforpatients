@@ -42,7 +42,7 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       return {
         statusCode: 200,
         body: JSON.stringify({
-          message: "New hello world from sandbox lambda"
+          message: "hello world from sandbox lambda"
         })
       }
     }
