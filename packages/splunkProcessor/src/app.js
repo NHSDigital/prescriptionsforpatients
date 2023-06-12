@@ -48,7 +48,8 @@ The code below will:
 6) Any additional records which exceed 6MB will be re-ingested back into Firehose.
 */
 const zlib = require("zlib")
-const AWS = require("aws-sdk")
+const {Firehose} = require("@aws-sdk/client-firehose")
+const {Kinesis} = require("@aws-sdk/client-kinesis")
 
 /**
  * logEvent has this format:
@@ -259,10 +260,10 @@ exports.handler = (event, context, callback) => {
           for (let idx = 0; idx < putRecordBatches.length; idx++) {
             const recordBatch = putRecordBatches[idx]
             if (isSas) {
-              const client = new AWS.Kinesis({region: region})
+              const client = new Kinesis({region: region})
               putRecordsToKinesisStream(streamName, recordBatch, client, resolve, reject, 0, 20)
             } else {
-              const client = new AWS.Firehose({region: region})
+              const client = new Firehose({region: region})
               putRecordsToFirehoseStream(streamName, recordBatch, client, resolve, reject, 0, 20)
             }
             recordsReingestedSoFar += recordBatch.length
