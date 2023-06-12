@@ -1,0 +1,35 @@
+type: object
+description: Extension that contains information pertinent to repeat and eRD prescriptions.
+properties:
+  url:
+    type: string
+    description: URL of the extension definition.
+    enum:
+      - https://fhir.hl7.org.uk/StructureDefinition/Extension-UKCore-MedicationRepeatInformation
+  extension:
+    type: array
+    description: FHIR extension array.
+    items:
+      oneOf:
+        - type: object
+          description: |
+            The review date of the prescription.
+            This is a required field for repeat and eRD prescriptions.
+            It captures the date at which the prescriber must review the repeat medication that a patient is on.
+          properties:
+            url:
+              type: string
+              enum: [authorisationExpiryDate]
+            valueDateTime:
+              type: string
+              description: A date value.
+              example: "2023-06-02"
+        - type: object
+          description: The number of prescriptions that have been issued.
+          properties:
+            url:
+              type: string
+              enum: [numberOfPrescriptionsIssued]
+            valueUnsignedInt:
+              type: int
+              example: 2
