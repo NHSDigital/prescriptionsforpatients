@@ -51,3 +51,4 @@ jobs:
       TARGET_ENVIRONMENT: dev-pr
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      SPLUNK_HEC_TOKEN: ${{ secrets.DEV_SPLUNK_HEC_TOKEN }}
