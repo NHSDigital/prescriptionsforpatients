@@ -76,6 +76,7 @@ jobs:
       TARGET_ENVIRONMENT: dev
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      SPLUNK_HEC_TOKEN: ${{ secrets.DEV_SPLUNK_HEC_TOKEN }}
 
   release_ref:
     needs: [tag_release, release_dev, package_code]
@@ -86,6 +87,7 @@ jobs:
       TARGET_ENVIRONMENT: ref
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.REF_CLOUD_FORMATION_DEPLOY_ROLE }}
+      SPLUNK_HEC_TOKEN: ${{ secrets.REF_SPLUNK_HEC_TOKEN }} //
 
   release_qa:
     needs: [tag_release, release_dev, package_code]
@@ -96,6 +98,7 @@ jobs:
       TARGET_ENVIRONMENT: qa
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.QA_CLOUD_FORMATION_DEPLOY_ROLE }}
+      SPLUNK_HEC_TOKEN: ${{ secrets.QA_SPLUNK_HEC_TOKEN }} //
 
   release_int:
     needs: [tag_release, release_qa, package_code]
@@ -106,6 +109,7 @@ jobs:
       TARGET_ENVIRONMENT: int
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
+      SPLUNK_HEC_TOKEN: ${{ secrets.INT_SPLUNK_HEC_TOKEN }} //
 
   release_prod:
     needs: [tag_release, release_int, package_code]
@@ -116,3 +120,4 @@ jobs:
       TARGET_ENVIRONMENT: prod
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
+      SPLUNK_HEC_TOKEN: ${{ secrets.PROD_SPLUNK_HEC_TOKEN }} //
