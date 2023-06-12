@@ -224,6 +224,87 @@ Resources:
         EntryPoints:
           - app.ts
 
+  # sandbox stuff
+  SandboxRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+  SandboxLambdaPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-lambda-logging"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource:
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${SandboxLogGroup}"
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${SandboxLogGroup}:log-stream:*"
+      Roles:
+        - !Ref SandboxRole
+  SandboxKMSPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-KMS-access"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - kms:DescribeKey
+              - kms:GenerateDataKey*
+              - kms:Encrypt
+              - kms:ReEncrypt*
+            Resource:
+              - !GetAtt CloudWatchKMSKey.Arn
+      Roles:
+        - !Ref SandboxRole
+  SandboxLogGroup:
+    Type: "AWS::Logs::LogGroup"
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${Sandbox}"
+      RetentionInDays: 90
+      KmsKeyId: !GetAtt CloudWatchKMSKey.Arn
+  Sandbox:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: packages/sandbox/src
+      Handler: app.handler
+      Runtime: nodejs18.x
+      Role: !GetAtt SandboxRole.Arn
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          TargetSpineServer: !Ref TargetSpineServer
+          NODE_OPTIONS: --enable-source-maps
+      Events:
+        authz:
+          Type: Api
+          Properties:
+            Path: /sandbox
+            Method: get
+            RequestParameters:
+              - method.request.querystring.returnType:
+                  Required: false
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - app.ts
+
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
@@ -237,9 +318,9 @@ Outputs:
   AuthzFunctionIamRole:
     Description: "Implicit IAM Role created for the Authz function"
     Value: !GetAtt AuthzFunctionRole.Arn
-  GetMyPrescriptionsFunction:
-    Description: "GetMyPrescriptions Lambda Function ARN"
-    Value: !GetAtt GetMyPrescriptions.Arn
-  GetMyPrescriptionsFunctionIamRole:
-    Description: "Implicit IAM Role created for the GetMyPrescriptions function"
-    Value: !GetAtt GetMyPrescriptionsRole.Arn
+  SandboxFunction:
+    Description: "Sandbox Lambda Function ARN"
+    Value: !GetAtt Sandbox.Arn
+  SandboxFunctionIamRole:
+    Description: "Implicit IAM Role created for the Sandbox function"
+    Value: !GetAtt SandboxRole.Arn

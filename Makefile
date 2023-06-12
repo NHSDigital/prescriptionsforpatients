@@ -68,14 +68,17 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 lint:
 	npm run lint --workspace packages/authz
 	npm run lint --workspace packages/getMyPrescriptions
+	npm run lint --workspace packages/sandbox
 
 test:
 	npm run test --workspace packages/authz
 	npm run test --workspace packages/getMyPrescriptions
+	npm run test --workspace packages/sandbox
 
 clean:
 	rm -rf packages/authz/coverage
 	rm -rf packages/getMyPrescriptions/coverage
+	rm -rf packages/sandbox/coverage
 	rm -rf .aws-sam
 
 deep-clean: clean

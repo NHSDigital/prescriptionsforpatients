@@ -18,7 +18,8 @@
   "license": "ISC",
   "workspaces": [
     "packages/authz",
-    "packages/getMyPrescriptions"
+    "packages/getMyPrescriptions",
+    "packages/sandbox"
   ],
   "private": true,
   "dependencies": {
