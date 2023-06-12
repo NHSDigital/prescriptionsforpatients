@@ -14,6 +14,14 @@ Parameters:
     Type: String
     Description: EndpointUrl
     Default: none
+  SplunkHECToken:
+    Type: String
+    Description: HEC Token for Cloudformation to Splunk Firehose
+    Default: none
+  SplunkHECEndpoint:
+    Type: String
+    Description: HEC Endpoint for Cloudformation to Splunk Firehose
+    Default: none
 
 # Example of Mappings
 # Mappings:
@@ -118,9 +126,9 @@ Resources:
       DeliveryStreamType: DirectPut
       # Template SplunkDestinationConfiguration for when we get HEC information (Untested)
       SplunkDestinationConfiguration:
-        HECEndpoint: " " # TODO - Get HEC Endpoint info
+        HECEndpoint: !Ref SplunkHECEndpoint
         HECEndpointType: "Event"
-        HECToken: " " # TODO - Get HEC Token
+        HECToken: !Ref SplunkHECToken
         ProcessingConfiguration:
           Enabled: true
           Processors:
@@ -155,7 +163,7 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              Service: "s3.amazonaws.com"
+              Service: "firehose.amazonaws.com"
             Action: "sts:AssumeRole"
   SplunkDeliveryStreamBackupBucketPolicy:
     Type: "AWS::IAM::Policy"
