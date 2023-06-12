@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: "2010-09-09"
 Parameters:
   SubjectClaimFilters:
     Type: CommaDelimitedList
-    Default: "repo:NHSDigital/prescriptions-api:*"
+    Default: "repo:NHSDigital/prescriptions-api:*,repo:NHSDigital/prescriptionsforpatients:*"
     Description: >
       Subject claim filter for valid tokens.
       Default allows only pull requests of the NHSDigital/prescriptions-api to assume the role.
