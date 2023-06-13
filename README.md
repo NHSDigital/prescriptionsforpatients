@@ -67,6 +67,8 @@ UNIQUE_NAME_FOR_YOU should be a unique name for you with no underscores in it - 
 
 Once you have saved .envrc, start a new terminal in vscode and run this command to authenticate against AWS
 
+test
+
 ```
 make aws-configure
 ```
