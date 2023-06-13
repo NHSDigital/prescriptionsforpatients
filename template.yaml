@@ -14,6 +14,10 @@ Parameters:
     Type: String
     Description: EndpointUrl
     Default: none
+  EndpointUrl:
+    Type: String
+    Description: EndpointUrl
+    Default: none
 
 # Example of Mappings
 # Mappings:
@@ -271,6 +275,7 @@ Resources:
                     ],
                   ]
                 - "truststore.pem"
+          TruststoreVersion: _jZ6I4Peo8rJ4wvLV1WBufg03H4qfPBN
       DisableExecuteApiEndpoint: true
 
 Outputs:
