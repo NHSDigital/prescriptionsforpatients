@@ -53,7 +53,7 @@ sam-list-outputs: guard-AWS_DEFAULT_PROFILE guard-stack_name
 sam-validate: 
 	sam validate
 
-sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role guard-SPLUNK_HEC_TOKEN guard_SPLUNK_HEC_ENDPOINT
+sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role guard-SPLUNK_HEC_TOKEN guard-SPLUNK_HEC_ENDPOINT
 	sam deploy \
 		--template-file $$template_file \
 		--stack-name $$stack_name \
