@@ -257,8 +257,7 @@ exports.handler = (event, context, callback) => {
       if (putRecordBatches.length > 0) {
         new Promise((resolve, reject) => {
           let recordsReingestedSoFar = 0
-          for (let idx = 0; idx < putRecordBatches.length; idx++) {
-            const recordBatch = putRecordBatches[idx]
+          for (const recordBatch of putRecordBatches) {
             if (isSas) {
               const client = new Kinesis({region: region})
               putRecordsToKinesisStream(streamName, recordBatch, client, resolve, reject, 0, 20)
