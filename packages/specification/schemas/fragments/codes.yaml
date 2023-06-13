@@ -1,0 +1,88 @@
+MedicationRequestCourseOfTherapy:
+  type: object
+  required: [system, code]
+  properties:
+    system:
+      type: string
+      description: Codesystem URL for the prescription treatment type.
+      enum:
+        - http://terminology.hl7.org/CodeSystem/medicationrequest-course-of-therapy
+    code:
+      type: string
+      description: |
+        Code identifying the prescription treatment type.
+        * acute: acute prescriptions
+        * continuous: repeat prescriptions
+        * continuous-repeat-dispensing: eRD prescriptions
+      enum: [acute, continuous, continuous-repeat-dispensing]
+    display:
+      type: string
+      description: Display value for the prescription treatment type.
+      enum:
+        - Short course (acute) therapy
+        - Continuous long term therapy
+        - Continuous long term (repeat dispensing)
+SdsJobRoleCode:
+  type: object
+  required: [system, code]
+  properties:
+    system:
+      type: string
+      description: Codesystem URL for the job role code.
+      enum: [https://fhir.nhs.uk/CodeSystem/NHSDigital-SDS-JobRoleCode]
+    code:
+      type: string
+      description: The SDS job role code.
+      example: S0030:G0100:R0620
+    display:
+      type: string
+      description: Display text for the SDS job role code.
+      example: Staff Nurse
+SnomedSctConsumption:
+  type: object
+  required: [system, code]
+  properties:
+    system:
+      type: string
+      description: SNOMED codesystem URL.
+      enum: [http://snomed.info/sct]
+    code:
+      type: integer
+      description: Valid SNOMED code identifying how the medication should be consumed.
+      example: 26643006
+    display:
+      type: string
+      description: Human readable name for the method of consumption.
+      example: Oral
+SnomedSctMedication:
+  type: object
+  required: [system, code]
+  properties:
+    system:
+      type: string
+      description: SNOMED codesystem URL.
+      enum: [http://snomed.info/sct]
+    code:
+      type: string
+      description: SNOMED code for the medication, as defined in the Dictionary of Medicines and Devices (DM+D).
+      example: "321196004"
+    display:
+      type: string
+      description: Human readable name for the medication.
+      example: Diazepam 2mg tablets
+SpineErrorOrWarningCode:
+  type: object
+  required: [system, code]
+  properties:
+    system:
+      type: string
+      description: URI of the coding system specification.
+      enum: [https://fhir.nhs.uk/R4/CodeSystem/Spine-ErrorOrWarningCode]
+    code:
+      type: string
+      description: Symbol in syntax defined by the system.
+      example: INVALID_VALUE
+    display:
+      type: string
+      description: Representation defined by the system.
+      example: Provided value is invalid
