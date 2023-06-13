@@ -171,7 +171,7 @@ function getReingestionRecord(isSas, reIngestionRecord) {
 }
 
 exports.handler = (event, context, callback) => {
-  console.log("Processor called with environment variables\n" + JSON.stringify(process.env, null, 2))
+  console.log("Processor called with environment\n" + JSON.stringify(process.env, null, 2))
   console.log("Processor given event\n" + JSON.stringify(event, null, 2))
   Promise.all(
     event.records.map((r) => {
@@ -189,6 +189,8 @@ exports.handler = (event, context, callback) => {
       }
 
       const data = JSON.parse(decompressed)
+      console.log("Decompressed message reads\n" + JSON.stringify(data))
+
       // CONTROL_MESSAGE are sent by CWL to check if the subscription is reachable.
       // They do not contain actual data.
       if (data.messageType === "CONTROL_MESSAGE") {
