@@ -145,6 +145,29 @@ Resources:
             KMSEncryptionConfig:
               AWSKMSKeyARN: !GetAtt CloudWatchKMSKey.Arn # TODO - Do we need a different KMS key for this?
 
+  SplunkDeliveryStreamLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/kinesisfirehose/${SplunkDeliveryStream}"
+      RetentionInDays: 30
+      KmsKeyId: !GetAtt CloudWatchKMSKey.Arn
+  SplunkDeliveryStreamLoggingPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-lambda-logging"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource:
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${SplunkDeliveryStreamLogGroup}"
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${SplunkDeliveryStreamLogGroup}:log-stream:*"
+      Roles:
+        - !Ref SplunkDeliveryStreamBackupBucketRole
+
   # Backup bucket, roles and policies
   SplunkDeliveryStreamBackupBucket:
     Type: AWS::S3::Bucket
@@ -155,6 +178,7 @@ Resources:
             ServerSideEncryptionByDefault:
               SSEAlgorithm: aws:kms
               KMSMasterKeyID: !GetAtt CloudWatchKMSKey.Arn # TODO - Do we need a different KMS key for this?
+  # Delivery stream uses the backup bucket role for non-destination permissions
   SplunkDeliveryStreamBackupBucketRole:
     Type: "AWS::IAM::Role"
     Properties:
