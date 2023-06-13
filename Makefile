@@ -29,7 +29,7 @@ sam-run-local: sam-build
 sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam sync --stack-name $$stack_name --watch
 
-sam-sync-sandbox: guard-AWS_DEFAULT_PROFILE guard-stack_name
+sam-sync-sandbox: guard-stack_name
 	sam sync --stack-name $$stack_name --watch -t sandbox_template.yaml
 
 sam-deploy: guard-AWS_DEFAULT_PROFILE guard-stack_name
