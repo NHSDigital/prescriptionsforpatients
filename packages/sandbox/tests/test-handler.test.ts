@@ -2,6 +2,7 @@ import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
 import {handler} from "../src/app"
 import {expect, describe, it} from "@jest/globals"
 import {ContextExamples} from "@aws-lambda-powertools/commons"
+import * as successData from "../../specification/examples/GetMyPrescriptions/Bundle/success.json"
 
 const dummyContext = ContextExamples.helloworldContext
 
@@ -61,7 +62,7 @@ describe("Unit test for app handler", function () {
     expect(result.statusCode).toEqual(200)
     expect(result.body).toEqual(
       JSON.stringify({
-        message: "hello world from sandbox lambda"
+        message: successData
       })
     )
   })

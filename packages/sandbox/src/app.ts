@@ -3,6 +3,7 @@ import {Logger, injectLambdaContext} from "@aws-lambda-powertools/logger"
 import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
 import errorHandler from "@schibsted/middy-error-handler"
+import * as successData from "../../specification/examples/GetMyPrescriptions/Bundle/success.json"
 
 const logger = new Logger({serviceName: "sandbox"})
 
@@ -42,7 +43,7 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       return {
         statusCode: 200,
         body: JSON.stringify({
-          message: "hello world from sandbox lambda"
+          message: successData
         })
       }
     }
