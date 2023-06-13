@@ -44,7 +44,7 @@ sam-list-outputs: guard-AWS_DEFAULT_PROFILE guard-stack_name
 sam-validate: 
 	sam validate
 
-sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role
+sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role guard-LATEST_TRUSTSTORE_VERSION
 	sam deploy \
 		--template-file $$template_file \
 		--stack-name $$stack_name \
@@ -57,7 +57,7 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 		--role-arn $$cloud_formation_execution_role \
 		--no-confirm-changeset \
 		--force-upload \
-		--parameter-override TruststoreVersion=$$LATEST_TRUSTSTORE_VERSION
+		--parameter-overrides TruststoreVersion=$$LATEST_TRUSTSTORE_VERSION
 
 lint:
 	npm run lint --workspace packages/authz
