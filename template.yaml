@@ -58,7 +58,6 @@ Resources:
             Condition:
               ArnEquals:
                 kms:EncryptionContext:aws:logs:arn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
-
   CloudWatchKMSKeyAlias:
     Type: "AWS::KMS::Alias"
     Properties:
@@ -130,9 +129,9 @@ Resources:
           NODE_OPTIONS: --enable-source-maps
       Events:
         authz:
-          Type: Api
+          Type: HttpApi
           Properties:
-            RestApiId: !Ref RestApiGateway
+            ApiId: !Ref HttpApiGateway
             Path: /authz
             Method: get
     Metadata: # Manage esbuild properties
@@ -209,14 +208,11 @@ Resources:
           NODE_OPTIONS: --enable-source-maps
       Events:
         authz:
-          Type: Api
+          Type: HttpApi
           Properties:
-            RestApiId: !Ref RestApiGateway
+            ApiId: !Ref HttpApiGateway
             Path: /getMyPrescriptions
             Method: get
-            RequestParameters:
-              - method.request.querystring.returnType:
-                  Required: false
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
       BuildProperties:
@@ -230,59 +226,42 @@ Resources:
   GenerateCertificate:
     Type: AWS::CertificateManager::Certificate
     Properties:
+      ValidationMethod: DNS
       DomainName:
         Fn::Join:
-          [
-            ".",
-            [!Ref "AWS::StackName", Fn::ImportValue: route53-resources:domain],
-          ]
-      ValidationMethod: DNS
+          - "."
+          - - !Ref "AWS::StackName"
+            - Fn::ImportValue: route53-resources:domain
       DomainValidationOptions:
         - DomainName:
             Fn::Join:
-              [
-                ".",
-                [
-                  !Ref "AWS::StackName",
-                  Fn::ImportValue: route53-resources:domain,
-                ],
-              ]
+              - "."
+              - - !Ref "AWS::StackName"
+                - Fn::ImportValue: route53-resources:domain
+          #          HostedZoneId: Z079610123574AMWRCQYB
           HostedZoneId:
             Fn::ImportValue: route53-resources:ZoneID
 
-  # Create endpoint for our domain
-  RestApiGateway:
-    Type: AWS::Serverless::Api
+  # Http api
+  HttpApiGateway:
+    Type: AWS::Serverless::HttpApi
     Properties:
       StageName: Prod
       Domain:
-        DomainName: Fn::Join:
-          [
-            ".",
-            [!Ref "AWS::StackName", Fn::ImportValue: route53-resources:domain],
-          ]
-      ValidationMethod: DNS
-      DomainValidationOptions:
-        - DomainName:
-            Fn::Join:
-              [
-                ".",
-                [
-                  !Ref "AWS::StackName",
-                  Fn::ImportValue: route53-resources:domain,
-                ],
-              ]
+        DomainName:
+          Fn::Join:
+            - "."
+            - - !Ref "AWS::StackName"
+              - Fn::ImportValue: route53-resources:domain
         CertificateArn: !Ref GenerateCertificate
         Route53:
-          HostedZoneId: Fn::ImportValue: route53-resources:ZoneID
+          HostedZoneId:
+            Fn::ImportValue: route53-resources:ZoneID
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  PrescriptionApi:
-    Description: "API Gateway endpoint URL for Prod stage for the Main function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
   AuthzFunction:
     Description: "Authz Lambda Function ARN"
     Value: !GetAtt AuthzFunction.Arn
