@@ -113,6 +113,7 @@ Resources:
                   - "logs:DeleteLogGroup"
                   - "logs:TagLogGroup"
                   - "logs:CreateLogStream"
+                  - "logs:DeleteLogStream"
                   - "logs:PutRetentionPolicy"
                   - "logs:DeleteRetentionPolicy"
                   - "logs:PutSubscriptionFilter"
