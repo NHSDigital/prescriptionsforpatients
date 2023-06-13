@@ -6,7 +6,7 @@ This is an API for accessing prescription information.
 
 - `packages/authz/` Deals with authorisation to the API
 - `packages/getMyPrescriptions/` Get prescription details
-- `packages/sandbox/` Returns static data from the Sandbox
+- `packages/sandbox/` Returns [static data](./packages/specification/examples/GetMyPrescriptions/Bundle/success.json) from the Sandbox
 - `scripts/` Utilities helpful to developers of this specification
 - `cloudformation/` Contains a cloudformation file used to create resources for CI builds and deployments
 - `.github` Contains github workflows that are used for building and deploying from pull requests and releases
