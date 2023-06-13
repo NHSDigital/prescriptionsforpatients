@@ -113,6 +113,7 @@ Resources:
                   - "logs:DeleteLogGroup"
                   - "logs:TagLogGroup"
                   - "logs:CreateLogStream"
+                  - "logs:DeleteLogStream"
                   - "logs:PutRetentionPolicy"
                   - "logs:DeleteRetentionPolicy"
                   - "logs:PutSubscriptionFilter"
@@ -146,6 +147,7 @@ Resources:
                   - "apigateway:PUT"
                   - "apigateway:AddCertificateToDomain"
                   - "apigateway:RemoveCertificateFromDomain"
+                  - "apigateway:TagResource"
                   - "s3:CreateBucket"
                   - "s3:DeleteBucket"
                   - "s3:SetBucketEncryption"
@@ -162,7 +164,20 @@ Resources:
                   - "acm:RemoveTagsFromCertificate"
                   - "acm:RenewCertificate"
                   - "acm:RequestCertificate"
+                  - "route53:ChangeResourceRecordSets"
                 Resource: "*"
+        - PolicyName: UseTrustStoreBucketKMSKey
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "kms:DescribeKey"
+                  - "kms:GenerateDataKey*"
+                  - "kms:Encrypt"
+                  - "kms:ReEncrypt*"
+                  - "kms:Decrypt"
+                Resource: !GetAtt TrustStoreBucketKMSKey.Arn
 
   # KMS S3 encryption key
   ArtifactsBucketKMSKey:
@@ -283,6 +298,19 @@ Resources:
             Condition:
               Bool:
                 aws:SecureTransport: false
+          - Effect: "Allow"
+            Action:
+              - "s3:GetObject*"
+              - "s3:PutObject*"
+              - "s3:GetBucket*"
+              - "s3:List*"
+            Resource:
+              - !Join ["", [!GetAtt TrustStoreBucket.Arn, "/*"]]
+              - !GetAtt TrustStoreBucket.Arn
+            Principal:
+              AWS:
+                - !GetAtt CloudFormationDeployRole.Arn
+                - !GetAtt CloudFormationExecutionRole.Arn
 
   # KMS secrets encryption key
   SecretsKMSKey:
