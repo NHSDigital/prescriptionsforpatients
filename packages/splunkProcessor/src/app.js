@@ -215,19 +215,19 @@ exports.handler = (event, context, callback) => {
       }
     })
   )
-    .then((recs) => {
+    .then((records) => {
       const isSas = Object.prototype.hasOwnProperty.call(event, "sourceKinesisStreamArn")
       const streamARN = isSas ? event.sourceKinesisStreamArn : event.deliveryStreamArn
       const region = streamARN.split(":")[3]
       const streamName = streamARN.split("/")[1]
-      const result = {records: recs}
+      const result = {records: records}
       let recordsToReingest = []
       const putRecordBatches = []
       let totalRecordsToBeReingested = 0
       const inputDataByRecId = {}
       event.records.forEach((r) => (inputDataByRecId[r.recordId] = createReingestionRecord(isSas, r)))
 
-      let projectedSize = recs
+      let projectedSize = records
         .filter((rec) => rec.result === "Ok")
         .map((r) => r.recordId.length + r.data.length)
         .reduce((a, b) => a + b, 0)
