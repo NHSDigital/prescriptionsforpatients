@@ -219,80 +219,23 @@ exports.handler = (event, context, callback) => {
   )
     .then((records) => {
       const isSas = Object.prototype.hasOwnProperty.call(event, "sourceKinesisStreamArn")
-      const streamARN = isSas ? event.sourceKinesisStreamArn : event.deliveryStreamArn
-      const region = streamARN.split(":")[3]
-      const streamName = streamARN.split("/")[1]
       const result = {records: records}
-      let recordsToReingest = []
-      const putRecordBatches = []
-      let totalRecordsToBeReingested = 0
+
       const inputDataByRecId = {}
       event.records.forEach((r) => (inputDataByRecId[r.recordId] = createReingestionRecord(isSas, r)))
 
-      let projectedSize = records
-        .filter((rec) => rec.result === "Ok")
-        .map((r) => r.recordId.length + r.data.length)
-        .reduce((a, b) => a + b, 0)
-      // 6000000 instead of 6291456 to leave ample headroom for the stuff we didn't account for
-      for (let idx = 0; idx < event.records.length && projectedSize > 6000000; idx++) {
-        const rec = result.records[idx]
-        if (rec.result === "Ok") {
-          totalRecordsToBeReingested++
-          recordsToReingest.push(getReingestionRecord(isSas, inputDataByRecId[rec.recordId]))
-          projectedSize -= rec.data.length
-          delete rec.data
-          result.records[idx].result = "Dropped"
-
-          // split out the record batches into multiple groups, 500 records at max per group
-          if (recordsToReingest.length === 500) {
-            putRecordBatches.push(recordsToReingest)
-            recordsToReingest = []
-          }
-        }
-      }
-
-      if (recordsToReingest.length > 0) {
-        // add the last batch
-        putRecordBatches.push(recordsToReingest)
-      }
+      const [putRecordBatches, totalRecordsToBeReingested] = batchRecordsToReingest(
+        records,
+        event,
+        result,
+        isSas,
+        inputDataByRecId
+      )
 
       if (putRecordBatches.length > 0) {
-        new Promise((resolve, reject) => {
-          let recordsReingestedSoFar = 0
-          for (const recordBatch of putRecordBatches) {
-            if (isSas) {
-              const client = new Kinesis({region: region})
-              putRecordsToKinesisStream(streamName, recordBatch, client, resolve, reject, 0, 20)
-            } else {
-              const client = new Firehose({region: region})
-              putRecordsToFirehoseStream(streamName, recordBatch, client, resolve, reject, 0, 20)
-            }
-            recordsReingestedSoFar += recordBatch.length
-            console.log(
-              "Reingested %s/%s records out of %s in to %s stream",
-              recordsReingestedSoFar,
-              totalRecordsToBeReingested,
-              event.records.length,
-              streamName
-            )
-          }
-        }).then(
-          () => {
-            console.log(
-              "Reingested all %s records out of %s in to %s stream",
-              totalRecordsToBeReingested,
-              event.records.length,
-              streamName
-            )
-            callback(null, result)
-          },
-          (failed) => {
-            console.log("Failed to reingest records. %s", failed)
-            callback(failed, null)
-          }
-        )
+        reingestRecordBatches(putRecordBatches, isSas, totalRecordsToBeReingested, event, callback, result)
       } else {
-        console.log("No records needed to be reingested.")
+        console.log("No records needed to be reingested. Returning:\n" + JSON.stringify(result))
         callback(null, result)
       }
     })
@@ -300,4 +243,80 @@ exports.handler = (event, context, callback) => {
       console.log("Error: ", ex)
       callback(ex, null)
     })
+}
+
+function batchRecordsToReingest(records, event, result, isSas, inputDataByRecId) {
+  let totalRecordsToBeReingested = 0
+  let recordsToReingest = []
+  const putRecordBatches = []
+
+  let projectedSize = records
+    .filter((rec) => rec.result === "Ok")
+    .map((r) => r.recordId.length + r.data.length)
+    .reduce((a, b) => a + b, 0)
+  // 6000000 instead of 6291456 to leave ample headroom for the stuff we didn't account for
+  for (let idx = 0; idx < event.records.length && projectedSize > 6000000; idx++) {
+    const rec = result.records[idx]
+    if (rec.result === "Ok") {
+      totalRecordsToBeReingested++
+      recordsToReingest.push(getReingestionRecord(isSas, inputDataByRecId[rec.recordId]))
+      projectedSize -= rec.data.length
+      delete rec.data
+      result.records[idx].result = "Dropped"
+
+      // split out the record batches into multiple groups, 500 records at max per group
+      if (recordsToReingest.length === 500) {
+        putRecordBatches.push(recordsToReingest)
+        recordsToReingest = []
+      }
+    }
+  }
+
+  if (recordsToReingest.length > 0) {
+    // add the last batch
+    putRecordBatches.push(recordsToReingest)
+  }
+
+  return [putRecordBatches, totalRecordsToBeReingested]
+}
+
+function reingestRecordBatches(putRecordBatches, isSas, totalRecordsToBeReingested, event, callback, result) {
+  const streamARN = isSas ? event.sourceKinesisStreamArn : event.deliveryStreamArn
+  const region = streamARN.split(":")[3]
+  const streamName = streamARN.split("/")[1]
+
+  new Promise((resolve, reject) => {
+    let recordsReingestedSoFar = 0
+    for (const recordBatch of putRecordBatches) {
+      if (isSas) {
+        const client = new Kinesis({region: region})
+        putRecordsToKinesisStream(streamName, recordBatch, client, resolve, reject, 0, 20)
+      } else {
+        const client = new Firehose({region: region})
+        putRecordsToFirehoseStream(streamName, recordBatch, client, resolve, reject, 0, 20)
+      }
+      recordsReingestedSoFar += recordBatch.length
+      console.log(
+        "Reingested %s/%s records out of %s in to %s stream",
+        recordsReingestedSoFar,
+        totalRecordsToBeReingested,
+        event.records.length,
+        streamName
+      )
+    }
+  }).then(
+    () => {
+      console.log(
+        "Reingested all %s records out of %s in to %s stream",
+        totalRecordsToBeReingested,
+        event.records.length,
+        streamName
+      )
+      callback(null, result)
+    },
+    (failed) => {
+      console.log("Failed to reingest records. %s", failed)
+      callback(failed, null)
+    }
+  )
 }
