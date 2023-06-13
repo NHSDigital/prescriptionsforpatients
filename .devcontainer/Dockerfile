@@ -31,7 +31,7 @@ RUN git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.11.3; \
     echo '. $HOME/.asdf/asdf.sh' >> ~/.bashrc; \
     echo '. $HOME/.asdf/completions/asdf.bash' >> ~/.bashrc;
 
-ENV PATH="$PATH:/home/vscode/.asdf/bin/:/workspaces/prescriptions-api/node_modules/.bin"
+ENV PATH="$PATH:/home/vscode/.asdf/bin/:/workspaces/prescriptionsforpatients/node_modules/.bin"
 
 
 # Install ASDF plugins
@@ -44,8 +44,8 @@ RUN asdf plugin add python; \
     asdf plugin-add direnv;
 
 
-WORKDIR /workspaces/prescriptions-api
-ADD .tool-versions /workspaces/prescriptions-api/.tool-versions
+WORKDIR /workspaces/prescriptionsforpatients
+ADD .tool-versions /workspaces/prescriptionsforpatients/.tool-versions
 ADD .tool-versions /home/vscode/.tool-versions
 
 RUN asdf install; \
