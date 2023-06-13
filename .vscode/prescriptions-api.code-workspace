@@ -11,6 +11,10 @@
 		{
 			"name": "packages/getMyPrescriptions",
 			"path": "../packages/getMyPrescriptions"
+		},
+		{
+			"name": "packages/trustedStoreCustomResourceHandler",
+			"path": "../packages/trustedStoreCustomResourceHandler"
 		}
 	],
 	"settings": {

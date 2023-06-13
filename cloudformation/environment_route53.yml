@@ -7,7 +7,7 @@ Parameters:
       Domain name we are going to be hosting
   hostedZone:
     Type: String
-    Default: "pfp.api.platform.nhs.uk"
+    Default: "prescriptionsforpatients.national.nhs.uk"
     Description: >
       Domain name we are going to be hosting
 
