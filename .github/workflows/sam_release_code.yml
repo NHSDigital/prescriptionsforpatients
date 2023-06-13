@@ -51,7 +51,7 @@ jobs:
               --stack-name ci-resources \
               --query 'Stacks[0].Outputs[?OutputKey==`TrustStoreBucket`].OutputValue' --output text)
           TRUSTSTORE_BUCKET_NAME=$(echo ${TRUSTSTORE_BUCKET_ARN} | cut -d ":" -f 6)
-          LATEST_TRUSTSTORE_VERSION=$(aws s3api list-object-versions \
+          export LATEST_TRUSTSTORE_VERSION=$(aws s3api list-object-versions \
           --bucket ${TRUSTSTORE_BUCKET_NAME} \
           --prefix truststore.pem \
           --query 'Versions[?IsLatest].[VersionId]' --output text)
