@@ -158,13 +158,21 @@ Resources:
           EncryptionConfiguration:
             KMSEncryptionConfig:
               AWSKMSKeyARN: !GetAtt CloudWatchKMSKey.Arn
+        CloudWatchLoggingOptions:
+          Enabled: true
+          LogGroupName: !Ref SplunkDeliveryStreamLogGroup
+          LogStreamName: !Ref SplunkDeliveryStreamLogStream
 
   SplunkDeliveryStreamLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub "/aws/kinesisfirehose/${SplunkDeliveryStream}"
+      LogGroupName: !Sub "/aws/kinesisfirehose/${AWS::StackName}-SplunkDeliveryStream"
       RetentionInDays: 30
       KmsKeyId: !GetAtt CloudWatchKMSKey.Arn
+  SplunkDeliveryStreamLogStream:
+    Type: AWS::Logs::LogStream
+    Properties:
+      LogGroupName: !Ref SplunkDeliveryStreamLogGroup
   SplunkDeliveryStreamLoggingPolicy:
     Type: "AWS::IAM::Policy"
     Properties:
