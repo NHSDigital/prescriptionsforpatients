@@ -62,10 +62,24 @@ const {Kinesis} = require("@aws-sdk/client-kinesis")
  *
  * The default implementation below just extracts the message and appends a newline to it.
  *
- * The result must be returned in a Promise.
+ * The result must be returned as a string Promise.
+ *
+ * The index is configured by the HEC token
  */
+const SPLUNK_HOST = "", // TODO
+  SPLUNK_SOURCE = "", // TODO
+  SPLUNK_SOURCE_TYPE = "aws:cloudwatchlogs"
 function transformLogEvent(logEvent) {
-  return Promise.resolve(`${logEvent.message}\n`)
+  return Promise.resolve(`{
+    "time": ${logEvent.timestamp},
+    "host": ${SPLUNK_HOST},
+    "source": ${SPLUNK_SOURCE},
+    "sourcetype": ${SPLUNK_SOURCE_TYPE},
+    "event": {
+      "id": ${logEvent.id},
+      "message": ${logEvent.message}
+    }
+  }\n`)
 }
 
 function putRecordsToFirehoseStream(streamName, records, client, resolve, reject, attemptsMade, maxAttempts) {
