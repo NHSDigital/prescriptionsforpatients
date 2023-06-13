@@ -144,7 +144,7 @@ Resources:
           RoleARN: !GetAtt SplunkDeliveryStreamBackupBucketRole.Arn
           EncryptionConfiguration:
             KMSEncryptionConfig:
-              AWSKMSKeyARN: !GetAtt CloudWatchKMSKey.Arn # TODO - Do we need a different KMS key for this?
+              AWSKMSKeyARN: !GetAtt CloudWatchKMSKey.Arn
 
   SplunkDeliveryStreamLogGroup:
     Type: AWS::Logs::LogGroup
