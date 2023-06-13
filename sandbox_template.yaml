@@ -318,6 +318,12 @@ Outputs:
   AuthzFunctionIamRole:
     Description: "Implicit IAM Role created for the Authz function"
     Value: !GetAtt AuthzFunctionRole.Arn
+  GetMyPrescriptionsFunction:
+    Description: "GetMyPrescriptions Lambda Function ARN"
+    Value: !GetAtt GetMyPrescriptions.Arn
+  GetMyPrescriptionsFunctionIamRole:
+    Description: "Implicit IAM Role created for the GetMyPrescriptions function"
+    Value: !GetAtt GetMyPrescriptionsRole.Arn
   SandboxFunction:
     Description: "Sandbox Lambda Function ARN"
     Value: !GetAtt Sandbox.Arn
