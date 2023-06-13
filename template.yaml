@@ -14,10 +14,6 @@ Parameters:
     Type: String
     Description: EndpointUrl
     Default: none
-  TruststoreKey:
-    Type: String
-    Description: Key for trust store file
-    Default: truststore.pem
 
 # Example of Mappings
 # Mappings:
@@ -35,185 +31,6 @@ Parameters:
 # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
 
 Resources:
-  # resources for mutual TLS
-  PrivateCA:
-    Type: AWS::ACMPCA::CertificateAuthority
-    Properties:
-      KeyAlgorithm: RSA_2048
-      SigningAlgorithm: SHA256WITHRSA
-      Subject:
-        CommonName: !Sub "${AWS::StackName}-rootca"
-      Type: ROOT
-      UsageMode: SHORT_LIVED_CERTIFICATE
-
-  PrivateCACertificate:
-    Type: AWS::ACMPCA::Certificate
-    Properties:
-      CertificateAuthorityArn: !Ref PrivateCA
-      CertificateSigningRequest: !GetAtt PrivateCA.CertificateSigningRequest
-      SigningAlgorithm: SHA256WITHRSA
-      TemplateArn: "arn:aws:acm-pca:::template/RootCACertificate/V1"
-      Validity:
-        Type: YEARS
-        Value: 10
-
-  PrivateCAActivation:
-    Type: AWS::ACMPCA::CertificateAuthorityActivation
-    Properties:
-      Certificate: !GetAtt PrivateCACertificate.Certificate
-      CertificateAuthorityArn: !Ref PrivateCA
-      Status: ACTIVE
-
-  MtlsCA:
-    Type: AWS::ACMPCA::CertificateAuthority
-    Properties:
-      Type: SUBORDINATE
-      KeyAlgorithm: RSA_2048
-      SigningAlgorithm: SHA256WITHRSA
-      UsageMode: SHORT_LIVED_CERTIFICATE
-      Subject:
-        CommonName: !Sub "${AWS::StackName}-mtlsca"
-
-  MtlsCertificate:
-    DependsOn: PrivateCAActivation
-    Type: AWS::ACMPCA::Certificate
-    Properties:
-      CertificateAuthorityArn: !Ref PrivateCA
-      CertificateSigningRequest: !GetAtt MtlsCA.CertificateSigningRequest
-      SigningAlgorithm: SHA256WITHRSA
-      TemplateArn: "arn:aws:acm-pca:::template/SubordinateCACertificate_PathLen3/V1"
-      Validity:
-        Type: YEARS
-        Value: 3
-
-  MtlsActivation:
-    Type: AWS::ACMPCA::CertificateAuthorityActivation
-    Properties:
-      CertificateAuthorityArn: !Ref MtlsCA
-      Certificate: !GetAtt MtlsCertificate.Certificate
-      CertificateChain: !GetAtt PrivateCAActivation.CompleteCertificateChain
-      Status: ACTIVE
-
-  ApigeeCert:
-    DependsOn: MtlsActivation
-    Type: AWS::CertificateManager::Certificate
-    Properties:
-      CertificateAuthorityArn: !Ref MtlsCA
-      CertificateTransparencyLoggingPreference: ENABLED
-      DomainName:
-        Fn::Join:
-          - "."
-          - - !Ref "AWS::StackName"
-            - Fn::ImportValue: route53-resources:domain
-      Tags:
-        - Key: Name
-          Value: ClientOneCert
-
-  # KMS S3 encryption key
-  TrustStoreBucketKMSKey:
-    Type: AWS::KMS::Key
-    Properties:
-      KeyPolicy:
-        Version: 2012-10-17
-        Id: key-s3
-        Statement:
-          - Sid: Enable IAM User Permissions
-            Effect: Allow
-            Principal:
-              AWS: !Join
-                - ""
-                - - "arn:aws:iam::"
-                  - !Ref "AWS::AccountId"
-                  - ":root"
-            Action: "kms:*"
-            Resource: "*"
-  TrustStoreBucketKMSKeyKMSKeyAlias:
-    Type: AWS::KMS::Alias
-    Properties:
-      AliasName: alias/TrustStoreBucketKMSKeyAlias
-      TargetKeyId:
-        Ref: TrustStoreBucketKMSKey
-
-  TrustStoreBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      VersioningConfiguration:
-        Status: Enabled
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
-              KMSMasterKeyID: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:${TrustStoreBucketKMSKeyKMSKeyAlias}"
-              SSEAlgorithm: "aws:kms"
-
-  TrustStoreBucketPolicy:
-    Type: AWS::S3::BucketPolicy
-    Properties:
-      Bucket: !Ref TrustStoreBucket
-      PolicyDocument:
-        Statement:
-          - Effect: "Deny"
-            Action: "s3:*"
-            Principal: "*"
-            Resource:
-              - !Join ["", [!GetAtt TrustStoreBucket.Arn, "/*"]]
-              - !GetAtt TrustStoreBucket.Arn
-            Condition:
-              Bool:
-                aws:SecureTransport: false
-          - Effect: "Allow"
-            Action:
-              - "s3:GetObject*"
-              - "s3:PutObject*"
-              - "s3:GetBucket*"
-              - "s3:List*"
-            Resource:
-              - !Join ["", [!GetAtt TrustStoreBucket.Arn, "/*"]]
-              - !GetAtt TrustStoreBucket.Arn
-            Principal:
-              AWS:
-                - !GetAtt TrustedStoreCustomResourceFunctionRole.Arn
-
-  TrustStoreBucketKMSPolicy:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: "allow-KMS-access"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - kms:DescribeKey
-              - kms:GenerateDataKey*
-              - kms:Encrypt
-              - kms:ReEncrypt*
-            Resource:
-              - !GetAtt TrustStoreBucketKMSKey.Arn
-      Roles:
-        - !Ref TrustedStoreCustomResourceFunctionRole
-
-  TrustedStoreCustomResourceFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: TrustedStoreCustomResourceFunction
-      Handler: com.auth.TrustedStoreCustomResourceHandler::handleRequest
-      Timeout: 120
-      MemorySize: 1536
-      Runtime: java8.al2
-      CodeUri: packages/trustedStoreCustomResourceHandler/
-      Policies:
-        - S3CrudPolicy:
-            BucketName: !Ref TrustStoreBucket
-
-  TrustedStoreCustomResource:
-    Type: Custom::TrustedStore
-    Properties:
-      ServiceToken: !GetAtt TrustedStoreCustomResourceFunction.Arn
-      TrustStoreBucket: !Ref TrustStoreBucket
-      TrustStoreKey: !Ref TruststoreKey
-      Certs:
-        - !GetAtt MtlsCertificate.Certificate
-        - !GetAtt PrivateCACertificate.Certificate
-
   # common KMS key for cloudwatch log groups
   CloudWatchKMSKey:
     Type: "AWS::KMS::Key"
@@ -421,7 +238,6 @@ Resources:
               - "."
               - - !Ref "AWS::StackName"
                 - Fn::ImportValue: route53-resources:domain
-          #          HostedZoneId: Z079610123574AMWRCQYB
           HostedZoneId:
             Fn::ImportValue: route53-resources:ZoneID
 
@@ -443,8 +259,18 @@ Resources:
         EndpointConfiguration: REGIONAL
         SecurityPolicy: TLS_1_2
         MutualTlsAuthentication:
-          TruststoreUri: !GetAtt TrustedStoreCustomResource.TrustStoreUri
-          TruststoreVersion: !GetAtt TrustedStoreCustomResource.ObjectVersion
+          TruststoreUri:
+            Fn::Join:
+              - "/"
+              - - "s3:/"
+                - !Select [
+                    5,
+                    !Split [
+                      ":",
+                      Fn::ImportValue: ci-resources:TrustStoreBucket,
+                    ],
+                  ]
+                - "truststore.pem"
       DisableExecuteApiEndpoint: true
 
 Outputs:

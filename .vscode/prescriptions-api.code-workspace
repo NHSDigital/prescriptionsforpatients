@@ -15,10 +15,6 @@
 		{
 			"name": "packages/specification",
 			"path": "../packages/specification"
-		},
-		{
-			"name": "packages/trustedStoreCustomResourceHandler",
-			"path": "../packages/trustedStoreCustomResourceHandler"
 		}
 	],
 	"settings": {

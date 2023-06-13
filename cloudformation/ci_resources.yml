@@ -112,6 +112,7 @@ Resources:
                   - "logs:CreateLogGroup"
                   - "logs:DeleteLogGroup"
                   - "logs:TagLogGroup"
+                  - "logs:CreateLogStream"
                   - "logs:PutRetentionPolicy"
                   - "logs:DeleteRetentionPolicy"
                   - "logs:PutSubscriptionFilter"
@@ -143,6 +144,8 @@ Resources:
                   - "apigateway:POST"
                   - "apigateway:PATCH"
                   - "apigateway:PUT"
+                  - "apigateway:AddCertificateToDomain"
+                  - "apigateway:RemoveCertificateFromDomain"
                   - "s3:CreateBucket"
                   - "s3:DeleteBucket"
                   - "s3:SetBucketEncryption"
@@ -150,6 +153,15 @@ Resources:
                   - "firehose:CreateDeliveryStream"
                   - "firehose:DescribeDeliveryStream"
                   - "firehose:DeleteDeliveryStream"
+                  - "acm:AddTagsToCertificate"
+                  - "acm:DeleteCertificate"
+                  - "acm:DescribeCertificate"
+                  - "acm:GetCertificate"
+                  - "acm:ListCertificates"
+                  - "acm:ListTagsForCertificate"
+                  - "acm:RemoveTagsFromCertificate"
+                  - "acm:RenewCertificate"
+                  - "acm:RequestCertificate"
                 Resource: "*"
 
   # KMS S3 encryption key
@@ -221,6 +233,114 @@ Resources:
                 - !GetAtt CloudFormationDeployRole.Arn
                 - !GetAtt CloudFormationExecutionRole.Arn
 
+  # KMS S3 encryption key
+  TrustStoreBucketKMSKey:
+    Type: AWS::KMS::Key
+    Properties:
+      KeyPolicy:
+        Version: 2012-10-17
+        Id: key-s3
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Join
+                - ""
+                - - "arn:aws:iam::"
+                  - !Ref "AWS::AccountId"
+                  - ":root"
+            Action: "kms:*"
+            Resource: "*"
+  TrustStoreBucketKMSKeyKMSKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/TrustStoreBucketKMSKeyAlias
+      TargetKeyId: !Ref TrustStoreBucketKMSKey
+
+  TrustStoreBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              KMSMasterKeyID: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:${TrustStoreBucketKMSKeyKMSKeyAlias}"
+              SSEAlgorithm: "aws:kms"
+
+  TrustStoreBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref TrustStoreBucket
+      PolicyDocument:
+        Statement:
+          - Effect: "Deny"
+            Action: "s3:*"
+            Principal: "*"
+            Resource:
+              - !Join ["", [!GetAtt TrustStoreBucket.Arn, "/*"]]
+              - !GetAtt TrustStoreBucket.Arn
+            Condition:
+              Bool:
+                aws:SecureTransport: false
+
+  # KMS secrets encryption key
+  SecretsKMSKey:
+    Type: AWS::KMS::Key
+    Properties:
+      KeyPolicy:
+        Version: 2012-10-17
+        Id: key-s3
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Join
+                - ""
+                - - "arn:aws:iam::"
+                  - !Ref "AWS::AccountId"
+                  - ":root"
+            Action: "kms:*"
+            Resource: "*"
+  SecretsKMSKeyKMSKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/SecretsKMSKeyAlias
+      TargetKeyId: !Ref SecretsKMSKey
+
+  # secrets
+  CAKeySecret:
+    DependsOn: SecretsKMSKeyKMSKeyAlias
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: CA private key
+      KmsKeyId: alias/SecretsKMSKeyAlias
+      SecretString: ChangeMe
+
+  CACertSecret:
+    DependsOn: SecretsKMSKeyKMSKeyAlias
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: CA private key
+      KmsKeyId: alias/SecretsKMSKeyAlias
+      SecretString: ChangeMe
+
+  ClientKeySecret:
+    DependsOn: SecretsKMSKeyKMSKeyAlias
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: CA private key
+      KmsKeyId: alias/SecretsKMSKeyAlias
+      SecretString: ChangeMe
+
+  ClientCertSecret:
+    DependsOn: SecretsKMSKeyKMSKeyAlias
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: CA private key
+      KmsKeyId: alias/SecretsKMSKeyAlias
+      SecretString: ChangeMe
+
 Outputs:
   CloudFormationDeployRole:
     Description: ARN of the IAM Role(CloudFormationDeployRole)
@@ -237,3 +357,20 @@ Outputs:
     Value: !GetAtt ArtifactsBucket.Arn
     Export:
       Name: !Join [":", [!Ref "AWS::StackName", "ArtifactsBucket"]]
+  TrustStoreBucket:
+    Description: ARN of the Truststore bucket
+    Value: !GetAtt TrustStoreBucket.Arn
+    Export:
+      Name: !Join [":", [!Ref "AWS::StackName", "TrustStoreBucket"]]
+  CAKeySecret:
+    Description: ARN of the CA key secret
+    Value: !GetAtt CAKeySecret.Id
+  CACertSecret:
+    Description: ARN of the CA cert secret
+    Value: !GetAtt CACertSecret.Id
+  ClientKeySecret:
+    Description: ARN of the client key secret
+    Value: !GetAtt ClientKeySecret.Id
+  ClientCertSecret:
+    Description: ARN of the client cert secret
+    Value: !GetAtt ClientCertSecret.Id
