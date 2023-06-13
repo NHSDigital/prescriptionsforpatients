@@ -14,10 +14,6 @@ Parameters:
     Type: String
     Description: EndpointUrl
     Default: none
-  EndpointUrl:
-    Type: String
-    Description: EndpointUrl
-    Default: none
 
 # Example of Mappings
 # Mappings:
