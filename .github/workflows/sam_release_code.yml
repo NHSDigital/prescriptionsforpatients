@@ -16,7 +16,8 @@ on:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
       SPLUNK_HEC_TOKEN:
-        required: true  
+        required: true
+
 jobs:
   sam_release_code:
     runs-on: ubuntu-latest
