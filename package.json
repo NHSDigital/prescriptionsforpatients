@@ -19,7 +19,8 @@
   "workspaces": [
     "packages/authz",
     "packages/getMyPrescriptions",
-    "packages/sandbox"
+    "packages/sandbox",
+    "packages/specification"
   ],
   "private": true,
   "dependencies": {

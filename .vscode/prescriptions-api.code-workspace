@@ -15,6 +15,10 @@
 		{
 			"name": "packages/sandbox",
 			"path": "../packages/sandbox"
+		},
+		{
+			"name": "packages/specification",
+			"path": "../packages/specification"
 		}
 	],
 	"settings": {
