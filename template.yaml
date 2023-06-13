@@ -53,7 +53,8 @@ Resources:
               AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
             Action: "kms:*"
             Resource: "*"
-          - Effect: Allow
+          - Sid: Allow Lambda logging
+            Effect: Allow
             Principal:
               Service: !Sub "logs.${AWS::Region}.amazonaws.com"
             Action:
