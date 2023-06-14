@@ -66,7 +66,7 @@ const {Kinesis} = require("@aws-sdk/client-kinesis")
  *
  * The index is configured by the HEC token
  */
-const SPLUNK_SOURCE_TYPE = "aws:cloudwatchlogs"
+const SPLUNK_SOURCE_TYPE = "aws:cloudwatch"
 
 function transformLogEvent(logEvent, logGroup, accountNumber) {
   console.log("Transforming logEvent\n" + JSON.stringify(logEvent))
