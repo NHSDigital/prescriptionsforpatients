@@ -141,7 +141,7 @@ Resources:
       # Template SplunkDestinationConfiguration for when we get HEC information (Untested)
       SplunkDestinationConfiguration:
         HECEndpoint: !Ref SplunkHECEndpoint
-        HECEndpointType: "Event"
+        HECEndpointType: "Raw"
         HECToken: !Ref SplunkHECToken
         ProcessingConfiguration:
           Enabled: true
