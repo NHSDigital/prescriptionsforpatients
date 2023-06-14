@@ -12,6 +12,9 @@ on:
       TARGET_ENVIRONMENT:
         required: true
         type: string
+      ENABLE_MUTUAL_TLS:
+        required: true
+        type: string
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
@@ -55,4 +58,5 @@ jobs:
           --bucket ${TRUSTSTORE_BUCKET_NAME} \
           --prefix truststore.pem \
           --query 'Versions[?IsLatest].[VersionId]' --output text)
+          export enable_mutual_tls=${{ inputs.ENABLE_MUTUAL_TLS }}
           make sam-deploy-package

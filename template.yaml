@@ -18,6 +18,14 @@ Parameters:
     Type: String
     Description: TruststoreVersion
     Default: none
+  EnableMutualTLS:
+    Type: String
+    Description: Whether to use mutual TLS
+    Default: false
+    AllowedValues: [true, false]
+
+Conditions:
+  ShouldUseMutualTLS: !Equals [true, !Ref EnableMutualTLS]
 
 # Example of Mappings
 # Mappings:
@@ -264,19 +272,30 @@ Resources:
         SecurityPolicy: TLS_1_2
         MutualTlsAuthentication:
           TruststoreUri:
-            Fn::Join:
-              - "/"
-              - - "s3:/"
-                - !Select [
-                    5,
-                    !Split [
-                      ":",
-                      Fn::ImportValue: ci-resources:TrustStoreBucket,
-                    ],
-                  ]
-                - "truststore.pem"
-          TruststoreVersion: !Ref TruststoreVersion
-      DisableExecuteApiEndpoint: true
+            "Fn::If":
+              - ShouldUseMutualTLS
+              - Fn::Join:
+                  - "/"
+                  - - "s3:/"
+                    - !Select [
+                        5,
+                        !Split [
+                          ":",
+                          Fn::ImportValue: ci-resources:TrustStoreBucket,
+                        ],
+                      ]
+                    - "truststore.pem"
+              - !Ref "AWS::NoValue"
+          TruststoreVersion:
+            "Fn::If":
+              - ShouldUseMutualTLS
+              - !Ref TruststoreVersion
+              - !Ref "AWS::NoValue"
+      DisableExecuteApiEndpoint:
+        "Fn::If":
+          - ShouldUseMutualTLS
+          - true
+          - !Ref "AWS::NoValue"
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
