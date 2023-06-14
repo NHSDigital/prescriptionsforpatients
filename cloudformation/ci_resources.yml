@@ -155,6 +155,7 @@ Resources:
                   - "firehose:CreateDeliveryStream"
                   - "firehose:DescribeDeliveryStream"
                   - "firehose:DeleteDeliveryStream"
+                  - "firehose:UpdateDestination"
                   - "acm:AddTagsToCertificate"
                   - "acm:DeleteCertificate"
                   - "acm:DescribeCertificate"
