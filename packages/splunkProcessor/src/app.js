@@ -69,8 +69,6 @@ const {Kinesis} = require("@aws-sdk/client-kinesis")
 const SPLUNK_SOURCE_TYPE = "aws:cloudwatch"
 
 function transformLogEvent(logEvent, logGroup, accountNumber) {
-  console.log("Transforming logEvent\n" + JSON.stringify(logEvent))
-
   // Parse message as JSON or wrap as string if not
   let eventMessage = ""
   try {
@@ -78,6 +76,7 @@ function transformLogEvent(logEvent, logGroup, accountNumber) {
   } catch (_) {
     eventMessage = logEvent.message
   }
+
   const event = {
     time: logEvent.timestamp,
     host: "AWS:AccountNumber:" + accountNumber,
@@ -270,8 +269,10 @@ function reingestRecordBatches(putRecordBatches, isSas, totalRecordsToBeReingest
 }
 
 exports.handler = (event, context, callback) => {
-  console.log("Processor called with environment\n" + JSON.stringify(process.env, null, 2))
-  console.log("Processor given event\n" + JSON.stringify(event, null, 2))
+  console.log(
+    `Processor given event\n${JSON.stringify(event, null, 2)}\n` +
+      `With environment\n${JSON.stringify(process.env, null, 2)}`
+  )
   Promise.all(
     event.records.map((r) => {
       const buffer = Buffer.from(r.data, "base64")
@@ -288,7 +289,6 @@ exports.handler = (event, context, callback) => {
       }
 
       const data = JSON.parse(decompressed)
-      console.log("Decompressed message reads\n" + JSON.stringify(data))
 
       // CONTROL_MESSAGE are sent by CWL to check if the subscription is reachable.
       // They do not contain actual data.
@@ -305,7 +305,6 @@ exports.handler = (event, context, callback) => {
           const promises = data.logEvents.map((logEvent) => transformLogEvent(logEvent, logGroup, accountNumber))
           return Promise.all(promises).then((transformed) => {
             const payload = transformed.reduce((a, v) => a + v, "")
-            console.log("Transformed records now\n" + JSON.stringify(payload))
             const encoded = Buffer.from(payload).toString("base64")
             return {
               recordId: r.recordId,
@@ -340,7 +339,7 @@ exports.handler = (event, context, callback) => {
       if (putRecordBatches.length > 0) {
         reingestRecordBatches(putRecordBatches, isSas, totalRecordsToBeReingested, event, callback, result)
       } else {
-        console.log("No records needed to be reingested. Returning:\n" + JSON.stringify(result))
+        console.log("No records needed to be reingested. Transformation result reads\n" + JSON.stringify(result))
         callback(null, result)
       }
     })
