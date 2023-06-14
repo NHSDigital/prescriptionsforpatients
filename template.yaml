@@ -340,6 +340,8 @@ Outputs:
   SandboxFunction:
     Description: "Sandbox Lambda Function ARN"
     Value: !GetAtt Sandbox.Arn
+    Condition: ShouldDeploySandbox
   SandboxFunctionIamRole:
     Description: "Implicit IAM Role created for the Sandbox function"
     Value: !GetAtt SandboxRole.Arn
+    Condition: ShouldDeploySandbox
