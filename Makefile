@@ -57,7 +57,7 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 		--role-arn $$cloud_formation_execution_role \
 		--no-confirm-changeset \
 		--force-upload \
-		--parameter-overrides TruststoreVersion=$$LATEST_TRUSTSTORE_VERSION,EnableMutualTLS=$$enable_mutual_tls
+		--parameter-overrides ParameterKey=TruststoreVersion,ParameterValue=$$LATEST_TRUSTSTORE_VERSION ParameterKey=EnableMutualTLS,ParameterValue=$$enable_mutual_tls
 
 lint:
 	npm run lint --workspace packages/authz
