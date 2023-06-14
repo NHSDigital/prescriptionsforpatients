@@ -53,4 +53,5 @@ jobs:
           export target_spine_server=${{ secrets.TARGET_SPINE_SERVER }}
           export cloud_formation_execution_role=$(aws cloudformation list-exports --output json | \
               jq -r '.Exports[] | select(.Name == "ci-resources:CloudFormationExecutionRole") | .Value' )
+          export deploy_sandbox=${{ inputs.DEPLOY_SANDBOX }}
           make sam-deploy-package

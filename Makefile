@@ -53,7 +53,7 @@ sam-validate:
 sam-validate-sandbox: 
 	sam build --template-file sandbox_template.yaml
 
-sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role
+sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role guard-deploy_sandbox
 	sam deploy \
 		--template-file $$template_file \
 		--stack-name $$stack_name \
@@ -66,7 +66,8 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 		--role-arn $$cloud_formation_execution_role \
 		--no-confirm-changeset \
 		--parameter-overrides TargetSpineServer=$$target_spine_server \
-		--force-upload
+		--force-upload \
+		--parameter-overrides ParameterKey=DeploySandbox,ParameterValue=$$deploy_sandbox
 
 lint:
 	npm run lint --workspace packages/authz

@@ -74,6 +74,7 @@ jobs:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: dev-ci
       TARGET_ENVIRONMENT: dev
+      DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
@@ -86,11 +87,12 @@ jobs:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: dev-sandbox
       TARGET_ENVIRONMENT: dev
+      DEPLOY_SANDBOX: true
       BUILD_ARTIFACT: packaged_sandbox_code
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: sandbox
-    
+
   release_ref:
     needs: [tag_release, release_dev, release_dev_sandbox, package_code]
     uses: ./.github/workflows/sam_release_code.yml
@@ -98,6 +100,7 @@ jobs:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: ref-ci
       TARGET_ENVIRONMENT: ref
+      DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.REF_CLOUD_FORMATION_DEPLOY_ROLE }}
@@ -122,6 +125,7 @@ jobs:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: int-ci
       TARGET_ENVIRONMENT: int
+      DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
@@ -134,11 +138,12 @@ jobs:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: int-sandox
       TARGET_ENVIRONMENT: int
+      DEPLOY_SANDBOX: true
       BUILD_ARTIFACT: packaged_sandbox_code
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: sandbox
-    
+
   release_prod:
     needs: [tag_release, release_int, release_sandbox, package_code]
     uses: ./.github/workflows/sam_release_code.yml
@@ -146,6 +151,7 @@ jobs:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: prod-ci
       TARGET_ENVIRONMENT: prod
+      DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
