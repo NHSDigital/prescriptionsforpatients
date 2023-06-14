@@ -9,6 +9,7 @@ Parameters:
 Resources:
   Zone:
     Type: "AWS::Route53::HostedZone"
+    DeletionPolicy: Retain
     Properties:
       HostedZoneConfig:
         Comment: "My hosted zone for prescriptionsforpatients.national.nhs.uk"
