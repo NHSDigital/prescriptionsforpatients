@@ -74,20 +74,21 @@ function transformLogEvent(logEvent, logGroup, accountNumber) {
   // Parse message as JSON or wrap as string if not
   let eventMessage = ""
   try {
-    eventMessage = JSON.stringify(JSON.parse(logEvent.message))
+    eventMessage = JSON.parse(logEvent.message)
   } catch (_) {
-    eventMessage = `"${logEvent.message}"`
+    eventMessage = logEvent.message
   }
-  return Promise.resolve(`{
-    "time": "${logEvent.timestamp}",
-    "host": "AWS:AccountNumber:${accountNumber}",
-    "source": "AWS:LogGroup:${logGroup}",
-    "sourcetype": "${SPLUNK_SOURCE_TYPE}",
-    "event": {
-      "id": "${logEvent.id}",
-      "message": ${eventMessage}
+  const event = {
+    time: logEvent.timestamp,
+    host: "AWS:AccountNumber:" + accountNumber,
+    source: "AWS:LogGroup:" + logGroup,
+    sourcetype: SPLUNK_SOURCE_TYPE,
+    event: {
+      id: logEvent.id,
+      message: eventMessage
     }
-  }\n`)
+  }
+  return Promise.resolve(JSON.stringify(event))
 }
 
 function putRecordsToFirehoseStream(streamName, records, client, resolve, reject, attemptsMade, maxAttempts) {
