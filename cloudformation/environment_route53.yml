@@ -4,7 +4,8 @@ Parameters:
     Type: String
     Default: "dev"
     Description: >
-      Domain name we are going to be hosting
+      Environment we are deploying to
+    AllowedValues: [dev, ref, qa, int, prod]
   hostedZone:
     Type: String
     Default: "prescriptionsforpatients.national.nhs.uk"
