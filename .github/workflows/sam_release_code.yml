@@ -15,6 +15,9 @@ on:
       BUILD_ARTIFACT:
         required: true
         type: string
+      DEPLOY_SANDBOX:
+        required: true
+        type: string
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
