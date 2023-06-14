@@ -12,9 +12,9 @@ readonly CERT_VALIDITY_DAYS="365"
 
 # CA config
 readonly CA_NAME="ca"
-readonly CA_CERTIFICATE_SUBJECT="/C=GB/ST=Leeds/L=Leeds/O=nhs/OU=EPS Mock CA/CN=EPS Mock Root Authority"
+readonly CA_CERTIFICATE_SUBJECT="/C=GB/ST=Leeds/L=Leeds/O=nhs/OU=prescriptions for patients private CA/CN=prescriptions for patients Private CA $(date +%Y%m%d_%H%M%S)"
 
-readonly CLIENT_CERT_SUBJECT_PREFIX="/C=GB/ST=Leeds/L=Leeds/O=nhs/OU=EPS Mock Cert/CN=EPS Unit Tests - "
+readonly CLIENT_CERT_SUBJECT_PREFIX="/C=GB/ST=Leeds/L=Leeds/O=nhs/OU=prescriptions for patients private CA/CN=Client cert $(date +%Y%m%d_%H%M%S) "
 
 # v3 extensions
 readonly V3_EXT="$BASE_DIR/v3.ext"
@@ -138,4 +138,4 @@ aws secretsmanager put-secret-value \
     --secret-id ${CLIENT_CERT_ARN} \
     --secret-string file://${CERTS_DIR}/apigee_client_cert.pem
 
-aws s3 cp ${CERTS_DIR}/${CA_NAME}.pem s3://${TRUSTSTORE_BUCKET_NAME}/truststore.pem
+aws s3 cp  ${CERTS_DIR}/${CA_NAME}.pem s3://${TRUSTSTORE_BUCKET_NAME}/truststore.pem
