@@ -66,18 +66,26 @@ const {Kinesis} = require("@aws-sdk/client-kinesis")
  *
  * The index is configured by the HEC token
  */
-const SPLUNK_HOST = "", // TODO
-  SPLUNK_SOURCE = "", // TODO
-  SPLUNK_SOURCE_TYPE = "aws:cloudwatchlogs"
-function transformLogEvent(logEvent) {
+const SPLUNK_SOURCE_TYPE = "aws:cloudwatchlogs"
+
+function transformLogEvent(logEvent, logGroup, accountNumber) {
+  console.log("Transforming logEvent\n" + JSON.stringify(logEvent))
+
+  // Parse message as JSON or wrap as string if not
+  let eventMessage = ""
+  try {
+    eventMessage = JSON.stringify(JSON.parse(logEvent.message))
+  } catch (_) {
+    eventMessage = `"${logEvent.message}"`
+  }
   return Promise.resolve(`{
-    "time": ${logEvent.timestamp},
-    "host": ${SPLUNK_HOST},
-    "source": ${SPLUNK_SOURCE},
-    "sourcetype": ${SPLUNK_SOURCE_TYPE},
+    "time": "${logEvent.timestamp}",
+    "host": "AWS:AccountNumber:${accountNumber}",
+    "source": "AWS:LogGroup:${logGroup}",
+    "sourcetype": "${SPLUNK_SOURCE_TYPE}",
     "event": {
-      "id": ${logEvent.id},
-      "message": ${logEvent.message}
+      "id": "${logEvent.id}",
+      "message": ${eventMessage}
     }
   }\n`)
 }
