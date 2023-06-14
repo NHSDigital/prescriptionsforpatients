@@ -10,7 +10,7 @@ It creates the following resources
 - Cloudformation execution role - cloudformation uses this role when applying a changeset. This has minimum permissions so if a new resource type is added, the permissions will need modifying
 - Artifact bucket and KMS key - resources used by CI build are uploaded to this bucket
 - Trust store bucket and KMS key - public CA certs used for mutual TLS are uploaded to this bucket
-- Secrets and KMS key- there are various secrets created for storing keys used in mutual TLS. These have a default value set, but the values are modified when creating new keys.
+- Secrets and KMS key - there are various secrets created for storing keys used in mutual TLS. These have a default value set, but the values are modified when creating new keys.
 - - CAKeySecret - used to store the private CA key
 - - CACertSecret - used to store the public CA cert
 - - ClientKeySecret - used to store the private client key
