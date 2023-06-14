@@ -29,11 +29,14 @@ sam-run-local: sam-build
 sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam sync --stack-name $$stack_name --watch
 
-sam-sync-sandbox: guard-stack_name
-	sam sync --stack-name $$stack_name --watch -t sandbox_template.yaml
+sam-sync-noSandbox: guard-AWS_DEFAULT_PROFILE guard-stack_name
+	sam sync --stack-name $$stack_name --watch -t template_noSandbox.yaml
 
-sam-sync-sandbox-2: guard-AWS_DEFAULT_PROFILE guard-stack_name
+sam-sync-sandbox: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam sync --stack-name $$stack_name --watch --parameter-overrides ParameterKey=DeploySandbox,ParameterValue=true
+
+sam-sync-sandbox_template: guard-stack_name
+	sam sync --stack-name $$stack_name --watch -t sandbox_template.yaml
 
 sam-deploy: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam deploy --stack-name $$stack_name
