@@ -215,7 +215,7 @@ Resources:
           - BucketKeyEnabled: false
             ServerSideEncryptionByDefault:
               SSEAlgorithm: aws:kms
-              KMSMasterKeyID: !GetAtt CloudWatchKMSKey.Arn # TODO - Do we need a different KMS key for this?
+              KMSMasterKeyID: !GetAtt CloudWatchKMSKey.Arn
   # Delivery stream uses the backup bucket role for non-destination permissions
   SplunkDeliveryStreamBackupBucketRole:
     Type: "AWS::IAM::Role"
@@ -419,7 +419,7 @@ Resources:
     Properties:
       RoleArn: !GetAtt SplunkSubscriptionFilterRole.Arn
       LogGroupName: !Ref AuthzFunctionLogGroup
-      FilterPattern: '" "' # Replace as needed
+      FilterPattern: '" "' # All logs
       DestinationArn: !GetAtt SplunkDeliveryStream.Arn
   AuthzFunction:
     Type: AWS::Serverless::Function
@@ -507,7 +507,7 @@ Resources:
     Properties:
       RoleArn: !GetAtt SplunkSubscriptionFilterRole.Arn
       LogGroupName: !Ref GetMyPrescriptionsLogGroup
-      FilterPattern: '" "' # Replace as needed
+      FilterPattern: '" "' # All logs
       DestinationArn: !GetAtt SplunkDeliveryStream.Arn
   GetMyPrescriptions:
     Type: AWS::Serverless::Function
