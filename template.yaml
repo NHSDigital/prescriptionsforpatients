@@ -332,7 +332,7 @@ Resources:
     Type: "AWS::Logs::LogGroup"
     Properties:
       LogGroupName: !Sub "/aws/lambda/${SplunkDeliveryStreamProcessor}"
-      RetentionInDays: 90
+      RetentionInDays: 30
       KmsKeyId: !GetAtt CloudWatchKMSKey.Arn
 
   # Role and policy for delivery stream to invoke processor
