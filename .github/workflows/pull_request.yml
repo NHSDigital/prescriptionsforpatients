@@ -63,7 +63,7 @@ jobs:
       ARTIFACT_BUCKET_PREFIX: PR-sandbox-${{needs.get_issue_number.outputs.issue_number}}
       TARGET_ENVIRONMENT: dev-pr
       DEPLOY_SANDBOX: true
-      BUILD_ARTIFACT: packaged_sandbox_code
+      BUILD_ARTIFACT: packaged_code
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: sandbox

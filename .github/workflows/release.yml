@@ -88,7 +88,7 @@ jobs:
       STACK_NAME: dev-sandbox
       TARGET_ENVIRONMENT: dev
       DEPLOY_SANDBOX: true
-      BUILD_ARTIFACT: packaged_sandbox_code
+      BUILD_ARTIFACT: packaged_code
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: sandbox
@@ -139,7 +139,7 @@ jobs:
       STACK_NAME: int-sandox
       TARGET_ENVIRONMENT: int
       DEPLOY_SANDBOX: true
-      BUILD_ARTIFACT: packaged_sandbox_code
+      BUILD_ARTIFACT: packaged_code
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: sandbox
