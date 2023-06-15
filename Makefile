@@ -20,8 +20,8 @@ install-hooks: install-python
 sam-build: sam-validate
 	sam build
 
-sam-build-sandbox: sam-validate-sandbox
-	sam build --template-file sandbox_template.yaml
+sam-build-sandbox: sam-validate
+	sam build --parameter-overrides ParameterKey=DeploySandbox,ParameterValue=true
 
 sam-run-local: sam-build
 	sam local start-api
@@ -29,14 +29,8 @@ sam-run-local: sam-build
 sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam sync --stack-name $$stack_name --watch
 
-sam-sync-noSandbox: guard-AWS_DEFAULT_PROFILE guard-stack_name
-	sam sync --stack-name $$stack_name --watch -t template_noSandbox.yaml
-
 sam-sync-sandbox: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam sync --stack-name $$stack_name --watch --parameter-overrides ParameterKey=DeploySandbox,ParameterValue=true
-
-sam-sync-sandbox_template: guard-stack_name
-	sam sync --stack-name $$stack_name --watch -t sandbox_template.yaml
 
 sam-deploy: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam deploy --stack-name $$stack_name
@@ -55,9 +49,6 @@ sam-list-outputs: guard-AWS_DEFAULT_PROFILE guard-stack_name
 
 sam-validate: 
 	sam validate
-
-sam-validate-sandbox: 
-	sam build --template-file sandbox_template.yaml
 
 sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role guard-deploy_sandbox
 	sam deploy \
