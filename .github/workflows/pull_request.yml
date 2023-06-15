@@ -63,6 +63,7 @@ jobs:
       STACK_NAME: PR-sandbox-${{needs.get_issue_number.outputs.issue_number}}
       ARTIFACT_BUCKET_PREFIX: PR-sandbox-${{needs.get_issue_number.outputs.issue_number}}
       TARGET_ENVIRONMENT: dev-pr
+      ENABLE_MUTUAL_TLS: false
       DEPLOY_SANDBOX: true
       BUILD_ARTIFACT: packaged_code
     secrets:
