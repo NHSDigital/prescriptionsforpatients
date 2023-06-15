@@ -20,9 +20,6 @@ install-hooks: install-python
 sam-build: sam-validate
 	sam build
 
-sam-build-sandbox: sam-validate
-	sam build --parameter-overrides ParameterKey=DeploySandbox,ParameterValue=true
-
 sam-run-local: sam-build
 	sam local start-api
 
@@ -30,7 +27,7 @@ sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam sync --stack-name $$stack_name --watch
 
 sam-sync-sandbox: guard-AWS_DEFAULT_PROFILE guard-stack_name
-	sam sync --stack-name $$stack_name --watch --parameter-overrides ParameterKey=DeploySandbox,ParameterValue=true
+	sam sync --stack-name $$stack_name-sandbox --watch --parameter-overrides ParameterKey=DeploySandbox,ParameterValue=true
 
 sam-deploy: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam deploy --stack-name $$stack_name
