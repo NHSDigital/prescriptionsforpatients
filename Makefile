@@ -44,7 +44,7 @@ sam-list-outputs: guard-AWS_DEFAULT_PROFILE guard-stack_name
 sam-validate: 
 	sam validate
 
-sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role
+sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role guard-LATEST_TRUSTSTORE_VERSION guard-enable_mutual_tls
 	sam deploy \
 		--template-file $$template_file \
 		--stack-name $$stack_name \
@@ -56,7 +56,8 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 		--no-fail-on-empty-changeset \
 		--role-arn $$cloud_formation_execution_role \
 		--no-confirm-changeset \
-		--force-upload
+		--force-upload \
+		--parameter-overrides ParameterKey=TruststoreVersion,ParameterValue=$$LATEST_TRUSTSTORE_VERSION ParameterKey=EnableMutualTLS,ParameterValue=$$enable_mutual_tls
 
 lint:
 	npm run lint --workspace packages/authz

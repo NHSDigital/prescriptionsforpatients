@@ -12,6 +12,9 @@ on:
       TARGET_ENVIRONMENT:
         required: true
         type: string
+      ENABLE_MUTUAL_TLS:
+        required: true
+        type: string
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
@@ -47,4 +50,13 @@ jobs:
           export stack_name=${{ inputs.STACK_NAME }}
           export cloud_formation_execution_role=$(aws cloudformation list-exports --output json | \
               jq -r '.Exports[] | select(.Name == "ci-resources:CloudFormationExecutionRole") | .Value' )
+          TRUSTSTORE_BUCKET_ARN=$(aws cloudformation describe-stacks \
+              --stack-name ci-resources \
+              --query 'Stacks[0].Outputs[?OutputKey==`TrustStoreBucket`].OutputValue' --output text)
+          TRUSTSTORE_BUCKET_NAME=$(echo ${TRUSTSTORE_BUCKET_ARN} | cut -d ":" -f 6)
+          export LATEST_TRUSTSTORE_VERSION=$(aws s3api list-object-versions \
+          --bucket ${TRUSTSTORE_BUCKET_NAME} \
+          --prefix truststore.pem \
+          --query 'Versions[?IsLatest].[VersionId]' --output text)
+          export enable_mutual_tls=${{ inputs.ENABLE_MUTUAL_TLS }}
           make sam-deploy-package
