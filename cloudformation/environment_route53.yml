@@ -1,0 +1,33 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Parameters:
+  environment:
+    Type: String
+    Default: "dev"
+    Description: >
+      Environment we are deploying to
+    AllowedValues: [dev, ref, qa, int, prod]
+  hostedZone:
+    Type: String
+    Default: "prescriptionsforpatients.national.nhs.uk"
+    Description: >
+      Domain name we are going to be hosting
+
+Resources:
+  myDNSRecordHostedZone:
+    Type: "AWS::Route53::HostedZone"
+    Properties:
+      HostedZoneConfig:
+        Comment: !Sub "My hosted zone for ${!Join ['.', [!Ref environment, !Ref hostedZone]]}"
+      Name: !Join [".", [!Ref environment, !Ref hostedZone]]
+
+Outputs:
+  ZoneID:
+    Description: The ZoneID of the hosted zone.
+    Value: !Ref myDNSRecordHostedZone
+    Export:
+      Name: !Join [":", [!Ref "AWS::StackName", "ZoneID"]]
+  domain:
+    Description: The domain of the hosted zone.
+    Value: !Join [".", [!Ref environment, !Ref hostedZone]]
+    Export:
+      Name: !Join [":", [!Ref "AWS::StackName", "domain"]]

@@ -53,7 +53,7 @@ sam-list-outputs: guard-AWS_DEFAULT_PROFILE guard-stack_name
 sam-validate: 
 	sam validate
 
-sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role guard-SPLUNK_HEC_TOKEN guard-SPLUNK_HEC_ENDPOINT
+sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role guard-LATEST_TRUSTSTORE_VERSION guard-enable_mutual_tls guard-SPLUNK_HEC_TOKEN guard-SPLUNK_HEC_ENDPOINT
 	sam deploy \
 		--template-file $$template_file \
 		--stack-name $$stack_name \
@@ -68,7 +68,9 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 		--force-upload \
 		--parameter-overrides \
 			SplunkHECToken=$$SPLUNK_HEC_TOKEN \
-			SplunkHECEndpoint=$$SPLUNK_HEC_ENDPOINT
+			SplunkHECEndpoint=$$SPLUNK_HEC_ENDPOINT \
+      TruststoreVersion=$$LATEST_TRUSTSTORE_VERSION \
+      EnableMutualTLS=$$enable_mutual_tls
 
 lint:
 	npm run lint --workspace packages/authz
