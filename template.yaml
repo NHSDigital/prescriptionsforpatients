@@ -222,7 +222,7 @@ Resources:
         - x86_64
       Environment:
         Variables:
-          EndpointUrl: !Ref EndpointUrl
+          TargetSpineServer: !Ref TargetSpineServer
           NODE_OPTIONS: --enable-source-maps
       Events:
         authz:
@@ -239,69 +239,6 @@ Resources:
         Sourcemap: true
         EntryPoints:
           - app.ts
-
-  # TLS cert for custom domain
-  GenerateCertificate:
-    Type: AWS::CertificateManager::Certificate
-    Properties:
-      ValidationMethod: DNS
-      DomainName:
-        Fn::Join:
-          - "."
-          - - !Ref "AWS::StackName"
-            - Fn::ImportValue: route53-resources:domain
-      DomainValidationOptions:
-        - DomainName:
-            Fn::Join:
-              - "."
-              - - !Ref "AWS::StackName"
-                - Fn::ImportValue: route53-resources:domain
-          HostedZoneId:
-            Fn::ImportValue: route53-resources:ZoneID
-
-  # Http api
-  HttpApiGateway:
-    Type: AWS::Serverless::HttpApi
-    Properties:
-      StageName: Prod
-      Domain:
-        DomainName:
-          Fn::Join:
-            - "."
-            - - !Ref "AWS::StackName"
-              - Fn::ImportValue: route53-resources:domain
-        CertificateArn: !Ref GenerateCertificate
-        Route53:
-          HostedZoneId:
-            Fn::ImportValue: route53-resources:ZoneID
-        EndpointConfiguration: REGIONAL
-        SecurityPolicy: TLS_1_2
-        MutualTlsAuthentication:
-          TruststoreUri:
-            "Fn::If":
-              - ShouldUseMutualTLS
-              - Fn::Join:
-                  - "/"
-                  - - "s3:/"
-                    - !Select [
-                        5,
-                        !Split [
-                          ":",
-                          Fn::ImportValue: ci-resources:TrustStoreBucket,
-                        ],
-                      ]
-                    - "truststore.pem"
-              - !Ref "AWS::NoValue"
-          TruststoreVersion:
-            "Fn::If":
-              - ShouldUseMutualTLS
-              - !Ref TruststoreVersion
-              - !Ref "AWS::NoValue"
-      DisableExecuteApiEndpoint:
-        "Fn::If":
-          - ShouldUseMutualTLS
-          - true
-          - !Ref "AWS::NoValue"
 
   # Sandbox stuff
   SandboxRole:
@@ -388,6 +325,69 @@ Resources:
         Sourcemap: true
         EntryPoints:
           - app.ts
+
+  # TLS cert for custom domain
+  GenerateCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      ValidationMethod: DNS
+      DomainName:
+        Fn::Join:
+          - "."
+          - - !Ref "AWS::StackName"
+            - Fn::ImportValue: route53-resources:domain
+      DomainValidationOptions:
+        - DomainName:
+            Fn::Join:
+              - "."
+              - - !Ref "AWS::StackName"
+                - Fn::ImportValue: route53-resources:domain
+          HostedZoneId:
+            Fn::ImportValue: route53-resources:ZoneID
+
+  # Http api
+  HttpApiGateway:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: Prod
+      Domain:
+        DomainName:
+          Fn::Join:
+            - "."
+            - - !Ref "AWS::StackName"
+              - Fn::ImportValue: route53-resources:domain
+        CertificateArn: !Ref GenerateCertificate
+        Route53:
+          HostedZoneId:
+            Fn::ImportValue: route53-resources:ZoneID
+        EndpointConfiguration: REGIONAL
+        SecurityPolicy: TLS_1_2
+        MutualTlsAuthentication:
+          TruststoreUri:
+            "Fn::If":
+              - ShouldUseMutualTLS
+              - Fn::Join:
+                  - "/"
+                  - - "s3:/"
+                    - !Select [
+                        5,
+                        !Split [
+                          ":",
+                          Fn::ImportValue: ci-resources:TrustStoreBucket,
+                        ],
+                      ]
+                    - "truststore.pem"
+              - !Ref "AWS::NoValue"
+          TruststoreVersion:
+            "Fn::If":
+              - ShouldUseMutualTLS
+              - !Ref TruststoreVersion
+              - !Ref "AWS::NoValue"
+      DisableExecuteApiEndpoint:
+        "Fn::If":
+          - ShouldUseMutualTLS
+          - true
+          - !Ref "AWS::NoValue"
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
