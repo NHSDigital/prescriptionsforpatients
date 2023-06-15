@@ -47,7 +47,7 @@ sam-list-outputs: guard-AWS_DEFAULT_PROFILE guard-stack_name
 sam-validate: 
 	sam validate
 
-sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role guard-deploy_sandbox
+sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role guard-LATEST_TRUSTSTORE_VERSION guard-enable_mutual_tls guard-deploy_sandbox
 	sam deploy \
 		--template-file $$template_file \
 		--stack-name $$stack_name \
@@ -61,6 +61,7 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 		--no-confirm-changeset \
 		--parameter-overrides TargetSpineServer=$$target_spine_server \
 		--force-upload \
+		--parameter-overrides ParameterKey=TruststoreVersion,ParameterValue=$$LATEST_TRUSTSTORE_VERSION ParameterKey=EnableMutualTLS,ParameterValue=$$enable_mutual_tls \
 		--parameter-overrides ParameterKey=DeploySandbox,ParameterValue=$$deploy_sandbox
 
 lint:

@@ -8,7 +8,8 @@ This is an API for accessing prescription information.
 - `packages/getMyPrescriptions/` Get prescription details
 - `packages/sandbox/` Returns [static data](./packages/specification/examples/GetMyPrescriptions/Bundle/success.json) from the Sandbox
 - `scripts/` Utilities helpful to developers of this specification
-- `cloudformation/` Contains a cloudformation file used to create resources for CI builds and deployments
+- `cloudformation/` Contains cloudformation files used to create resources for CI builds and deployments
+- `privateCA/` Contains script to create self signed CA certificate and a client certificate used for mutual TLS
 - `.github` Contains github workflows that are used for building and deploying from pull requests and releases
 
 Consumers of the API will find developer documentation on the [NHS Digital Developer Hub](https://digital.nhs.uk/developer/api-catalogue).

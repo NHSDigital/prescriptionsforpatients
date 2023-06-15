@@ -75,6 +75,7 @@ jobs:
       STACK_NAME: dev-ci
       TARGET_ENVIRONMENT: dev
       DEPLOY_SANDBOX: false
+      ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_code
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
@@ -88,7 +89,7 @@ jobs:
       STACK_NAME: dev-sandbox
       TARGET_ENVIRONMENT: dev
       DEPLOY_SANDBOX: true
-      BUILD_ARTIFACT: packaged_code
+      BUILD_ARTIFACT: packaged_sandbox_code
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: sandbox
@@ -101,6 +102,7 @@ jobs:
       STACK_NAME: ref-ci
       TARGET_ENVIRONMENT: ref
       DEPLOY_SANDBOX: false
+      ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_code
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.REF_CLOUD_FORMATION_DEPLOY_ROLE }}
@@ -113,6 +115,8 @@ jobs:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: qa-ci
       TARGET_ENVIRONMENT: qa
+      DEPLOY_SANDBOX: false
+      ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_code
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.QA_CLOUD_FORMATION_DEPLOY_ROLE }}
@@ -126,6 +130,7 @@ jobs:
       STACK_NAME: int-ci
       TARGET_ENVIRONMENT: int
       DEPLOY_SANDBOX: false
+      ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_code
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
@@ -152,6 +157,7 @@ jobs:
       STACK_NAME: prod-ci
       TARGET_ENVIRONMENT: prod
       DEPLOY_SANDBOX: false
+      ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_code
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}

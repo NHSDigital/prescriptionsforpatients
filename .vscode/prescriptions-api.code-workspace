@@ -24,6 +24,7 @@
 	"settings": {
 		"jest.disabledWorkspaceFolders": [
 			"prescriptions-api-monorepo",
+			"packages/specification",
 			"packages/sandbox",
 			"packages/authz"
 		],

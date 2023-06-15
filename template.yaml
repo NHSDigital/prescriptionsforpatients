@@ -14,6 +14,15 @@ Parameters:
     Type: String
     Description: TargetSpineServer
     Default: none
+  TruststoreVersion:
+    Type: String
+    Description: TruststoreVersion
+    Default: none
+  EnableMutualTLS:
+    Type: String
+    Description: Whether to use mutual TLS
+    Default: false
+    AllowedValues: [true, false]
   DeploySandbox:
     Type: String
     Description: Whether the Sandbox should be deployed
@@ -21,6 +30,7 @@ Parameters:
     AllowedValues: [true, false]
 
 Conditions:
+  ShouldUseMutualTLS: !Equals [true, !Ref EnableMutualTLS]
   ShouldDeploySandbox: !Equals [true, !Ref DeploySandbox]
 
 # Example of Mappings
@@ -66,7 +76,6 @@ Resources:
             Condition:
               ArnEquals:
                 kms:EncryptionContext:aws:logs:arn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
-
   CloudWatchKMSKeyAlias:
     Type: "AWS::KMS::Alias"
     Properties:
@@ -138,8 +147,9 @@ Resources:
           NODE_OPTIONS: --enable-source-maps
       Events:
         authz:
-          Type: Api
+          Type: HttpApi
           Properties:
+            ApiId: !Ref HttpApiGateway
             Path: /authz
             Method: get
     Metadata: # Manage esbuild properties
@@ -212,17 +222,15 @@ Resources:
         - x86_64
       Environment:
         Variables:
-          TargetSpineServer: !Ref TargetSpineServer
+          EndpointUrl: !Ref EndpointUrl
           NODE_OPTIONS: --enable-source-maps
       Events:
         authz:
-          Type: Api
+          Type: HttpApi
           Properties:
+            ApiId: !Ref HttpApiGateway
             Path: /getMyPrescriptions
             Method: get
-            RequestParameters:
-              - method.request.querystring.returnType:
-                  Required: false
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
       BuildProperties:
@@ -232,7 +240,133 @@ Resources:
         EntryPoints:
           - app.ts
 
-  # sandbox stuff
+  # TLS cert for custom domain
+  GenerateCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      ValidationMethod: DNS
+      DomainName:
+        Fn::Join:
+          - "."
+          - - !Ref "AWS::StackName"
+            - Fn::ImportValue: route53-resources:domain
+      DomainValidationOptions:
+        - DomainName:
+            Fn::Join:
+              - "."
+              - - !Ref "AWS::StackName"
+                - Fn::ImportValue: route53-resources:domain
+          HostedZoneId:
+            Fn::ImportValue: route53-resources:ZoneID
+
+  # Http api
+  HttpApiGateway:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: Prod
+      Domain:
+        DomainName:
+          Fn::Join:
+            - "."
+            - - !Ref "AWS::StackName"
+              - Fn::ImportValue: route53-resources:domain
+        CertificateArn: !Ref GenerateCertificate
+        Route53:
+          HostedZoneId:
+            Fn::ImportValue: route53-resources:ZoneID
+        EndpointConfiguration: REGIONAL
+        SecurityPolicy: TLS_1_2
+        MutualTlsAuthentication:
+          TruststoreUri:
+            "Fn::If":
+              - ShouldUseMutualTLS
+              - Fn::Join:
+                  - "/"
+                  - - "s3:/"
+                    - !Select [
+                        5,
+                        !Split [
+                          ":",
+                          Fn::ImportValue: ci-resources:TrustStoreBucket,
+                        ],
+                      ]
+                    - "truststore.pem"
+              - !Ref "AWS::NoValue"
+          TruststoreVersion:
+            "Fn::If":
+              - ShouldUseMutualTLS
+              - !Ref TruststoreVersion
+              - !Ref "AWS::NoValue"
+      DisableExecuteApiEndpoint:
+        "Fn::If":
+          - ShouldUseMutualTLS
+          - true
+          - !Ref "AWS::NoValue"
+
+  # TLS cert for custom domain
+  GenerateCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      ValidationMethod: DNS
+      DomainName:
+        Fn::Join:
+          - "."
+          - - !Ref "AWS::StackName"
+            - Fn::ImportValue: route53-resources:domain
+      DomainValidationOptions:
+        - DomainName:
+            Fn::Join:
+              - "."
+              - - !Ref "AWS::StackName"
+                - Fn::ImportValue: route53-resources:domain
+          HostedZoneId:
+            Fn::ImportValue: route53-resources:ZoneID
+
+  # Http api
+  HttpApiGateway:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: Prod
+      Domain:
+        DomainName:
+          Fn::Join:
+            - "."
+            - - !Ref "AWS::StackName"
+              - Fn::ImportValue: route53-resources:domain
+        CertificateArn: !Ref GenerateCertificate
+        Route53:
+          HostedZoneId:
+            Fn::ImportValue: route53-resources:ZoneID
+        EndpointConfiguration: REGIONAL
+        SecurityPolicy: TLS_1_2
+        MutualTlsAuthentication:
+          TruststoreUri:
+            "Fn::If":
+              - ShouldUseMutualTLS
+              - Fn::Join:
+                  - "/"
+                  - - "s3:/"
+                    - !Select [
+                        5,
+                        !Split [
+                          ":",
+                          Fn::ImportValue: ci-resources:TrustStoreBucket,
+                        ],
+                      ]
+                    - "truststore.pem"
+              - !Ref "AWS::NoValue"
+          TruststoreVersion:
+            "Fn::If":
+              - ShouldUseMutualTLS
+              - !Ref TruststoreVersion
+              - !Ref "AWS::NoValue"
+      DisableExecuteApiEndpoint:
+        "Fn::If":
+          - ShouldUseMutualTLS
+          - true
+          - !Ref "AWS::NoValue"
+
+  # Sandbox stuff
   SandboxRole:
     Type: "AWS::IAM::Role"
     Condition: ShouldDeploySandbox
@@ -322,9 +456,6 @@ Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  PrescriptionApi:
-    Description: "API Gateway endpoint URL for Prod stage for the Main function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
   AuthzFunction:
     Description: "Authz Lambda Function ARN"
     Value: !GetAtt AuthzFunction.Arn
