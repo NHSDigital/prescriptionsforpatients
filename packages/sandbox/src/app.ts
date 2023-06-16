@@ -23,29 +23,13 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
   const targetSpineServer = process.env.TargetSpineServer
   logger.info(`hello world from sandbox logger - target spine server ${targetSpineServer}`)
 
-  const returnType = event.queryStringParameters?.returnType
-  logger.info({message: "value of returnType", returnType})
-  switch (returnType) {
-    case "teapot": {
-      return {
-        statusCode: 418,
-        body: JSON.stringify({
-          message: "I am a teapot short and stout"
-        })
-      }
-      break
-    }
-    case "error": {
-      throw Error("error running lambda")
-      break
-    }
-    default: {
-      return {
-        statusCode: 200,
-        body: JSON.stringify({
-          message: successData
-        })
-      }
+  return {
+    statusCode: 200,
+    body: JSON.stringify({
+      message: successData
+    }),
+    headers: {
+      "Content-Type": "application/json"
     }
   }
 }
