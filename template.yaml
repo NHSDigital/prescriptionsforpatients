@@ -309,14 +309,12 @@ Resources:
           TargetSpineServer: !Ref TargetSpineServer
           NODE_OPTIONS: --enable-source-maps
       Events:
-        authz:
-          Type: Api
+        sandbox:
+          Type: HttpApi
           Properties:
+            ApiId: !Ref HttpApiGateway
             Path: /sandbox
             Method: get
-            RequestParameters:
-              - method.request.querystring.returnType:
-                  Required: false
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
       BuildProperties:
