@@ -32,6 +32,7 @@ Parameters:
 Conditions:
   ShouldUseMutualTLS: !Equals [true, !Ref EnableMutualTLS]
   ShouldDeploySandbox: !Equals [true, !Ref DeploySandbox]
+  ShouldNotDeploySandbox: !Equals [false, !Ref DeploySandbox]
 
 # Example of Mappings
 # Mappings:
@@ -164,6 +165,7 @@ Resources:
   # getMyPrescription stuff
   GetMyPrescriptionsRole:
     Type: "AWS::IAM::Role"
+    Condition: ShouldNotDeploySandbox
     Properties:
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
@@ -174,6 +176,7 @@ Resources:
             Action: "sts:AssumeRole"
   GetMyPrescriptionsLambdaPolicy:
     Type: "AWS::IAM::Policy"
+    Condition: ShouldNotDeploySandbox
     Properties:
       PolicyName: "allow-lambda-logging"
       PolicyDocument:
@@ -190,6 +193,7 @@ Resources:
         - !Ref GetMyPrescriptionsRole
   GetMyPrescriptionsKMSPolicy:
     Type: "AWS::IAM::Policy"
+    Condition: ShouldNotDeploySandbox
     Properties:
       PolicyName: "allow-KMS-access"
       PolicyDocument:
@@ -207,12 +211,14 @@ Resources:
         - !Ref GetMyPrescriptionsRole
   GetMyPrescriptionsLogGroup:
     Type: "AWS::Logs::LogGroup"
+    Condition: ShouldNotDeploySandbox
     Properties:
       LogGroupName: !Sub "/aws/lambda/${GetMyPrescriptions}"
       RetentionInDays: 90
       KmsKeyId: !GetAtt CloudWatchKMSKey.Arn
   GetMyPrescriptions:
     Type: AWS::Serverless::Function
+    Condition: ShouldNotDeploySandbox
     Properties:
       CodeUri: packages/getMyPrescriptions/src
       Handler: app.handler
@@ -313,7 +319,7 @@ Resources:
           Type: HttpApi
           Properties:
             ApiId: !Ref HttpApiGateway
-            Path: /sandbox
+            Path: /getMyPrescriptions
             Method: get
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild

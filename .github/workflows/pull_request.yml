@@ -50,7 +50,7 @@ jobs:
       ARTIFACT_BUCKET_PREFIX: PR-${{needs.get_issue_number.outputs.issue_number}}
       TARGET_ENVIRONMENT: dev-pr
       ENABLE_MUTUAL_TLS: false
-      DEPLOY_SANDBOX: true
+      DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
