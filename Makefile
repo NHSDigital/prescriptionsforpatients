@@ -21,7 +21,7 @@ sam-build: sam-validate
 	sam build
 
 sam-build-sandbox: sam-validate-sandbox
-	sam sync --stack-name $$stack_name-sandbox --watch -t sandbox_template.yaml
+	sam build --template-file sandbox_template.yaml
 
 sam-run-local: sam-build
 	sam local start-api
@@ -30,7 +30,7 @@ sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam sync --stack-name $$stack_name --watch
 
 sam-sync-sandbox: guard-stack_name
-	sam sync --stack-name $$stack_name-sandbox --watch -t sandbox_template.yaml
+	sam sync --stack-name $$stack_name --watch -t sandbox_template.yaml
 
 sam-deploy: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam deploy --stack-name $$stack_name
