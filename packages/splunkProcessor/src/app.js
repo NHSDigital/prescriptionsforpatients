@@ -1,5 +1,6 @@
 /*
-Copied from https://github.com/disney/terraform-aws-kinesis-firehose-splunk
+COPIED AND MODIFIED FROM https://github.com/disney/terraform-aws-kinesis-firehose-splunk
+UNDER THE TOMORROW OPEN SOURCE TECHNOLOGY LICENSE
 */
 
 /*
