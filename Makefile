@@ -69,8 +69,8 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 		--parameter-overrides \
 			SplunkHECToken=$$SPLUNK_HEC_TOKEN \
 			SplunkHECEndpoint=$$SPLUNK_HEC_ENDPOINT \
-      TruststoreVersion=$$LATEST_TRUSTSTORE_VERSION \
-      EnableMutualTLS=$$enable_mutual_tls
+			TruststoreVersion=$$LATEST_TRUSTSTORE_VERSION \
+			EnableMutualTLS=$$enable_mutual_tls
 
 lint:
 	npm run lint --workspace packages/authz
