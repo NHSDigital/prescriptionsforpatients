@@ -70,14 +70,15 @@ Resources:
             Condition:
               ArnEquals:
                 kms:EncryptionContext:aws:logs:arn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
+
   CloudWatchKMSKeyAlias:
     Type: "AWS::KMS::Alias"
     Properties:
       AliasName: !Sub "alias/${AWS::StackName}-CloudWatchKMSAlias"
       TargetKeyId: !Ref CloudWatchKMSKey
 
-  # Authz function stuff
-  AuthzFunctionRole:
+  # sandbox stuff
+  SandboxRole:
     Type: "AWS::IAM::Role"
     Properties:
       AssumeRolePolicyDocument:
@@ -87,7 +88,7 @@ Resources:
             Principal:
               Service: "lambda.amazonaws.com"
             Action: "sts:AssumeRole"
-  AuthzFunctionLoggingPolicy:
+  SandboxLambdaPolicy:
     Type: "AWS::IAM::Policy"
     Properties:
       PolicyName: "allow-lambda-logging"
@@ -99,11 +100,11 @@ Resources:
               - logs:CreateLogStream
               - logs:PutLogEvents
             Resource:
-              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${AuthzFunctionLogGroup}"
-              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${AuthzFunctionLogGroup}:log-stream:*"
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${SandboxLogGroup}"
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${SandboxLogGroup}:log-stream:*"
       Roles:
-        - !Ref AuthzFunctionRole
-  AuthzFunctionKMSPolicy:
+        - !Ref SandboxRole
+  SandboxKMSPolicy:
     Type: "AWS::IAM::Policy"
     Properties:
       PolicyName: "allow-KMS-access"
@@ -119,20 +120,20 @@ Resources:
             Resource:
               - !GetAtt CloudWatchKMSKey.Arn
       Roles:
-        - !Ref AuthzFunctionRole
-  AuthzFunctionLogGroup:
+        - !Ref SandboxRole
+  SandboxLogGroup:
     Type: "AWS::Logs::LogGroup"
     Properties:
-      LogGroupName: !Sub "/aws/lambda/${AuthzFunction}"
+      LogGroupName: !Sub "/aws/lambda/${Sandbox}"
       RetentionInDays: 90
       KmsKeyId: !GetAtt CloudWatchKMSKey.Arn
-  AuthzFunction:
+  Sandbox:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: packages/authz/src
+      CodeUri: packages/sandbox/src
       Handler: app.handler
       Runtime: nodejs18.x
-      Role: !GetAtt AuthzFunctionRole.Arn
+      Role: !GetAtt SandboxRole.Arn
       Architectures:
         - x86_64
       Environment:
@@ -140,87 +141,7 @@ Resources:
           TargetSpineServer: !Ref TargetSpineServer
           NODE_OPTIONS: --enable-source-maps
       Events:
-        authz:
-          Type: HttpApi
-          Properties:
-            ApiId: !Ref HttpApiGateway
-            Path: /authz
-            Method: get
-    Metadata: # Manage esbuild properties
-      BuildMethod: esbuild
-      BuildProperties:
-        Minify: true
-        Target: "es2020"
-        Sourcemap: true
-        EntryPoints:
-          - app.ts
-
-  # getMyPrescription stuff
-  GetMyPrescriptionsRole:
-    Type: "AWS::IAM::Role"
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: "lambda.amazonaws.com"
-            Action: "sts:AssumeRole"
-  GetMyPrescriptionsLambdaPolicy:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: "allow-lambda-logging"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - logs:CreateLogStream
-              - logs:PutLogEvents
-            Resource:
-              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${GetMyPrescriptionsLogGroup}"
-              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${GetMyPrescriptionsLogGroup}:log-stream:*"
-      Roles:
-        - !Ref GetMyPrescriptionsRole
-  GetMyPrescriptionsKMSPolicy:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: "allow-KMS-access"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - kms:DescribeKey
-              - kms:GenerateDataKey*
-              - kms:Encrypt
-              - kms:ReEncrypt*
-            Resource:
-              - !GetAtt CloudWatchKMSKey.Arn
-      Roles:
-        - !Ref GetMyPrescriptionsRole
-  GetMyPrescriptionsLogGroup:
-    Type: "AWS::Logs::LogGroup"
-    Properties:
-      LogGroupName: !Sub "/aws/lambda/${GetMyPrescriptions}"
-      RetentionInDays: 90
-      KmsKeyId: !GetAtt CloudWatchKMSKey.Arn
-
-  GetMyPrescriptions:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: packages/getMyPrescriptions/src
-      Handler: app.handler
-      Runtime: nodejs18.x
-      Role: !GetAtt GetMyPrescriptionsRole.Arn
-      Architectures:
-        - x86_64
-      Environment:
-        Variables:
-          TargetSpineServer: !Ref TargetSpineServer
-          NODE_OPTIONS: --enable-source-maps
-      Events:
-        getMyPrescriptions:
+        sandbox:
           Type: HttpApi
           Properties:
             ApiId: !Ref HttpApiGateway

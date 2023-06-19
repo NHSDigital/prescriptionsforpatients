@@ -20,14 +20,17 @@ install-hooks: install-python
 sam-build: sam-validate
 	sam build
 
+sam-build-sandbox: sam-validate-sandbox
+	sam sync --stack-name $$stack_name-sandbox --watch -t sandbox_template.yaml
+
 sam-run-local: sam-build
 	sam local start-api
 
 sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam sync --stack-name $$stack_name --watch
 
-sam-sync-sandbox: guard-AWS_DEFAULT_PROFILE guard-stack_name
-	sam sync --stack-name $$stack_name-sandbox --watch --parameter-overrides ParameterKey=DeploySandbox,ParameterValue=true
+sam-sync-sandbox: guard-stack_name
+	sam sync --stack-name $$stack_name-sandbox --watch -t sandbox_template.yaml
 
 sam-deploy: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam deploy --stack-name $$stack_name
@@ -47,7 +50,10 @@ sam-list-outputs: guard-AWS_DEFAULT_PROFILE guard-stack_name
 sam-validate: 
 	sam validate
 
-sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role guard-LATEST_TRUSTSTORE_VERSION guard-enable_mutual_tls guard-deploy_sandbox
+sam-validate-sandbox: 
+	sam build --template-file sandbox_template.yaml
+
+sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role
 	sam deploy \
 		--template-file $$template_file \
 		--stack-name $$stack_name \
@@ -60,9 +66,7 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 		--role-arn $$cloud_formation_execution_role \
 		--no-confirm-changeset \
 		--parameter-overrides TargetSpineServer=$$target_spine_server \
-		--force-upload \
-		--parameter-overrides ParameterKey=TruststoreVersion,ParameterValue=$$LATEST_TRUSTSTORE_VERSION ParameterKey=EnableMutualTLS,ParameterValue=$$enable_mutual_tls \
-		--parameter-overrides ParameterKey=DeploySandbox,ParameterValue=$$deploy_sandbox
+		--force-upload
 
 lint:
 	npm run lint --workspace packages/authz
