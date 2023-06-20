@@ -21,6 +21,9 @@ on:
       DEPLOY_SANDBOX:
         required: true
         type: string
+      TRUSTSTORE_FILE:
+        required: true
+        type: string
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
@@ -65,7 +68,7 @@ jobs:
           TRUSTSTORE_BUCKET_NAME=$(echo ${TRUSTSTORE_BUCKET_ARN} | cut -d ":" -f 6)
           export LATEST_TRUSTSTORE_VERSION=$(aws s3api list-object-versions \
           --bucket ${TRUSTSTORE_BUCKET_NAME} \
-          --prefix truststore.pem \
+          --prefix ${{ inputs.TRUSTSTORE_FILE }} \
           --query 'Versions[?IsLatest].[VersionId]' --output text)
           export enable_mutual_tls=${{ inputs.ENABLE_MUTUAL_TLS }}
           export deploy_sandbox=${{ inputs.DEPLOY_SANDBOX }}

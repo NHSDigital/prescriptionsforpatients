@@ -77,6 +77,7 @@ jobs:
       ENABLE_MUTUAL_TLS: true
       DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code
+      TRUSTSTORE_FILE: truststore.pem
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.DEV_TARGET_SPINE_SERVER }}
@@ -91,6 +92,7 @@ jobs:
       ENABLE_MUTUAL_TLS: true
       DEPLOY_SANDBOX: true
       BUILD_ARTIFACT: packaged_sandbox_code
+      TRUSTSTORE_FILE: sandbox-truststore.pem
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: sandbox
@@ -105,6 +107,7 @@ jobs:
       ENABLE_MUTUAL_TLS: true
       DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code
+      TRUSTSTORE_FILE: truststore.pem
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.REF_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.REF_TARGET_SPINE_SERVER }}
@@ -119,6 +122,7 @@ jobs:
       ENABLE_MUTUAL_TLS: true
       DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code
+      TRUSTSTORE_FILE: truststore.pem
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.QA_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.QA_TARGET_SPINE_SERVER }}
@@ -133,6 +137,7 @@ jobs:
       ENABLE_MUTUAL_TLS: true
       DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code
+      TRUSTSTORE_FILE: truststore.pem
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.INT_TARGET_SPINE_SERVER }}
@@ -147,6 +152,7 @@ jobs:
       ENABLE_MUTUAL_TLS: true
       DEPLOY_SANDBOX: true
       BUILD_ARTIFACT: packaged_sandbox_code
+      TRUSTSTORE_FILE: sandbox-truststore.pem
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: sandbox
@@ -161,6 +167,7 @@ jobs:
       ENABLE_MUTUAL_TLS: true
       DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code
+      TRUSTSTORE_FILE: truststore.pem
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.PROD_TARGET_SPINE_SERVER }}

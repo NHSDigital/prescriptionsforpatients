@@ -206,7 +206,7 @@ Resources:
                           Fn::ImportValue: ci-resources:TrustStoreBucket,
                         ],
                       ]
-                    - "truststore.pem"
+                    - "sandbox-truststore.pem"
               - !Ref "AWS::NoValue"
           TruststoreVersion:
             "Fn::If":
