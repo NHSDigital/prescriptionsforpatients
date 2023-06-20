@@ -66,7 +66,7 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 	sam deploy \
 		--template-file $$template_file \
 		--stack-name $$stack_name \
-		--capabilities CAPABILITY_NAMED_IAM \
+		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND \
 		--region eu-west-2 \
 		--s3-bucket $$artifact_bucket \
 		--s3-prefix $$artifact_bucket_prefix \
