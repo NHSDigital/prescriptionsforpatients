@@ -353,7 +353,7 @@ Resources:
     DependsOn: SecretsKMSKeyKMSKeyAlias
     Type: AWS::SecretsManager::Secret
     Properties:
-      Description: CA private key
+      Description: CA certificate
       KmsKeyId: alias/SecretsKMSKeyAlias
       SecretString: ChangeMe
 
@@ -361,7 +361,7 @@ Resources:
     DependsOn: SecretsKMSKeyKMSKeyAlias
     Type: AWS::SecretsManager::Secret
     Properties:
-      Description: CA private key
+      Description: Client private key
       KmsKeyId: alias/SecretsKMSKeyAlias
       SecretString: ChangeMe
 
@@ -369,7 +369,7 @@ Resources:
     DependsOn: SecretsKMSKeyKMSKeyAlias
     Type: AWS::SecretsManager::Secret
     Properties:
-      Description: CA private key
+      Description: Client cert
       KmsKeyId: alias/SecretsKMSKeyAlias
       SecretString: ChangeMe
 
