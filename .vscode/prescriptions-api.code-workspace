@@ -13,6 +13,10 @@
 			"path": "../packages/getMyPrescriptions"
 		},
 		{
+			"name": "packages/sandbox",
+			"path": "../packages/sandbox"
+		},
+		{
 			"name": "packages/specification",
 			"path": "../packages/specification"
 		}
@@ -20,7 +24,9 @@
 	"settings": {
 		"jest.disabledWorkspaceFolders": [
 			"prescriptions-api-monorepo",
-			"packages/specification"
+			"packages/specification",
+			"packages/sandbox",
+			"packages/authz"
 		],
 		"files.exclude": {
 			"packages/": true,

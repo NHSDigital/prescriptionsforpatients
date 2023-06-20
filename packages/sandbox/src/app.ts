@@ -1,10 +1,11 @@
-import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
+import {APIGatewayProxyResult} from "aws-lambda"
 import {Logger, injectLambdaContext} from "@aws-lambda-powertools/logger"
 import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
 import errorHandler from "@schibsted/middy-error-handler"
+import successData from "../../specification/examples/GetMyPrescriptions/Bundle/success.json"
 
-const logger = new Logger({serviceName: "getMyPrescriptions"})
+const logger = new Logger({serviceName: "sandbox"})
 
 /* eslint-disable  max-len */
 
@@ -18,33 +19,17 @@ const logger = new Logger({serviceName: "getMyPrescriptions"})
  *
  */
 
-const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+const lambdaHandler = async (): Promise<APIGatewayProxyResult> => {
   const targetSpineServer = process.env.TargetSpineServer
-  logger.info(`hello world from getMyPrescriptions logger - target spine server ${targetSpineServer}`)
+  logger.info(`hello world from sandbox logger - target spine server ${targetSpineServer}`)
 
-  const returnType = event.queryStringParameters?.returnType
-  logger.info({message: "value of returnType", returnType})
-  switch (returnType) {
-    case "teapot": {
-      return {
-        statusCode: 418,
-        body: JSON.stringify({
-          message: "I am a teapot short and stout"
-        })
-      }
-      break
-    }
-    case "error": {
-      throw Error("error running lambda")
-      break
-    }
-    default: {
-      return {
-        statusCode: 200,
-        body: JSON.stringify({
-          message: "hello world from getMyPrescriptions lambda"
-        })
-      }
+  return {
+    statusCode: 200,
+    body: JSON.stringify({
+      message: successData
+    }),
+    headers: {
+      "Content-Type": "application/json"
     }
   }
 }
