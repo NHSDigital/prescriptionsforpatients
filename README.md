@@ -7,6 +7,7 @@ This is an API for accessing prescription information.
 - `packages/authz/` Deals with authorisation to the API.
 - `packages/getMyPrescriptions/` Get prescription details.
 - `packages/splunkProcessor/` Processes CloudWatch logs for Splunk.
+- `packages/sandbox/` Returns [static data](./packages/specification/examples/GetMyPrescriptions/Bundle/success.json) from the Sandbox
 - `scripts/` Utilities helpful to developers of this specification.
 - `cloudformation/` Contains cloudformation files used to create resources for CI builds and deployments
 - `privateCA/` Contains script to create self signed CA certificate and a client certificate used for mutual TLS
@@ -166,6 +167,7 @@ These are used to do common commands
 - `sam-build` prepares the lambdas and SAM definition file to be used in subsequent steps
 - `sam-run-local` run the API and lambdas locally
 - `sam-sync` sync the API and lambda to AWS. This keeps running and automatically uploads any changes to lambda code made locally. Needs AWS_DEFAULT_PROFILE and stack_name environment variables set.
+- `sam-sync-sandbox` sync the API and lambda to AWS. This keeps running and automatically uploads any changes to lambda code made locally. Needs stack_name environment variables set, the path and file name where the AWS SAM template is located.
 - `sam-deploy` deploys the compiled SAM template from sam-build to AWS. Needs AWS_DEFAULT_PROFILE and stack_name environment variables set.
 - `sam-delete` deletes the deployed SAM cloud formation stack and associated resources. Needs AWS_DEFAULT_PROFILE and stack_name environment variables set.
 - `sam-list-endpoints` lists endpoints created for the current stack. Needs AWS_DEFAULT_PROFILE and stack_name environment variables set.

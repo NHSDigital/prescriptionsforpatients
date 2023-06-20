@@ -75,33 +75,60 @@ jobs:
       STACK_NAME: dev-ci
       TARGET_ENVIRONMENT: dev
       ENABLE_MUTUAL_TLS: true
+      DEPLOY_SANDBOX: false
+      BUILD_ARTIFACT: packaged_code
+      TRUSTSTORE_FILE: truststore.pem
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       SPLUNK_HEC_TOKEN: ${{ secrets.DEV_SPLUNK_HEC_TOKEN }}
+      TARGET_SPINE_SERVER: ${{ secrets.DEV_TARGET_SPINE_SERVER }}
+
+  release_dev_sandbox:
+    needs: [tag_release, package_code]
+    uses: ./.github/workflows/sam_release_code.yml
+    with:
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      STACK_NAME: dev-sandbox
+      TARGET_ENVIRONMENT: dev
+      ENABLE_MUTUAL_TLS: true
+      DEPLOY_SANDBOX: true
+      BUILD_ARTIFACT: packaged_sandbox_code
+      TRUSTSTORE_FILE: sandbox-truststore.pem
+    secrets:
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_SPINE_SERVER: sandbox
 
   release_ref:
-    needs: [tag_release, release_dev, package_code]
+    needs: [tag_release, release_dev, release_dev_sandbox, package_code]
     uses: ./.github/workflows/sam_release_code.yml
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: ref-ci
       TARGET_ENVIRONMENT: ref
       ENABLE_MUTUAL_TLS: true
+      DEPLOY_SANDBOX: false
+      BUILD_ARTIFACT: packaged_code
+      TRUSTSTORE_FILE: truststore.pem
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.REF_CLOUD_FORMATION_DEPLOY_ROLE }}
-      SPLUNK_HEC_TOKEN: ${{ secrets.REF_SPLUNK_HEC_TOKEN }} //
+      SPLUNK_HEC_TOKEN: ${{ secrets.REF_SPLUNK_HEC_TOKEN }}
+      TARGET_SPINE_SERVER: ${{ secrets.REF_TARGET_SPINE_SERVER }}
 
   release_qa:
-    needs: [tag_release, release_dev, package_code]
+    needs: [tag_release, release_dev, release_dev_sandbox, package_code]
     uses: ./.github/workflows/sam_release_code.yml
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: qa-ci
       TARGET_ENVIRONMENT: qa
       ENABLE_MUTUAL_TLS: true
+      DEPLOY_SANDBOX: false
+      BUILD_ARTIFACT: packaged_code
+      TRUSTSTORE_FILE: truststore.pem
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.QA_CLOUD_FORMATION_DEPLOY_ROLE }}
-      SPLUNK_HEC_TOKEN: ${{ secrets.QA_SPLUNK_HEC_TOKEN }} //
+      SPLUNK_HEC_TOKEN: ${{ secrets.QA_SPLUNK_HEC_TOKEN }}
+      TARGET_SPINE_SERVER: ${{ secrets.QA_TARGET_SPINE_SERVER }}
 
   release_int:
     needs: [tag_release, release_qa, package_code]
@@ -111,18 +138,41 @@ jobs:
       STACK_NAME: int-ci
       TARGET_ENVIRONMENT: int
       ENABLE_MUTUAL_TLS: true
+      DEPLOY_SANDBOX: false
+      BUILD_ARTIFACT: packaged_code
+      TRUSTSTORE_FILE: truststore.pem
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
-      SPLUNK_HEC_TOKEN: ${{ secrets.INT_SPLUNK_HEC_TOKEN }} //
+      TARGET_SPINE_SERVER: ${{ secrets.INT_TARGET_SPINE_SERVER }}
+
+  release_sandbox:
+    needs: [tag_release, release_qa, package_code]
+    uses: ./.github/workflows/sam_release_code.yml
+    with:
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      STACK_NAME: int-sandox
+      TARGET_ENVIRONMENT: int
+      ENABLE_MUTUAL_TLS: true
+      DEPLOY_SANDBOX: true
+      BUILD_ARTIFACT: packaged_sandbox_code
+      TRUSTSTORE_FILE: sandbox-truststore.pem
+    secrets:
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
+      SPLUNK_HEC_TOKEN: ${{ secrets.INT_SPLUNK_HEC_TOKEN }}
+      TARGET_SPINE_SERVER: sandbox
 
   release_prod:
-    needs: [tag_release, release_int, package_code]
+    needs: [tag_release, release_int, release_sandbox, package_code]
     uses: ./.github/workflows/sam_release_code.yml
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: prod-ci
       TARGET_ENVIRONMENT: prod
       ENABLE_MUTUAL_TLS: true
+      DEPLOY_SANDBOX: false
+      BUILD_ARTIFACT: packaged_code
+      TRUSTSTORE_FILE: truststore.pem
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
-      SPLUNK_HEC_TOKEN: ${{ secrets.PROD_SPLUNK_HEC_TOKEN }} //
+      SPLUNK_HEC_TOKEN: ${{ secrets.PROD_SPLUNK_HEC_TOKEN }}
+      TARGET_SPINE_SERVER: ${{ secrets.PROD_TARGET_SPINE_SERVER }}

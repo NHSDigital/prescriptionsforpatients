@@ -17,6 +17,10 @@
 			"path": "../packages/splunkProcessor"
 		},
 		{
+			"name": "packages/sandbox",
+			"path": "../packages/sandbox"
+		},
+		{
 			"name": "packages/specification",
 			"path": "../packages/specification"
 		}
@@ -25,7 +29,9 @@
 		"jest.disabledWorkspaceFolders": [
 			"prescriptions-api-monorepo",
 			"packages/splunkProcessor",
-			"packages/specification"
+			"packages/specification",
+			"packages/sandbox",
+			"packages/authz"
 		],
 		"files.exclude": {
 			"packages/": true,

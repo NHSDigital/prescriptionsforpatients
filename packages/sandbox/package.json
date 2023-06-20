@@ -1,7 +1,7 @@
 {
-  "name": "getMyPrescriptions",
+  "name": "sandbox",
   "version": "1.0.0",
-  "description": "Get my prescriptions",
+  "description": "Sandbox",
   "main": "app.js",
   "author": "SAM CLI",
   "license": "MIT",
@@ -14,9 +14,9 @@
   },
   "dependencies": {
     "@aws-lambda-powertools/commons": "^1.8.0",
-    "@aws-lambda-powertools/logger": "^1.9.0",
+    "@aws-lambda-powertools/logger": "^1.8.0",
     "@middy/core": "^4.4.3",
-    "@middy/input-output-logger": "^4.5.2",
+    "@middy/input-output-logger": "^4.4.3",
     "@schibsted/middy-error-handler": "^4.2.2"
   }
 }

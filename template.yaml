@@ -10,9 +10,9 @@ Globals:
     MemorySize: 256
 
 Parameters:
-  EndpointUrl:
+  TargetSpineServer:
     Type: String
-    Description: EndpointUrl
+    Description: TargetSpineServer
     Default: none
   SplunkHECToken:
     Type: String
@@ -444,7 +444,7 @@ Resources:
         - x86_64
       Environment:
         Variables:
-          EndpointUrl: !Ref EndpointUrl
+          TargetSpineServer: !Ref TargetSpineServer
           NODE_OPTIONS: --enable-source-maps
       Events:
         authz:
@@ -533,10 +533,10 @@ Resources:
         - x86_64
       Environment:
         Variables:
-          EndpointUrl: !Ref EndpointUrl
+          TargetSpineServer: !Ref TargetSpineServer
           NODE_OPTIONS: --enable-source-maps
       Events:
-        authz:
+        getMyPrescriptions:
           Type: HttpApi
           Properties:
             ApiId: !Ref HttpApiGateway
@@ -613,20 +613,3 @@ Resources:
           - ShouldUseMutualTLS
           - true
           - !Ref "AWS::NoValue"
-
-Outputs:
-  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
-  # Find out more about other implicit resources you can reference within SAM
-  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  AuthzFunction:
-    Description: "Authz Lambda Function ARN"
-    Value: !GetAtt AuthzFunction.Arn
-  AuthzFunctionIamRole:
-    Description: "Implicit IAM Role created for the Authz function"
-    Value: !GetAtt AuthzFunctionRole.Arn
-  GetMyPrescriptionsFunction:
-    Description: "GetMyPrescriptions Lambda Function ARN"
-    Value: !GetAtt GetMyPrescriptions.Arn
-  GetMyPrescriptionsFunctionIamRole:
-    Description: "Implicit IAM Role created for the GetMyPrescriptions function"
-    Value: !GetAtt GetMyPrescriptionsRole.Arn

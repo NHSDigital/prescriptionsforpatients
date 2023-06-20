@@ -15,10 +15,21 @@ on:
       ENABLE_MUTUAL_TLS:
         required: true
         type: string
+      BUILD_ARTIFACT:
+        required: true
+        type: string
+      DEPLOY_SANDBOX:
+        required: true
+        type: string
+      TRUSTSTORE_FILE:
+        required: true
+        type: string
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
       SPLUNK_HEC_TOKEN:
+        required: true
+      TARGET_SPINE_SERVER:
         required: true
 
 jobs:
@@ -39,7 +50,7 @@ jobs:
       - uses: actions/download-artifact@v3
         name: download build artifact
         with:
-          name: packaged_code
+          name: ${{ inputs.BUILD_ARTIFACT }}
           path: .
 
       - shell: bash
@@ -52,6 +63,7 @@ jobs:
           export stack_name=${{ inputs.STACK_NAME }}
           export SPLUNK_HEC_ENDPOINT=${{ vars.SPLUNK_STRUCTURED_ENDPOINT }}
           export SPLUNK_HEC_TOKEN=${{ secrets.SPLUNK_HEC_TOKEN }}
+          export target_spine_server=${{ secrets.TARGET_SPINE_SERVER }}
           export cloud_formation_execution_role=$(aws cloudformation list-exports --output json | \
               jq -r '.Exports[] | select(.Name == "ci-resources:CloudFormationExecutionRole") | .Value' )
           TRUSTSTORE_BUCKET_ARN=$(aws cloudformation describe-stacks \
@@ -60,7 +72,8 @@ jobs:
           TRUSTSTORE_BUCKET_NAME=$(echo ${TRUSTSTORE_BUCKET_ARN} | cut -d ":" -f 6)
           export LATEST_TRUSTSTORE_VERSION=$(aws s3api list-object-versions \
           --bucket ${TRUSTSTORE_BUCKET_NAME} \
-          --prefix truststore.pem \
+          --prefix ${{ inputs.TRUSTSTORE_FILE }} \
           --query 'Versions[?IsLatest].[VersionId]' --output text)
           export enable_mutual_tls=${{ inputs.ENABLE_MUTUAL_TLS }}
+          export deploy_sandbox=${{ inputs.DEPLOY_SANDBOX }}
           make sam-deploy-package

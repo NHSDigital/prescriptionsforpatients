@@ -139,3 +139,4 @@ aws secretsmanager put-secret-value \
     --secret-string file://${CERTS_DIR}/apigee_client_cert.pem
 
 aws s3 cp  ${CERTS_DIR}/${CA_NAME}.pem s3://${TRUSTSTORE_BUCKET_NAME}/truststore.pem
+aws s3 cp  ${CERTS_DIR}/${CA_NAME}.pem s3://${TRUSTSTORE_BUCKET_NAME}/sandbox-truststore.pem
