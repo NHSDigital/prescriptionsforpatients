@@ -51,7 +51,7 @@ sam-validate:
 	sam validate
 
 sam-validate-sandbox: 
-	sam build --template-file sandbox_template.yaml
+	sam validate --template-file sandbox_template.yaml
 
 sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role
 	sam deploy \
@@ -65,7 +65,7 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 		--no-fail-on-empty-changeset \
 		--role-arn $$cloud_formation_execution_role \
 		--no-confirm-changeset \
-		--parameter-overrides TargetSpineServer=$$target_spine_server \
+		--parameter-overrides ParameterKey=TargetSpineServer,ParameterValue=$$target_spine_server  ParameterKey=TruststoreVersion,ParameterValue=$$LATEST_TRUSTSTORE_VERSION ParameterKey=EnableMutualTLS,ParameterValue=$$enable_mutual_tls \
 		--force-upload
 
 lint:
