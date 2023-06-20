@@ -77,6 +77,14 @@ Resources:
       AliasName: !Sub "alias/${AWS::StackName}-CloudWatchKMSAlias"
       TargetKeyId: !Ref CloudWatchKMSKey
 
+  SplunkFirehose:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: template_splunk_firehose.yaml
+      Parameters:
+        SplunkHECToken: !Ref SplunkHECToken
+        SplunkHECEndpoint: !Ref SplunkHECEndpoint
+
   # sandbox stuff
   SandboxRole:
     Type: "AWS::IAM::Role"
@@ -127,6 +135,13 @@ Resources:
       LogGroupName: !Sub "/aws/lambda/${Sandbox}"
       RetentionInDays: 90
       KmsKeyId: !GetAtt CloudWatchKMSKey.Arn
+  SandboxSplunkSubscriptionFilter:
+    Type: AWS::Logs::SubscriptionFilter
+    Properties:
+      RoleArn: !GetAtt SplunkFirehose.Outputs.SplunkSubscriptionFilterRole
+      LogGroupName: !Ref SandboxLogGroup
+      FilterPattern: '" "' # All logs
+      DestinationArn: !GetAtt SplunkFirehose.Outputs.SplunkDeliveryStream
   Sandbox:
     Type: AWS::Serverless::Function
     Properties:
