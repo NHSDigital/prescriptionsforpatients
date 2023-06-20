@@ -80,7 +80,7 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 			  SplunkHECEndpoint=$$SPLUNK_HEC_ENDPOINT \
 			  TruststoreVersion=$$LATEST_TRUSTSTORE_VERSION \
 			  EnableMutualTLS=$$enable_mutual_tls \
-        TargetSpineServer=$$target_spine_server
+			  TargetSpineServer=$$target_spine_server
 
 lint:
 	npm run lint --workspace packages/authz
