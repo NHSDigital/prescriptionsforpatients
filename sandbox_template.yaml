@@ -14,6 +14,14 @@ Parameters:
     Type: String
     Description: TargetSpineServer
     Default: none
+  SplunkHECToken:
+    Type: String
+    Description: HEC Token for Cloudformation to Splunk Firehose
+    Default: none
+  SplunkHECEndpoint:
+    Type: String
+    Description: HEC Endpoint for Cloudformation to Splunk Firehose
+    Default: none
   TruststoreVersion:
     Type: String
     Description: TruststoreVersion
