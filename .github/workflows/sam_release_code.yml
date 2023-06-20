@@ -27,6 +27,8 @@ on:
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
+      SPLUNK_HEC_TOKEN:
+        required: true
       TARGET_SPINE_SERVER:
         required: true
 
@@ -59,6 +61,8 @@ jobs:
           export artifact_bucket_prefix=${{ inputs.ARTIFACT_BUCKET_PREFIX }}
           export template_file=template.yaml
           export stack_name=${{ inputs.STACK_NAME }}
+          export SPLUNK_HEC_ENDPOINT=${{ vars.SPLUNK_STRUCTURED_ENDPOINT }}
+          export SPLUNK_HEC_TOKEN=${{ secrets.SPLUNK_HEC_TOKEN }}
           export target_spine_server=${{ secrets.TARGET_SPINE_SERVER }}
           export cloud_formation_execution_role=$(aws cloudformation list-exports --output json | \
               jq -r '.Exports[] | select(.Name == "ci-resources:CloudFormationExecutionRole") | .Value' )

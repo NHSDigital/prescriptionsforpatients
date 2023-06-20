@@ -13,6 +13,10 @@
 			"path": "../packages/getMyPrescriptions"
 		},
 		{
+			"name": "packages/splunkProcessor",
+			"path": "../packages/splunkProcessor"
+		},
+		{
 			"name": "packages/sandbox",
 			"path": "../packages/sandbox"
 		},
@@ -24,6 +28,7 @@
 	"settings": {
 		"jest.disabledWorkspaceFolders": [
 			"prescriptions-api-monorepo",
+			"packages/splunkProcessor",
 			"packages/specification",
 			"packages/sandbox",
 			"packages/authz"
@@ -32,6 +37,7 @@
 			"packages/": true,
 		},
         "cSpell.words": [
+			"AWSKMS",
 			"Caldicott",
 			"canonicalise",
 			"Canonicaliser",
@@ -41,6 +47,7 @@
 			"codeinline",
 			"codesystem",
 			"devcontainer",
+			"esbuild",
 			"fhir",
 			"Formik",
 			"Fulfillment",
@@ -52,15 +59,21 @@
 			"milliliter",
 			"NHSD",
 			"NOSONAR",
+			"OIDC",
 			"Orthoptist",
 			"Payor",
 			"pino",
 			"pollable",
 			"Prosthetist",
+			"querystring",
+			"reingest",
+			"reingested",
+			"Reingestion",
 			"serialisation",
 			"smartcard",
 			"smartcards",
 			"Snomed",
+			"sourcetype",
 			"URID",
 			"URPID",
 			"whens"
@@ -95,7 +108,8 @@
 			"redhat.vscode-xml",
 			"streetsidesoftware.code-spell-checker",
 			"timonwong.shellcheck",
-			"mkhl.direnv"
+			"mkhl.direnv",
+			"bungcip.better-toml"
 		]
 	}
 }

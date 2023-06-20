@@ -19,6 +19,7 @@
   "workspaces": [
     "packages/authz",
     "packages/getMyPrescriptions",
+    "packages/splunkProcessor",
     "packages/sandbox",
     "packages/specification"
   ],

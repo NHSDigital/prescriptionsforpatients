@@ -14,6 +14,14 @@ Parameters:
     Type: String
     Description: TargetSpineServer
     Default: none
+  SplunkHECToken:
+    Type: String
+    Description: HEC Token for Cloudformation to Splunk Firehose
+    Default: none
+  SplunkHECEndpoint:
+    Type: String
+    Description: HEC Endpoint for Cloudformation to Splunk Firehose
+    Default: none
   TruststoreVersion:
     Type: String
     Description: TruststoreVersion
@@ -57,7 +65,8 @@ Resources:
               AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
             Action: "kms:*"
             Resource: "*"
-          - Effect: Allow
+          - Sid: Allow Lambda logging
+            Effect: Allow
             Principal:
               Service: !Sub "logs.${AWS::Region}.amazonaws.com"
             Action:
@@ -70,11 +79,299 @@ Resources:
             Condition:
               ArnEquals:
                 kms:EncryptionContext:aws:logs:arn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
+          - Sid: Allow Firehose Logging
+            Effect: Allow
+            Principal: "*"
+            Action:
+              - kms:Encrypt*
+              - kms:Decrypt*
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+              - kms:Describe*
+            Resource: "*"
+            Condition:
+              ArnEquals:
+                kms:EncryptionContext:aws:logs:arn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/kinesisfirehose/*"
+
   CloudWatchKMSKeyAlias:
     Type: "AWS::KMS::Alias"
     Properties:
       AliasName: !Sub "alias/${AWS::StackName}-CloudWatchKMSAlias"
       TargetKeyId: !Ref CloudWatchKMSKey
+
+  # Kinesis Splunk Firehose stuff
+
+  # Subscription filter roles and policies
+  SplunkSubscriptionFilterRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "logs.amazonaws.com"
+            Action: "sts:AssumeRole"
+  SplunkSubscriptionFilterDeliveryStreamPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-put-data-stream-records"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - firehose:PutRecord
+            Resource:
+              - !GetAtt SplunkDeliveryStream.Arn
+      Roles:
+        - !Ref SplunkSubscriptionFilterRole
+  SplunkSubscriptionFilterKMSPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-kms-generate-data-key"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - kms:GenerateDataKey
+            Resource:
+              - !GetAtt CloudWatchKMSKey.Arn
+      Roles:
+        - !Ref SplunkSubscriptionFilterRole
+
+  # Delivery Stream, roles and policies
+  SplunkDeliveryStream:
+    # Depends on policy as delivery streams require a role with correct policies to be build, and a role reference doesn't provide a dependency as Stream -> Role <- Policy, so Stream -!> Policy
+    DependsOn:
+      - SplunkDeliveryStreamBackupBucketPolicy
+      - SplunkDeliveryStreamProcessorInvokePolicy
+    Type: AWS::KinesisFirehose::DeliveryStream
+    Properties:
+      DeliveryStreamType: DirectPut
+      SplunkDestinationConfiguration:
+        HECEndpoint: !Ref SplunkHECEndpoint
+        HECEndpointType: "Event"
+        HECToken: !Ref SplunkHECToken
+        ProcessingConfiguration:
+          Enabled: true
+          Processors:
+            - Type: Lambda
+              Parameters:
+                - ParameterName: LambdaArn
+                  ParameterValue: !GetAtt SplunkDeliveryStreamProcessor.Arn
+                - ParameterName: RoleArn
+                  ParameterValue: !GetAtt SplunkDeliveryStreamProcessorInvokeRole.Arn
+        S3Configuration:
+          BucketARN: !GetAtt SplunkDeliveryStreamBackupBucket.Arn
+          RoleARN: !GetAtt SplunkDeliveryStreamBackupBucketRole.Arn
+          EncryptionConfiguration:
+            KMSEncryptionConfig:
+              AWSKMSKeyARN: !GetAtt CloudWatchKMSKey.Arn
+        CloudWatchLoggingOptions:
+          Enabled: true
+          LogGroupName: !Ref SplunkDeliveryStreamLogGroup
+          LogStreamName: !Ref SplunkDeliveryStreamLogStream
+
+  SplunkDeliveryStreamLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/kinesisfirehose/${AWS::StackName}-SplunkDeliveryStream"
+      RetentionInDays: 30
+      KmsKeyId: !GetAtt CloudWatchKMSKey.Arn
+  SplunkDeliveryStreamLogStream:
+    Type: AWS::Logs::LogStream
+    Properties:
+      LogGroupName: !Ref SplunkDeliveryStreamLogGroup
+  SplunkDeliveryStreamLoggingPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-lambda-logging"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource:
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${SplunkDeliveryStreamLogGroup}"
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${SplunkDeliveryStreamLogGroup}:log-stream:*"
+      Roles:
+        - !Ref SplunkDeliveryStreamBackupBucketRole
+  SplunkDeliveryStreamKMSPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-KMS-access"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - kms:DescribeKey
+              - kms:GenerateDataKey*
+              - kms:Encrypt
+              - kms:ReEncrypt*
+            Resource:
+              - !GetAtt CloudWatchKMSKey.Arn
+      Roles:
+        - !Ref SplunkDeliveryStreamBackupBucketRole
+
+  # Backup bucket, roles and policies
+  SplunkDeliveryStreamBackupBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - BucketKeyEnabled: false
+            ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !GetAtt CloudWatchKMSKey.Arn
+  # Delivery stream uses the backup bucket role for non-destination permissions
+  SplunkDeliveryStreamBackupBucketRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "firehose.amazonaws.com"
+            Action: "sts:AssumeRole"
+  SplunkDeliveryStreamBackupBucketPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-backup-bucket-access"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:AbortMultipartUpload
+              - s3:GetBucketLocation
+              - s3:GetObject
+              - s3:ListBucket
+              - s3:ListBucketMultipartUploads
+              - s3:PutObject
+            Resource:
+              - !GetAtt SplunkDeliveryStreamBackupBucket.Arn
+              - !Join # Access to bucket contents
+                - ""
+                - - !GetAtt SplunkDeliveryStreamBackupBucket.Arn
+                  - "/*"
+      Roles:
+        - !Ref SplunkDeliveryStreamBackupBucketRole
+
+  # Stream processor, roles,  policies and log groups
+  SplunkDeliveryStreamProcessor:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: packages/splunkProcessor/src
+      Handler: app.handler
+      Runtime: nodejs18.x
+      Role: !GetAtt SplunkDeliveryStreamProcessorRole.Arn
+      Architectures:
+        - x86_64
+      MemorySize: 512
+      Timeout: 60
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - app.js
+  SplunkDeliveryStreamProcessorRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+  SplunkDeliveryStreamProcessorLambdaPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-lambda-logging"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource:
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${SplunkDeliveryStreamProcessorLogGroup}"
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${SplunkDeliveryStreamProcessorLogGroup}:log-stream:*"
+      Roles:
+        - !Ref SplunkDeliveryStreamProcessorRole
+  SplunkDeliveryStreamProcessorKMSPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-KMS-access"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - kms:DescribeKey
+              - kms:GenerateDataKey*
+              - kms:Encrypt
+              - kms:ReEncrypt*
+            Resource:
+              - !GetAtt CloudWatchKMSKey.Arn
+      Roles:
+        - !Ref SplunkDeliveryStreamProcessorRole
+  SplunkDeliveryStreamProcessorDeliveryStreamPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: "allow-delivery-stream-put-records"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - firehose:PutRecordBatch
+            Resource:
+              - !GetAtt SplunkDeliveryStream.Arn
+      Roles:
+        - !Ref SplunkDeliveryStreamProcessorRole
+  SplunkDeliveryStreamProcessorLogGroup:
+    Type: "AWS::Logs::LogGroup"
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${SplunkDeliveryStreamProcessor}"
+      RetentionInDays: 30
+      KmsKeyId: !GetAtt CloudWatchKMSKey.Arn
+
+  # Role and policy for delivery stream to invoke processor
+  SplunkDeliveryStreamProcessorInvokeRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "firehose.amazonaws.com"
+            Action: "sts:AssumeRole"
+  SplunkDeliveryStreamProcessorInvokePolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: "allow-delivery-stream-invoke-processor"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - lambda:InvokeFunction
+            Resource:
+              - !GetAtt SplunkDeliveryStreamProcessor.Arn
+      Roles:
+        - !Ref SplunkDeliveryStreamProcessorInvokeRole
 
   # Authz function stuff
   AuthzFunctionRole:
@@ -126,6 +423,16 @@ Resources:
       LogGroupName: !Sub "/aws/lambda/${AuthzFunction}"
       RetentionInDays: 90
       KmsKeyId: !GetAtt CloudWatchKMSKey.Arn
+  AuthzSplunkSubscriptionFilter:
+    DependsOn:
+      - SplunkSubscriptionFilterDeliveryStreamPolicy
+      - SplunkSubscriptionFilterKMSPolicy
+    Type: AWS::Logs::SubscriptionFilter
+    Properties:
+      RoleArn: !GetAtt SplunkSubscriptionFilterRole.Arn
+      LogGroupName: !Ref AuthzFunctionLogGroup
+      FilterPattern: '" "' # All logs
+      DestinationArn: !GetAtt SplunkDeliveryStream.Arn
   AuthzFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -205,7 +512,16 @@ Resources:
       LogGroupName: !Sub "/aws/lambda/${GetMyPrescriptions}"
       RetentionInDays: 90
       KmsKeyId: !GetAtt CloudWatchKMSKey.Arn
-
+  GetMyPrescriptionsSplunkSubscriptionFilter:
+    DependsOn:
+      - SplunkSubscriptionFilterDeliveryStreamPolicy
+      - SplunkSubscriptionFilterKMSPolicy
+    Type: AWS::Logs::SubscriptionFilter
+    Properties:
+      RoleArn: !GetAtt SplunkSubscriptionFilterRole.Arn
+      LogGroupName: !Ref GetMyPrescriptionsLogGroup
+      FilterPattern: '" "' # All logs
+      DestinationArn: !GetAtt SplunkDeliveryStream.Arn
   GetMyPrescriptions:
     Type: AWS::Serverless::Function
     Properties:

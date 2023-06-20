@@ -80,6 +80,7 @@ jobs:
       TRUSTSTORE_FILE: truststore.pem
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      SPLUNK_HEC_TOKEN: ${{ secrets.DEV_SPLUNK_HEC_TOKEN }}
       TARGET_SPINE_SERVER: ${{ secrets.DEV_TARGET_SPINE_SERVER }}
 
   release_dev_sandbox:
@@ -110,6 +111,7 @@ jobs:
       TRUSTSTORE_FILE: truststore.pem
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.REF_CLOUD_FORMATION_DEPLOY_ROLE }}
+      SPLUNK_HEC_TOKEN: ${{ secrets.REF_SPLUNK_HEC_TOKEN }}
       TARGET_SPINE_SERVER: ${{ secrets.REF_TARGET_SPINE_SERVER }}
 
   release_qa:
@@ -125,6 +127,7 @@ jobs:
       TRUSTSTORE_FILE: truststore.pem
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.QA_CLOUD_FORMATION_DEPLOY_ROLE }}
+      SPLUNK_HEC_TOKEN: ${{ secrets.QA_SPLUNK_HEC_TOKEN }}
       TARGET_SPINE_SERVER: ${{ secrets.QA_TARGET_SPINE_SERVER }}
 
   release_int:
@@ -155,6 +158,7 @@ jobs:
       TRUSTSTORE_FILE: sandbox-truststore.pem
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
+      SPLUNK_HEC_TOKEN: ${{ secrets.INT_SPLUNK_HEC_TOKEN }}
       TARGET_SPINE_SERVER: sandbox
 
   release_prod:
@@ -170,4 +174,5 @@ jobs:
       TRUSTSTORE_FILE: truststore.pem
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
+      SPLUNK_HEC_TOKEN: ${{ secrets.PROD_SPLUNK_HEC_TOKEN }}
       TARGET_SPINE_SERVER: ${{ secrets.PROD_TARGET_SPINE_SERVER }}

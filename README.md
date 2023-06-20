@@ -4,10 +4,11 @@
 
 This is an API for accessing prescription information.
 
-- `packages/authz/` Deals with authorisation to the API
-- `packages/getMyPrescriptions/` Get prescription details
+- `packages/authz/` Deals with authorisation to the API.
+- `packages/getMyPrescriptions/` Get prescription details.
+- `packages/splunkProcessor/` Processes CloudWatch logs for Splunk.
 - `packages/sandbox/` Returns [static data](./packages/specification/examples/GetMyPrescriptions/Bundle/success.json) from the Sandbox
-- `scripts/` Utilities helpful to developers of this specification
+- `scripts/` Utilities helpful to developers of this specification.
 - `cloudformation/` Contains cloudformation files used to create resources for CI builds and deployments
 - `privateCA/` Contains script to create self signed CA certificate and a client certificate used for mutual TLS
 - `.github` Contains github workflows that are used for building and deploying from pull requests and releases
@@ -63,6 +64,8 @@ Ensure you have the following lines in the file .envrc
 ```
 export AWS_DEFAULT_PROFILE=prescription-dev
 export stack_name=<UNIQUE_NAME_FOR_YOU>
+export SPLUNK_HEC_TOKEN="<Splunk HEC Token>"
+export SPLUNK_HEC_ENDPOINT="<Splunk HEC Url>"
 ```
 
 UNIQUE_NAME_FOR_YOU should be a unique name for you with no underscores in it - eg anthony-brown-1

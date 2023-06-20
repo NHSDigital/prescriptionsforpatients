@@ -1,0 +1,20 @@
+{
+  "name": "splunkProcessor",
+  "version": "1.0.0",
+  "description": "Processor lambda for converting cloudwatch logs to splunk",
+  "main": "app.js",
+  "author": "SAM CLI",
+  "license": "MIT",
+  "scripts": {
+    "unit": "jest",
+    "lint": "eslint . --ext .js --max-warnings 0 --fix",
+    "test": "npm run compile && npm run unit",
+    "check-licenses": "license-checker --failOn GPL --failOn LGPL --start ../.."
+  },
+  "dependencies": {
+    "@aws-sdk/client-firehose": "^3.350.0",
+    "@aws-sdk/client-kinesis": "^3.350.0",
+    "aws-sdk": "^2.1390.0",
+    "zlib": "^1.0.5"
+  }
+}

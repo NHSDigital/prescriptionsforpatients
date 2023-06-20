@@ -26,14 +26,23 @@ sam-build-sandbox: sam-validate-sandbox
 sam-run-local: sam-build
 	sam local start-api
 
-sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name
-	sam sync --stack-name $$stack_name --watch
+sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name guard-SPLUNK_HEC_TOKEN guard-SPLUNK_HEC_ENDPOINT
+	sam sync \
+		--stack-name $$stack_name \
+		--watch \
+		--parameter-overrides \
+			  SplunkHECToken=$$SPLUNK_HEC_TOKEN \
+			  SplunkHECEndpoint=$$SPLUNK_HEC_ENDPOINT
 
 sam-sync-sandbox: guard-stack_name
 	sam sync --stack-name $$stack_name --watch -t sandbox_template.yaml
 
-sam-deploy: guard-AWS_DEFAULT_PROFILE guard-stack_name
-	sam deploy --stack-name $$stack_name
+sam-deploy: guard-AWS_DEFAULT_PROFILE guard-stack_name guard-SPLUNK_HEC_TOKEN guard-SPLUNK_HEC_ENDPOINT
+	sam deploy \
+		--stack-name $$stack_name \
+		--parameter-overrides \
+			  SplunkHECToken=$$SPLUNK_HEC_TOKEN \
+			  SplunkHECEndpoint=$$SPLUNK_HEC_ENDPOINT
 
 sam-delete: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam delete --stack-name $$stack_name
@@ -53,7 +62,7 @@ sam-validate:
 sam-validate-sandbox: 
 	sam validate --template-file sandbox_template.yaml
 
-sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role
+sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role guard-LATEST_TRUSTSTORE_VERSION guard-enable_mutual_tls guard-SPLUNK_HEC_TOKEN guard-SPLUNK_HEC_ENDPOINT
 	sam deploy \
 		--template-file $$template_file \
 		--stack-name $$stack_name \
@@ -65,12 +74,18 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 		--no-fail-on-empty-changeset \
 		--role-arn $$cloud_formation_execution_role \
 		--no-confirm-changeset \
-		--parameter-overrides ParameterKey=TargetSpineServer,ParameterValue=$$target_spine_server  ParameterKey=TruststoreVersion,ParameterValue=$$LATEST_TRUSTSTORE_VERSION ParameterKey=EnableMutualTLS,ParameterValue=$$enable_mutual_tls \
-		--force-upload
+		--force-upload \
+		--parameter-overrides \
+			  SplunkHECToken=$$SPLUNK_HEC_TOKEN \
+			  SplunkHECEndpoint=$$SPLUNK_HEC_ENDPOINT \
+			  TruststoreVersion=$$LATEST_TRUSTSTORE_VERSION \
+			  EnableMutualTLS=$$enable_mutual_tls \
+        TargetSpineServer=$$target_spine_server
 
 lint:
 	npm run lint --workspace packages/authz
 	npm run lint --workspace packages/getMyPrescriptions
+	npm run lint --workspace packages/splunkProcessor
 	npm run lint --workspace packages/sandbox
 
 test:

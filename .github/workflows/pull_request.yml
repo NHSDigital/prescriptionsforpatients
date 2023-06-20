@@ -55,6 +55,7 @@ jobs:
       TRUSTSTORE_FILE: truststore.pem
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      SPLUNK_HEC_TOKEN: ${{ secrets.DEV_SPLUNK_HEC_TOKEN }}
       TARGET_SPINE_SERVER: ${{ secrets.DEV_TARGET_SPINE_SERVER }}
 
   release_sandbox_code:
@@ -70,4 +71,5 @@ jobs:
       TRUSTSTORE_FILE: sandbox-truststore.pem
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      SPLUNK_HEC_TOKEN: ${{ secrets.DEV_SPLUNK_HEC_TOKEN }}
       TARGET_SPINE_SERVER: sandbox
