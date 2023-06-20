@@ -295,4 +295,4 @@ Outputs:
     Value: !GetAtt SplunkSubscriptionFilterRole.Arn
   SplunkDeliveryStream:
     Description: "SplunkDeliveryStream ARN"
-    Value: !GetAtt !GetAtt SplunkDeliveryStream.Arn
+    Value: !GetAtt SplunkDeliveryStream.Arn
