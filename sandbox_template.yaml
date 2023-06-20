@@ -51,40 +51,6 @@ Conditions:
 # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
 
 Resources:
-  # common KMS key for cloudwatch log groups
-  CloudWatchKMSKey:
-    Type: "AWS::KMS::Key"
-    Properties:
-      KeyPolicy:
-        Version: 2012-10-17
-        Id: key-policy-id
-        Statement:
-          - Sid: Enable IAM User Permissions
-            Effect: Allow
-            Principal:
-              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
-            Action: "kms:*"
-            Resource: "*"
-          - Effect: Allow
-            Principal:
-              Service: !Sub "logs.${AWS::Region}.amazonaws.com"
-            Action:
-              - kms:Encrypt*
-              - kms:Decrypt*
-              - kms:ReEncrypt*
-              - kms:GenerateDataKey*
-              - kms:Describe*
-            Resource: "*"
-            Condition:
-              ArnEquals:
-                kms:EncryptionContext:aws:logs:arn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
-
-  CloudWatchKMSKeyAlias:
-    Type: "AWS::KMS::Alias"
-    Properties:
-      AliasName: !Sub "alias/${AWS::StackName}-CloudWatchKMSAlias"
-      TargetKeyId: !Ref CloudWatchKMSKey
-
   SplunkFirehose:
     Type: AWS::Serverless::Application
     Properties:
@@ -134,7 +100,7 @@ Resources:
               - kms:Encrypt
               - kms:ReEncrypt*
             Resource:
-              - !GetAtt CloudWatchKMSKey.Arn
+              - !GetAtt SplunkFirehose.CloudWatchKMSKey
       Roles:
         - !Ref SandboxRole
   SandboxLogGroup:
@@ -142,7 +108,7 @@ Resources:
     Properties:
       LogGroupName: !Sub "/aws/lambda/${Sandbox}"
       RetentionInDays: 90
-      KmsKeyId: !GetAtt CloudWatchKMSKey.Arn
+      KmsKeyId: !GetAtt SplunkFirehose.CloudWatchKMSKey
   SandboxSplunkSubscriptionFilter:
     Type: AWS::Logs::SubscriptionFilter
     Properties:

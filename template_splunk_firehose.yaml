@@ -15,6 +15,53 @@ Parameters:
     Default: none
 
 Resources:
+  # common KMS key for cloudwatch log groups
+  CloudWatchKMSKey:
+    Type: "AWS::KMS::Key"
+    Properties:
+      KeyPolicy:
+        Version: 2012-10-17
+        Id: key-policy-id
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+            Action: "kms:*"
+            Resource: "*"
+          - Sid: Allow Lambda logging
+            Effect: Allow
+            Principal:
+              Service: !Sub "logs.${AWS::Region}.amazonaws.com"
+            Action:
+              - kms:Encrypt*
+              - kms:Decrypt*
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+              - kms:Describe*
+            Resource: "*"
+            Condition:
+              ArnEquals:
+                kms:EncryptionContext:aws:logs:arn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
+          - Sid: Allow Firehose Logging
+            Effect: Allow
+            Principal: "*"
+            Action:
+              - kms:Encrypt*
+              - kms:Decrypt*
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+              - kms:Describe*
+            Resource: "*"
+            Condition:
+              ArnEquals:
+                kms:EncryptionContext:aws:logs:arn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/kinesisfirehose/*"
+
+  CloudWatchKMSKeyAlias:
+    Type: "AWS::KMS::Alias"
+    Properties:
+      AliasName: !Sub "alias/${AWS::StackName}-CloudWatchKMSAlias"
+      TargetKeyId: !Ref CloudWatchKMSKey
   # Kinesis Splunk Firehose stuff
 
   # Subscription filter roles and policies
@@ -296,3 +343,6 @@ Outputs:
   SplunkDeliveryStream:
     Description: "SplunkDeliveryStream ARN"
     Value: !GetAtt SplunkDeliveryStream.Arn
+  CloudWatchKMSKey:
+    Description: "CloudWatch KMS Key ARN"
+    Value: !GetAtt CloudWatchKMSKey.Arn
