@@ -311,7 +311,7 @@ Resources:
             Action:
               - firehose:PutRecordBatch
             Resource:
-              - Ref AWS::NoValue
+              - !GetAtt SplunkDeliveryStream.Arn
       Roles:
         - !Ref SplunkDeliveryStreamProcessorRole
   SplunkDeliveryStreamProcessorLogGroup:
