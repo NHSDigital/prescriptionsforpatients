@@ -31,18 +31,21 @@ sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name guard-SPLUNK_HEC_TOKEN guar
 		--stack-name $$stack_name \
 		--watch \
 		--parameter-overrides \
-			  SplunkHECToken=$$SPLUNK_HEC_TOKEN \
-			  SplunkHECEndpoint=$$SPLUNK_HEC_ENDPOINT
+			  EnableSplunk=false
 
 sam-sync-sandbox: guard-stack_name
-	sam sync --stack-name $$stack_name --watch -t sandbox_template.yaml
+	sam sync \
+		--stack-name $$stack_name-sandbox \
+		--watch \
+		--template-file sandbox_template.yaml \
+		--parameter-overrides \
+			  EnableSplunk=false
 
 sam-deploy: guard-AWS_DEFAULT_PROFILE guard-stack_name guard-SPLUNK_HEC_TOKEN guard-SPLUNK_HEC_ENDPOINT
 	sam deploy \
 		--stack-name $$stack_name \
 		--parameter-overrides \
-			  SplunkHECToken=$$SPLUNK_HEC_TOKEN \
-			  SplunkHECEndpoint=$$SPLUNK_HEC_ENDPOINT
+			  EnableSplunk=false
 
 sam-delete: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam delete --stack-name $$stack_name
@@ -80,7 +83,8 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 			  SplunkHECEndpoint=$$SPLUNK_HEC_ENDPOINT \
 			  TruststoreVersion=$$LATEST_TRUSTSTORE_VERSION \
 			  EnableMutualTLS=$$enable_mutual_tls \
-			  TargetSpineServer=$$target_spine_server
+			  TargetSpineServer=$$target_spine_server \
+			  EnableSplunk=true
 
 lint:
 	npm run lint --workspace packages/authz

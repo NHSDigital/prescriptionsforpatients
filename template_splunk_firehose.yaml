@@ -13,6 +13,14 @@ Parameters:
     Type: String
     Description: HEC Endpoint for Cloudformation to Splunk Firehose
     Default: none
+  EnableSplunk:
+    Type: String
+    Description: Whether to use splunk
+    Default: false
+    AllowedValues: [true, false]
+
+Conditions:
+  ShouldUseSplunk: !Equals [true, !Ref EnableSplunk]
 
 Resources:
   # common KMS key for cloudwatch log groups
@@ -76,6 +84,7 @@ Resources:
               Service: "logs.amazonaws.com"
             Action: "sts:AssumeRole"
   SplunkSubscriptionFilterDeliveryStreamPolicy:
+    Condition: ShouldUseSplunk
     Type: "AWS::IAM::Policy"
     Properties:
       PolicyName: "allow-put-data-stream-records"
@@ -106,6 +115,7 @@ Resources:
 
   # Delivery Stream, roles and policies
   SplunkDeliveryStream:
+    Condition: ShouldUseSplunk
     # Depends on policy as delivery streams require a role with correct policies to be build, and a role reference doesn't provide a dependency as Stream -> Role <- Policy, so Stream -!> Policy
     DependsOn:
       - SplunkDeliveryStreamBackupBucketPolicy
@@ -290,6 +300,7 @@ Resources:
       Roles:
         - !Ref SplunkDeliveryStreamProcessorRole
   SplunkDeliveryStreamProcessorDeliveryStreamPolicy:
+    Condition: ShouldUseSplunk
     Type: AWS::IAM::Policy
     Properties:
       PolicyName: "allow-delivery-stream-put-records"
@@ -300,7 +311,7 @@ Resources:
             Action:
               - firehose:PutRecordBatch
             Resource:
-              - !GetAtt SplunkDeliveryStream.Arn
+              - Ref AWS::NoValue
       Roles:
         - !Ref SplunkDeliveryStreamProcessorRole
   SplunkDeliveryStreamProcessorLogGroup:
@@ -342,7 +353,7 @@ Outputs:
     Value: !GetAtt SplunkSubscriptionFilterRole.Arn
   SplunkDeliveryStream:
     Description: "SplunkDeliveryStream ARN"
-    Value: !GetAtt SplunkDeliveryStream.Arn
+    Value: !If [ShouldUseSplunk, !GetAtt SplunkDeliveryStream.Arn, ""]
   CloudWatchKMSKey:
     Description: "CloudWatch KMS Key ARN"
     Value: !GetAtt CloudWatchKMSKey.Arn

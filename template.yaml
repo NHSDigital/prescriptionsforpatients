@@ -31,9 +31,15 @@ Parameters:
     Description: Whether to use mutual TLS
     Default: false
     AllowedValues: [true, false]
+  EnableSplunk:
+    Type: String
+    Description: Whether to use splunk
+    Default: false
+    AllowedValues: [true, false]
 
 Conditions:
   ShouldUseMutualTLS: !Equals [true, !Ref EnableMutualTLS]
+  ShouldUseSplunk: !Equals [true, !Ref EnableSplunk]
 
 # Example of Mappings
 # Mappings:
@@ -58,6 +64,7 @@ Resources:
       Parameters:
         SplunkHECToken: !Ref SplunkHECToken
         SplunkHECEndpoint: !Ref SplunkHECEndpoint
+        EnableSplunk: !Ref EnableSplunk
 
   # Authz function stuff
   AuthzFunctionRole:
@@ -110,6 +117,7 @@ Resources:
       RetentionInDays: 90
       KmsKeyId: !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
   AuthzSplunkSubscriptionFilter:
+    Condition: ShouldUseSplunk
     Type: AWS::Logs::SubscriptionFilter
     Properties:
       RoleArn: !GetAtt SplunkFirehose.Outputs.SplunkSubscriptionFilterRole
@@ -196,6 +204,7 @@ Resources:
       RetentionInDays: 90
       KmsKeyId: !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
   GetMyPrescriptionsSplunkSubscriptionFilter:
+    Condition: ShouldUseSplunk
     Type: AWS::Logs::SubscriptionFilter
     Properties:
       RoleArn: !GetAtt SplunkFirehose.Outputs.SplunkSubscriptionFilterRole
