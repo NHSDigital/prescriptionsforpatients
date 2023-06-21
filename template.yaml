@@ -100,7 +100,7 @@ Resources:
               - kms:Encrypt
               - kms:ReEncrypt*
             Resource:
-              - !GetAtt SplunkFirehose.CloudWatchKMSKey
+              - !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
       Roles:
         - !Ref AuthzFunctionRole
   AuthzFunctionLogGroup:
@@ -108,7 +108,7 @@ Resources:
     Properties:
       LogGroupName: !Sub "/aws/lambda/${AuthzFunction}"
       RetentionInDays: 90
-      KmsKeyId: !GetAtt SplunkFirehose.CloudWatchKMSKey
+      KmsKeyId: !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
   AuthzSplunkSubscriptionFilter:
     Type: AWS::Logs::SubscriptionFilter
     Properties:
@@ -186,7 +186,7 @@ Resources:
               - kms:Encrypt
               - kms:ReEncrypt*
             Resource:
-              - !GetAtt SplunkFirehose.CloudWatchKMSKey
+              - !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
       Roles:
         - !Ref GetMyPrescriptionsRole
   GetMyPrescriptionsLogGroup:
@@ -194,7 +194,7 @@ Resources:
     Properties:
       LogGroupName: !Sub "/aws/lambda/${GetMyPrescriptions}"
       RetentionInDays: 90
-      KmsKeyId: !GetAtt SplunkFirehose.CloudWatchKMSKey
+      KmsKeyId: !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
   GetMyPrescriptionsSplunkSubscriptionFilter:
     Type: AWS::Logs::SubscriptionFilter
     Properties:

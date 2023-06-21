@@ -100,7 +100,7 @@ Resources:
               - kms:Encrypt
               - kms:ReEncrypt*
             Resource:
-              - !GetAtt SplunkFirehose.CloudWatchKMSKey
+              - !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
       Roles:
         - !Ref SandboxRole
   SandboxLogGroup:
@@ -108,7 +108,7 @@ Resources:
     Properties:
       LogGroupName: !Sub "/aws/lambda/${Sandbox}"
       RetentionInDays: 90
-      KmsKeyId: !GetAtt SplunkFirehose.CloudWatchKMSKey
+      KmsKeyId: !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
   SandboxSplunkSubscriptionFilter:
     Type: AWS::Logs::SubscriptionFilter
     Properties:
