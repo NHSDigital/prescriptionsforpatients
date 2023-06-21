@@ -17,7 +17,6 @@
   "author": "",
   "license": "ISC",
   "workspaces": [
-    "packages/authz",
     "packages/getMyPrescriptions",
     "packages/splunkProcessor",
     "packages/sandbox",
