@@ -130,19 +130,19 @@ TRUSTSTORE_BUCKET_ARN=$(aws cloudformation describe-stacks \
     --query 'Stacks[0].Outputs[?OutputKey==`TrustStoreBucket`].OutputValue' --output text)
 TRUSTSTORE_BUCKET_NAME=$(echo ${TRUSTSTORE_BUCKET_ARN} | cut -d ":" -f 6)
 
-aws secretsmanager put-secret-value \
-    --secret-id ${CA_KEY_ARN} \
-    --secret-string file://${KEYS_DIR}/${CA_NAME}.pem
-aws secretsmanager put-secret-value \
-    --secret-id ${CA_CERT_ARN} \
-    --secret-string file://${CERTS_DIR}/${CA_NAME}.pem
+# aws secretsmanager put-secret-value \
+#     --secret-id ${CA_KEY_ARN} \
+#     --secret-string file://${KEYS_DIR}/${CA_NAME}.pem
+# aws secretsmanager put-secret-value \
+#     --secret-id ${CA_CERT_ARN} \
+#     --secret-string file://${CERTS_DIR}/${CA_NAME}.pem
 
-aws secretsmanager put-secret-value \
-    --secret-id ${CLIENT_KEY_ARN} \
-    --secret-string file://${KEYS_DIR}/apigee_client_cert.pem
-aws secretsmanager put-secret-value \
-    --secret-id ${CLIENT_CERT_ARN} \
-    --secret-string file://${CERTS_DIR}/apigee_client_cert.pem
+# aws secretsmanager put-secret-value \
+#     --secret-id ${CLIENT_KEY_ARN} \
+#     --secret-string file://${KEYS_DIR}/apigee_client_cert.pem
+# aws secretsmanager put-secret-value \
+#     --secret-id ${CLIENT_CERT_ARN} \
+#     --secret-string file://${CERTS_DIR}/apigee_client_cert.pem
 
 # aws s3 cp  ${CERTS_DIR}/${CA_NAME}.pem s3://${TRUSTSTORE_BUCKET_NAME}/truststore.pem
 # aws s3 cp  ${CERTS_DIR}/${CA_NAME}.pem s3://${TRUSTSTORE_BUCKET_NAME}/sandbox-truststore.pem
