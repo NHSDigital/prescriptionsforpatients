@@ -119,6 +119,12 @@ CLIENT_KEY_ARN=$(aws cloudformation describe-stacks \
 CLIENT_CERT_ARN=$(aws cloudformation describe-stacks \
     --stack-name ci-resources \
     --query 'Stacks[0].Outputs[?OutputKey==`ClientCertSecret`].OutputValue' --output text)
+CLIENT_KEY_ARN=$(aws cloudformation describe-stacks \
+    --stack-name ci-resources \
+    --query 'Stacks[0].Outputs[?OutputKey==`ClientSandboxKeySecret`].OutputValue' --output text)
+CLIENT_CERT_ARN=$(aws cloudformation describe-stacks \
+    --stack-name ci-resources \
+    --query 'Stacks[0].Outputs[?OutputKey==`ClientSandboxCertSecret`].OutputValue' --output text)
 TRUSTSTORE_BUCKET_ARN=$(aws cloudformation describe-stacks \
     --stack-name ci-resources \
     --query 'Stacks[0].Outputs[?OutputKey==`TrustStoreBucket`].OutputValue' --output text)
@@ -138,5 +144,5 @@ aws secretsmanager put-secret-value \
     --secret-id ${CLIENT_CERT_ARN} \
     --secret-string file://${CERTS_DIR}/apigee_client_cert.pem
 
-aws s3 cp  ${CERTS_DIR}/${CA_NAME}.pem s3://${TRUSTSTORE_BUCKET_NAME}/truststore.pem
-aws s3 cp  ${CERTS_DIR}/${CA_NAME}.pem s3://${TRUSTSTORE_BUCKET_NAME}/sandbox-truststore.pem
+# aws s3 cp  ${CERTS_DIR}/${CA_NAME}.pem s3://${TRUSTSTORE_BUCKET_NAME}/truststore.pem
+# aws s3 cp  ${CERTS_DIR}/${CA_NAME}.pem s3://${TRUSTSTORE_BUCKET_NAME}/sandbox-truststore.pem
