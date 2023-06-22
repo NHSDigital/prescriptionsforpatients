@@ -158,7 +158,7 @@ There are `make` commands that are run as part of the CI pipeline and help alias
 - `install-node` installs node dependencies
 - `install-python` installs python dependencies
 - `install-hooks` installs git pre commit hooks
-- `install` runs all install targes
+- `install` runs all install targets
 
 #### SAM targets
 
