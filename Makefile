@@ -87,11 +87,13 @@ lint:
 	npm run lint --workspace packages/getMyPrescriptions
 	npm run lint --workspace packages/splunkProcessor
 	npm run lint --workspace packages/sandbox
+	npm run lint --workspace packages/middleware
 
 test:
 	npm run test --workspace packages/authz
 	npm run test --workspace packages/getMyPrescriptions
 	npm run test --workspace packages/sandbox
+	npm run test --workspace packages/middleware
 
 clean:
 	rm -rf packages/authz/coverage
