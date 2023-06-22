@@ -24,7 +24,7 @@ module.exports = ({logger = console, level = "error", filter = () => true} = {})
       )
     }
 
-    const response = {
+    const responseBody = {
       resourceType: "OperationOutcome",
       issue: [
         {
@@ -44,14 +44,17 @@ module.exports = ({logger = console, level = "error", filter = () => true} = {})
     }
 
     if(requestId!==null){
-      response.id = requestId
+      responseBody.id = requestId
     }
     if(requestTimeEpoch!==null){
-      response.meta = {
+      responseBody.meta = {
         lastUpdated: requestTimeEpoch
       }
     }
 
-    handler.response = response
+    handler.response = {
+      statusCode: 500,
+      body: JSON.stringify(responseBody)
+    }
   }
 })
