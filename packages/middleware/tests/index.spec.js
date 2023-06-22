@@ -16,9 +16,7 @@ test("Middleware returns valid FHIR with logging disabled", async () => {
     issue: [
       {
         severity: "error",
-        code: "informational",
-        details: [],
-        expression: ""
+        code: "informational"
       }
     ]
   })
@@ -42,9 +40,7 @@ test("Middleware logs all error details and returns valid FHIR", async () => {
     issue: [
       {
         severity: "error",
-        code: "informational",
-        details: [],
-        expression: ""
+        code: "informational"
       }
     ]
   })
