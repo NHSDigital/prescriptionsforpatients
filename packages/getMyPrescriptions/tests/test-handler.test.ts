@@ -183,11 +183,24 @@ describe("Unit test for app handler", function () {
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
     expect(result).toEqual({
+      id: "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
       resourceType: "OperationOutcome",
+      meta: {
+        lastUpdated: 1428582896000
+      },
       issue: [
         {
-          severity: "error",
-          code: "informational"
+          severity: "fatal",
+          code: "exception",
+          details: {
+            coding: [
+              {
+                code: "SERVER_ERROR",
+                display: "500: The Server has encountered an error processing the request.",
+                system: "https://fhir.nhs.uk/CodeSystem/http-error-codes"
+              }
+            ]
+          }
         }
       ]
     })
