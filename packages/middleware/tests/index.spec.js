@@ -15,8 +15,8 @@ test("Middleware returns valid FHIR with logging disabled", async () => {
     resourceType: "OperationOutcome",
     issue: [
       {
-        severity: "error",
-        code: "informational"
+        severity: "fatal",
+        code: "exception"
       }
     ]
   })
@@ -39,8 +39,8 @@ test("Middleware logs all error details and returns valid FHIR", async () => {
     resourceType: "OperationOutcome",
     issue: [
       {
-        severity: "error",
-        code: "informational"
+        severity: "fatal",
+        code: "exception"
       }
     ]
   })
