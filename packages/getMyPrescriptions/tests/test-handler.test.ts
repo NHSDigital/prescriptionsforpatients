@@ -182,7 +182,8 @@ describe("Unit test for app handler", function () {
     }
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
-    expect(result).toEqual({
+    expect(result.statusCode).toBe(500)
+    expect(JSON.parse(result.body)).toEqual({
       id: "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
       resourceType: "OperationOutcome",
       meta: {

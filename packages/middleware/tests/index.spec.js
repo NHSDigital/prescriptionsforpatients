@@ -12,13 +12,25 @@ test("Middleware returns valid FHIR with logging disabled", async () => {
   handler.use(middleware({logger: false}))
 
   await expect(handler({}, {})).resolves.toMatchObject({
-    resourceType: "OperationOutcome",
-    issue: [
-      {
-        severity: "fatal",
-        code: "exception"
-      }
-    ]
+    statusCode: 500,
+    body: JSON.stringify({
+      resourceType: "OperationOutcome",
+      issue: [
+        {
+          severity: "fatal",
+          code: "exception",
+          details: {
+            coding: [
+              {
+                system: "https://fhir.nhs.uk/CodeSystem/http-error-codes",
+                code: "SERVER_ERROR",
+                display: "500: The Server has encountered an error processing the request."
+              }
+            ]
+          }
+        }
+      ]
+    })
   })
 })
 
@@ -36,13 +48,25 @@ test("Middleware logs all error details and returns valid FHIR", async () => {
   const response = await handler({}, {})
 
   expect(response).toMatchObject({
-    resourceType: "OperationOutcome",
-    issue: [
-      {
-        severity: "fatal",
-        code: "exception"
-      }
-    ]
+    statusCode: 500,
+    body: JSON.stringify({
+      resourceType: "OperationOutcome",
+      issue: [
+        {
+          severity: "fatal",
+          code: "exception",
+          details: {
+            coding: [
+              {
+                system: "https://fhir.nhs.uk/CodeSystem/http-error-codes",
+                code: "SERVER_ERROR",
+                display: "500: The Server has encountered an error processing the request."
+              }
+            ]
+          }
+        }
+      ]
+    })
   })
 
   expect(mockLogger.error).toHaveBeenCalledTimes(1)
