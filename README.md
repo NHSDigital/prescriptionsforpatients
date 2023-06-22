@@ -8,6 +8,7 @@ This is an API for accessing prescription information.
 - `packages/getMyPrescriptions/` Get prescription details.
 - `packages/splunkProcessor/` Processes CloudWatch logs for Splunk.
 - `packages/sandbox/` Returns [static data](./packages/specification/examples/GetMyPrescriptions/Bundle/success.json) from the Sandbox
+- `packages/middleware/` A modified [middy-error-handler](https://github.com/schibsted/middy-error-handler) to return FHIR responses
 - `scripts/` Utilities helpful to developers of this specification.
 - `cloudformation/` Contains cloudformation files used to create resources for CI builds and deployments
 - `privateCA/` Contains script to create self signed CA certificate and a client certificate used for mutual TLS
