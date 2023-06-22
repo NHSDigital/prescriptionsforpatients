@@ -5,10 +5,6 @@
 			"path": ".."
 		},
 		{
-			"name": "packages/authz",
-			"path": "../packages/authz"
-		},
-		{
 			"name": "packages/getMyPrescriptions",
 			"path": "../packages/getMyPrescriptions"
 		},
@@ -30,8 +26,7 @@
 			"prescriptions-api-monorepo",
 			"packages/splunkProcessor",
 			"packages/specification",
-			"packages/sandbox",
-			"packages/authz"
+			"packages/sandbox"
 		],
 		"files.exclude": {
 			"packages/": true,

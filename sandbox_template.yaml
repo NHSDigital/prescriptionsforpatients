@@ -14,6 +14,14 @@ Parameters:
     Type: String
     Description: TargetSpineServer
     Default: none
+  SplunkHECToken:
+    Type: String
+    Description: HEC Token for Cloudformation to Splunk Firehose
+    Default: none
+  SplunkHECEndpoint:
+    Type: String
+    Description: HEC Endpoint for Cloudformation to Splunk Firehose
+    Default: none
   TruststoreVersion:
     Type: String
     Description: TruststoreVersion
@@ -23,9 +31,15 @@ Parameters:
     Description: Whether to use mutual TLS
     Default: false
     AllowedValues: [true, false]
+  EnableSplunk:
+    Type: String
+    Description: Whether to use splunk
+    Default: false
+    AllowedValues: [true, false]
 
 Conditions:
   ShouldUseMutualTLS: !Equals [true, !Ref EnableMutualTLS]
+  ShouldUseSplunk: !Equals [true, !Ref EnableSplunk]
 
 # Example of Mappings
 # Mappings:
@@ -43,39 +57,14 @@ Conditions:
 # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
 
 Resources:
-  # common KMS key for cloudwatch log groups
-  CloudWatchKMSKey:
-    Type: "AWS::KMS::Key"
+  SplunkFirehose:
+    Type: AWS::Serverless::Application
     Properties:
-      KeyPolicy:
-        Version: 2012-10-17
-        Id: key-policy-id
-        Statement:
-          - Sid: Enable IAM User Permissions
-            Effect: Allow
-            Principal:
-              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
-            Action: "kms:*"
-            Resource: "*"
-          - Effect: Allow
-            Principal:
-              Service: !Sub "logs.${AWS::Region}.amazonaws.com"
-            Action:
-              - kms:Encrypt*
-              - kms:Decrypt*
-              - kms:ReEncrypt*
-              - kms:GenerateDataKey*
-              - kms:Describe*
-            Resource: "*"
-            Condition:
-              ArnEquals:
-                kms:EncryptionContext:aws:logs:arn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
-
-  CloudWatchKMSKeyAlias:
-    Type: "AWS::KMS::Alias"
-    Properties:
-      AliasName: !Sub "alias/${AWS::StackName}-CloudWatchKMSAlias"
-      TargetKeyId: !Ref CloudWatchKMSKey
+      Location: template_splunk_firehose.yaml
+      Parameters:
+        SplunkHECToken: !Ref SplunkHECToken
+        SplunkHECEndpoint: !Ref SplunkHECEndpoint
+        EnableSplunk: !Ref EnableSplunk
 
   # sandbox stuff
   SandboxRole:
@@ -118,7 +107,7 @@ Resources:
               - kms:Encrypt
               - kms:ReEncrypt*
             Resource:
-              - !GetAtt CloudWatchKMSKey.Arn
+              - !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
       Roles:
         - !Ref SandboxRole
   SandboxLogGroup:
@@ -126,7 +115,15 @@ Resources:
     Properties:
       LogGroupName: !Sub "/aws/lambda/${Sandbox}"
       RetentionInDays: 90
-      KmsKeyId: !GetAtt CloudWatchKMSKey.Arn
+      KmsKeyId: !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
+  SandboxSplunkSubscriptionFilter:
+    Condition: ShouldUseSplunk
+    Type: AWS::Logs::SubscriptionFilter
+    Properties:
+      RoleArn: !GetAtt SplunkFirehose.Outputs.SplunkSubscriptionFilterRole
+      LogGroupName: !Ref SandboxLogGroup
+      FilterPattern: '" "' # All logs
+      DestinationArn: !GetAtt SplunkFirehose.Outputs.SplunkDeliveryStream
   Sandbox:
     Type: AWS::Serverless::Function
     Properties:

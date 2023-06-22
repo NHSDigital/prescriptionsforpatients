@@ -4,7 +4,6 @@
 
 This is an API for accessing prescription information.
 
-- `packages/authz/` Deals with authorisation to the API.
 - `packages/getMyPrescriptions/` Get prescription details.
 - `packages/splunkProcessor/` Processes CloudWatch logs for Splunk.
 - `packages/sandbox/` Returns [static data](./packages/specification/examples/GetMyPrescriptions/Bundle/success.json) from the Sandbox
@@ -107,14 +106,6 @@ CloudFormation outputs from deployed stack
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Outputs
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Key                 AuthzFunctionIamRole
-Description         Implicit IAM Role created for the Authz function
-Value               arn:aws:iam::591291862413:role/anthony-brown-1-AuthzFunctionRole-8GNN62CX5ZKL
-
-Key                 AuthzFunction
-Description         Authz Lambda Function ARN
-Value               arn:aws:lambda:eu-west-2:591291862413:function:anthony-brown-1-AuthzFunction-H5sJ6x9lue3m
-
 Key                 GetMyPrescriptionsFunctionIamRole
 Description         Implicit IAM Role created for the GetMyPrescriptions function
 Value               arn:aws:iam::591291862413:role/anthony-brown-1-GetMyPrescriptionsRole-11UP8H33K2UPT
