@@ -2,7 +2,8 @@ import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
 import {Logger, injectLambdaContext} from "@aws-lambda-powertools/logger"
 import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
-import errorHandler from "@middleware"
+import "module-alias/register"
+import errorHandler from "@middleware/src"
 
 const logger = new Logger({serviceName: "getMyPrescriptions"})
 
