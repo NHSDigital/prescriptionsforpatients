@@ -21,7 +21,8 @@
     "packages/getMyPrescriptions",
     "packages/splunkProcessor",
     "packages/sandbox",
-    "packages/specification"
+    "packages/specification",
+    "packages/middleware"
   ],
   "private": true,
   "dependencies": {
