@@ -17,6 +17,7 @@
     "@aws-lambda-powertools/logger": "^1.9.0",
     "@middy/core": "^4.5.2",
     "@middy/input-output-logger": "^4.5.2",
-    "@schibsted/middy-error-handler": "^4.2.2"
+    "@schibsted/middy-error-handler": "^4.2.2",
+    "module-alias": "^2.2.3"
   }
 }
