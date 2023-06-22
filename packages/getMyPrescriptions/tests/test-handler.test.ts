@@ -182,11 +182,14 @@ describe("Unit test for app handler", function () {
     }
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
-    expect(result.statusCode).toEqual(500)
-    expect(result.body).toEqual(
-      JSON.stringify({
-        message: "error running lambda"
-      })
-    )
+    expect(result).toEqual({
+      resourceType: "OperationOutcome",
+      issue: [
+        {
+          severity: "error",
+          code: "informational"
+        }
+      ]
+    })
   })
 })
