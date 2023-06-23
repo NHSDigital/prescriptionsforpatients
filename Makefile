@@ -31,18 +31,21 @@ sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name
 		--stack-name $$stack_name \
 		--watch \
 		--parameter-overrides \
-			  SplunkHECToken=$$SPLUNK_HEC_TOKEN \
-			  SplunkHECEndpoint=$$SPLUNK_HEC_ENDPOINT
+			  EnableSplunk=false
 
 sam-sync-sandbox: guard-stack_name
-	sam sync --stack-name $$stack_name --watch -t sandbox_template.yaml
+	sam sync \
+		--stack-name $$stack_name-sandbox \
+		--watch \
+		--template-file sandbox_template.yaml \
+		--parameter-overrides \
+			  EnableSplunk=false
 
 sam-deploy: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam deploy \
 		--stack-name $$stack_name \
 		--parameter-overrides \
-			  SplunkHECToken=$$SPLUNK_HEC_TOKEN \
-			  SplunkHECEndpoint=$$SPLUNK_HEC_ENDPOINT
+			  EnableSplunk=false
 
 sam-delete: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam delete --stack-name $$stack_name
@@ -66,7 +69,7 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 	sam deploy \
 		--template-file $$template_file \
 		--stack-name $$stack_name \
-		--capabilities CAPABILITY_NAMED_IAM \
+		--capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND \
 		--region eu-west-2 \
 		--s3-bucket $$artifact_bucket \
 		--s3-prefix $$artifact_bucket_prefix \
@@ -80,23 +83,21 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 			  SplunkHECEndpoint=$$SPLUNK_HEC_ENDPOINT \
 			  TruststoreVersion=$$LATEST_TRUSTSTORE_VERSION \
 			  EnableMutualTLS=$$enable_mutual_tls \
-			  TargetSpineServer=$$target_spine_server
+			  TargetSpineServer=$$target_spine_server \
+			  EnableSplunk=true
 
 lint:
-	npm run lint --workspace packages/authz
 	npm run lint --workspace packages/getMyPrescriptions
 	npm run lint --workspace packages/splunkProcessor
 	npm run lint --workspace packages/sandbox
 	npm run lint --workspace packages/middleware
 
 test:
-	npm run test --workspace packages/authz
 	npm run test --workspace packages/getMyPrescriptions
 	npm run test --workspace packages/sandbox
 	npm run test --workspace packages/middleware
 
 clean:
-	rm -rf packages/authz/coverage
 	rm -rf packages/getMyPrescriptions/coverage
 	rm -rf packages/sandbox/coverage
 	rm -rf .aws-sam
@@ -106,7 +107,6 @@ deep-clean: clean
 	find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +
 
 check-licenses:
-	npm run check-licenses --workspace packages/authz
 	npm run check-licenses --workspace packages/getMyPrescriptions
 	scripts/check_python_licenses.sh
 
