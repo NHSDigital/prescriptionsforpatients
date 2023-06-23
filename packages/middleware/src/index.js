@@ -54,7 +54,10 @@ module.exports = ({logger = console, level = "error", filter = () => true} = {})
 
     handler.response = {
       statusCode: 500,
-      body: JSON.stringify(responseBody)
+      body: JSON.stringify(responseBody),
+      headers: {
+        "Content-Type": "application/json"
+      }
     }
   }
 })
