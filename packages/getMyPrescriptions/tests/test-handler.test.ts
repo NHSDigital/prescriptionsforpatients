@@ -186,9 +186,6 @@ describe("Unit test for app handler", function () {
     expect(JSON.parse(result.body)).toEqual({
       id: "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
       resourceType: "OperationOutcome",
-      meta: {
-        lastUpdated: 1428582896000
-      },
       issue: [
         {
           severity: "fatal",
