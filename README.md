@@ -65,8 +65,6 @@ Ensure you have the following lines in the file .envrc
 ```
 export AWS_DEFAULT_PROFILE=prescription-dev
 export stack_name=<UNIQUE_NAME_FOR_YOU>
-export SPLUNK_HEC_TOKEN="<Splunk HEC Token>"
-export SPLUNK_HEC_ENDPOINT="<Splunk HEC Url>"
 ```
 
 UNIQUE_NAME_FOR_YOU should be a unique name for you with no underscores in it - eg anthony-brown-1
