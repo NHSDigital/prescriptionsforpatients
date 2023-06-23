@@ -2,7 +2,7 @@ module.exports = ({logger = console, level = "error", filter = () => true} = {})
   onError: async (handler) => {
     const error = handler.error ?? {}
     const requestId = handler.event.requestContext?.requestId ?? null
-    const requestTimeEpoch = handler.event.requestContext?.requestTimeEpoch ?? null
+    const timeEpoch = handler.event.requestContext?.timeEpoch ?? null
 
     // if there are a `statusCode` and an `error` field
     // this is a valid http error object
@@ -46,9 +46,9 @@ module.exports = ({logger = console, level = "error", filter = () => true} = {})
     if(requestId!==null){
       responseBody.id = requestId
     }
-    if(requestTimeEpoch!==null){
+    if(timeEpoch!==null){
       responseBody.meta = {
-        lastUpdated: requestTimeEpoch
+        lastUpdated: timeEpoch
       }
     }
 
