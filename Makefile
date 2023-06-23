@@ -26,7 +26,7 @@ sam-build-sandbox: sam-validate-sandbox
 sam-run-local: sam-build
 	sam local start-api
 
-sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name guard-SPLUNK_HEC_TOKEN guard-SPLUNK_HEC_ENDPOINT
+sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam sync \
 		--stack-name $$stack_name \
 		--watch \
@@ -37,7 +37,7 @@ sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name guard-SPLUNK_HEC_TOKEN guar
 sam-sync-sandbox: guard-stack_name
 	sam sync --stack-name $$stack_name --watch -t sandbox_template.yaml
 
-sam-deploy: guard-AWS_DEFAULT_PROFILE guard-stack_name guard-SPLUNK_HEC_TOKEN guard-SPLUNK_HEC_ENDPOINT
+sam-deploy: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam deploy \
 		--stack-name $$stack_name \
 		--parameter-overrides \
