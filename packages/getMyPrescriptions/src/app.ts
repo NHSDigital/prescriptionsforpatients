@@ -30,7 +30,10 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
         statusCode: 418,
         body: JSON.stringify({
           message: "I am a teapot short and stout"
-        })
+        }),
+        headers: {
+          "Content-Type": "application/json"
+        }
       }
       break
     }
@@ -43,7 +46,10 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
         statusCode: 200,
         body: JSON.stringify({
           message: "hello world from getMyPrescriptions lambda"
-        })
+        }),
+        headers: {
+          "Content-Type": "application/json"
+        }
       }
     }
   }
