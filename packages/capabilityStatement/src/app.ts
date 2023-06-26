@@ -3,7 +3,7 @@ import {Logger, injectLambdaContext} from "@aws-lambda-powertools/logger"
 import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
 import errorHandler from "@schibsted/middy-error-handler"
-import successData from "../examples/CapabilityStatement/apim-medicines-prescriptionsforpatients.json"
+import capabilityStatement from "../examples/CapabilityStatement/apim-medicines-prescriptionsforpatients.json"
 
 const logger = new Logger({serviceName: "capabilityStatement"})
 
@@ -25,9 +25,7 @@ const lambdaHandler = async (): Promise<APIGatewayProxyResult> => {
 
   return {
     statusCode: 200,
-    body: JSON.stringify({
-      message: successData
-    }),
+    body: JSON.stringify(capabilityStatement),
     headers: {
       "Content-Type": "application/json"
     }

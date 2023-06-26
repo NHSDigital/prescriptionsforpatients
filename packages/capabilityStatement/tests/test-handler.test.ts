@@ -2,7 +2,7 @@ import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
 import {handler} from "../src/app"
 import {expect, describe, it} from "@jest/globals"
 import {ContextExamples} from "@aws-lambda-powertools/commons"
-import successData from "../examples/CapabilityStatement/apim-medicines-prescriptionsforpatients.json"
+import capabilityStatement from "../examples/CapabilityStatement/apim-medicines-prescriptionsforpatients.json"
 
 const dummyContext = ContextExamples.helloworldContext
 
@@ -60,10 +60,6 @@ describe("Unit test for app handler", function () {
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
     expect(result.statusCode).toEqual(200)
-    expect(result.body).toEqual(
-      JSON.stringify({
-        message: successData
-      })
-    )
+    expect(result.body).toEqual(JSON.stringify(capabilityStatement))
   })
 })
