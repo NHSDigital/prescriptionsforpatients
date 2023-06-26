@@ -26,7 +26,7 @@ sam-build-sandbox: sam-validate-sandbox
 sam-run-local: sam-build
 	sam local start-api
 
-sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name guard-SPLUNK_HEC_TOKEN guard-SPLUNK_HEC_ENDPOINT
+sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam sync \
 		--stack-name $$stack_name \
 		--watch \
@@ -41,7 +41,7 @@ sam-sync-sandbox: guard-stack_name
 		--parameter-overrides \
 			  EnableSplunk=false
 
-sam-deploy: guard-AWS_DEFAULT_PROFILE guard-stack_name guard-SPLUNK_HEC_TOKEN guard-SPLUNK_HEC_ENDPOINT
+sam-deploy: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam deploy \
 		--stack-name $$stack_name \
 		--parameter-overrides \
@@ -90,10 +90,12 @@ lint:
 	npm run lint --workspace packages/getMyPrescriptions
 	npm run lint --workspace packages/splunkProcessor
 	npm run lint --workspace packages/sandbox
+	npm run lint --workspace packages/middleware
 
 test:
 	npm run test --workspace packages/getMyPrescriptions
 	npm run test --workspace packages/sandbox
+	npm run test --workspace packages/middleware
 
 clean:
 	rm -rf packages/getMyPrescriptions/coverage
