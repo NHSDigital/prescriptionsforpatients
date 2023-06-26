@@ -65,7 +65,7 @@ jobs:
       STACK_NAME: PR-sandbox-${{needs.get_issue_number.outputs.issue_number}}
       ARTIFACT_BUCKET_PREFIX: PR-sandbox-${{needs.get_issue_number.outputs.issue_number}}
       TARGET_ENVIRONMENT: dev-pr
-      ENABLE_MUTUAL_TLS: false
+      ENABLE_MUTUAL_TLS: true
       DEPLOY_SANDBOX: true
       BUILD_ARTIFACT: packaged_sandbox_code
       TRUSTSTORE_FILE: sandbox-truststore.pem

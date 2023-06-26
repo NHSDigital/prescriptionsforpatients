@@ -165,5 +165,5 @@ aws secretsmanager put-secret-value \
     --secret-id ${CLIENT_SANDBOX_CERT_ARN} \
     --secret-string file://${CERTS_DIR}/apigee_client_cert_sandbox.pem
 
-# aws s3 cp  ${CERTS_DIR}/${CA_NAME}.pem s3://${TRUSTSTORE_BUCKET_NAME}/truststore.pem
-# aws s3 cp  ${CERTS_DIR}/${CA_NAME}.pem s3://${TRUSTSTORE_BUCKET_NAME}/sandbox-truststore.pem
+aws s3 cp  ${CERTS_DIR}/${CA_NAME}.pem s3://${TRUSTSTORE_BUCKET_NAME}/truststore.pem
+aws s3 cp  ${CERTS_DIR}/${CA_NAME}.pem s3://${TRUSTSTORE_BUCKET_NAME}/sandbox-truststore.pem
