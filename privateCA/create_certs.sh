@@ -17,7 +17,7 @@ readonly CA_CERTIFICATE_SUBJECT="/C=GB/ST=Leeds/L=Leeds/O=nhs/OU=prescriptions f
 readonly CERT_PREFIX_DEV="dev-ci "
 readonly CERT_PREFIX_DEV_SANDBOX="dev-sandbox "
 
-readonly CLIENT_CERT_SUBJECT_PREFIX="/C=GB/ST=Leeds/L=Leeds/O=nhs/OU=prescriptions for patients private CA/CN=Client Cert $(date +%Y%m%d_%H%M%S) "
+readonly CLIENT_CERT_SUBJECT_PREFIX="/C=GB/ST=Leeds/L=Leeds/O=nhs/OU=prescriptions for patients private CA/CN=client-cert-"
 
 # v3 extensions
 readonly V3_EXT="$BASE_DIR/v3.ext"
