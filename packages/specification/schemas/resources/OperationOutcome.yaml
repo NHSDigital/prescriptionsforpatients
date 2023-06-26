@@ -7,6 +7,17 @@ properties:
     type: string
     description: FHIR Resource Type.
     enum: [OperationOutcome]
+  id:
+    type: string
+    description: ID to link the request and response (Lambda request ID)
+  meta:
+    type: object
+    required: [lastUpdated]
+    description: Metadata regarding the request
+    properties:
+      lastUpdated:
+        type: string
+        description: Timestamp at which the response was generated
   issue:
     type: array
     description: List of issues that have occurred.
