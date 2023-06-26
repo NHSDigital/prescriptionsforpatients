@@ -7,6 +7,7 @@ This is an API for accessing prescription information.
 - `packages/getMyPrescriptions/` Get prescription details.
 - `packages/splunkProcessor/` Processes CloudWatch logs for Splunk.
 - `packages/sandbox/` Returns [static data](./packages/specification/examples/GetMyPrescriptions/Bundle/success.json) from the Sandbox
+- `packages/middleware/` A modified [middy-error-handler](https://github.com/schibsted/middy-error-handler) to return FHIR responses
 - `scripts/` Utilities helpful to developers of this specification.
 - `cloudformation/` Contains cloudformation files used to create resources for CI builds and deployments
 - `privateCA/` Contains script to create self signed CA certificate and a client certificate used for mutual TLS
@@ -63,8 +64,6 @@ Ensure you have the following lines in the file .envrc
 ```
 export AWS_DEFAULT_PROFILE=prescription-dev
 export stack_name=<UNIQUE_NAME_FOR_YOU>
-export SPLUNK_HEC_TOKEN="<Splunk HEC Token>"
-export SPLUNK_HEC_ENDPOINT="<Splunk HEC Url>"
 ```
 
 UNIQUE_NAME_FOR_YOU should be a unique name for you with no underscores in it - eg anthony-brown-1
@@ -149,7 +148,7 @@ There are `make` commands that are run as part of the CI pipeline and help alias
 - `install-node` installs node dependencies
 - `install-python` installs python dependencies
 - `install-hooks` installs git pre commit hooks
-- `install` runs all install targes
+- `install` runs all install targets
 
 #### SAM targets
 

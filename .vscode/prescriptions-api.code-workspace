@@ -21,6 +21,10 @@
 			"path": "../packages/specification"
 		},
 		{
+			"name": "packages/middleware",
+			"path": "../packages/middleware"
+		},
+		{
 			"name": "packages/splunkProcessor",
 			"path": "../packages/splunkProcessor"
 		}
