@@ -129,7 +129,7 @@ describe("Unit test for app handler", function () {
   })
 
   it("verifies error response", async () => {
-    const event = {
+    const event: APIGatewayProxyEvent = {
       httpMethod: "get",
       body: "",
       headers: {},
@@ -173,7 +173,6 @@ describe("Unit test for app handler", function () {
         protocol: "HTTP/1.1",
         requestId: "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
         requestTimeEpoch: 1428582896000,
-        timeEpoch: 1428582896001,
         resourceId: "123456",
         resourcePath: "/hello",
         stage: "dev"
@@ -186,9 +185,6 @@ describe("Unit test for app handler", function () {
     expect(result.statusCode).toBe(500)
     expect(JSON.parse(result.body)).toEqual({
       id: "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
-      meta: {
-        lastUpdated: 1428582896001
-      },
       resourceType: "OperationOutcome",
       issue: [
         {
