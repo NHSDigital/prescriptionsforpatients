@@ -14,8 +14,9 @@ readonly CERT_VALIDITY_DAYS="365"
 readonly CA_NAME="ca"
 readonly CA_CERTIFICATE_SUBJECT="/C=GB/ST=Leeds/L=Leeds/O=nhs/OU=prescriptions for patients private CA/CN=prescriptions for patients Private CA $(date +%Y%m%d_%H%M%S)"
 
-readonly CERT_PREFIX_DEV="dev-ci "
-readonly CERT_PREFIX_DEV_SANDBOX="dev-sandbox "
+readonly CERT_PREFIX_DEV="dev-"
+readonly CERT_PREFIX_CI="ci"
+readonly CERT_PREFIX_SANDBOX="sandbox"
 
 readonly CLIENT_CERT_SUBJECT_PREFIX="/C=GB/ST=Leeds/L=Leeds/O=nhs/OU=prescriptions for patients private CA/CN=client-cert-"
 
@@ -63,14 +64,14 @@ function create_csr {
         openssl req -config "$BASE_DIR/$SMARTCARD_CERT_SIGNING_CONFIG" -new \
         -key "$KEYS_DIR/$key_name.pem" \
         -out "$CERTS_DIR/$key_name.csr" -outform PEM \
-        -subj "${CLIENT_CERT_SUBJECT_PREFIX}${CERT_PREFIX_DEV}${client_description}"
+        -subj "${CLIENT_CERT_SUBJECT_PREFIX}${CERT_PREFIX_DEV}${CERT_PREFIX_CI}${client_description}"
     elif [ "$key_name" = "apigee_client_cert_sandbox" ]
     then
         echo "@ Creating CSR for '$key_name'..."
         openssl req -config "$BASE_DIR/$SMARTCARD_CERT_SIGNING_CONFIG" -new \
         -key "$KEYS_DIR/$key_name.pem" \
         -out "$CERTS_DIR/$key_name.csr" -outform PEM \
-        -subj "${CLIENT_CERT_SUBJECT_PREFIX}${CERT_PREFIX_DEV_SANDBOX}${client_description}"
+        -subj "${CLIENT_CERT_SUBJECT_PREFIX}${CERT_PREFIX_DEV}${CERT_PREFIX_SANDBOX}${client_description}"
     fi
 }
 
@@ -97,7 +98,7 @@ function generate_ca_signed_cert {
 function generate_client_cert {
     local readonly name="$1"
 
-    local readonly description="Apigee client cert"
+    local readonly description="-apigee-client-cert"
     generate_key "$name"
     generate_ca_signed_cert "$name" "$description"
     convert_cert_to_der "$name"
