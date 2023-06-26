@@ -21,9 +21,6 @@ on:
       DEPLOY_SANDBOX:
         required: true
         type: string
-      DEPLOY_CAPABILITYSTATEMENT:
-        required: true
-        type: string
       TRUSTSTORE_FILE:
         required: true
         type: string
@@ -79,5 +76,4 @@ jobs:
           --query 'Versions[?IsLatest].[VersionId]' --output text)
           export enable_mutual_tls=${{ inputs.ENABLE_MUTUAL_TLS }}
           export deploy_sandbox=${{ inputs.DEPLOY_SANDBOX }}
-          export deploy_capabilityStatement=${{ inputs.DEPLOY_CAPABILITYSTATEMENT }}
           make sam-deploy-package
