@@ -51,6 +51,7 @@ jobs:
       TARGET_ENVIRONMENT: dev-pr
       ENABLE_MUTUAL_TLS: false
       DEPLOY_SANDBOX: false
+      DEPLOY_CAPABILITYSTATEMENT: true
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: truststore.pem
     secrets:
@@ -67,6 +68,7 @@ jobs:
       TARGET_ENVIRONMENT: dev-pr
       ENABLE_MUTUAL_TLS: false
       DEPLOY_SANDBOX: true
+      DEPLOY_CAPABILITYSTATEMENT: true
       BUILD_ARTIFACT: packaged_sandbox_code
       TRUSTSTORE_FILE: sandbox-truststore.pem
     secrets:

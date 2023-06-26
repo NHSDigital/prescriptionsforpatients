@@ -18,9 +18,10 @@
   "license": "ISC",
   "workspaces": [
     "packages/getMyPrescriptions",
-    "packages/splunkProcessor",
+    "packages/capabilityStatement",
     "packages/sandbox",
-    "packages/specification"
+    "packages/specification",
+    "packages/splunkProcessor"
   ],
   "private": true,
   "dependencies": {
