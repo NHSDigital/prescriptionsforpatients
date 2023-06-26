@@ -82,10 +82,10 @@ x-spec-publication:
           path: /Bundle
 
 servers:
-  - url: 'https://int.api.service.nhs.uk/prescriptions-for-patients'
-    description: 'Integration'
-  - url: 'https://api.service.nhs.uk/prescriptions-for-patients'
-    description: 'Production'
+  - url: "https://int.api.service.nhs.uk/prescriptions-for-patients"
+    description: "Integration"
+  - url: "https://api.service.nhs.uk/prescriptions-for-patients"
+    description: "Production"
 
 paths:
   /Bundle:
