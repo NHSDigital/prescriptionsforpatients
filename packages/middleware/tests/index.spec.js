@@ -23,7 +23,7 @@ test("Middleware logs all error details", async () => {
   expect(errorObject.error.stack).not.toBeNull()
 })
 
-test("Middleware logs all details from lambda event", async () => {
+test("Middleware returns details as valid fhir from lambda event", async () => {
   const event = {
     httpMethod: "get",
     body: "",
