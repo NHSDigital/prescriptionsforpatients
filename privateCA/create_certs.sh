@@ -14,7 +14,10 @@ readonly CERT_VALIDITY_DAYS="365"
 readonly CA_NAME="ca"
 readonly CA_CERTIFICATE_SUBJECT="/C=GB/ST=Leeds/L=Leeds/O=nhs/OU=prescriptions for patients private CA/CN=prescriptions for patients Private CA $(date +%Y%m%d_%H%M%S)"
 
-readonly CLIENT_CERT_SUBJECT_PREFIX="/C=GB/ST=Leeds/L=Leeds/O=nhs/OU=prescriptions for patients private CA/CN=Client cert $(date +%Y%m%d_%H%M%S) "
+readonly CERT_PREFIX_DEV="dev-ci "
+readonly CERT_PREFIX_DEV_SANDBOX="dev-sandbox "
+
+readonly CLIENT_CERT_SUBJECT_PREFIX="/C=GB/ST=Leeds/L=Leeds/O=nhs/OU=prescriptions for patients private CA/CN=Client Cert $(date +%Y%m%d_%H%M%S) "
 
 # v3 extensions
 readonly V3_EXT="$BASE_DIR/v3.ext"
@@ -54,11 +57,21 @@ function create_csr {
     local readonly key_name="$1"
     local readonly client_description="$2"
 
-    echo "@ Creating CSR for '$key_name'..."
-    openssl req -config "$BASE_DIR/$SMARTCARD_CERT_SIGNING_CONFIG" -new \
-    -key "$KEYS_DIR/$key_name.pem" \
-    -out "$CERTS_DIR/$key_name.csr" -outform PEM \
-    -subj "${CLIENT_CERT_SUBJECT_PREFIX}${client_description}"
+    if [ "$key_name" = "apigee_client_cert" ]
+    then
+        echo "@ Creating CSR for '$key_name'..."
+        openssl req -config "$BASE_DIR/$SMARTCARD_CERT_SIGNING_CONFIG" -new \
+        -key "$KEYS_DIR/$key_name.pem" \
+        -out "$CERTS_DIR/$key_name.csr" -outform PEM \
+        -subj "${CLIENT_CERT_SUBJECT_PREFIX}${CERT_PREFIX_DEV}${client_description}"
+    elif [ "$key_name" = "apigee_client_cert_sandbox" ]
+    then
+        echo "@ Creating CSR for '$key_name'..."
+        openssl req -config "$BASE_DIR/$SMARTCARD_CERT_SIGNING_CONFIG" -new \
+        -key "$KEYS_DIR/$key_name.pem" \
+        -out "$CERTS_DIR/$key_name.csr" -outform PEM \
+        -subj "${CLIENT_CERT_SUBJECT_PREFIX}${CERT_PREFIX_DEV_SANDBOX}${client_description}"
+    fi
 }
 
 function sign_csr_with_ca {
@@ -106,6 +119,7 @@ generate_key "$CA_NAME"
 generate_ca_cert "$CA_NAME"
 
 generate_client_cert "apigee_client_cert"
+generate_client_cert "apigee_client_cert_sandbox"
 
 CA_KEY_ARN=$(aws cloudformation describe-stacks \
     --stack-name ci-resources \
@@ -119,10 +133,10 @@ CLIENT_KEY_ARN=$(aws cloudformation describe-stacks \
 CLIENT_CERT_ARN=$(aws cloudformation describe-stacks \
     --stack-name ci-resources \
     --query 'Stacks[0].Outputs[?OutputKey==`ClientCertSecret`].OutputValue' --output text)
-CLIENT_KEY_ARN=$(aws cloudformation describe-stacks \
+CLIENT_SANDBOX_KEY_ARN=$(aws cloudformation describe-stacks \
     --stack-name ci-resources \
     --query 'Stacks[0].Outputs[?OutputKey==`ClientSandboxKeySecret`].OutputValue' --output text)
-CLIENT_CERT_ARN=$(aws cloudformation describe-stacks \
+CLIENT_SANDBOX_CERT_ARN=$(aws cloudformation describe-stacks \
     --stack-name ci-resources \
     --query 'Stacks[0].Outputs[?OutputKey==`ClientSandboxCertSecret`].OutputValue' --output text)
 TRUSTSTORE_BUCKET_ARN=$(aws cloudformation describe-stacks \
@@ -130,19 +144,26 @@ TRUSTSTORE_BUCKET_ARN=$(aws cloudformation describe-stacks \
     --query 'Stacks[0].Outputs[?OutputKey==`TrustStoreBucket`].OutputValue' --output text)
 TRUSTSTORE_BUCKET_NAME=$(echo ${TRUSTSTORE_BUCKET_ARN} | cut -d ":" -f 6)
 
-# aws secretsmanager put-secret-value \
-#     --secret-id ${CA_KEY_ARN} \
-#     --secret-string file://${KEYS_DIR}/${CA_NAME}.pem
-# aws secretsmanager put-secret-value \
-#     --secret-id ${CA_CERT_ARN} \
-#     --secret-string file://${CERTS_DIR}/${CA_NAME}.pem
+aws secretsmanager put-secret-value \
+    --secret-id ${CA_KEY_ARN} \
+    --secret-string file://${KEYS_DIR}/${CA_NAME}.pem
+aws secretsmanager put-secret-value \
+    --secret-id ${CA_CERT_ARN} \
+    --secret-string file://${CERTS_DIR}/${CA_NAME}.pem
 
-# aws secretsmanager put-secret-value \
-#     --secret-id ${CLIENT_KEY_ARN} \
-#     --secret-string file://${KEYS_DIR}/apigee_client_cert.pem
-# aws secretsmanager put-secret-value \
-#     --secret-id ${CLIENT_CERT_ARN} \
-#     --secret-string file://${CERTS_DIR}/apigee_client_cert.pem
+aws secretsmanager put-secret-value \
+    --secret-id ${CLIENT_KEY_ARN} \
+    --secret-string file://${KEYS_DIR}/apigee_client_cert.pem
+aws secretsmanager put-secret-value \
+    --secret-id ${CLIENT_CERT_ARN} \
+    --secret-string file://${CERTS_DIR}/apigee_client_cert.pem
+
+aws secretsmanager put-secret-value \
+    --secret-id ${CLIENT_SANDBOX_KEY_ARN} \
+    --secret-string file://${KEYS_DIR}/apigee_client_cert_sandbox.pem
+aws secretsmanager put-secret-value \
+    --secret-id ${CLIENT_SANDBOX_CERT_ARN} \
+    --secret-string file://${CERTS_DIR}/apigee_client_cert_sandbox.pem
 
 # aws s3 cp  ${CERTS_DIR}/${CA_NAME}.pem s3://${TRUSTSTORE_BUCKET_NAME}/truststore.pem
 # aws s3 cp  ${CERTS_DIR}/${CA_NAME}.pem s3://${TRUSTSTORE_BUCKET_NAME}/sandbox-truststore.pem

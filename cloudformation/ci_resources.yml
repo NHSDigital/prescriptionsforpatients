@@ -422,3 +422,9 @@ Outputs:
   ClientCertSecret:
     Description: ARN of the client cert secret
     Value: !GetAtt ClientCertSecret.Id
+  ClientSandboxKeySecret:
+    Description: ARN of the client key secret for sandbox
+    Value: !GetAtt ClientSandboxKeySecret.Id
+  ClientSandboxCertSecret:
+    Description: ARN of the client cert secret for sandbox
+    Value: !GetAtt ClientSandboxCertSecret.Id
