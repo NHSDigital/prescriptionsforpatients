@@ -17,11 +17,12 @@
   "author": "",
   "license": "ISC",
   "workspaces": [
+    "packages/capabilityStatement",
     "packages/getMyPrescriptions",
-    "packages/splunkProcessor",
+    "packages/middleware",
     "packages/sandbox",
     "packages/specification",
-    "packages/middleware"
+    "packages/splunkProcessor"
   ],
   "private": true,
   "dependencies": {
