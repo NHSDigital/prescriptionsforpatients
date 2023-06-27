@@ -87,17 +87,20 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 			  EnableSplunk=true
 
 lint:
+	npm run lint --workspace packages/capabilityStatement
 	npm run lint --workspace packages/getMyPrescriptions
-	npm run lint --workspace packages/splunkProcessor
-	npm run lint --workspace packages/sandbox
 	npm run lint --workspace packages/middleware
+	npm run lint --workspace packages/sandbox
+	npm run lint --workspace packages/splunkProcessor
 
 test:
+	npm run test --workspace packages/capabilityStatement
 	npm run test --workspace packages/getMyPrescriptions
-	npm run test --workspace packages/sandbox
 	npm run test --workspace packages/middleware
+	npm run test --workspace packages/sandbox
 
 clean:
+	rm -rf packages/capabilityStatement/coverage
 	rm -rf packages/getMyPrescriptions/coverage
 	rm -rf packages/sandbox/coverage
 	rm -rf .aws-sam

@@ -153,6 +153,93 @@ Resources:
         EntryPoints:
           - app.ts
 
+  # capabilityStatement stuff
+  CapabilityStatementRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+  CapabilityStatementLambdaPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-lambda-logging"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource:
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${CapabilityStatementLogGroup}"
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${CapabilityStatementLogGroup}:log-stream:*"
+      Roles:
+        - !Ref CapabilityStatementRole
+  CapabilityStatementKMSPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-KMS-access"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - kms:DescribeKey
+              - kms:GenerateDataKey*
+              - kms:Encrypt
+              - kms:ReEncrypt*
+            Resource:
+              - !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
+      Roles:
+        - !Ref CapabilityStatementRole
+  CapabilityStatementLogGroup:
+    Type: "AWS::Logs::LogGroup"
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${CapabilityStatement}"
+      RetentionInDays: 90
+      KmsKeyId: !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
+  CapabilityStatementSplunkSubscriptionFilter:
+    Condition: ShouldUseSplunk
+    Type: AWS::Logs::SubscriptionFilter
+    Properties:
+      RoleArn: !GetAtt SplunkFirehose.Outputs.SplunkSubscriptionFilterRole
+      LogGroupName: !Ref CapabilityStatementLogGroup
+      FilterPattern: '" "' # All logs
+      DestinationArn: !GetAtt SplunkFirehose.Outputs.SplunkDeliveryStream
+  CapabilityStatement:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: packages/capabilityStatement/src
+      Handler: app.handler
+      Runtime: nodejs18.x
+      Role: !GetAtt CapabilityStatementRole.Arn
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          TargetSpineServer: !Ref TargetSpineServer
+          NODE_OPTIONS: --enable-source-maps
+      Events:
+        capabilityStatement:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApiGateway
+            Path: /metadata
+            Method: get
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - app.ts
+
   # TLS cert for custom domain
   GenerateCertificate:
     Type: AWS::CertificateManager::Certificate
