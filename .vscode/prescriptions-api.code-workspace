@@ -27,6 +27,10 @@
 		{
 			"name": "packages/splunkProcessor",
 			"path": "../packages/splunkProcessor"
+		},
+		{
+			"name": "packages/statusLambda",
+			"path": "../packages/statusLambda"
 		}
 	],
 	"settings": {
@@ -35,7 +39,8 @@
 			"packages/capabilityStatement",
 			"packages/sandbox",
 			"packages/specification",
-			"packages/splunkProcessor"
+			"packages/splunkProcessor",
+			"packages/statusLambda"
 		],
 		"files.exclude": {
 			"packages/": true,
@@ -94,7 +99,7 @@
 	},
 	"extensions": {
 		"recommendations": [
-			"AmazonWebServices.aws-toolkit-vscode",
+			"amazonwebservices.aws-toolkit-vscode",
 			"redhat.vscode-yaml",
 			"ms-python.python",
 			"ms-python.flake8",
@@ -104,16 +109,16 @@
 			"42crunch.vscode-openapi",
 			"mermade.openapi-lint",
 			"rvest.vs-code-prettier-eslint",
-			"redhat.vscode-yaml",
 			"christian-kohler.npm-intellisense",
 			"dbaeumer.vscode-eslint",
 			"lfm.vscode-makefile-term",
-			"GrapeCity.gc-excelviewer",
+			"grapecity.gc-excelviewer",
 			"redhat.vscode-xml",
 			"streetsidesoftware.code-spell-checker",
 			"timonwong.shellcheck",
 			"mkhl.direnv",
-			"bungcip.better-toml"
+			"bungcip.better-toml",
+			"tamasfe.even-better-toml"
 		]
 	}
 }

@@ -22,7 +22,8 @@
     "packages/middleware",
     "packages/sandbox",
     "packages/specification",
-    "packages/splunkProcessor"
+    "packages/splunkProcessor",
+    "packages/statusLambda"
   ],
   "private": true,
   "dependencies": {

@@ -302,3 +302,86 @@ Resources:
           - ShouldUseMutualTLS
           - true
           - !Ref "AWS::NoValue"
+
+  # _status endpoint stuff
+  StatusLambdaRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+  StatusLambdaLambdaPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-lambda-logging"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource:
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${StatusLambdaLogGroup}"
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${StatusLambdaLogGroup}:log-stream:*"
+      Roles:
+        - !Ref StatusLambdaRole
+  StatusLambdaKMSPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-KMS-access"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - kms:DescribeKey
+              - kms:GenerateDataKey*
+              - kms:Encrypt
+              - kms:ReEncrypt*
+            Resource:
+              - !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
+      Roles:
+        - !Ref StatusLambdaRole
+  StatusLambdaLogGroup:
+    Type: "AWS::Logs::LogGroup"
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${StatusLambda}"
+      RetentionInDays: 30
+      KmsKeyId: !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
+  StatusLambdaSplunkSubscriptionFilter:
+    Condition: ShouldUseSplunk
+    Type: AWS::Logs::SubscriptionFilter
+    Properties:
+      RoleArn: !GetAtt SplunkFirehose.Outputs.SplunkSubscriptionFilterRole
+      LogGroupName: !Ref StatusLambdaLogGroup
+      FilterPattern: '" "' # All logs
+      DestinationArn: !GetAtt SplunkFirehose.Outputs.SplunkDeliveryStream
+  StatusLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: packages/statusLambda/src
+      Handler: app.handler
+      Runtime: nodejs18.x
+      Role: !GetAtt StatusLambdaRole.Arn
+      Architectures:
+        - x86_64
+      Events:
+        status:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApiGateway
+            Path: /_status
+            Method: get
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - app.ts

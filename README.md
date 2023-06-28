@@ -1,6 +1,6 @@
 # Prescriptions API
 
-![Build](https://github.com/NHSDigital/prescriptions-api/workflows/Build/badge.svg?branch=main)
+![Build](https://github.com/NHSDigital/prescriptionsforpatients/workflows/release/badge.svg?branch=main)
 
 This is an API for accessing prescription information.
 
@@ -8,6 +8,7 @@ This is an API for accessing prescription information.
 - `packages/splunkProcessor/` Processes CloudWatch logs for Splunk.
 - `packages/sandbox/` Returns [static data](./packages/specification/examples/GetMyPrescriptions/Bundle/success.json) from the Sandbox
 - `packages/middleware/` A modified [middy-error-handler](https://github.com/schibsted/middy-error-handler) to return FHIR responses
+- `packages/statusLambda/` Returns the status of the getMyPrescriptions endpoint
 - `scripts/` Utilities helpful to developers of this specification.
 - `cloudformation/` Contains cloudformation files used to create resources for CI builds and deployments
 - `privateCA/` Contains script to create self signed CA certificate and a client certificate used for mutual TLS

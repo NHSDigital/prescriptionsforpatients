@@ -92,12 +92,14 @@ lint:
 	npm run lint --workspace packages/middleware
 	npm run lint --workspace packages/sandbox
 	npm run lint --workspace packages/splunkProcessor
+	npm run lint --workspace packages/statusLambda
 
 test:
 	npm run test --workspace packages/capabilityStatement
 	npm run test --workspace packages/getMyPrescriptions
 	npm run test --workspace packages/middleware
 	npm run test --workspace packages/sandbox
+	npm run test --workspace packages/statusLambda
 
 clean:
 	rm -rf packages/capabilityStatement/coverage

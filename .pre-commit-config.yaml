@@ -45,5 +45,14 @@ repos:
         types_or: [ts, tsx, javascript, jsx, json]
         pass_filenames: false
 
+      - id: lint-statusLambda
+        name: Lint statusLambda
+        entry: npm
+        args: ["run", "--prefix=packages/statusLambda", "lint"]
+        language: system
+        files: ^packages\/statusLambda
+        types_or: [ts, tsx, javascript, jsx, json]
+        pass_filenames: false
+
 fail_fast: true
 default_stages: [commit]
