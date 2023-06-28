@@ -52,6 +52,19 @@ describe("Unit test for status check", function () {
     )
   })
 
+  const errorResponseBody = {
+    status: "error",
+    commitId: "Some version number",
+    checks: [
+      {
+        message: "There is an error somewhere"
+      },
+      {
+        message: "And another one somewhere else"
+      }
+    ]
+  }
+
   it("verifies error response", async () => {
     const event: Partial<APIGatewayProxyEvent> = {
       queryStringParameters: {
@@ -64,20 +77,7 @@ describe("Unit test for status check", function () {
     )) as APIGatewayProxyResult
 
     expect(result.statusCode).toEqual(200)
-    expect(result.body).toEqual(
-      JSON.stringify({
-        status: "error",
-        commitId: "Some version number",
-        checks: [
-          {
-            message: "There is an error somewhere"
-          },
-          {
-            message: "And another one somewhere else"
-          }
-        ]
-      })
-    )
+    expect(result.body).toEqual(JSON.stringify(errorResponseBody))
   })
 
   it("verifies default response", async () => {
@@ -92,19 +92,6 @@ describe("Unit test for status check", function () {
     )) as APIGatewayProxyResult
 
     expect(result.statusCode).toEqual(200)
-    expect(result.body).toEqual(
-      JSON.stringify({
-        status: "error",
-        commitId: "Some version number",
-        checks: [
-          {
-            message: "There is an error somewhere"
-          },
-          {
-            message: "And another one somewhere else"
-          }
-        ]
-      })
-    )
+    expect(result.body).toEqual(JSON.stringify(errorResponseBody))
   })
 })
