@@ -39,8 +39,7 @@
 			"packages/capabilityStatement",
 			"packages/sandbox",
 			"packages/specification",
-			"packages/splunkProcessor",
-			"packages/statusLambda"
+			"packages/splunkProcessor"
 		],
 		"files.exclude": {
 			"packages/": true,
