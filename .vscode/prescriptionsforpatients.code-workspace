@@ -99,7 +99,7 @@
 	},
 	"extensions": {
 		"recommendations": [
-			"amazonwebservices.aws-toolkit-vscode",
+			"AmazonWebServices.aws-toolkit-vscode",
 			"redhat.vscode-yaml",
 			"ms-python.python",
 			"ms-python.flake8",
@@ -109,10 +109,11 @@
 			"42crunch.vscode-openapi",
 			"mermade.openapi-lint",
 			"rvest.vs-code-prettier-eslint",
+			"redhat.vscode-yaml",
 			"christian-kohler.npm-intellisense",
 			"dbaeumer.vscode-eslint",
 			"lfm.vscode-makefile-term",
-			"grapecity.gc-excelviewer",
+			"GrapeCity.gc-excelviewer",
 			"redhat.vscode-xml",
 			"streetsidesoftware.code-spell-checker",
 			"timonwong.shellcheck",
