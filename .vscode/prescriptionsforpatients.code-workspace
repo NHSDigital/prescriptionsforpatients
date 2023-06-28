@@ -1,7 +1,7 @@
 {
 	"folders": [
 		{
-			"name": "prescriptions-api-monorepo",
+			"name": "prescriptionsforpatients-monorepo",
 			"path": ".."
 		},
 		{
@@ -35,7 +35,7 @@
 	],
 	"settings": {
 		"jest.disabledWorkspaceFolders": [
-			"prescriptions-api-monorepo",
+			"prescriptionsforpatients-monorepo",
 			"packages/capabilityStatement",
 			"packages/sandbox",
 			"packages/specification",

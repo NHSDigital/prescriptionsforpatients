@@ -1,10 +1,10 @@
 {
-  "name": "prescriptions-api-spec",
+  "name": "prescriptionsforpatients-spec",
   "version": "0.0.1",
   "description": "OAS (Swagger v3.1) API Definition for Prescriptions API",
   "scripts": {
-    "lint": "swagger-cli validate prescriptions-api.yaml",
-    "resolve": "swagger-cli bundle prescriptions-api.yaml -r -o dist/prescriptions-api.json",
+    "lint": "swagger-cli validate prescriptionsforpatients.yaml",
+    "resolve": "swagger-cli bundle prescriptionsforpatients.yaml -r -o dist/prescriptionsforpatients.json",
     "check-licenses": "license-checker --failOn GPL --failOn LGPL --start ../.."
   },
   "author": "NHS Digital",
@@ -13,7 +13,7 @@
     "node": "v18.16.x",
     "npm": "9.x"
   },
-  "homepage": "https://github.com/NHSDigital/prescriptions-api",
+  "homepage": "https://github.com/NHSDigital/prescriptionsforpatients",
   "dependencies": {
     "@apidevtools/swagger-cli": "^4.0.4"
   }
