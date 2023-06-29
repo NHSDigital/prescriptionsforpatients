@@ -1,0 +1,352 @@
+{
+	"info": {
+		"_postman_id": "53baab19-cdbd-45ed-beda-2ba288c73c20",
+		"name": "prescriptions for patients",
+		"description": "This contains a collection for interacting with the prescriptions for patients API\n\nTo use it you should define environments with the following variables\n\n- host\n- cilent_id\n- client_secret\n    \n\nTo use the PULL REQUEST calls, you should create a variable called pull_request_id that is the number of the pull request\n\nThe endpoints are secured using oauth2. In dev environments, you can go to the authorization tab of the request and select get new access token. This will open a new window where you can put in one of the test NHS numbers",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "69771"
+	},
+	"item": [
+		{
+			"name": "getMyPrescriptions",
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "tokenName",
+							"value": "nhs identity token",
+							"type": "string"
+						},
+						{
+							"key": "clientId",
+							"value": "{{client_id}}",
+							"type": "string"
+						},
+						{
+							"key": "clientSecret",
+							"value": "{{client_secret}}",
+							"type": "string"
+						},
+						{
+							"key": "scope",
+							"value": "nhs-login",
+							"type": "string"
+						},
+						{
+							"key": "redirect_uri",
+							"value": "https://example.org/",
+							"type": "string"
+						},
+						{
+							"key": "useBrowser",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "state",
+							"value": "{{$randomUUID}}",
+							"type": "string"
+						},
+						{
+							"key": "accessTokenUrl",
+							"value": "https://internal-dev.api.service.nhs.uk/oauth2-mock/token",
+							"type": "string"
+						},
+						{
+							"key": "authUrl",
+							"value": "https://internal-dev.api.service.nhs.uk/oauth2-mock/authorize",
+							"type": "string"
+						},
+						{
+							"key": "client_authentication",
+							"value": "body",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{host}}/prescriptions-for-patients/getMyPrescriptions",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"prescriptions-for-patients",
+						"getMyPrescriptions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "capability statement",
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "tokenName",
+							"value": "nhs identity token",
+							"type": "string"
+						},
+						{
+							"key": "refreshTokenUrl",
+							"value": "https://internal-dev.api.service.nhs.uk/oauth2-mock/refresh",
+							"type": "string"
+						},
+						{
+							"key": "clientId",
+							"value": "{{client_id}}",
+							"type": "string"
+						},
+						{
+							"key": "clientSecret",
+							"value": "{{client_secret}}",
+							"type": "string"
+						},
+						{
+							"key": "scope",
+							"value": "nhs-login",
+							"type": "string"
+						},
+						{
+							"key": "redirect_uri",
+							"value": "https://example.org/",
+							"type": "string"
+						},
+						{
+							"key": "useBrowser",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "state",
+							"value": "{{$randomUUID}}",
+							"type": "string"
+						},
+						{
+							"key": "accessTokenUrl",
+							"value": "https://internal-dev.api.service.nhs.uk/oauth2-mock/token",
+							"type": "string"
+						},
+						{
+							"key": "authUrl",
+							"value": "https://internal-dev.api.service.nhs.uk/oauth2-mock/authorize",
+							"type": "string"
+						},
+						{
+							"key": "client_authentication",
+							"value": "body",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{host}}/prescriptions-for-patients/metadata",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"prescriptions-for-patients",
+						"metadata"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PULL REQUEST getMyPrescriptions",
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "tokenName",
+							"value": "nhs identity token",
+							"type": "string"
+						},
+						{
+							"key": "clientId",
+							"value": "{{client_id}}",
+							"type": "string"
+						},
+						{
+							"key": "clientSecret",
+							"value": "{{client_secret}}",
+							"type": "string"
+						},
+						{
+							"key": "scope",
+							"value": "nhs-login",
+							"type": "string"
+						},
+						{
+							"key": "redirect_uri",
+							"value": "https://example.org/",
+							"type": "string"
+						},
+						{
+							"key": "useBrowser",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "state",
+							"value": "{{$randomUUID}}",
+							"type": "string"
+						},
+						{
+							"key": "accessTokenUrl",
+							"value": "https://internal-dev.api.service.nhs.uk/oauth2-mock/token",
+							"type": "string"
+						},
+						{
+							"key": "authUrl",
+							"value": "https://internal-dev.api.service.nhs.uk/oauth2-mock/authorize",
+							"type": "string"
+						},
+						{
+							"key": "client_authentication",
+							"value": "body",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{host}}/prescriptions-for-patients-pr-{{pull_request_id}}/getMyPrescriptions",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"prescriptions-for-patients-pr-{{pull_request_id}}",
+						"getMyPrescriptions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PULL REQUEST capability statement",
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "tokenName",
+							"value": "nhs identity token",
+							"type": "string"
+						},
+						{
+							"key": "clientId",
+							"value": "{{client_id}}",
+							"type": "string"
+						},
+						{
+							"key": "clientSecret",
+							"value": "{{client_secret}}",
+							"type": "string"
+						},
+						{
+							"key": "scope",
+							"value": "nhs-login",
+							"type": "string"
+						},
+						{
+							"key": "redirect_uri",
+							"value": "https://example.org/",
+							"type": "string"
+						},
+						{
+							"key": "useBrowser",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "state",
+							"value": "{{$randomUUID}}",
+							"type": "string"
+						},
+						{
+							"key": "accessTokenUrl",
+							"value": "https://internal-dev.api.service.nhs.uk/oauth2-mock/token",
+							"type": "string"
+						},
+						{
+							"key": "authUrl",
+							"value": "https://internal-dev.api.service.nhs.uk/oauth2-mock/authorize",
+							"type": "string"
+						},
+						{
+							"key": "client_authentication",
+							"value": "body",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{host}}/prescriptions-for-patients-pr-{{pull_request_id}}/metadata",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"prescriptions-for-patients-pr-{{pull_request_id}}",
+						"metadata"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
