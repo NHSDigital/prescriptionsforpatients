@@ -2,7 +2,7 @@
 python = "^3.8"
 
 [tool.poetry]
-name = "prescriptions-api"
+name = "prescriptionsforpatients"
 version = "0.0.1-alpha"
 description = "Prescriptions API Definitions"
 license = "MIT"
@@ -19,7 +19,7 @@ authors = [
     "Segun Ake <segun.ake1@nhs.net>"
 ]
 readme = "README.md"
-repository = "https://github.com/NHSDigital/prescriptions-api"
+repository = "https://github.com/NHSDigital/prescriptionsforpatients"
 
 [tool.poetry.dependencies]
 python = "^3.8"
