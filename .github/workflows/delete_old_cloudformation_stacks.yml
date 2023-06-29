@@ -40,12 +40,11 @@ jobs:
                 PULL_REQUEST=${i//PR-/}
                 PULL_REQUEST=${PULL_REQUEST//sandbox-/}
                 echo "Checking pull request id ${PULL_REQUEST}"
-                URL="https://api.github.com/repos/NHSDigital/prescriptionsforpatients/pulls/${PULL_REQUEST_ID}"
-                echo $URL
+                URL="https://api.github.com/repos/NHSDigital/prescriptionsforpatients/pulls/${PULL_REQUEST}"
                 RESPONSE=$(curl ${URL} 2>/dev/null)
                 STATE=$(echo ${RESPONSE} | jq -r .state)
                 if [ "$STATE" == "closed" ]; then
-                    echo "going to delete stack $i as state is ${STATE}"
+                    echo "** going to delete stack $i as state is ${STATE} **"
                 else
                     echo "not going to delete stack $i as state is ${STATE}"
                 fi
