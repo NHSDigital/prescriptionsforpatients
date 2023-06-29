@@ -1,7 +1,7 @@
 {
-  "name": "prescriptions-api-monorepo",
+  "name": "prescriptionsforpatients-monorepo",
   "version": "1.0.0",
-  "description": "![Build](https://github.com/NHSDigital/prescriptions-api/workflows/Build/badge.svg?branch=main)",
+  "description": "![Build](https://github.com/NHSDigital/prescriptionsforpatients/workflows/Build/badge.svg?branch=main)",
   "main": "index.js",
   "directories": {
     "example": "examples"
@@ -11,28 +11,29 @@
   },
   "repository": {
     "type": "git",
-    "url": "github-work:NHSDigital/prescriptions-api.git"
+    "url": "github-work:NHSDigital/prescriptionsforpatients.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "workspaces": [
+    "packages/capabilityStatement",
     "packages/getMyPrescriptions",
-    "packages/splunkProcessor",
+    "packages/middleware",
     "packages/sandbox",
     "packages/specification",
-    "packages/middleware"
+    "packages/splunkProcessor"
   ],
   "private": true,
   "dependencies": {
-    "esbuild": "^0.18.6"
+    "esbuild": "^0.18.10"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.119",
     "@types/jest": "^29.5.2",
     "@types/node": "^18.11.4",
-    "@typescript-eslint/eslint-plugin": "^5.60.0",
-    "@typescript-eslint/parser": "^5.60.0",
+    "@typescript-eslint/eslint-plugin": "^5.60.1",
+    "@typescript-eslint/parser": "^5.60.1",
     "aws-lambda": "^1.0.7",
     "eslint": "^8.43.0",
     "eslint-config-prettier": "^8.3.0",

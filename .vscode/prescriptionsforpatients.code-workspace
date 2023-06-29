@@ -1,16 +1,16 @@
 {
 	"folders": [
 		{
-			"name": "prescriptions-api-monorepo",
+			"name": "prescriptionsforpatients-monorepo",
 			"path": ".."
+		},
+		{
+			"name": "packages/capabilityStatement",
+			"path": "../packages/capabilityStatement"
 		},
 		{
 			"name": "packages/getMyPrescriptions",
 			"path": "../packages/getMyPrescriptions"
-		},
-		{
-			"name": "packages/splunkProcessor",
-			"path": "../packages/splunkProcessor"
 		},
 		{
 			"name": "packages/sandbox",
@@ -23,14 +23,19 @@
 		{
 			"name": "packages/middleware",
 			"path": "../packages/middleware"
+		},
+		{
+			"name": "packages/splunkProcessor",
+			"path": "../packages/splunkProcessor"
 		}
 	],
 	"settings": {
 		"jest.disabledWorkspaceFolders": [
-			"prescriptions-api-monorepo",
-			"packages/splunkProcessor",
+			"prescriptionsforpatients-monorepo",
+			"packages/capabilityStatement",
+			"packages/sandbox",
 			"packages/specification",
-			"packages/sandbox"
+			"packages/splunkProcessor"
 		],
 		"files.exclude": {
 			"packages/": true,
