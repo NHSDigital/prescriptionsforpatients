@@ -1,6 +1,6 @@
 # Prescriptions API
 
-![Build](https://github.com/NHSDigital/prescriptions-api/workflows/Build/badge.svg?branch=main)
+![Build](https://github.com/NHSDigital/prescriptionsforpatients/workflows/Build/badge.svg?branch=main)
 
 This is an API for accessing prescription information.
 
@@ -17,7 +17,7 @@ Consumers of the API will find developer documentation on the [NHS Digital Devel
 
 ## Contributing
 
-Contributions to this project are welcome from anyone, providing that they conform to the [guidelines for contribution](https://github.com/NHSDigital/prescriptions-api/blob/main/CONTRIBUTING.md) and the [community code of conduct](https://github.com/NHSDigital/prescriptions-api/blob/main/CODE_OF_CONDUCT.md).
+Contributions to this project are welcome from anyone, providing that they conform to the [guidelines for contribution](https://github.com/NHSDigital/prescriptionsforpatients/blob/main/CONTRIBUTING.md) and the [community code of conduct](https://github.com/NHSDigital/prescriptionsforpatients/blob/main/CODE_OF_CONDUCT.md).
 
 ### Licensing
 
