@@ -50,6 +50,7 @@ Resources:
                   - "cloudformation:ExecuteChangeSet"
                   - "cloudformation:DescribeStackEvents"
                   - "cloudformation:GetTemplateSummary"
+                  - "cloudformation:ListStacks"
                 Resource: "*"
         - PolicyName: AssumeExecutionRole
           PolicyDocument:
