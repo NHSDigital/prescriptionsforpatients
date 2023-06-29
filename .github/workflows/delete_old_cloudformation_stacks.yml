@@ -45,6 +45,7 @@ jobs:
                 STATE=$(echo ${RESPONSE} | jq -r .state)
                 if [ "$STATE" == "closed" ]; then
                     echo "** going to delete stack $i as state is ${STATE} **"
+                    aws cloudformation delete-stack --stack-name ${i}
                 else
                     echo "not going to delete stack $i as state is ${STATE}"
                 fi
