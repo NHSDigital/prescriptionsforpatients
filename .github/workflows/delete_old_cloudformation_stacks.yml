@@ -41,6 +41,7 @@ jobs:
                 PULL_REQUEST=${PULL_REQUEST//sandbox-/}
                 echo "Checking pull request id ${PULL_REQUEST}"
                 URL="https://api.github.com/repos/NHSDigital/prescriptionsforpatients/pulls/${PULL_REQUEST_ID}"
+                echo $URL
                 RESPONSE=$(curl ${URL} 2>/dev/null)
                 STATE=$(echo ${RESPONSE} | jq -r .state)
                 if [ "$STATE" == "closed" ]; then
