@@ -26,7 +26,7 @@
   ],
   "private": true,
   "dependencies": {
-    "esbuild": "^0.18.6"
+    "esbuild": "^0.18.10"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.119",
