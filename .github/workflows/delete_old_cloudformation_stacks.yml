@@ -1,0 +1,42 @@
+name: 'Delete old cloudformation stacks'
+
+# Controls when the action will run - in this case triggered manually
+on:
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "combine-prs"
+  delete-old-cloudformation-stacks:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: eu-west-2
+          role-to-assume: ${{ secrets.CLOUD_FORMATION_DEPLOY_ROLE }}
+          role-session-name: github-actions
+
+      - name: delete stacks
+        shell: bash
+        run: |
+            ACTIVE_STACKS=$(aws cloudformation list-stacks |
+            jq -r '.StackSummaries[] | 
+            select ( .StackStatus != "DELETE_COMPLETE" ) |
+            select( .StackName | capture("^PR-(sandbox-)?(\\d+)$") ) 
+            | (.StackName | sub("^PR-(sandbox-)?"; "")) ')
+
+            ACTIVE_STACKS_ARRAY=( $ACTIVE_STACKS )
+
+            for i in "${ACTIVE_STACKS_ARRAY[@]}"
+            do 
+                echo "Checking if PR $i is active"
+                URL="https://api.github.com/repos/NHSDigital/prescriptionsforpatients/pulls/${i}"
+                RESPONSE=$(curl ${URL} 2>/dev/null)
+                STATE=$(echo ${RESPONSE} | jq -r .state)
+                echo "state is ${STATE}"
+                echo
+            done
