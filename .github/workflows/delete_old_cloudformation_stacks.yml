@@ -44,8 +44,8 @@ jobs:
                 RESPONSE=$(curl ${URL} 2>/dev/null)
                 STATE=$(echo ${RESPONSE} | jq -r .state)
                 if [ "$STATE" == "closed" ]; then
-                    echo "going to delete stack $i"
+                    echo "going to delete stack $i as state is ${STATE}"
                 else
-                    echo "not going to delete stack $i"
+                    echo "not going to delete stack $i as state is ${STATE}"
                 fi
             done
