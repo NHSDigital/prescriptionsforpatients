@@ -22,7 +22,7 @@ const lambdaHandler = async (_event: APIGatewayProxyEvent): Promise<APIGatewayPr
   // Check connection to spine using code common with getMyPrescriptions...
 
   const commitId = process.env.COMMIT_ID
-  const versionNumber = process.env.VERSION_NUMBER ?? `PR-${process.env.PR_NUMBER}`
+  const versionNumber = process.env.VERSION_NUMBER
 
   return {
     statusCode: 200,

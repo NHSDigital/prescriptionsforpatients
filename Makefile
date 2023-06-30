@@ -86,8 +86,7 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 			  TargetSpineServer=$$target_spine_server \
 			  EnableSplunk=true \
 			  VersionNumber=$$VERSION_NUMBER \
-			  CommitId=$$COMMIT_ID \
-			  PRNumber=$$PR_NUMBER
+			  CommitId=$$COMMIT_ID
 
 lint:
 	npm run lint --workspace packages/capabilityStatement

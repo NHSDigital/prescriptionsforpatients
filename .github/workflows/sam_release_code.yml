@@ -27,9 +27,6 @@ on:
       VERSION_NUMBER:
         required: false
         type: string
-      PR_NUMBER:
-        required: false
-        type: string
       COMMIT_ID:
         required: true
         type: string
@@ -74,7 +71,6 @@ jobs:
           export SPLUNK_HEC_TOKEN=${{ secrets.SPLUNK_HEC_TOKEN }}
           export target_spine_server=${{ secrets.TARGET_SPINE_SERVER }}
           export VERSION_NUMBER=${{ inputs.VERSION_NUMBER }}
-          export PR_NUMBER=${{ inputs.PR_NUMBER }}
           export COMMIT_ID=${{ inputs.COMMIT_ID }}
           export cloud_formation_execution_role=$(aws cloudformation list-exports --output json | \
               jq -r '.Exports[] | select(.Name == "ci-resources:CloudFormationExecutionRole") | .Value' )

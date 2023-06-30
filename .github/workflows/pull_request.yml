@@ -56,7 +56,7 @@ jobs:
       DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: truststore.pem
-      PR_NUMBER: ${{ needs.get_issue_number.outputs.issue_number }}
+      VERSION_NUMBER: PR-${{ needs.get_issue_number.outputs.issue_number }}
       COMMIT_ID: ${{ needs.get_commit_id.outputs.commit_id }}
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
@@ -74,7 +74,7 @@ jobs:
       DEPLOY_SANDBOX: true
       BUILD_ARTIFACT: packaged_sandbox_code
       TRUSTSTORE_FILE: sandbox-truststore.pem
-      PR_NUMBER: ${{ needs.get_issue_number.outputs.issue_number }}
+      VERSION_NUMBER: PR-${{ needs.get_issue_number.outputs.issue_number }}
       COMMIT_ID: ${{ needs.get_commit_id.outputs.commit_id }}
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}

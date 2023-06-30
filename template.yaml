@@ -39,9 +39,6 @@ Parameters:
   VersionNumber:
     Type: String
     Description: Current release version
-  PrNumber:
-    Type: String
-    Description: Current PR number
   CommitId:
     Type: String
     Description: Most recent commit hash
@@ -382,7 +379,6 @@ Resources:
       Environment:
         Variables:
           VERSION_NUMBER: !Ref VersionNumber
-          PR_NUMBER: !Ref PrNumber
           COMMIT_ID: !Ref CommitId
       Events:
         status:
