@@ -19,6 +19,11 @@ const logger = new Logger({serviceName: "getMyPrescriptions"})
  */
 
 const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  const nhsNumber = event.headers["nhs-nhsnumber"]
+  const allHeaders = JSON.stringify(event.headers)
+  console.log(headers)
+  logger.info(`nhsNumber: ${nhsNumber}`)
+  logger.info(`all headers: ${allHeaders}`)
   const targetSpineServer = process.env.TargetSpineServer
   logger.info(`hello world from getMyPrescriptions logger - target spine server ${targetSpineServer}`)
 
