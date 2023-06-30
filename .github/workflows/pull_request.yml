@@ -38,12 +38,15 @@ jobs:
             }
           result-encoding: string
 
+  get_commit_id:
+    uses: ./.github/workflows/commit_id.yml
+
   package_code:
     needs: get_issue_number
     uses: ./.github/workflows/sam_package_code.yml
 
   release_code:
-    needs: [get_issue_number, package_code]
+    needs: [get_issue_number, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
       STACK_NAME: PR-${{needs.get_issue_number.outputs.issue_number}}
@@ -53,13 +56,15 @@ jobs:
       DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: truststore.pem
+      PR_NUMBER: ${{ needs.get_issue_number.outputs.issue_number }}
+      COMMIT_ID: ${{ needs.get_commit_id.outputs.commit_id }}
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       SPLUNK_HEC_TOKEN: ${{ secrets.DEV_SPLUNK_HEC_TOKEN }}
       TARGET_SPINE_SERVER: ${{ secrets.DEV_TARGET_SPINE_SERVER }}
 
   release_sandbox_code:
-    needs: [get_issue_number, package_code]
+    needs: [get_issue_number, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
       STACK_NAME: PR-sandbox-${{needs.get_issue_number.outputs.issue_number}}
@@ -69,6 +74,8 @@ jobs:
       DEPLOY_SANDBOX: true
       BUILD_ARTIFACT: packaged_sandbox_code
       TRUSTSTORE_FILE: sandbox-truststore.pem
+      PR_NUMBER: ${{ needs.get_issue_number.outputs.issue_number }}
+      COMMIT_ID: ${{ needs.get_commit_id.outputs.commit_id }}
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       SPLUNK_HEC_TOKEN: ${{ secrets.DEV_SPLUNK_HEC_TOKEN }}
