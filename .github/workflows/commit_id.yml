@@ -15,4 +15,4 @@ jobs:
       - name: Get Commit ID
         id: commit_id
         run: |
-          echo "::set-output name=COMMIT_ID::$(git rev-parse HEAD)"
+          echo "COMMIT_ID=$(git rev-parse HEAD) >> $GITHUB_OUTPUT"
