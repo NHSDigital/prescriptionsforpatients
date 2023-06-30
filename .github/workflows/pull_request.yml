@@ -48,15 +48,6 @@ jobs:
         run: |
           echo "commit_id=${{ github.sha }}" >> "$GITHUB_OUTPUT"
 
-  echo_commit_id:
-    runs-on: ubuntu-latest
-    needs: [get_commit_id]
-    steps:
-      - name: Echo Commit ID
-        run: |
-          echo ${{ needs.get_commit_id.outputs.commit_id }}
-          echo ${{ needs.get_commit_id }}
-
   package_code:
     needs: get_issue_number
     uses: ./.github/workflows/sam_package_code.yml

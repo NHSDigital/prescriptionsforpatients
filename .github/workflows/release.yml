@@ -13,7 +13,14 @@ jobs:
     uses: ./.github/workflows/quality_checks.yml
 
   get_commit_id:
-    uses: ./.github/workflows/commit_id.yml
+    runs-on: ubuntu-latest
+    outputs:
+      commit_id: ${{ steps.commit_id.outputs.commit_id }}
+    steps:
+      - name: Get Commit ID
+        id: commit_id
+        run: |
+          echo "commit_id=${{ github.sha }}" >> "$GITHUB_OUTPUT"
 
   tag_release:
     needs: quality_checks
