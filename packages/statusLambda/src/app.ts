@@ -10,59 +10,25 @@ const logger = new Logger({serviceName: "status"})
 /**
  *
  * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
- * @param {Object} event - API Gateway Lambda Proxy Input Format
+ * @param {Object} _event - API Gateway Lambda Proxy Input Format
  *
  * Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
  * @returns {Object} object - API Gateway Lambda Proxy Output Format
  *
  */
 
-const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  logger.info(`hello world from status logger`)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const lambdaHandler = async (_event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  // Check connection to spine using code common with getMyPrescriptions...
 
-  // Check connection to spine using code common with getMyPrescriptions
-
-  // Return type to test different responses
-  const returnType = event.queryStringParameters?.returnType
-  logger.info({message: "value of returnType", returnType})
-
-  let responseStatus
-  let responseChecks
-  switch (returnType) {
-    case "pass":
-      responseStatus = "pass"
-      responseChecks = [{}]
-      break
-    case "warn":
-      responseStatus = "warn"
-      responseChecks = [
-        {
-          message: "Warning about something non-critical"
-        }
-      ]
-      break
-    case "error":
-    default:
-      responseStatus = "error"
-      responseChecks = [
-        {
-          message: "There is an error somewhere"
-        },
-        {
-          message: "And another one somewhere else"
-        }
-      ]
-      break
-  }
-
-  const commitId = process.env.COMMIT_ID ?? "Some version number"
+  const commitId = process.env.COMMIT_ID
+  const versionNumber = process.env.VERSION_NUMBER ?? `PR-${process.env.PR_NUMBER}`
 
   return {
     statusCode: 200,
     body: JSON.stringify({
-      status: responseStatus,
       commitId: commitId,
-      checks: responseChecks
+      versionNumber: versionNumber
     }),
     headers: {
       "Content-Type": "application/json"
