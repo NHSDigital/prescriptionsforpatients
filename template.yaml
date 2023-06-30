@@ -36,6 +36,15 @@ Parameters:
     Description: Whether to use splunk
     Default: false
     AllowedValues: [true, false]
+  VersionNumber:
+    Type: String
+    Description: Current release version
+  PrNumber:
+    Type: String
+    Description: Current PR number
+  CommitId:
+    Type: String
+    Description: Most recent commit hash
 
 Conditions:
   ShouldUseMutualTLS: !Equals [true, !Ref EnableMutualTLS]
@@ -370,6 +379,11 @@ Resources:
       Role: !GetAtt StatusLambdaRole.Arn
       Architectures:
         - x86_64
+      Environment:
+        Variables:
+          VERSION_NUMBER: !Ref VersionNumber
+          PR_NUMBER: !Ref PrNumber
+          COMMIT_ID: !Ref CommitId
       Events:
         status:
           Type: HttpApi
