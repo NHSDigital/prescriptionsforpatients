@@ -6,92 +6,65 @@ import {ContextExamples} from "@aws-lambda-powertools/commons"
 const dummyContext = ContextExamples.helloworldContext
 
 describe("Unit test for status check", function () {
-  it("verifies pass response", async () => {
-    const event: Partial<APIGatewayProxyEvent> = {
-      queryStringParameters: {
-        returnType: "pass"
-      }
-    }
+  it("returns commit id from environment", async () => {
+    process.env.COMMIT_ID = "test_commit_id"
+
+    const event: Partial<APIGatewayProxyEvent> = {}
     const result: APIGatewayProxyResult = (await handler(
       event as APIGatewayProxyEvent,
       dummyContext
     )) as APIGatewayProxyResult
 
     expect(result.statusCode).toEqual(200)
-    expect(result.body).toEqual(
-      JSON.stringify({
-        status: "pass",
-        commitId: "Some version number",
-        checks: [{}]
-      })
-    )
+    expect(JSON.parse(result.body)).toMatchObject({
+      commitId: "test_commit_id"
+    })
   })
 
-  it("verifies warn response", async () => {
-    const event: Partial<APIGatewayProxyEvent> = {
-      queryStringParameters: {
-        returnType: "warn"
-      }
-    }
+  it("returns version number from environment", async () => {
+    process.env.VERSION_NUMBER = "test_version_number"
+
+    const event: Partial<APIGatewayProxyEvent> = {}
     const result: APIGatewayProxyResult = (await handler(
       event as APIGatewayProxyEvent,
       dummyContext
     )) as APIGatewayProxyResult
 
     expect(result.statusCode).toEqual(200)
-    expect(result.body).toEqual(
-      JSON.stringify({
-        status: "warn",
-        commitId: "Some version number",
-        checks: [
-          {
-            message: "Warning about something non-critical"
-          }
-        ]
-      })
-    )
+    expect(JSON.parse(result.body)).toMatchObject({
+      versionNumber: "test_version_number"
+    })
   })
 
-  const errorResponseBody = {
-    status: "error",
-    commitId: "Some version number",
-    checks: [
-      {
-        message: "There is an error somewhere"
-      },
-      {
-        message: "And another one somewhere else"
-      }
-    ]
-  }
+  it("returns pull request number from environment", async () => {
+    delete process.env.VERSION_NUMBER
+    process.env.PR_NUMBER = "test_pr_number"
 
-  it("verifies error response", async () => {
-    const event: Partial<APIGatewayProxyEvent> = {
-      queryStringParameters: {
-        returnType: "error"
-      }
-    }
+    const event: Partial<APIGatewayProxyEvent> = {}
     const result: APIGatewayProxyResult = (await handler(
       event as APIGatewayProxyEvent,
       dummyContext
     )) as APIGatewayProxyResult
 
     expect(result.statusCode).toEqual(200)
-    expect(result.body).toEqual(JSON.stringify(errorResponseBody))
+    expect(JSON.parse(result.body)).toMatchObject({
+      versionNumber: "PR-test_pr_number"
+    })
   })
 
-  it("verifies default response", async () => {
-    const event: Partial<APIGatewayProxyEvent> = {
-      queryStringParameters: {
-        returnType: "something else"
-      }
-    }
+  it("returns version number from environment if both version number and pr number are set", async () => {
+    process.env.VERSION_NUMBER = "test_version_number"
+    process.env.PR_NUMBER = "test_pr_number"
+
+    const event: Partial<APIGatewayProxyEvent> = {}
     const result: APIGatewayProxyResult = (await handler(
       event as APIGatewayProxyEvent,
       dummyContext
     )) as APIGatewayProxyResult
 
     expect(result.statusCode).toEqual(200)
-    expect(result.body).toEqual(JSON.stringify(errorResponseBody))
+    expect(JSON.parse(result.body)).toMatchObject({
+      versionNumber: "test_version_number"
+    })
   })
 })
