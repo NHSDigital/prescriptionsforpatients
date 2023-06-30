@@ -7,7 +7,7 @@ jobs:
   get_commit_id:
     runs-on: ubuntu-latest
     outputs:
-      COMMIT_ID: ${{ steps.commit_id.outputs.COMMIT_ID }}
+      commit_id: ${{ steps.commit_id.outputs.COMMIT_ID }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
