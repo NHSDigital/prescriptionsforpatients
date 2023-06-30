@@ -15,9 +15,8 @@ jobs:
       - name: Get Commit ID
         id: commit_id
         run: |
-          echo "COMMIT_ID=$(git rev-parse HEAD) >> $GITHUB_OUTPUT"
+          echo "COMMIT_ID=${{ github.sha }} >> $GITHUB_OUTPUT"
 
       - name: Print Commit Hash
         run: |
           echo "The commit hash is ${{ steps.commit_id.outputs.COMMIT_ID }}"
-          echo ${{ github.sha }}
