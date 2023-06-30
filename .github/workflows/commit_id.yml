@@ -1,0 +1,18 @@
+name: get commit id
+
+on:
+  workflow_call:
+
+jobs:
+  get_commit_id:
+    runs-on: ubuntu-latest
+    outputs:
+      COMMIT_ID: ${{ steps.commit_id.outputs.COMMIT_ID }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      
+      - name: Get Commit ID
+        id: commit_id
+        run: |
+          echo "::set-output name=COMMIT_ID::$(git rev-parse HEAD)"
