@@ -373,6 +373,22 @@ Resources:
       KmsKeyId: alias/SecretsKMSKeyAlias
       SecretString: ChangeMe
 
+  ClientSandboxKeySecret:
+    DependsOn: SecretsKMSKeyKMSKeyAlias
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: Client sandbox private key
+      KmsKeyId: alias/SecretsKMSKeyAlias
+      SecretString: ChangeMe
+
+  ClientSandboxCertSecret:
+    DependsOn: SecretsKMSKeyKMSKeyAlias
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: Client sandbox cert
+      KmsKeyId: alias/SecretsKMSKeyAlias
+      SecretString: ChangeMe
+
 Outputs:
   CloudFormationDeployRole:
     Description: ARN of the IAM Role(CloudFormationDeployRole)
@@ -406,3 +422,9 @@ Outputs:
   ClientCertSecret:
     Description: ARN of the client cert secret
     Value: !GetAtt ClientCertSecret.Id
+  ClientSandboxKeySecret:
+    Description: ARN of the client key secret for sandbox
+    Value: !GetAtt ClientSandboxKeySecret.Id
+  ClientSandboxCertSecret:
+    Description: ARN of the client cert secret for sandbox
+    Value: !GetAtt ClientSandboxCertSecret.Id
