@@ -12,7 +12,7 @@ jobs:
       - name: Get Commit ID
         id: commit_id
         run: |
-          echo "commit_id=${{ github.sha }} >> $GITHUB_OUTPUT"
+          echo "commit_id=${{ github.sha }}" >> $GITHUB_OUTPUT
 
       - name: Echo Commit ID
         run: |
