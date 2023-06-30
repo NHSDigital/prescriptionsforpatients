@@ -17,11 +17,6 @@ properties:
     type: string
     description: FHIR resource type.
     enum: [MedicationRequest]
-  identifier:
-    type: array
-    description: The unique identifier for this line item on the prescription. Required by the FHIR standard but offers no patient value and can be ignored.
-    items:
-      $ref: ../fragments/identifiers.yaml#/PrescriptionOrderItemNumber
   status:
     type: string
     description: The status of the line item within the prescription. Active is used while ever the 

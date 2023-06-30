@@ -27,15 +27,3 @@ NhsNumber:
       type: string
       pattern: "^\\d{10}$"
       example: "9000000009"
-PrescriptionOrderItemNumber:
-  type: object
-  required: [system, value]
-  properties:
-    system:
-      type: string
-      description: Codesystem URL for the line item ID.
-      enum: [https://fhir.nhs.uk/Id/prescription-order-item-number]
-    value:
-      type: string
-      description: The unique ID for a given line item.
-      example: dd11b07e-e137-488e-bc28-ab50384208b5
