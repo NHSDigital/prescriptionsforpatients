@@ -62,6 +62,7 @@ jobs:
       - shell: bash
         name: release code
         run: |
+          echo ${{ inputs.COMMIT_ID }}
           export artifact_bucket=$(aws cloudformation list-exports --output json | \
             jq -r '.Exports[] | select(.Name == "ci-resources:ArtifactsBucket") | .Value' |grep -o '[^:]*$')
           export artifact_bucket_prefix=${{ inputs.ARTIFACT_BUCKET_PREFIX }}
