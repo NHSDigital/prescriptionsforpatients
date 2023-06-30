@@ -39,7 +39,13 @@ jobs:
           result-encoding: string
 
   get_commit_id:
-    uses: ./.github/workflows/commit_id.yml
+    runs-on: ubuntu-latest
+    outputs:
+      commit_id: ${{ steps.commit_id.outputs.commit_id }}
+    steps:
+      - name: get_commit_id
+        id: commit_id
+        uses: ./.github/workflows/commit_id.yml
 
   echo_commit_id:
     runs-on: ubuntu-latest
