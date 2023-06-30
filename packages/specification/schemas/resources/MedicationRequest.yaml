@@ -4,10 +4,8 @@ required:
   - identifier
   - status
   - intent
-  - category
   - medicationCodeableConcept
   - subject
-  - authoredOn
   - requester
   - groupIdentifier
   - courseOfTherapyType
@@ -19,25 +17,18 @@ properties:
     type: string
     description: FHIR resource type.
     enum: [MedicationRequest]
-  extension:
-    type: array
-    description: FHIR extension array.
-    items:
-      oneOf:
-        - $ref: ../extensions/DispensingInformation.yaml
-        - $ref: ../extensions/MedicationRepeatInformation.yaml
   identifier:
     type: array
-    description: The unique identifier for this line item on the prescription.
+    description: The unique identifier for this line item on the prescription. Required by the FHIR standard but offers no patient value and can be ignored.
     items:
       $ref: ../fragments/identifiers.yaml#/PrescriptionOrderItemNumber
   status:
     type: string
-    description: The status of a MedicationRequest object.
-    enum: [active, cancelled, completed]
+    description: The status of the line item within the prescription. Active is used while ever the 
+    enum: [active, cancelled, stopped]
   intent:
     type: string
-    description: The intent of a MedicationRequest object.
+    description: The intent of a MedicationRequest object. Required by the FHIR standard but offers no patient value and can be ignored.
     enum: [order, original-order, instance-order]
   medicationCodeableConcept:
     type: object
@@ -49,15 +40,10 @@ properties:
           $ref: ../fragments/codes.yaml#/SnomedSctMedication
   subject:
     type: object
-    description: Reference to the patient a prescription is for.
+    description: The NHS number of the patient the prescription is for.
     properties:
       identifier:
         $ref: ../fragments/identifiers.yaml#/NhsNumber
-  authoredOn:
-    type: string
-    description: The time at which the prescription was authored and signed.
-    format: date-time
-    example: "2023-06-02T10:11:12+00:00"
   requester:
     type: object
     description: |
@@ -72,84 +58,32 @@ properties:
     $ref: ../fragments/groupIdentifier.yaml
   courseOfTherapyType:
     type: object
-    description: Whether this prescription is acute, repeat or eRD.
+    description: Whether this prescription is acute or repeat.
     properties:
       coding:
         type: array
         items:
           $ref: ../fragments/codes.yaml#/MedicationRequestCourseOfTherapy
-  dosageInstruction:
-    $ref: ../fragments/dosageInstruction.yaml
-  note:
-    type: array
-    description: Additional instructions, provided by the prescriber for a specific Line Item.
-    items:
-      type: object
-      properties:
-        text:
-          type: string
-          description: Specific additional instructions for a prescription line item.
-          example: Dosage has been decreased on advice from the hospital.
   dispenseRequest:
     type: object
-    description: |
-      Details of the nomination for the prescription - P1, P2, P3 or 0004.
-      Only used for non nominated prescriptions.
     required: [quantity]
     properties:
-      extension:
-        type: array
-        description: FHIR extension array.
-        items:
-          $ref: ../extensions/DMPerformerSiteType.yaml
-      numberOfRepeatsAllowed:
-        type: integer
-        description: eRD only - Allows patients to know how many issues have been authorised.
       validityPeriod:
         type: object
-        description: The start and end dates of a prescription.
         properties:
           start:
             type: string
-            description: The start date of an eRD issue; same as the prescription's start date.
+            description: The prescription's start date, could be after the precription is created for a post dated prescription.
             format: date
             example: "2023-06-02"
-          end:
-            type: string
-            description: |
-              End date of an issue. Capped at 12 months and cannot exceed the prescription's end date.
-              Overall validity of the drug.
-            format: date
-            example: "2023-06-02"
-      expectedSupplyDuration:
-        type: object
-        description: |
-          For eRD prescriptions only. 
-          Duration of each issue in days. Defaults to 28.
-        properties:
-          value:
-            type: integer
-            description: The number of days each issue in an eRD prescription is valid for.
-            format: int32
-            default: 28
-          unit:
-            type: string
-            description: The UCUM unit of measure display for days.
-            default: day
-          system:
-            type: string
-            description: Codesystem URL for UCUM.
-            enum: [http://unitsofmeasure.org]
-          code:
-            type: string
-            description: The UCUM unit of measure code for days.
-            example: d
       performer:
         type: object
-        description: Returns the ODS code of the nominated dispensing site.
+        description: A reference to either the nominated dispensing organisation or the organisation currently processing the prescription if it has already been released.
         properties:
-          identifier:
-            $ref: ../fragments/identifiers.yaml#/OdsOrganisationCode
+          reference:
+            type: string
+            description: A reference to an Organisation resource within the Bundle.
+            example: urn:uuid:d16fe9ef-665a-4039-9e21-70bca37f8a4a
       quantity:
         type: object
         description: The quantity of medication prescribed.
@@ -174,6 +108,7 @@ properties:
   substitution:
     type: object
     description: This is a boolean value that should always default to false because EPS does not support substitutions.
+    required: [allowedBoolean]
     properties:
       allowedBoolean:
         type: boolean
