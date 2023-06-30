@@ -9,14 +9,7 @@ jobs:
     outputs:
       commit_id: ${{ steps.commit_id.outputs.COMMIT_ID }}
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-      
       - name: Get Commit ID
         id: commit_id
         run: |
-          echo "COMMIT_ID=${{ github.sha }} >> $GITHUB_OUTPUT"
-
-      - name: Print Commit Hash
-        run: |
-          echo "The commit hash is ${{ steps.commit_id.outputs.COMMIT_ID }}"
+          echo "commit_id=${{ github.sha }} >> $GITHUB_OUTPUT"
