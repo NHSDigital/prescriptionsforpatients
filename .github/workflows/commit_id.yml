@@ -6,6 +6,8 @@ on:
 jobs:
   get_commit_id:
     runs-on: ubuntu-latest
+    outputs:
+      commit_id: ${{ steps.commit_id.outputs.commit_id }}
     steps:
       - name: Get Commit ID
         id: commit_id

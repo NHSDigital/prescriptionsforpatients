@@ -48,6 +48,7 @@ jobs:
       - name: Echo Commit ID
         run: |
           echo ${{ needs.get_commit_id.outputs.commit_id }}
+          echo ${{ needs.get_commit_id }}
 
   package_code:
     needs: get_issue_number
