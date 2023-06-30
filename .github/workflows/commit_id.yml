@@ -20,4 +20,4 @@ jobs:
       - name: Print Commit Hash
         run: |
           echo "The commit hash is ${{ steps.commit_id.outputs.COMMIT_ID }}"
-          echo $GITHUB_SHA
+          echo ${{ github.sha }}
