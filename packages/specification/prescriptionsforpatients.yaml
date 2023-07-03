@@ -171,15 +171,6 @@ components:
           type: string
           description: Object ID for the Bundle.
           example: 164996aa-29eb-4f14-a5ac-4b556a7baf6e
-        meta:
-          type: object
-          required: [lastUpdated]
-          properties:
-            lastUpdated:
-              type: string
-              description: The start date of a prescription. Helps the patient in knowing when the prescription is valid from.
-              format: date-time
-              example: "2023-06-05T10:11:12+00:00"
         type:
           type: string
           description: Denotes that the bundle is a list of resources returned as a result of a search.
