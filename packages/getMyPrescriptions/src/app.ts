@@ -22,6 +22,9 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
   const targetSpineServer = process.env.TargetSpineServer
   logger.info(`hello world from getMyPrescriptions logger - target spine server ${targetSpineServer}`)
 
+  const nhsNumber = event.headers["nhsd-nhsnumber"]
+  logger.info(`nhsNumber: ${nhsNumber}`)
+
   const returnType = event.queryStringParameters?.returnType
   logger.info({message: "value of returnType", returnType})
   switch (returnType) {
@@ -35,11 +38,9 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
           "Content-Type": "application/json"
         }
       }
-      break
     }
     case "error": {
       throw Error("error running lambda")
-      break
     }
     default: {
       return {
