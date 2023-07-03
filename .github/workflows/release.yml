@@ -12,6 +12,16 @@ jobs:
   quality_checks:
     uses: ./.github/workflows/quality_checks.yml
 
+  get_commit_id:
+    runs-on: ubuntu-latest
+    outputs:
+      commit_id: ${{ steps.commit_id.outputs.commit_id }}
+    steps:
+      - name: Get Commit ID
+        id: commit_id
+        run: |
+          echo "commit_id=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+
   tag_release:
     needs: quality_checks
     runs-on: ubuntu-latest
@@ -68,7 +78,7 @@ jobs:
     uses: ./.github/workflows/sam_package_code.yml
 
   release_dev:
-    needs: [tag_release, package_code]
+    needs: [tag_release, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
@@ -78,13 +88,15 @@ jobs:
       DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: truststore.pem
+      VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
+      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       SPLUNK_HEC_TOKEN: ${{ secrets.DEV_SPLUNK_HEC_TOKEN }}
       TARGET_SPINE_SERVER: ${{ secrets.DEV_TARGET_SPINE_SERVER }}
 
   release_dev_sandbox:
-    needs: [tag_release, package_code]
+    needs: [tag_release, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
@@ -94,13 +106,15 @@ jobs:
       DEPLOY_SANDBOX: true
       BUILD_ARTIFACT: packaged_sandbox_code
       TRUSTSTORE_FILE: sandbox-truststore.pem
+      VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
+      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       SPLUNK_HEC_TOKEN: ${{ secrets.DEV_SPLUNK_HEC_TOKEN }}
       TARGET_SPINE_SERVER: sandbox
 
   release_ref:
-    needs: [tag_release, release_dev, release_dev_sandbox, package_code]
+    needs: [tag_release, release_dev, release_dev_sandbox, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
@@ -110,13 +124,15 @@ jobs:
       DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: truststore.pem
+      VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
+      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.REF_CLOUD_FORMATION_DEPLOY_ROLE }}
       SPLUNK_HEC_TOKEN: ${{ secrets.REF_SPLUNK_HEC_TOKEN }}
       TARGET_SPINE_SERVER: ${{ secrets.REF_TARGET_SPINE_SERVER }}
 
   release_qa:
-    needs: [tag_release, release_dev, release_dev_sandbox, package_code]
+    needs: [tag_release, release_dev, release_dev_sandbox, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
@@ -126,13 +142,15 @@ jobs:
       DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: truststore.pem
+      VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
+      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.QA_CLOUD_FORMATION_DEPLOY_ROLE }}
       SPLUNK_HEC_TOKEN: ${{ secrets.QA_SPLUNK_HEC_TOKEN }}
       TARGET_SPINE_SERVER: ${{ secrets.QA_TARGET_SPINE_SERVER }}
 
   release_int:
-    needs: [tag_release, release_qa, package_code]
+    needs: [tag_release, release_qa, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
@@ -142,13 +160,15 @@ jobs:
       DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: truststore.pem
+      VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
+      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
       SPLUNK_HEC_TOKEN: ${{ secrets.INT_SPLUNK_HEC_TOKEN }}
       TARGET_SPINE_SERVER: ${{ secrets.INT_TARGET_SPINE_SERVER }}
 
   release_sandbox:
-    needs: [tag_release, release_qa, package_code]
+    needs: [tag_release, release_qa, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
@@ -158,13 +178,15 @@ jobs:
       DEPLOY_SANDBOX: true
       BUILD_ARTIFACT: packaged_sandbox_code
       TRUSTSTORE_FILE: sandbox-truststore.pem
+      VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
+      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
       SPLUNK_HEC_TOKEN: ${{ secrets.INT_SPLUNK_HEC_TOKEN }}
       TARGET_SPINE_SERVER: sandbox
 
   release_prod:
-    needs: [tag_release, release_int, release_sandbox, package_code]
+    needs: [tag_release, release_int, release_sandbox, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
@@ -174,6 +196,8 @@ jobs:
       DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: truststore.pem
+      VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
+      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
       SPLUNK_HEC_TOKEN: ${{ secrets.PROD_SPLUNK_HEC_TOKEN }}

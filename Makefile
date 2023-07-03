@@ -65,7 +65,7 @@ sam-validate:
 sam-validate-sandbox: 
 	sam validate --template-file sandbox_template.yaml
 
-sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role guard-LATEST_TRUSTSTORE_VERSION guard-enable_mutual_tls guard-SPLUNK_HEC_TOKEN guard-SPLUNK_HEC_ENDPOINT
+sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role guard-LATEST_TRUSTSTORE_VERSION guard-enable_mutual_tls guard-SPLUNK_HEC_TOKEN guard-SPLUNK_HEC_ENDPOINT guard-VERSION_NUMBER guard-COMMIT_ID
 	sam deploy \
 		--template-file $$template_file \
 		--stack-name $$stack_name \
@@ -84,7 +84,9 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 			  TruststoreVersion=$$LATEST_TRUSTSTORE_VERSION \
 			  EnableMutualTLS=$$enable_mutual_tls \
 			  TargetSpineServer=$$target_spine_server \
-			  EnableSplunk=true
+			  EnableSplunk=true \
+			  VersionNumber=$$VERSION_NUMBER \
+			  CommitId=$$COMMIT_ID
 
 lint:
 	npm run lint --workspace packages/capabilityStatement
@@ -92,12 +94,14 @@ lint:
 	npm run lint --workspace packages/middleware
 	npm run lint --workspace packages/sandbox
 	npm run lint --workspace packages/splunkProcessor
+	npm run lint --workspace packages/statusLambda
 
 test:
 	npm run test --workspace packages/capabilityStatement
 	npm run test --workspace packages/getMyPrescriptions
 	npm run test --workspace packages/middleware
 	npm run test --workspace packages/sandbox
+	npm run test --workspace packages/statusLambda
 
 clean:
 	rm -rf packages/capabilityStatement/coverage

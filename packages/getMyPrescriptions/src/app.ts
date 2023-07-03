@@ -38,11 +38,9 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
           "Content-Type": "application/json"
         }
       }
-      break
     }
     case "error": {
       throw Error("error running lambda")
-      break
     }
     default: {
       return {

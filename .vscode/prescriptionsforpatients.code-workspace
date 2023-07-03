@@ -27,6 +27,10 @@
 		{
 			"name": "packages/splunkProcessor",
 			"path": "../packages/splunkProcessor"
+		},
+		{
+			"name": "packages/statusLambda",
+			"path": "../packages/statusLambda"
 		}
 	],
 	"settings": {
@@ -113,7 +117,7 @@
 			"streetsidesoftware.code-spell-checker",
 			"timonwong.shellcheck",
 			"mkhl.direnv",
-			"bungcip.better-toml"
+			"tamasfe.even-better-toml"
 		]
 	}
 }
