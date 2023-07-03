@@ -11,49 +11,15 @@ MedicationRequestCourseOfTherapy:
       type: string
       description: |
         Code identifying the prescription treatment type.
-        * acute: acute prescriptions
+        * acute: one-off prescriptions
         * continuous: repeat prescriptions
-        * continuous-repeat-dispensing: eRD prescriptions
-      enum: [acute, continuous, continuous-repeat-dispensing]
+      enum: [acute, continuous]
     display:
       type: string
       description: Display value for the prescription treatment type.
       enum:
         - Short course (acute) therapy
         - Continuous long term therapy
-        - Continuous long term (repeat dispensing)
-SdsJobRoleCode:
-  type: object
-  required: [system, code]
-  properties:
-    system:
-      type: string
-      description: Codesystem URL for the job role code.
-      enum: [https://fhir.nhs.uk/CodeSystem/NHSDigital-SDS-JobRoleCode]
-    code:
-      type: string
-      description: The SDS job role code.
-      example: S0030:G0100:R0620
-    display:
-      type: string
-      description: Display text for the SDS job role code.
-      example: Staff Nurse
-SnomedSctConsumption:
-  type: object
-  required: [system, code]
-  properties:
-    system:
-      type: string
-      description: SNOMED codesystem URL.
-      enum: [http://snomed.info/sct]
-    code:
-      type: integer
-      description: Valid SNOMED code identifying how the medication should be consumed.
-      example: 26643006
-    display:
-      type: string
-      description: Human readable name for the method of consumption.
-      example: Oral
 SnomedSctMedication:
   type: object
   required: [system, code]
