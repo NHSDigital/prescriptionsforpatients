@@ -15,52 +15,14 @@
       "resource": {
         "resourceType": "Bundle",
         "id": "0cb82cfa-76c8-4fb2-a08e-bf0e326e5487",
-        "timestamp": "2022-10-21T13:47:00+00:00",
-        "identifier": {
-          "system": "https://tools.ietf.org/html/rfc4122",
-          "value": "46183abc-9fad-4673-85db-ce2cb6614732"
-        },
         "type": "collection",
         "entry": [
           {
             "fullUrl": "urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6",
             "resource": {
               "resourceType": "MedicationRequest",
-              "id": "a54219b8-f741-4c47-b662-e4f8dfa49ab6",
-              "extension": [
-                {
-                  "url": "https://fhir.nhs.uk/StructureDefinition/Extension-EPS-DispensingInformation",
-                  "extension": [
-                    {
-                      "url": "dispenseStatus",
-                      "valueCoding": {
-                        "system": "https://fhir.nhs.uk/CodeSystem/medicationdispense-type",
-                        "code": "0008",
-                        "display": "Item with dispenser"
-                      }
-                    }
-                  ]
-                }
-              ],
-              "identifier": [
-                {
-                  "system": "https://fhir.nhs.uk/Id/prescription-order-item-number",
-                  "value": "a54219b8-f741-4c47-b662-e4f8dfa49ab6"
-                }
-              ],
               "status": "active",
               "intent": "order",
-              "category": [
-                {
-                  "coding": [
-                    {
-                      "system": "http://terminology.hl7.org/CodeSystem/medicationrequest-category",
-                      "code": "community",
-                      "display": "Community"
-                    }
-                  ]
-                }
-              ],
               "medicationCodeableConcept": {
                 "coding": [
                   {
@@ -76,22 +38,12 @@
                   "value": "9449304130"
                 }
               },
-              "authoredOn": "2022-10-21T13:47:00+00:00",
               "requester": {
                 "reference": "urn:uuid:56166769-c1c4-4d07-afa8-132b5dfca666"
               },
               "groupIdentifier": {
                 "system": "https://fhir.nhs.uk/Id/prescription-order-number",
-                "value": "24F5DA-A83008-7EFE6Z",
-                "extension": [
-                  {
-                    "url": "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionId",
-                    "valueIdentifier": {
-                      "system": "https://fhir.nhs.uk/Id/prescription",
-                      "value": "20ba5fb5-cb58-462c-923e-22d180b09356"
-                    }
-                  }
-                ]
+                "value": "24F5DA-A83008-7EFE6Z"
               },
               "courseOfTherapyType": {
                 "coding": [
@@ -102,37 +54,7 @@
                   }
                 ]
               },
-              "dosageInstruction": [
-                {
-                  "text": "2 times a day for 10 days",
-                  "timing": {
-                    "repeat": {
-                      "frequency": 2,
-                      "period": 1,
-                      "periodUnit": "d"
-                    }
-                  },
-                  "route": {
-                    "coding": [
-                      {
-                        "system": "http://snomed.info/sct",
-                        "code": "26643006",
-                        "display": "Oral"
-                      }
-                    ]
-                  }
-                }
-              ],
               "dispenseRequest": {
-                "extension": [
-                  {
-                    "url": "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PerformerSiteType",
-                    "valueCoding": {
-                      "system": "https://fhir.nhs.uk/CodeSystem/dispensing-site-preference",
-                      "code": "P1"
-                    }
-                  }
-                ],
                 "validityPeriod": {
                   "start": "2022-10-21"
                 },
@@ -155,41 +77,8 @@
             "fullUrl": "urn:uuid:6989b7bd-8db6-428c-a593-4022e3044c00",
             "resource": {
               "resourceType": "MedicationRequest",
-              "id": "6989b7bd-8db6-428c-a593-4022e3044c00",
-              "extension": [
-                {
-                  "url": "https://fhir.nhs.uk/StructureDefinition/Extension-EPS-DispensingInformation",
-                  "extension": [
-                    {
-                      "url": "dispenseStatus",
-                      "valueCoding": {
-                        "system": "https://fhir.nhs.uk/CodeSystem/medicationdispense-type",
-                        "code": "0008",
-                        "display": "Item with dispenser"
-                      }
-                    }
-                  ]
-                }
-              ],
-              "identifier": [
-                {
-                  "system": "https://fhir.nhs.uk/Id/prescription-order-item-number",
-                  "value": "a54219b8-f741-4c47-b662-e4f8dfa49ab6"
-                }
-              ],
               "status": "active",
               "intent": "order",
-              "category": [
-                {
-                  "coding": [
-                    {
-                      "system": "http://terminology.hl7.org/CodeSystem/medicationrequest-category",
-                      "code": "community",
-                      "display": "Community"
-                    }
-                  ]
-                }
-              ],
               "medicationCodeableConcept": {
                 "coding": [
                   {
@@ -205,22 +94,12 @@
                   "value": "9449304130"
                 }
               },
-              "authoredOn": "2022-10-21T13:47:00+00:00",
               "requester": {
                 "reference": "urn:uuid:56166769-c1c4-4d07-afa8-132b5dfca666"
               },
               "groupIdentifier": {
                 "system": "https://fhir.nhs.uk/Id/prescription-order-number",
-                "value": "24F5DA-A83008-7EFE6Z",
-                "extension": [
-                  {
-                    "url": "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionId",
-                    "valueIdentifier": {
-                      "system": "https://fhir.nhs.uk/Id/prescription",
-                      "value": "20ba5fb5-cb58-462c-923e-22d180b09356"
-                    }
-                  }
-                ]
+                "value": "24F5DA-A83008-7EFE6Z"
               },
               "courseOfTherapyType": {
                 "coding": [
@@ -231,37 +110,7 @@
                   }
                 ]
               },
-              "dosageInstruction": [
-                {
-                  "text": "2 times a day for 10 days",
-                  "timing": {
-                    "repeat": {
-                      "frequency": 2,
-                      "period": 1,
-                      "periodUnit": "d"
-                    }
-                  },
-                  "route": {
-                    "coding": [
-                      {
-                        "system": "http://snomed.info/sct",
-                        "code": "26643006",
-                        "display": "Oral"
-                      }
-                    ]
-                  }
-                }
-              ],
               "dispenseRequest": {
-                "extension": [
-                  {
-                    "url": "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PerformerSiteType",
-                    "valueCoding": {
-                      "system": "https://fhir.nhs.uk/CodeSystem/dispensing-site-preference",
-                      "code": "P1"
-                    }
-                  }
-                ],
                 "validityPeriod": {
                   "start": "2022-10-21"
                 },
@@ -284,41 +133,8 @@
             "fullUrl": "urn:uuid:2868554c-5565-4d31-b92a-c5b8dab8b90a",
             "resource": {
               "resourceType": "MedicationRequest",
-              "id": "2868554c-5565-4d31-b92a-c5b8dab8b90a",
-              "extension": [
-                {
-                  "url": "https://fhir.nhs.uk/StructureDefinition/Extension-EPS-DispensingInformation",
-                  "extension": [
-                    {
-                      "url": "dispenseStatus",
-                      "valueCoding": {
-                        "system": "https://fhir.nhs.uk/CodeSystem/medicationdispense-type",
-                        "code": "0008",
-                        "display": "Item with dispenser"
-                      }
-                    }
-                  ]
-                }
-              ],
-              "identifier": [
-                {
-                  "system": "https://fhir.nhs.uk/Id/prescription-order-item-number",
-                  "value": "a54219b8-f741-4c47-b662-e4f8dfa49ab6"
-                }
-              ],
               "status": "active",
               "intent": "order",
-              "category": [
-                {
-                  "coding": [
-                    {
-                      "system": "http://terminology.hl7.org/CodeSystem/medicationrequest-category",
-                      "code": "community",
-                      "display": "Community"
-                    }
-                  ]
-                }
-              ],
               "medicationCodeableConcept": {
                 "coding": [
                   {
@@ -334,22 +150,12 @@
                   "value": "9449304130"
                 }
               },
-              "authoredOn": "2022-10-21T13:47:00+00:00",
               "requester": {
                 "reference": "urn:uuid:56166769-c1c4-4d07-afa8-132b5dfca666"
               },
               "groupIdentifier": {
                 "system": "https://fhir.nhs.uk/Id/prescription-order-number",
-                "value": "24F5DA-A83008-7EFE6Z",
-                "extension": [
-                  {
-                    "url": "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionId",
-                    "valueIdentifier": {
-                      "system": "https://fhir.nhs.uk/Id/prescription",
-                      "value": "20ba5fb5-cb58-462c-923e-22d180b09356"
-                    }
-                  }
-                ]
+                "value": "24F5DA-A83008-7EFE6Z"
               },
               "courseOfTherapyType": {
                 "coding": [
@@ -360,37 +166,7 @@
                   }
                 ]
               },
-              "dosageInstruction": [
-                {
-                  "text": "3 times a day for 10 days",
-                  "timing": {
-                    "repeat": {
-                      "frequency": 3,
-                      "period": 1,
-                      "periodUnit": "d"
-                    }
-                  },
-                  "route": {
-                    "coding": [
-                      {
-                        "system": "http://snomed.info/sct",
-                        "code": "26643006",
-                        "display": "Oral"
-                      }
-                    ]
-                  }
-                }
-              ],
               "dispenseRequest": {
-                "extension": [
-                  {
-                    "url": "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PerformerSiteType",
-                    "valueCoding": {
-                      "system": "https://fhir.nhs.uk/CodeSystem/dispensing-site-preference",
-                      "code": "P1"
-                    }
-                  }
-                ],
                 "validityPeriod": {
                   "start": "2022-10-21"
                 },
@@ -413,41 +189,8 @@
             "fullUrl": "urn:uuid:5cb17f5a-11ac-4e18-825f-6470467238b3",
             "resource": {
               "resourceType": "MedicationRequest",
-              "id": "5cb17f5a-11ac-4e18-825f-6470467238b3",
-              "extension": [
-                {
-                  "url": "https://fhir.nhs.uk/StructureDefinition/Extension-EPS-DispensingInformation",
-                  "extension": [
-                    {
-                      "url": "dispenseStatus",
-                      "valueCoding": {
-                        "system": "https://fhir.nhs.uk/CodeSystem/medicationdispense-type",
-                        "code": "0005",
-                        "display": "Item cancelled"
-                      }
-                    }
-                  ]
-                }
-              ],
-              "identifier": [
-                {
-                  "system": "https://fhir.nhs.uk/Id/prescription-order-item-number",
-                  "value": "a54219b8-f741-4c47-b662-e4f8dfa49ab6"
-                }
-              ],
               "status": "cancelled",
               "intent": "order",
-              "category": [
-                {
-                  "coding": [
-                    {
-                      "system": "http://terminology.hl7.org/CodeSystem/medicationrequest-category",
-                      "code": "community",
-                      "display": "Community"
-                    }
-                  ]
-                }
-              ],
               "medicationCodeableConcept": {
                 "coding": [
                   {
@@ -463,22 +206,12 @@
                   "value": "9449304130"
                 }
               },
-              "authoredOn": "2022-10-21T13:47:00+00:00",
               "requester": {
                 "reference": "urn:uuid:56166769-c1c4-4d07-afa8-132b5dfca666"
               },
               "groupIdentifier": {
                 "system": "https://fhir.nhs.uk/Id/prescription-order-number",
-                "value": "24F5DA-A83008-7EFE6Z",
-                "extension": [
-                  {
-                    "url": "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionId",
-                    "valueIdentifier": {
-                      "system": "https://fhir.nhs.uk/Id/prescription",
-                      "value": "20ba5fb5-cb58-462c-923e-22d180b09356"
-                    }
-                  }
-                ]
+                "value": "24F5DA-A83008-7EFE6Z"
               },
               "courseOfTherapyType": {
                 "coding": [
@@ -489,37 +222,7 @@
                   }
                 ]
               },
-              "dosageInstruction": [
-                {
-                  "text": "3 times a day for 10 days",
-                  "timing": {
-                    "repeat": {
-                      "frequency": 3,
-                      "period": 1,
-                      "periodUnit": "d"
-                    }
-                  },
-                  "route": {
-                    "coding": [
-                      {
-                        "system": "http://snomed.info/sct",
-                        "code": "26643006",
-                        "display": "Oral"
-                      }
-                    ]
-                  }
-                }
-              ],
               "dispenseRequest": {
-                "extension": [
-                  {
-                    "url": "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PerformerSiteType",
-                    "valueCoding": {
-                      "system": "https://fhir.nhs.uk/CodeSystem/dispensing-site-preference",
-                      "code": "P1"
-                    }
-                  }
-                ],
                 "validityPeriod": {
                   "start": "2022-10-21"
                 },
