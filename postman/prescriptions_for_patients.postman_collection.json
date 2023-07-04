@@ -157,13 +157,13 @@
 					}
 				],
 				"url": {
-					"raw": "https://{{host}}/prescriptions-for-patients-pr-9/_status",
+					"raw": "https://{{host}}/prescriptions-for-patients/_status",
 					"protocol": "https",
 					"host": [
 						"{{host}}"
 					],
 					"path": [
-						"prescriptions-for-patients-pr-9",
+						"prescriptions-for-patients",
 						"_status"
 					]
 				}
