@@ -22,7 +22,8 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
   const targetSpineServer = process.env.TargetSpineServer
   logger.info(`hello world from getMyPrescriptions logger - target spine server ${targetSpineServer}`)
 
-  const nhsNumber = event.headers["nhsd-nhsnumber"]
+  // nhsd-nhslogin-user looks like P9:9912003071
+  const nhsNumber = event.headers["nhsd-nhslogin-user"]?.split(":")[1]
   logger.info(`nhsNumber: ${nhsNumber}`)
 
   const returnType = event.queryStringParameters?.returnType
