@@ -39,9 +39,11 @@ Parameters:
   VersionNumber:
     Type: String
     Description: Current release version
+    Default: "xxx"
   CommitId:
     Type: String
     Description: Most recent commit hash
+    Default: "xxx"
 
 Conditions:
   ShouldUseMutualTLS: !Equals [true, !Ref EnableMutualTLS]
@@ -116,6 +118,39 @@ Resources:
               - !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
       Roles:
         - !Ref GetMyPrescriptionsRole
+
+  SecretsKMSPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-KMS-access"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - kms:Decrypt
+            Resource:
+              - !ImportValue ci-resources:SecretsKMSKey
+      Roles:
+        - !Ref GetMyPrescriptionsRole
+
+  SecretsPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-secrets-access"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - secretsmanager:GetSecretValue
+            Resource:
+              - !ImportValue ci-resources:SpinePrivateKey
+              - !ImportValue ci-resources:SpinePublicCertificate
+              - !ImportValue ci-resources:SpineASID
+      Roles:
+        - !Ref GetMyPrescriptionsRole
+
   GetMyPrescriptionsLogGroup:
     Type: "AWS::Logs::LogGroup"
     Properties:
@@ -143,6 +178,9 @@ Resources:
         Variables:
           TargetSpineServer: !Ref TargetSpineServer
           NODE_OPTIONS: --enable-source-maps
+          SpinePrivateKeyARN: !ImportValue ci-resources:SpinePrivateKey
+          SpinePublicCertificateARN: !ImportValue ci-resources:SpinePublicCertificate
+          SpineASIDARN: !ImportValue ci-resources:SpineASID
       Events:
         getMyPrescriptions:
           Type: HttpApi

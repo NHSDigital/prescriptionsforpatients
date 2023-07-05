@@ -95,6 +95,7 @@ lint:
 	npm run lint --workspace packages/sandbox
 	npm run lint --workspace packages/splunkProcessor
 	npm run lint --workspace packages/statusLambda
+	npm run lint --workspace packages/spineClient
 
 test:
 	npm run test --workspace packages/capabilityStatement

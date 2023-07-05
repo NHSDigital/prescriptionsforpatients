@@ -31,6 +31,10 @@
 		{
 			"name": "packages/statusLambda",
 			"path": "../packages/statusLambda"
+		},
+		{
+			"name": "packages/spineClient",
+			"path": "../packages/spineClient"
 		}
 	],
 	"settings": {
