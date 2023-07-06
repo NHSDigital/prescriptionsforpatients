@@ -29,7 +29,7 @@ In Postman select Environments on the Sidebar and create a new Environment. Rena
 | client_secret | [ Get this from your App settings in Apigee Non Prod ] |
 
 ## Request a Token
-In Postman select Collections, expand the prescriptions for patients collection, select the __getMyPrescriptions__ request.
+In Postman select Collections, expand the prescriptions for patients collection, select the __Bundle__ request.
 
 Ensure you have selected the appropriate Environment created above.
 
@@ -41,4 +41,4 @@ Make sure to click the Use Token button.
 
 ## Submit a request
 
-You can now Send your request to __getMyPrescriptions__ and should get back the appropriate response.
+You can now Send your request to __Bundle__ and should get back the appropriate response.

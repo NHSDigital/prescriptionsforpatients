@@ -142,7 +142,7 @@ Resources:
           Type: HttpApi
           Properties:
             ApiId: !Ref HttpApiGateway
-            Path: /getMyPrescriptions
+            Path: /Bundle
             Method: get
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
