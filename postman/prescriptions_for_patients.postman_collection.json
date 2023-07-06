@@ -7,7 +7,7 @@
 	},
 	"item": [
 		{
-			"name": "getMyPrescriptions",
+			"name": "Bundle",
 			"request": {
 				"auth": {
 					"type": "oauth2",
@@ -72,14 +72,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{host}}/prescriptions-for-patients/getMyPrescriptions",
+					"raw": "https://{{host}}/prescriptions-for-patients/Bundle",
 					"protocol": "https",
 					"host": [
 						"{{host}}"
 					],
 					"path": [
 						"prescriptions-for-patients",
-						"getMyPrescriptions"
+						"Bundle"
 					]
 				}
 			},
@@ -255,7 +255,7 @@
 			"response": []
 		},
 		{
-			"name": "PULL REQUEST getMyPrescriptions",
+			"name": "PULL REQUEST Bundle",
 			"request": {
 				"auth": {
 					"type": "oauth2",
@@ -320,14 +320,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{host}}/prescriptions-for-patients-pr-{{pull_request_id}}/getMyPrescriptions",
+					"raw": "https://{{host}}/prescriptions-for-patients-pr-{{pull_request_id}}/Bundle",
 					"protocol": "https",
 					"host": [
 						"{{host}}"
 					],
 					"path": [
 						"prescriptions-for-patients-pr-{{pull_request_id}}",
-						"getMyPrescriptions"
+						"Bundle"
 					]
 				}
 			},
