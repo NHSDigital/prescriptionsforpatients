@@ -192,9 +192,8 @@ Resources:
       BuildMethod: esbuild
       BuildProperties:
         Minify: true
-        Target: "es2022"
+        Target: "es2020"
         Sourcemap: true
-        Format: esm
         EntryPoints:
           - app.ts
 
@@ -280,7 +279,7 @@ Resources:
       BuildMethod: esbuild
       BuildProperties:
         Minify: true
-        Target: "es2022"
+        Target: "es2020"
         Sourcemap: true
         EntryPoints:
           - src/app.ts
@@ -430,8 +429,7 @@ Resources:
       BuildMethod: esbuild
       BuildProperties:
         Minify: true
-        Target: "es2022"
+        Target: "es2020"
         Sourcemap: true
-        Format: esm
         EntryPoints:
           - app.ts
