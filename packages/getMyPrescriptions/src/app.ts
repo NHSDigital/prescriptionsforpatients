@@ -7,19 +7,6 @@ import {getSecret} from "@aws-lambda-powertools/parameters/secrets"
 
 const logger = new Logger({serviceName: "getMyPrescriptions"})
 
-let spinePrivateKey: string | undefined
-let spinePublicCertificate: string | undefined
-let spineASIDARN: string | undefined
-if (process.env.SpinePrivateKeyARN !== undefined) {
-  spinePrivateKey = await getSecret(process.env.SpinePrivateKeyARN)
-}
-if (process.env.SpinePublicCertificateARN !== undefined) {
-  spinePublicCertificate = await getSecret(process.env.SpinePublicCertificateARN)
-}
-if (process.env.SpineASIDARN !== undefined) {
-  spineASIDARN = await getSecret(process.env.SpineASIDARN)
-}
-
 /* eslint-disable  max-len */
 
 /**
@@ -33,6 +20,19 @@ if (process.env.SpineASIDARN !== undefined) {
  */
 
 const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  let spinePrivateKey: string | undefined
+  let spinePublicCertificate: string | undefined
+  let spineASIDARN: string | undefined
+  if (process.env.SpinePrivateKeyARN !== undefined) {
+    spinePrivateKey = await getSecret(process.env.SpinePrivateKeyARN)
+  }
+  if (process.env.SpinePublicCertificateARN !== undefined) {
+    spinePublicCertificate = await getSecret(process.env.SpinePublicCertificateARN)
+  }
+  if (process.env.SpineASIDARN !== undefined) {
+    spineASIDARN = await getSecret(process.env.SpineASIDARN)
+  }
+
   const targetSpineServer = process.env.TargetSpineServer
   logger.info(`hello world from getMyPrescriptions logger - target spine server ${targetSpineServer}`)
 
