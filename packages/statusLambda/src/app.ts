@@ -4,6 +4,7 @@ import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
 import errorHandler from "@middleware/src"
 import * as SpineClient from "@spineClient/src"
+import {getSecret} from "@aws-lambda-powertools/parameters/secrets"
 
 const logger = new Logger({serviceName: "status"})
 
@@ -21,6 +22,22 @@ const logger = new Logger({serviceName: "status"})
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const lambdaHandler = async (_event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  let spinePrivateKey: string | undefined
+  let spinePublicCertificate: string | undefined
+  let spineASIDARN: string | undefined
+  if (process.env.SpinePrivateKeyARN !== undefined) {
+    spinePrivateKey = await getSecret(process.env.SpinePrivateKeyARN)
+  }
+  if (process.env.SpinePublicCertificateARN !== undefined) {
+    spinePublicCertificate = await getSecret(process.env.SpinePublicCertificateARN)
+  }
+  if (process.env.SpineASIDARN !== undefined) {
+    spineASIDARN = await getSecret(process.env.SpineASIDARN)
+  }
+  logger.info(`SpinePrivateKey ${spinePrivateKey}`)
+  logger.info(`spinePublicCertificate ${spinePublicCertificate}`)
+  logger.info(`spineASIDARN ${spineASIDARN}`)
+
   const spineClient = SpineClient.spineClient
 
   const spineStatus = await spineClient.getStatus(logger)
