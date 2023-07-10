@@ -107,9 +107,13 @@ paths:
                 $ref: "#/components/schemas/bundle-response"
               examples:
                 prescriptions-present:
-                  description: A successful response to a GetMyPrescriptions/Bundle request, containing one or more prescriptions.
+                  description: A successful response to a GetMyPrescriptions/Bundle request, containing one prescription.
                   value:
                     $ref: examples/GetMyPrescriptions/Bundle/success.json
+                prescriptions-present-multiple:
+                  description: A successful response to a GetMyPrescriptions/Bundle request, containing multiple prescriptions.
+                  value:
+                    $ref: examples/GetMyPrescriptions/Bundle/success-multiple.json
                 prescriptions-not-present:
                   description: A successful response to a GetMyPrescriptions/Bundle request, where no prescriptions were found.
                   value:
