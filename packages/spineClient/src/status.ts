@@ -1,5 +1,6 @@
 import {Logger} from "@aws-lambda-powertools/logger"
 import axios, {AxiosError} from "axios"
+import {Agent} from "https"
 
 export interface StatusCheckResponse {
   status: "pass" | "warn" | "error"
@@ -9,9 +10,9 @@ export interface StatusCheckResponse {
   links?: string
 }
 
-export async function serviceHealthCheck(url: string, logger: Logger): Promise<StatusCheckResponse> {
+export async function serviceHealthCheck(url: string, logger: Logger, httpsAgent: Agent): Promise<StatusCheckResponse> {
   try {
-    const response = await axios.get<string>(url, {timeout: 20000})
+    const response = await axios.get<string>(url, {timeout: 20000, httpsAgent})
     return {
       status: response.status === 200 ? "pass" : "error",
       timeout: "false",
@@ -28,7 +29,7 @@ export async function serviceHealthCheck(url: string, logger: Logger): Promise<S
     let responseCode
 
     const axiosError = error as AxiosError
-    if(axiosError.response === undefined) {
+    if (axiosError.response === undefined) {
       responseCode = 500
     } else {
       responseCode = axiosError.response.status
@@ -38,9 +39,7 @@ export async function serviceHealthCheck(url: string, logger: Logger): Promise<S
       status: "error",
       timeout: axiosError.code === "ECONNABORTED" ? "true" : "false",
       responseCode: responseCode,
-      outcome: typeof axiosError.response?.data === "string"
-        ? axiosError.response?.data
-        : undefined,
+      outcome: typeof axiosError.response?.data === "string" ? axiosError.response?.data : undefined,
       links: url
     }
   }

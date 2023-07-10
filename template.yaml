@@ -146,6 +146,7 @@ Resources:
               - !ImportValue ci-resources:SpinePrivateKey
               - !ImportValue ci-resources:SpinePublicCertificate
               - !ImportValue ci-resources:SpineASID
+              - !ImportValue ci-resources:SpineCAChain
       Roles:
         - !Ref GetMyPrescriptionsRole
   GetMyPrescriptionsLogGroup:
@@ -178,6 +179,7 @@ Resources:
           SpinePrivateKeyARN: !ImportValue ci-resources:SpinePrivateKey
           SpinePublicCertificateARN: !ImportValue ci-resources:SpinePublicCertificate
           SpineASIDARN: !ImportValue ci-resources:SpineASID
+          SpineCAChainARN: !ImportValue ci-resources:SpineCAChain
       Events:
         getMyPrescriptions:
           Type: HttpApi
@@ -415,6 +417,7 @@ Resources:
               - !ImportValue ci-resources:SpinePrivateKey
               - !ImportValue ci-resources:SpinePublicCertificate
               - !ImportValue ci-resources:SpineASID
+              - !ImportValue ci-resources:SpineCAChain
       Roles:
         - !Ref StatusLambdaRole
   StatusLambdaLogGroup:
@@ -449,6 +452,7 @@ Resources:
           SpinePrivateKeyARN: !ImportValue ci-resources:SpinePrivateKey
           SpinePublicCertificateARN: !ImportValue ci-resources:SpinePublicCertificate
           SpineASIDARN: !ImportValue ci-resources:SpineASID
+          SpineCAChainARN: !ImportValue ci-resources:SpineCAChain
       Events:
         status:
           Type: HttpApi

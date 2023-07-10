@@ -2,11 +2,24 @@ import {ClientRequest, SpineResponse} from "./models/spine"
 import {Logger} from "@aws-lambda-powertools/logger"
 import {serviceHealthCheck, StatusCheckResponse} from "./status"
 import {SpineClient} from "./spine-client"
+import {Agent} from "https"
 
 const SPINE_URL_SCHEME = "https"
 const SPINE_ENDPOINT = process.env.TargetSpineServer
 
 export class LiveSpineClient implements SpineClient {
+  private readonly spineASID: string | undefined
+  private readonly httpsAgent: Agent
+
+  constructor(spinePrivateKey: string, spinePublicCertificate: string, spineASID: string, spineCAChain: string) {
+    this.spineASID = spineASID
+    this.httpsAgent = new Agent({
+      cert: spinePublicCertificate,
+      key: spinePrivateKey,
+      ca: spineCAChain
+    })
+  }
+
   async send(clientRequest: ClientRequest): Promise<SpineResponse<unknown>> {
     return await this.handleSpineRequest(clientRequest)
   }
@@ -45,6 +58,6 @@ export class LiveSpineClient implements SpineClient {
 
   async getStatus(logger: Logger): Promise<StatusCheckResponse> {
     const url = this.getSpineEndpoint("healthcheck")
-    return serviceHealthCheck(url, logger)
+    return serviceHealthCheck(url, logger, this.httpsAgent)
   }
 }

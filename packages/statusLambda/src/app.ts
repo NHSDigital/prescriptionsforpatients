@@ -3,7 +3,7 @@ import {Logger, injectLambdaContext} from "@aws-lambda-powertools/logger"
 import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
 import errorHandler from "@middleware/src"
-import * as SpineClient from "@spineClient/src"
+import createSpineClient from "@spineClient/src"
 import {getSecret} from "@aws-lambda-powertools/parameters/secrets"
 
 const logger = new Logger({serviceName: "status"})
@@ -24,7 +24,8 @@ const logger = new Logger({serviceName: "status"})
 const lambdaHandler = async (_event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   let spinePrivateKey: string | undefined
   let spinePublicCertificate: string | undefined
-  let spineASIDARN: string | undefined
+  let spineASID: string | undefined
+  let spineCAChain: string | undefined
   if (process.env.SpinePrivateKeyARN !== undefined) {
     spinePrivateKey = await getSecret(process.env.SpinePrivateKeyARN)
   }
@@ -32,13 +33,13 @@ const lambdaHandler = async (_event: APIGatewayProxyEvent): Promise<APIGatewayPr
     spinePublicCertificate = await getSecret(process.env.SpinePublicCertificateARN)
   }
   if (process.env.SpineASIDARN !== undefined) {
-    spineASIDARN = await getSecret(process.env.SpineASIDARN)
+    spineASID = await getSecret(process.env.SpineASIDARN)
   }
-  logger.info(`SpinePrivateKey ${spinePrivateKey}`)
-  logger.info(`spinePublicCertificate ${spinePublicCertificate}`)
-  logger.info(`spineASIDARN ${spineASIDARN}`)
+  if (process.env.spineCAChainARN !== undefined) {
+    spineCAChain = await getSecret(process.env.spineCAChainARN)
+  }
 
-  const spineClient = SpineClient.spineClient
+  const spineClient = createSpineClient(spinePrivateKey, spinePublicCertificate, spineASID, spineCAChain)
 
   const spineStatus = await spineClient.getStatus(logger)
 

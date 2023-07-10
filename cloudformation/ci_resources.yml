@@ -414,6 +414,14 @@ Resources:
       KmsKeyId: alias/SecretsKMSKeyAlias
       SecretString: ChangeMe
 
+  SpineCAChain:
+    DependsOn: SecretsKMSKeyKMSKeyAlias
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: CA chain for spine
+      KmsKeyId: alias/SecretsKMSKeyAlias
+      SecretString: ChangeMe
+
 Outputs:
   CloudFormationDeployRole:
     Description: ARN of the IAM Role(CloudFormationDeployRole)
@@ -473,3 +481,8 @@ Outputs:
     Value: !GetAtt SecretsKMSKey.Arn
     Export:
       Name: !Join [":", [!Ref "AWS::StackName", "SecretsKMSKey"]]
+  SpineCAChain:
+    Description: SpineCAChain
+    Value: !GetAtt SpineCAChain.Id
+    Export:
+      Name: !Join [":", [!Ref "AWS::StackName", "SpineCAChain"]]
