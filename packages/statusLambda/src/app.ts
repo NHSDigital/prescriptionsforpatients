@@ -31,7 +31,7 @@ const lambdaHandler = async (_event: APIGatewayProxyEvent): Promise<APIGatewayPr
       versionNumber: versionNumber
     }),
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/health+json"
     }
   }
 }
