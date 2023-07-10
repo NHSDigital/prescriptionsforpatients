@@ -63,6 +63,7 @@ export class LiveSpineClient implements SpineClient {
 
   async getStatus(logger: Logger): Promise<StatusCheckResponse> {
     const url = this.getSpineEndpoint("healthcheck")
+    logger.info(`httpsAgent : ${this.httpsAgent}`)
     return serviceHealthCheck(url, logger, this.httpsAgent)
   }
 }
