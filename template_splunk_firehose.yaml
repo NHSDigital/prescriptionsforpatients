@@ -240,7 +240,7 @@ Resources:
   SplunkDeliveryStreamProcessor:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: packages/splunkProcessor/src
+      CodeUri: packages/splunkProcessor
       Handler: app.handler
       Runtime: nodejs18.x
       Role: !GetAtt SplunkDeliveryStreamProcessorRole.Arn
@@ -254,8 +254,9 @@ Resources:
         Minify: true
         Target: "es2020"
         Sourcemap: true
+        tsconfig: tsconfig.json
         EntryPoints:
-          - app.js
+          - src/app.js
   SplunkDeliveryStreamProcessorRole:
     Type: "AWS::IAM::Role"
     Properties:

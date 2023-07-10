@@ -127,7 +127,7 @@ Resources:
   Sandbox:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: packages/sandbox/src
+      CodeUri: packages/sandbox
       Handler: app.handler
       Runtime: nodejs18.x
       Role: !GetAtt SandboxRole.Arn
@@ -150,8 +150,11 @@ Resources:
         Minify: true
         Target: "es2020"
         Sourcemap: true
+        tsconfig: tsconfig.json
+        External:
+          - "@middleware/src"
         EntryPoints:
-          - app.ts
+          - src/app.ts
 
   # capabilityStatement stuff
   CapabilityStatementRole:
@@ -214,7 +217,7 @@ Resources:
   CapabilityStatement:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: packages/capabilityStatement/src
+      CodeUri: packages/capabilityStatement
       Handler: app.handler
       Runtime: nodejs18.x
       Role: !GetAtt CapabilityStatementRole.Arn
@@ -237,8 +240,9 @@ Resources:
         Minify: true
         Target: "es2020"
         Sourcemap: true
+        tsconfig: tsconfig.json
         EntryPoints:
-          - app.ts
+          - src/app.ts
 
   # TLS cert for custom domain
   GenerateCertificate:
@@ -364,7 +368,7 @@ Resources:
   StatusLambda:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: packages/statusLambda/src
+      CodeUri: packages/statusLambda
       Handler: app.handler
       Runtime: nodejs18.x
       Role: !GetAtt StatusLambdaRole.Arn
@@ -383,5 +387,9 @@ Resources:
         Minify: true
         Target: "es2020"
         Sourcemap: true
+        tsconfig: tsconfig.json
+        External:
+          - "@middleware/src"
+          - "@spineClient/src"
         EntryPoints:
-          - app.ts
+          - src/app.ts
