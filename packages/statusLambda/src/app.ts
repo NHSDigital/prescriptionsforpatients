@@ -35,8 +35,8 @@ const lambdaHandler = async (_event: APIGatewayProxyEvent): Promise<APIGatewayPr
   if (process.env.SpineASIDARN !== undefined) {
     spineASID = await getSecret(process.env.SpineASIDARN)
   }
-  if (process.env.spineCAChainARN !== undefined) {
-    spineCAChain = await getSecret(process.env.spineCAChainARN)
+  if (process.env.SpineCAChainARN !== undefined) {
+    spineCAChain = await getSecret(process.env.SpineCAChainARN)
   }
 
   const spineClient = createSpineClient.createSpineClient(
