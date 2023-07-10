@@ -10,10 +10,10 @@ export interface SpineClient {
 }
 
 export function createSpineClient(
-  spinePrivateKey: string,
-  spinePublicCertificate: string,
-  spineASID: string,
-  spineCAChain: string
+  spinePrivateKey: string | undefined,
+  spinePublicCertificate: string | undefined,
+  spineASID: string | undefined,
+  spineCAChain: string | undefined
 ): SpineClient {
   const liveMode = process.env.TargetSpineServer !== "sandbox"
   if (liveMode) {

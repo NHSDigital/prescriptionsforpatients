@@ -11,7 +11,12 @@ export class LiveSpineClient implements SpineClient {
   private readonly spineASID: string | undefined
   private readonly httpsAgent: Agent
 
-  constructor(spinePrivateKey: string, spinePublicCertificate: string, spineASID: string, spineCAChain: string) {
+  constructor(
+    spinePrivateKey: string | undefined,
+    spinePublicCertificate: string | undefined,
+    spineASID: string | undefined,
+    spineCAChain: string | undefined
+  ) {
     this.spineASID = spineASID
     this.httpsAgent = new Agent({
       cert: spinePublicCertificate,

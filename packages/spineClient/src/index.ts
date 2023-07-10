@@ -1,1 +1,5 @@
-export * from "./spine-client"
+import {createSpineClient} from "./spine-client"
+
+export default {
+  createSpineClient
+}
