@@ -13,6 +13,7 @@ export default {
   coverageProvider: "v8",
   testMatch: ["**/tests/*.test.ts"],
   moduleNameMapper: {
-    "@middleware/(.*)": "<rootDir>/../middleware/src"
+    "@middleware/(.*)": "<rootDir>/../middleware/src",
+    "@spineClient/(.*)": "<rootDir>/../spineClient/src"
   }
 }

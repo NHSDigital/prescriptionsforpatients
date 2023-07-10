@@ -5,11 +5,12 @@
     "preserveConstEnums": true,
     "noEmit": true,
     "sourceMap": false,
-    "module": "es2022",
+    "module": "CommonJS",
     "moduleResolution": "node",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
     "paths": {
       "@middleware/*": ["../middleware/*"],
       "@spineClient/*": ["../spineClient/*"]

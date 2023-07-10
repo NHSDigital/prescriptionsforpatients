@@ -4,6 +4,7 @@ import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
 import errorHandler from "@middleware/src"
 import {getSecret} from "@aws-lambda-powertools/parameters/secrets"
+import createSpineClient from "@spineClient/src"
 
 const logger = new Logger({serviceName: "getMyPrescriptions"})
 
@@ -22,7 +23,8 @@ const logger = new Logger({serviceName: "getMyPrescriptions"})
 const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   let spinePrivateKey: string | undefined
   let spinePublicCertificate: string | undefined
-  let spineASIDARN: string | undefined
+  let spineASID: string | undefined
+  let spineCAChain: string | undefined
   if (process.env.SpinePrivateKeyARN !== undefined) {
     spinePrivateKey = await getSecret(process.env.SpinePrivateKeyARN)
   }
@@ -30,18 +32,18 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     spinePublicCertificate = await getSecret(process.env.SpinePublicCertificateARN)
   }
   if (process.env.SpineASIDARN !== undefined) {
-    spineASIDARN = await getSecret(process.env.SpineASIDARN)
+    spineASID = await getSecret(process.env.SpineASIDARN)
   }
-
-  const targetSpineServer = process.env.TargetSpineServer
-  logger.info(`hello world from getMyPrescriptions logger - target spine server ${targetSpineServer}`)
+  if (process.env.SpineCAChainARN !== undefined) {
+    spineCAChain = await getSecret(process.env.SpineCAChainARN)
+  }
 
   // nhsd-nhslogin-user looks like P9:9912003071
   const nhsNumber = event.headers["nhsd-nhslogin-user"]?.split(":")[1]
   logger.info(`nhsNumber: ${nhsNumber}`)
-  logger.info(`SpinePrivateKey ${spinePrivateKey}`)
-  logger.info(`spinePublicCertificate ${spinePublicCertificate}`)
-  logger.info(`spineASIDARN ${spineASIDARN}`)
+
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+  const spineClient = createSpineClient(spinePrivateKey, spinePublicCertificate, spineASID, spineCAChain)
 
   const returnType = event.queryStringParameters?.returnType
   logger.info({message: "value of returnType", returnType})

@@ -5,11 +5,12 @@
     "preserveConstEnums": true,
     "noEmit": true,
     "sourceMap": true,
-    "module": "es2015",
+    "module": "CommonJS",
     "moduleResolution": "node",
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true
   },
   "include": ["src/**/*", "tests/**/*"],
   "exclude": ["node_modules"]

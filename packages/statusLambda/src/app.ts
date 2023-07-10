@@ -39,12 +39,7 @@ const lambdaHandler = async (_event: APIGatewayProxyEvent): Promise<APIGatewayPr
     spineCAChain = await getSecret(process.env.SpineCAChainARN)
   }
 
-  const spineClient = createSpineClient.createSpineClient(
-    spinePrivateKey,
-    spinePublicCertificate,
-    spineASID,
-    spineCAChain
-  )
+  const spineClient = createSpineClient(spinePrivateKey, spinePublicCertificate, spineASID, spineCAChain)
 
   const spineStatus = await spineClient.getStatus(logger)
 
