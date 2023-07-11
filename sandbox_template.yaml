@@ -380,6 +380,10 @@ Resources:
       Role: !GetAtt StatusLambdaRole.Arn
       Architectures:
         - x86_64
+      Environment:
+        Variables:
+          TargetSpineServer: !Ref TargetSpineServer
+          NODE_OPTIONS: --enable-source-maps
       Events:
         status:
           Type: HttpApi
