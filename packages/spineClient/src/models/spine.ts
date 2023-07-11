@@ -1,5 +1,4 @@
 export type ClientRequest = SpineRequest
-import {RawAxiosRequestHeaders} from "axios"
 
 export interface SpineRequest {
   message: string
@@ -9,28 +8,9 @@ export interface SpineRequest {
   fromPartyKey: string
 }
 
-export type SpineResponse<T> = SpineDirectResponse<T> | SpinePollableResponse
+export type SpineResponse<T> = SpineDirectResponse<T>
 
 export interface SpineDirectResponse<T> {
   body: T
   statusCode: number
-}
-
-export interface SpinePollableResponse {
-  pollingUrl: string
-  statusCode: number
-}
-
-export interface TrackerRequest {
-  name: string
-  headers: RawAxiosRequestHeaders
-  body: string
-}
-
-export function isDirect<T>(spineResponse: SpineResponse<T>): spineResponse is SpineDirectResponse<T> {
-  return !isPollable(spineResponse)
-}
-
-export function isPollable<T>(spineResponse: SpineResponse<T>): spineResponse is SpinePollableResponse {
-  return "pollingUrl" in spineResponse
 }
