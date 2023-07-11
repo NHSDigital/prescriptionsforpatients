@@ -54,5 +54,31 @@ repos:
         types_or: [ts, tsx, javascript, jsx, json]
         pass_filenames: false
 
+      - id: lint-capabilityStatement
+        name: Lint capabilityStatement
+        entry: npm
+        args: ["run", "--prefix=packages/capabilityStatement", "lint"]
+        language: system
+        files: ^packages\/capabilityStatement
+        types_or: [ts, tsx, javascript, jsx, json]
+        pass_filenames: false
+
+      - id: lint-sandbox
+        name: Lint sandbox
+        entry: npm
+        args: ["run", "--prefix=packages/sandbox", "lint"]
+        language: system
+        files: ^packages\/sandbox
+        types_or: [ts, tsx, javascript, jsx, json]
+        pass_filenames: false
+
+      - id: lint-spineClient
+        name: Lint sandbox
+        entry: npm
+        args: ["run", "--prefix=packages/spineClient", "lint"]
+        language: system
+        files: ^packages\/spineClient
+        types_or: [ts, tsx, javascript, jsx, json]
+        pass_filenames: false
 fail_fast: true
 default_stages: [commit]
