@@ -11,9 +11,5 @@ export default {
   collectCoverage: true,
   coverageDirectory: "coverage",
   coverageProvider: "v8",
-  testMatch: ["**/tests/*.test.ts"],
-  moduleNameMapper: {
-    "@middleware/(.*)": "<rootDir>/../middleware/src",
-    "@spineClient/(.*)": "<rootDir>/../spineClient/src"
-  }
+  testMatch: ["**/tests/*.test.ts"]
 }

@@ -148,11 +148,7 @@ Resources:
       BuildMethod: esbuild
       BuildProperties:
         Minify: true
-        Format: "esm"
-        OutExtension:
-          - .js=.mjs
-        UseNpmCi: true
-        Target: "es2020"
+       Target: "es2020"
         Sourcemap: true
         tsconfig: sandbox/tsconfig.json
         EntryPoints:
@@ -240,10 +236,6 @@ Resources:
       BuildMethod: esbuild
       BuildProperties:
         Minify: true
-        Format: "esm"
-        OutExtension:
-          - .js=.mjs
-        UseNpmCi: true
         Target: "es2020"
         Sourcemap: true
         tsconfig: capabilityStatement/tsconfig.json
