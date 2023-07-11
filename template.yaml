@@ -166,7 +166,7 @@ Resources:
   GetMyPrescriptions:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: packages/getMyPrescriptions
+      CodeUri: packages
       Handler: app.handler
       Runtime: nodejs18.x
       Role: !GetAtt GetMyPrescriptionsRole.Arn
@@ -193,12 +193,9 @@ Resources:
         Minify: true
         Target: "es2020"
         Sourcemap: true
-        tsconfig: tsconfig.json
-        External:
-          - "@middleware/src"
-          - "@spineClient/src"
+        tsconfig: getMyPrescriptions/tsconfig.json
         EntryPoints:
-          - src/app.ts
+          - getMyPrescriptions/src/app.ts
 
   # capabilityStatement stuff
   CapabilityStatementRole:
@@ -261,7 +258,7 @@ Resources:
   CapabilityStatement:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: packages/capabilityStatement
+      CodeUri: packages
       Handler: app.handler
       Runtime: nodejs18.x
       Role: !GetAtt CapabilityStatementRole.Arn
@@ -283,9 +280,9 @@ Resources:
         Minify: true
         Target: "es2020"
         Sourcemap: true
-        tsconfig: tsconfig.json
+        tsconfig: capabilityStatement/tsconfig.json
         EntryPoints:
-          - src/app.ts
+          - capabilityStatement/src/app.ts
 
   # TLS cert for custom domain
   GenerateCertificate:
@@ -442,7 +439,7 @@ Resources:
   StatusLambda:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: packages/statusLambda
+      CodeUri: packages
       Handler: app.handler
       Runtime: nodejs18.x
       Role: !GetAtt StatusLambdaRole.Arn
@@ -471,9 +468,6 @@ Resources:
         Minify: true
         Target: "es2020"
         Sourcemap: true
-        tsconfig: tsconfig.json
-        External:
-          - "@middleware/src"
-          - "@spineClient/src"
+        tsconfig: statusLambda/tsconfig.json
         EntryPoints:
-          - src/app.ts
+          - statusLambda/src/app.ts

@@ -5,6 +5,7 @@
     "es6": true,
     "jest": true
   },
+  "ignorePatterns": ["**/lib/*"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {"ecmaVersion": "latest"},
   "plugins": ["import-newlines"],

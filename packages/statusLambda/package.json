@@ -19,10 +19,7 @@
     "@aws-sdk/client-secrets-manager": "^3.363.0",
     "@middy/core": "^4.5.2",
     "@middy/input-output-logger": "^4.5.3",
-    "module-alias": "^2.2.3"
-  },
-  "_moduleAliases": {
-    "@middleware": "middleware",
-    "@spineClient": "spineClient"
+    "@prescriptionsforpatients/middleware": "^1.0.0",
+    "@prescriptionsforpatients/spineClient": "^1.0.0"
   }
 }

@@ -1,0 +1,15 @@
+{
+  // The root project has no sources of its own. By setting `files` to an empty
+  // list, TS won't automatically include all sources below root (the default).
+  "files": [],
+  // Building this project will build all of the following:
+  "references": [
+    { "path": "packages/capabilityStatement" },
+    { "path": "packages/getMyPrescriptions" },
+    { "path": "packages/middleware" },
+    { "path": "packages/sandbox" },
+    { "path": "packages/spineClient" },
+    { "path": "packages/splunkProcessor" },
+    { "path": "packages/statusLambda" }
+  ]
+}

@@ -1,13 +1,15 @@
 {
-  "name": "spineClient",
+  "name": "@prescriptionsforpatients/spineClient",
   "version": "1.0.0",
   "description": "",
-  "main": "index.ts",
+  "main": "lib/index.js",
+  "type": "module",
   "scripts": {
     "build": "tsc --build --clean ./tsconfig.json",
     "lint": "eslint . --ext .ts --max-warnings 0 --fix",
     "test": "jest",
-    "check-licenses": "license-checker --failOn GPL --failOn LGPL --start ../.."
+    "check-licenses": "license-checker --failOn GPL --failOn LGPL --start ../..",
+    "compile": "tsc"
   },
   "author": "",
   "license": "ISC",

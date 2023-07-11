@@ -2,8 +2,8 @@ import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
 import {Logger, injectLambdaContext} from "@aws-lambda-powertools/logger"
 import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
-import errorHandler from "@middleware/src"
-import createSpineClient from "@spineClient/src"
+import errorHandler from "@prescriptionsforpatients/middleware"
+import createSpineClient from "@prescriptionsforpatients/spineClient"
 import {getSecret} from "@aws-lambda-powertools/parameters/secrets"
 
 const logger = new Logger({serviceName: "status"})

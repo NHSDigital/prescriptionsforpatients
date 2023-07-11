@@ -1,20 +1,11 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "es2020",
-    "strict": true,
-    "preserveConstEnums": true,
-    "noEmit": true,
-    "sourceMap": false,
-    "module": "CommonJS",
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "paths": {
-      "@middleware/*": ["../middleware/*"]
-    }
+    "rootDir": ".",
+    "outDir": "lib",
+    "resolveJsonModule": true
   },
-  "include": ["src/**/*", "tests/**/*"],
+  "references": [{"path": "../middleware"}],
+  "include": ["src/**/*", "tests/**/*", "examples/GetMyPrescriptions/Bundle/success.json"],
   "exclude": ["node_modules"]
 }
