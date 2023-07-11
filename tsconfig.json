@@ -11,6 +11,9 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "preserveConstEnums": true
+    "preserveConstEnums": true,
+    "paths": {
+      "crypto": ["./node_modules/crypto-js"]
+    }
   }
 }
