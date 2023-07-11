@@ -25,6 +25,16 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
   let spinePublicCertificate: string | undefined
   let spineASID: string | undefined
   let spineCAChain: string | undefined
+  /**
+   * These should be outside the handler so are called less times
+   * See https://matty.dev/blog/2023-01-26-hidden-sam-cli-features for one way to do this
+   * But this fails as it cant use crypto
+   * See https://github.com/evanw/esbuild/issues/1921#issuecomment-1152991694 for a solution to this
+   * But this cant be used due to serverless-esbuild not supporting esbuild 0.18
+   * See https://github.com/floydspace/serverless-esbuild/issues/470
+   *
+   * Another solution may be https://aws.amazon.com/blogs/compute/creating-aws-lambda-environmental-variables-from-aws-secrets-manager/
+   */
   if (process.env.SpinePrivateKeyARN !== undefined) {
     spinePrivateKey = await getSecret(process.env.SpinePrivateKeyARN)
   }
