@@ -148,6 +148,10 @@ Resources:
       BuildMethod: esbuild
       BuildProperties:
         Minify: true
+        Format: "esm"
+        OutExtension:
+          - .js=.mjs
+        UseNpmCi: true
         Target: "es2020"
         Sourcemap: true
         tsconfig: sandbox/tsconfig.json
@@ -236,6 +240,10 @@ Resources:
       BuildMethod: esbuild
       BuildProperties:
         Minify: true
+        Format: "esm"
+        OutExtension:
+          - .js=.mjs
+        UseNpmCi: true
         Target: "es2020"
         Sourcemap: true
         tsconfig: capabilityStatement/tsconfig.json
@@ -383,6 +391,10 @@ Resources:
       BuildMethod: esbuild
       BuildProperties:
         Minify: true
+        Format: "esm"
+        OutExtension:
+          - .js=.mjs
+        UseNpmCi: true
         Target: "es2020"
         Sourcemap: true
         tsconfig: statusLambda/tsconfig.json
