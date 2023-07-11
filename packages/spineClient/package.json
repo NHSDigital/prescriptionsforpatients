@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "main": "lib/src/index.js",
-  "type": "module",
   "scripts": {
     "build": "tsc --build --clean ./tsconfig.json",
     "lint": "eslint . --ext .ts --max-warnings 0 --fix",
