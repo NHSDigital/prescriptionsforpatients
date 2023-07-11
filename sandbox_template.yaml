@@ -36,6 +36,14 @@ Parameters:
     Description: Whether to use splunk
     Default: false
     AllowedValues: [true, false]
+  VersionNumber:
+    Type: String
+    Description: Current release version
+    Default: "xxx"
+  CommitId:
+    Type: String
+    Description: Most recent commit hash
+    Default: "xxx"
 
 Conditions:
   ShouldUseMutualTLS: !Equals [true, !Ref EnableMutualTLS]
@@ -376,6 +384,8 @@ Resources:
         Variables:
           TargetSpineServer: !Ref TargetSpineServer
           NODE_OPTIONS: --enable-source-maps
+          VERSION_NUMBER: !Ref VersionNumber
+          COMMIT_ID: !Ref CommitId
       Events:
         status:
           Type: HttpApi
