@@ -1,26 +1,15 @@
-import type {JestConfigWithTsJest} from "ts-jest"
+/*
+ * For a detailed explanation regarding each configuration property and type check, visit:
+ * https://jestjs.io/docs/configuration
+ */
 
-const jestConfig: JestConfigWithTsJest = {
-  preset: "ts-jest/presets/default-esm",
-  moduleNameMapper: {
-    "^(\\.{1,2}/.*)\\.js$": "$1"
-  },
+export default {
   transform: {
-    "^.+\\.ts?$": [
-      "ts-jest",
-      {
-        useESM: true
-      }
-    ]
+    "^.+\\.ts?$": "ts-jest"
   },
   clearMocks: true,
   collectCoverage: true,
   coverageDirectory: "coverage",
   coverageProvider: "v8",
-  testMatch: ["**/tests/*.test.ts"],
-  testEnvironment: "node",
-  extensionsToTreatAsEsm: [".ts"],
-  verbose: true
+  testMatch: ["**/tests/*.test.ts"]
 }
-
-export default jestConfig

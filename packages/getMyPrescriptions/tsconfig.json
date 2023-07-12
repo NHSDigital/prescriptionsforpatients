@@ -6,10 +6,5 @@
   },
   "references": [{"path": "../spineClient"}, {"path": "../middleware"}],
   "include": ["src/**/*", "tests/**/*"],
-  "exclude": ["node_modules"],
-  "ts-node": {
-    "esm": true,
-    "experimentalSpecifierResolution": "node",
-    "experimentalResolver": true
-  }
+  "exclude": ["node_modules"]
 }
