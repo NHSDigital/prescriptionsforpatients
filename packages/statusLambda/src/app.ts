@@ -7,6 +7,22 @@ import createSpineClient from "@prescriptionsforpatients/spineClient"
 import {getSecret} from "@aws-lambda-powertools/parameters/secrets"
 
 const logger = new Logger({serviceName: "status"})
+let spinePrivateKey: string | undefined
+let spinePublicCertificate: string | undefined
+let spineASID: string | undefined
+let spineCAChain: string | undefined
+if (process.env.SpinePrivateKeyARN !== undefined) {
+  spinePrivateKey = await getSecret(process.env.SpinePrivateKeyARN)
+}
+if (process.env.SpinePublicCertificateARN !== undefined) {
+  spinePublicCertificate = await getSecret(process.env.SpinePublicCertificateARN)
+}
+if (process.env.SpineASIDARN !== undefined) {
+  spineASID = await getSecret(process.env.SpineASIDARN)
+}
+if (process.env.SpineCAChainARN !== undefined) {
+  spineCAChain = await getSecret(process.env.SpineCAChainARN)
+}
 
 /* eslint-disable  max-len */
 
@@ -22,23 +38,6 @@ const logger = new Logger({serviceName: "status"})
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const lambdaHandler = async (_event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  let spinePrivateKey: string | undefined
-  let spinePublicCertificate: string | undefined
-  let spineASID: string | undefined
-  let spineCAChain: string | undefined
-  if (process.env.SpinePrivateKeyARN !== undefined) {
-    spinePrivateKey = await getSecret(process.env.SpinePrivateKeyARN)
-  }
-  if (process.env.SpinePublicCertificateARN !== undefined) {
-    spinePublicCertificate = await getSecret(process.env.SpinePublicCertificateARN)
-  }
-  if (process.env.SpineASIDARN !== undefined) {
-    spineASID = await getSecret(process.env.SpineASIDARN)
-  }
-  if (process.env.SpineCAChainARN !== undefined) {
-    spineCAChain = await getSecret(process.env.SpineCAChainARN)
-  }
-
   const spineClient = createSpineClient(spinePrivateKey, spinePublicCertificate, spineASID, spineCAChain)
 
   const spineStatus = await spineClient.getStatus(logger)
