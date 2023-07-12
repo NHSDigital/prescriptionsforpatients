@@ -104,7 +104,7 @@ Resources:
   SandboxKMSPolicy:
     Type: "AWS::IAM::Policy"
     Properties:
-      PolicyName: "allow-KMS-access"
+      PolicyName: "allow-CloudWatchKMS-access"
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -192,7 +192,7 @@ Resources:
   CapabilityStatementKMSPolicy:
     Type: "AWS::IAM::Policy"
     Properties:
-      PolicyName: "allow-KMS-access"
+      PolicyName: "allow-CloudWatchKMS-access"
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -343,7 +343,7 @@ Resources:
   StatusLambdaKMSPolicy:
     Type: "AWS::IAM::Policy"
     Properties:
-      PolicyName: "allow-KMS-access"
+      PolicyName: "allow-CloudWatchKMS-access"
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
