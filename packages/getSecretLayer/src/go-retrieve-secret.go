@@ -36,7 +36,7 @@ var (
 )
 
 // The main function will pull command line arg and retrieve the secret.  The resulting
-// secret will be dumped as JSON to the output
+// secret will be dumped to the output
 func main() {
 
 	// Get all of the command line data and perform the necessary validation
