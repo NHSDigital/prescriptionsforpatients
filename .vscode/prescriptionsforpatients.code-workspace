@@ -35,6 +35,10 @@
 		{
 			"name": "packages/spineClient",
 			"path": "../packages/spineClient"
+		},
+		{
+			"name": "packages/getSecretLayer",
+			"path": "../packages/getSecretLayer"
 		}
 	],
 	"settings": {

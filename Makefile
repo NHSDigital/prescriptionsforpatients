@@ -45,7 +45,8 @@ sam-deploy: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam deploy \
 		--stack-name $$stack_name \
 		--parameter-overrides \
-			  EnableSplunk=false
+			  EnableSplunk=false \
+			  TargetSpineServer=$$TARGET_SPINE_SERVER
 
 sam-delete: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam delete --stack-name $$stack_name
@@ -88,8 +89,13 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 			  VersionNumber=$$VERSION_NUMBER \
 			  CommitId=$$COMMIT_ID
 
-compile:
+compile-node:
 	npx tsc --build tsconfig.build.json
+
+compile-go:
+	cd packages/getSecretLayer && ./build.sh
+
+compile: compile-node compile-go
 
 lint: compile
 	npm run lint --workspace packages/capabilityStatement
@@ -125,6 +131,7 @@ clean:
 	rm -rf packages/spineClient/lib
 	rm -rf packages/splunkProcessor/lib
 	rm -rf packages/statusLambda/lib
+	rm -rf packages/getSecretLayer/lib
 	rm -rf .aws-sam
 
 deep-clean: clean

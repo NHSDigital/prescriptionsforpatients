@@ -9,15 +9,10 @@ export interface SpineClient {
   getStatus(logger: Logger): Promise<StatusCheckResponse>
 }
 
-export function createSpineClient(
-  spinePrivateKey: string | undefined,
-  spinePublicCertificate: string | undefined,
-  spineASID: string | undefined,
-  spineCAChain: string | undefined
-): SpineClient {
+export function createSpineClient(): SpineClient {
   const liveMode = process.env.TargetSpineServer !== "sandbox"
   if (liveMode) {
-    return new LiveSpineClient(spinePrivateKey, spinePublicCertificate, spineASID, spineCAChain)
+    return new LiveSpineClient()
   } else {
     return new SandboxSpineClient()
   }

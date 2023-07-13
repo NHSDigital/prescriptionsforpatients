@@ -8,6 +8,17 @@ Globals:
   Function:
     Timeout: 30
     MemorySize: 256
+    Architectures:
+      - x86_64
+    Runtime: nodejs18.x
+    Environment:
+      Variables:
+        TargetSpineServer: !Ref TargetSpineServer
+        NODE_OPTIONS: --enable-source-maps
+        SpinePrivateKeyARN: !ImportValue ci-resources:SpinePrivateKey
+        SpinePublicCertificateARN: !ImportValue ci-resources:SpinePublicCertificate
+        SpineASIDARN: !ImportValue ci-resources:SpineASID
+        SpineCAChainARN: !ImportValue ci-resources:SpineCAChain
 
 Parameters:
   TargetSpineServer:
@@ -168,18 +179,12 @@ Resources:
     Properties:
       CodeUri: packages
       Handler: app.handler
-      Runtime: nodejs18.x
       Role: !GetAtt GetMyPrescriptionsRole.Arn
-      Architectures:
-        - x86_64
       Environment:
         Variables:
-          TargetSpineServer: !Ref TargetSpineServer
-          NODE_OPTIONS: --enable-source-maps
-          SpinePrivateKeyARN: !ImportValue ci-resources:SpinePrivateKey
-          SpinePublicCertificateARN: !ImportValue ci-resources:SpinePublicCertificate
-          SpineASIDARN: !ImportValue ci-resources:SpineASID
-          SpineCAChainARN: !ImportValue ci-resources:SpineCAChain
+          AWS_LAMBDA_EXEC_WRAPPER: /opt/get-secrets-layer
+      Layers:
+        - !Ref GetSecretsLayer
       Events:
         getMyPrescriptions:
           Type: HttpApi
@@ -194,11 +199,6 @@ Resources:
         Target: "es2020"
         Sourcemap: true
         tsconfig: getMyPrescriptions/tsconfig.json
-        Format: esm
-        OutExtension:
-          - .js=.mjs
-        banner:
-          - js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);
         EntryPoints:
           - getMyPrescriptions/src/app.ts
 
@@ -265,13 +265,7 @@ Resources:
     Properties:
       CodeUri: packages
       Handler: app.handler
-      Runtime: nodejs18.x
       Role: !GetAtt CapabilityStatementRole.Arn
-      Architectures:
-        - x86_64
-      Environment:
-        Variables:
-          NODE_OPTIONS: --enable-source-maps
       Events:
         capabilityStatement:
           Type: HttpApi
@@ -286,11 +280,6 @@ Resources:
         Target: "es2020"
         Sourcemap: true
         tsconfig: capabilityStatement/tsconfig.json
-        Format: esm
-        OutExtension:
-          - .js=.mjs
-        banner:
-          - js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);
         EntryPoints:
           - capabilityStatement/src/app.ts
 
@@ -451,20 +440,14 @@ Resources:
     Properties:
       CodeUri: packages
       Handler: app.handler
-      Runtime: nodejs18.x
       Role: !GetAtt StatusLambdaRole.Arn
-      Architectures:
-        - x86_64
       Environment:
         Variables:
           VERSION_NUMBER: !Ref VersionNumber
           COMMIT_ID: !Ref CommitId
-          TargetSpineServer: !Ref TargetSpineServer
-          NODE_OPTIONS: --enable-source-maps
-          SpinePrivateKeyARN: !ImportValue ci-resources:SpinePrivateKey
-          SpinePublicCertificateARN: !ImportValue ci-resources:SpinePublicCertificate
-          SpineASIDARN: !ImportValue ci-resources:SpineASID
-          SpineCAChainARN: !ImportValue ci-resources:SpineCAChain
+          AWS_LAMBDA_EXEC_WRAPPER: /opt/get-secrets-layer
+      Layers:
+        - !Ref GetSecretsLayer
       Events:
         status:
           Type: HttpApi
@@ -479,10 +462,13 @@ Resources:
         Target: "es2020"
         Sourcemap: true
         tsconfig: statusLambda/tsconfig.json
-        Format: esm
-        OutExtension:
-          - .js=.mjs
-        banner:
-          - js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);
         EntryPoints:
           - statusLambda/src/app.ts
+
+  GetSecretsLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: get-secrets-layer
+      Description: get secrets layer
+      ContentUri: packages/getSecretLayer/lib/get-secrets-layer.zip
+      RetentionPolicy: Retain

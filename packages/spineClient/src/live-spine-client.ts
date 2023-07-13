@@ -11,17 +11,13 @@ export class LiveSpineClient implements SpineClient {
   private readonly spineASID: string | undefined
   private readonly httpsAgent: Agent
 
-  constructor(
-    spinePrivateKey: string | undefined,
-    spinePublicCertificate: string | undefined,
-    spineASID: string | undefined,
-    spineCAChain: string | undefined
-  ) {
-    this.spineASID = spineASID
+  constructor() {
+    this.spineASID = process.env.SpineASID
+
     this.httpsAgent = new Agent({
-      cert: spinePublicCertificate,
-      key: spinePrivateKey,
-      ca: spineCAChain
+      cert: process.env.SpinePublicCertificate,
+      key: process.env.SpinePrivateKey,
+      ca: process.env.SpineCAChain
     })
   }
 
@@ -63,7 +59,6 @@ export class LiveSpineClient implements SpineClient {
 
   async getStatus(logger: Logger): Promise<StatusCheckResponse> {
     const url = this.getSpineEndpoint("healthcheck")
-    logger.info(`httpsAgent : ${JSON.stringify(this.httpsAgent)}`)
     return serviceHealthCheck(url, logger, this.httpsAgent)
   }
 }
