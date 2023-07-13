@@ -73,12 +73,22 @@ repos:
         pass_filenames: false
 
       - id: lint-spineClient
-        name: Lint sandbox
+        name: Lint spineClient
         entry: npm
         args: ["run", "--prefix=packages/spineClient", "lint"]
         language: system
         files: ^packages\/spineClient
         types_or: [ts, tsx, javascript, jsx, json]
         pass_filenames: false
+
+      - id: lint-getSecretLayer
+        name: Lint getSecretLayer
+        entry: make
+        args: ["lint-go"]
+        language: system
+        files: ^packages\/getSecretLayer
+        types_or: [go]
+        pass_filenames: false
+
 fail_fast: true
 default_stages: [commit]
