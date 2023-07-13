@@ -64,4 +64,6 @@ jobs:
         name: upload sandbox build artifact
         with:
           name: packaged_sandbox_code
-          path: .aws-sam/build
+          path: |
+            .aws-sam/build
+            packages/getSecretLayer/lib/get-secrets-layer.zip 
