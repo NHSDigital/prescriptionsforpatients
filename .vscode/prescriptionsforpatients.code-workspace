@@ -47,7 +47,8 @@
 			"packages/capabilityStatement",
 			"packages/sandbox",
 			"packages/specification",
-			"packages/splunkProcessor"
+			"packages/splunkProcessor",
+			"packages/getSecretLayer"
 		],
 		"files.exclude": {
 			"packages/": true,
