@@ -60,21 +60,6 @@ Conditions:
   ShouldUseMutualTLS: !Equals [true, !Ref EnableMutualTLS]
   ShouldUseSplunk: !Equals [true, !Ref EnableSplunk]
 
-# Example of Mappings
-# Mappings:
-#   EnvVariables:
-#     stage:
-#         var1: user1
-#         API_BASE_URL: https://baseurl1.com
-#     prod:
-#         var1: user2
-#         API_BASE_URL: https://baseurl2.com
-
-# SAM Connectors: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/reference-sam-connector.html
-# https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-connector.html
-# More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
-# More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-
 Resources:
   SplunkFirehose:
     Type: AWS::Serverless::Application
@@ -85,7 +70,15 @@ Resources:
         SplunkHECEndpoint: !Ref SplunkHECEndpoint
         EnableSplunk: !Ref EnableSplunk
 
-  # getMyPrescription stuff
+  GetSecretsLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: get-secrets-layer
+      Description: get secrets layer
+      ContentUri: packages/getSecretLayer/lib/get-secrets-layer.zip
+      RetentionPolicy: Retain
+
+  # getMyPrescription lambda
   GetMyPrescriptionsRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -202,7 +195,7 @@ Resources:
         EntryPoints:
           - getMyPrescriptions/src/app.ts
 
-  # capabilityStatement stuff
+  # capabilityStatement lambda
   CapabilityStatementRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -283,70 +276,7 @@ Resources:
         EntryPoints:
           - capabilityStatement/src/app.ts
 
-  # TLS cert for custom domain
-  GenerateCertificate:
-    Type: AWS::CertificateManager::Certificate
-    Properties:
-      ValidationMethod: DNS
-      DomainName:
-        Fn::Join:
-          - "."
-          - - !Ref "AWS::StackName"
-            - Fn::ImportValue: route53-resources:domain
-      DomainValidationOptions:
-        - DomainName:
-            Fn::Join:
-              - "."
-              - - !Ref "AWS::StackName"
-                - Fn::ImportValue: route53-resources:domain
-          HostedZoneId:
-            Fn::ImportValue: route53-resources:ZoneID
-
-  # Http api
-  HttpApiGateway:
-    Type: AWS::Serverless::HttpApi
-    Properties:
-      StageName: Prod
-      Domain:
-        DomainName:
-          Fn::Join:
-            - "."
-            - - !Ref "AWS::StackName"
-              - Fn::ImportValue: route53-resources:domain
-        CertificateArn: !Ref GenerateCertificate
-        Route53:
-          HostedZoneId:
-            Fn::ImportValue: route53-resources:ZoneID
-        EndpointConfiguration: REGIONAL
-        SecurityPolicy: TLS_1_2
-        MutualTlsAuthentication:
-          TruststoreUri:
-            "Fn::If":
-              - ShouldUseMutualTLS
-              - Fn::Join:
-                  - "/"
-                  - - "s3:/"
-                    - !Select [
-                        5,
-                        !Split [
-                          ":",
-                          Fn::ImportValue: ci-resources:TrustStoreBucket,
-                        ],
-                      ]
-                    - "truststore.pem"
-              - !Ref "AWS::NoValue"
-          TruststoreVersion:
-            "Fn::If":
-              - ShouldUseMutualTLS
-              - !Ref TruststoreVersion
-              - !Ref "AWS::NoValue"
-      DisableExecuteApiEndpoint:
-        "Fn::If":
-          - ShouldUseMutualTLS
-          - true
-          - !Ref "AWS::NoValue"
-
-  # _status endpoint stuff
+  # _status endpoint lambda
   StatusLambdaRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -465,10 +395,65 @@ Resources:
         EntryPoints:
           - statusLambda/src/app.ts
 
-  GetSecretsLayer:
-    Type: AWS::Serverless::LayerVersion
+  # TLS cert for custom domain
+  GenerateCertificate:
+    Type: AWS::CertificateManager::Certificate
     Properties:
-      LayerName: get-secrets-layer
-      Description: get secrets layer
-      ContentUri: packages/getSecretLayer/lib/get-secrets-layer.zip
-      RetentionPolicy: Retain
+      ValidationMethod: DNS
+      DomainName:
+        Fn::Join:
+          - "."
+          - - !Ref "AWS::StackName"
+            - Fn::ImportValue: route53-resources:domain
+      DomainValidationOptions:
+        - DomainName:
+            Fn::Join:
+              - "."
+              - - !Ref "AWS::StackName"
+                - Fn::ImportValue: route53-resources:domain
+          HostedZoneId:
+            Fn::ImportValue: route53-resources:ZoneID
+
+  # Http api
+  HttpApiGateway:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: Prod
+      Domain:
+        DomainName:
+          Fn::Join:
+            - "."
+            - - !Ref "AWS::StackName"
+              - Fn::ImportValue: route53-resources:domain
+        CertificateArn: !Ref GenerateCertificate
+        Route53:
+          HostedZoneId:
+            Fn::ImportValue: route53-resources:ZoneID
+        EndpointConfiguration: REGIONAL
+        SecurityPolicy: TLS_1_2
+        MutualTlsAuthentication:
+          TruststoreUri:
+            "Fn::If":
+              - ShouldUseMutualTLS
+              - Fn::Join:
+                  - "/"
+                  - - "s3:/"
+                    - !Select [
+                        5,
+                        !Split [
+                          ":",
+                          Fn::ImportValue: ci-resources:TrustStoreBucket,
+                        ],
+                      ]
+                    - "truststore.pem"
+              - !Ref "AWS::NoValue"
+          TruststoreVersion:
+            "Fn::If":
+              - ShouldUseMutualTLS
+              - !Ref TruststoreVersion
+              - !Ref "AWS::NoValue"
+      DisableExecuteApiEndpoint:
+        "Fn::If":
+          - ShouldUseMutualTLS
+          - true
+          - !Ref "AWS::NoValue"
