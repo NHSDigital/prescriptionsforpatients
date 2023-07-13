@@ -8,8 +8,8 @@ Globals:
   Function:
     Timeout: 30
     MemorySize: 256
-      Architectures:
-        - x86_64
+    Architectures:
+      - x86_64
     Runtime: nodejs18.x
     Environment:
       Variables:
