@@ -87,7 +87,6 @@ repos:
         args: ["lint-go"]
         language: system
         files: ^packages\/getSecretLayer
-        types_or: [go]
         pass_filenames: false
 
 fail_fast: true
