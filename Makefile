@@ -97,7 +97,7 @@ compile-go:
 
 compile: compile-node compile-go
 
-lint: compile
+lint-node: compile-node
 	npm run lint --workspace packages/capabilityStatement
 	npm run lint --workspace packages/getMyPrescriptions
 	npm run lint --workspace packages/middleware
@@ -105,6 +105,11 @@ lint: compile
 	npm run lint --workspace packages/splunkProcessor
 	npm run lint --workspace packages/statusLambda
 	npm run lint --workspace packages/spineClient
+
+lint-go:
+	cd packages/getSecretLayer/src && golangci-lint run
+
+lint: lint-node lint-go
 
 test: compile
 	npm run test --workspace packages/capabilityStatement

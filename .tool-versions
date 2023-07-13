@@ -5,3 +5,4 @@ shellcheck 0.9.0
 java openjdk-20
 direnv 2.32.2
 golang 1.20.6
+golangci-lint 1.53.3
