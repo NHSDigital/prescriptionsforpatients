@@ -70,6 +70,7 @@ func main() {
 		panic("Failed to retrieve secret due to error " + err.Error())
 	}
 
+	// output the secret value
 	fmt.Printf(*result.SecretString)
 }
 
