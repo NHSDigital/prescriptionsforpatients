@@ -14,9 +14,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/secretsmanager"
-	"github.com/aws/aws-sdk-go-v2/service/sts"
 
 	"github.com/aws/aws-sdk-go-v2/aws/retry"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -30,7 +28,6 @@ const DEFAULT_SESSION = "param_session"
 var (
 	region      string
 	secretArn   string
-	roleArn     string
 	timeout     int
 	sessionName string
 )
@@ -56,15 +53,8 @@ func main() {
 		panic("configuration error " + err.Error())
 	}
 
-	// Assume a role to retreive the parameter
-	role, err := AttemptAssumeRole(ctx, cfg)
-
-	if err != nil {
-		panic("Failed to assume role due to error " + err.Error())
-	}
-
 	// Get the secret
-	result, err := GetSecret(ctx, cfg, role)
+	result, err := GetSecret(ctx, cfg)
 
 	if err != nil {
 		panic("Failed to retrieve secret due to error " + err.Error())
@@ -78,7 +68,6 @@ func getCommandParams() {
 	// Setup command line args
 	flag.StringVar(&region, "r", DEFAULT_REGION, "The Amazon Region to use")
 	flag.StringVar(&secretArn, "s", "", "The ARN for the secret to access")
-	flag.StringVar(&roleArn, "a", "", "The ARN for the role to assume for Secret Access")
 	flag.IntVar(&timeout, "t", DEFAULT_TIMEOUT, "The amount of time to wait for any API call")
 	flag.StringVar(&sessionName, "n", DEFAULT_SESSION, "The name of the session for AWS STS")
 
@@ -92,38 +81,12 @@ func getCommandParams() {
 	}
 }
 
-// This function will attempt to assume the supplied role and return either an error or the assumed role
-func AttemptAssumeRole(ctx context.Context, cfg aws.Config) (*sts.AssumeRoleOutput, error) {
-	if len(roleArn) <= 0 {
-		return nil, nil
-	}
 
-	client := sts.NewFromConfig(cfg)
-
-	return client.AssumeRole(ctx,
-		&sts.AssumeRoleInput{
-			RoleArn:         &roleArn,
-			RoleSessionName: &sessionName,
-		},
-	)
-}
-
-// This function will return the descrypted version of the Secret from Secret Manager using the supplied
-// assumed role to interact with Secret Manager.  This function will return either an error or the
-// retrieved and decrypted secret.
-func GetSecret(ctx context.Context, cfg aws.Config, assumedRole *sts.AssumeRoleOutput) (*secretsmanager.GetSecretValueOutput, error) {
-
-	if assumedRole != nil {
-		client := secretsmanager.NewFromConfig(cfg, func(o *secretsmanager.Options) {
-			o.Credentials = aws.NewCredentialsCache(credentials.NewStaticCredentialsProvider(*assumedRole.Credentials.AccessKeyId, *assumedRole.Credentials.SecretAccessKey, *assumedRole.Credentials.SessionToken))
-		})
-		return client.GetSecretValue(ctx, &secretsmanager.GetSecretValueInput{
-			SecretId: aws.String(secretArn),
-		})
-	} else {
-		client := secretsmanager.NewFromConfig(cfg)
-		return client.GetSecretValue(ctx, &secretsmanager.GetSecretValueInput{
-			SecretId: aws.String(secretArn),
-		})
-	}
+// This function will return the descrypted version of the Secret from Secret Manager 
+// This function will return either an error or the retrieved and decrypted secret.
+func GetSecret(ctx context.Context, cfg aws.Config) (*secretsmanager.GetSecretValueOutput, error) {
+	client := secretsmanager.NewFromConfig(cfg)
+	return client.GetSecretValue(ctx, &secretsmanager.GetSecretValueInput{
+		SecretId: aws.String(secretArn),
+	})
 }
