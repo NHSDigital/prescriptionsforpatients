@@ -13,22 +13,41 @@ info:
     email: api.management@nhs.net
   description: |
     ## Overview
-    Use this API to access the Patient Facing Services (PFS) capabilities of the
-    [Electronic Prescription Service (EPS)](https://digital.nhs.uk/services/electronic-prescription-service).
+    Use this API to allow patients to view their digital prescriptions.
 
-    EPS is the national service used to send electronic prescription messages between prescribers and community dispensers.
+    The API retrieves digital prescriptions from the [Electronic Prescription Service](https://digital.nhs.uk/developer/api-catalogue/electronic-prescription-service-fhir).
+    
+    Patients can use their digital prescriptions to collect their medication at any pharmacy in England.
+
+    Patients will be able to view:
+    * repeat and acute prescriptions created using the [Electronic Prescription Service](https://digital.nhs.uk/developer/api-catalogue/electronic-prescription-service-fhir)
+    * information about the pharmacy their prescriptions can be collected from or will be delivered by
+    * limited information about the status of their prescriptions
 
     ## Who can use this API
-    This API can only be used where there is a legal basis to do so. Make sure you have a [valid use case](https://digital.nhs.uk/services/electronic-prescription-service/enabling-eps-for-your-service) before you go too far with your development. 
+    Currently, this API is for [internal use only](https://digital.nhs.uk/developer/guides-and-documentation/reference-guide#statuses) - the only API consumer is the NHS App. 
+    
+    It is not currently available for integration by external third parties. 
+        
+    ## Related APIs
+    The following APIs are related to this API: 
+    * [Electronic Prescriptions Service](https://digital.nhs.uk/developer/api-catalogue/electronic-prescription-service-fhir): The national service for creating and dispensing prescriptions across health and social care. 
+    * [Personal Demographics Service](https://digital.nhs.uk/developer/api-catalogue/personal-demographics-service-fhir): the national service for storing and retrieving NHS patient details such as name, address, date of birth, related people, registered GP and NHS number.
+    
+    ## API status and roadmap
+    This API is in an [internal private beta](https://digital.nhs.uk/developer/guides-and-documentation/reference-guide#statuses), meaning the API is not currently available for integration by external third parties.
 
-    You must get approval before you can go live. For more information, see the 'Onboarding' section.
+    If you want to use this API when it becomes available for external use, contact us at epsonboarding@nhs.net to register your interest.
+    
+    ## Service Level
+    This API is a platinum service, meaning it is operational and supported 24x7x365.
 
+    For more details, see [service levels](https://digital.nhs.uk/developer/guides-and-documentation/reference-guide#service-levels) 
+    
     ## Technology
     This API is [RESTful](https://digital.nhs.uk/developer/guides-and-documentation/our-api-technologies#basic-rest).
 
-    It conforms to the [FHIR](https://digital.nhs.uk/developer/guides-and-documentation/our-api-technologies#fhir) global standard for health care data exchange, specifically to [FHIR R4 (v4.0.1)](https://hl7.org/fhir/r4/), except that it does not support the [capabilities](http://hl7.org/fhir/R4/http.html#capabilities) interaction.
-
-    It includes some country-specific FHIR extensions, which are built against [FHIR UK Core, specifically [UKcore.stu1 0.5.1](https://simplifier.net/packages/fhir.r4.ukcore.stu1/0.5.1).
+    It conforms to the [FHIR](https://digital.nhs.uk/developer/guides-and-documentation/our-api-technologies#fhir) global standard for health care data exchange, specifically to [FHIR UK Core](https://digital.nhs.uk/services/fhir-uk-core).
 
     You do not need to know much about FHIR to use this API - FHIR APIs are just RESTful APIs that follow specific rules. In particular:
     * resource names are capitalised and singular, for example `/Patient` not `/patients`
@@ -38,25 +57,26 @@ info:
     There are [libraries and software development kits available](https://digital.nhs.uk/developer/guides-and-documentation/api-technologies-at-nhs-digital#fhir-libraries-and-sdks) to help with FHIR API integration.
 
     ## Network access
-    This API is available on the internet and, indirectly, on the [Health and Social Care Network (HSCN)](https://digital.nhs.uk/services/health-and-social-care-network).
+    This API is available on the internet.
 
     For more details see [Network access for APIs](https://digital.nhs.uk/developer/guides-and-documentation/network-access-for-apis).
 
     ## Security and authorisation
-    This API has one access mode:
-    * user-restricted access
+    This API is [user-restricted](https://digital.nhs.uk/developer/guides-and-documentation/security-and-authorisation#user-restricted-apis), meaning an end user must be present, authenticated and authorised. 
 
-    ### User-restricted access
-    Use this access mode to search for a patient's prescription data.
-
-    To use this access mode, see the Patient access section here:
-    * [User-restricted RESTful API - using NHS Login - separate authentication and authorisation](https://digital.nhs.uk/developer/guides-and-documentation/security-and-authorisation#user-restricted-apis)
+    The end user must be:
+    * a patient who receives health and social care or makes use of NHS services 
+    * strongly authenticated to a P9 level, using [NHS login - separate authentication and authorisation](https://digital.nhs.uk/developer/guides-and-documentation/security-and-authorisation/user-restricted-restful-apis-nhs-login-separate-authentication-and-authorisation)
 
     ## Environment and testing
-    | Environment   | Base URL                                                     |
-    | ------------- | -------------------------------------------------------------|
-    | Integration   | `https://int.api.service.nhs.uk/prescriptions-for-patients`  |
-    | Production    | `https://api.service.nhs.uk/prescriptions-for-patients`      |
+    | Environment   | Base URL                                                         |
+    | ------------- | ---------------------------------------------------------------- |
+    | Sandbox       | Not yet available                                                |
+    | Integration   | Not yet available                                                |
+    | Production    | Not yet available                                                |
+
+    ## Onboarding
+    This API is not currently available for external third parties to onboard onto.
 
     ## Errors
     ### API wide errors
@@ -68,7 +88,7 @@ info:
     ### Platform wide errors
     | HTTP Status   | Error Code            | Description                                                                                                                           |
     | ------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-    | 401           | ACCESS_DENIED         | User does not have permission for a particular request.                                                                               |
+    | 401           | ACCESS_DENIED         | User does not have sufficient permissions for a particular request.                                                                   |
     | 403           | FORBIDDEN             | Insufficient authorization.                                                                                                           |
     | 404           | NOT_FOUND             | Route not found.                                                                                                                      |
     | 500           | INTERNAL SERVER ERROR | The server has encountered a situation it does not know how to handle.                                                                |
@@ -91,10 +111,10 @@ paths:
   /Bundle:
     get:
       operationId: prescriptions-for-patients-bundle
-      summary: Get prescriptions for the given user
+      summary: Get prescriptions
       description: |
         ## Overview
-        Use this endpoint to get a Bundle containing a list of the user's prescriptions.
+        Use this endpoint to get a list of a patient's prescriptions.
       parameters:
         - $ref: "#/components/parameters/BearerAuthorisation"
         - $ref: "#/components/parameters/RequestID"
