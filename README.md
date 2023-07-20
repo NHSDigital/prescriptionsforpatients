@@ -11,7 +11,6 @@ This is an API for accessing prescription information.
 - `packages/statusLambda/` Returns the status of the getMyPrescriptions endpoint
 - `packages/capabilityStatement/` Returns a static capability statement
 - `packages/getSecretLayer/` golang code that is used as a lambda layer to inject secrets to environment variables used by lambdas
-- `packages/specification/` OAS spec for the API
 - `packages/spineClient/` Module for connecting to spine
 - `postman/` Contains a postman collection for interacting with the API.
 - `scripts/` Utilities helpful to developers of this specification.
