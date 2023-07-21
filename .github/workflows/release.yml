@@ -51,7 +51,7 @@ jobs:
         uses: asdf-vm/actions/install@6a442392015fbbdd8b48696d41e0051b2698b2e4
 
       - name: Install python packages
-        run: poetry install
+        run: asdf reshim python; poetry install
 
       - name: Set SPEC_VERSION env var for merges to main
         run: echo "SPEC_VERSION=$(poetry run python scripts/calculate_version.py)" >> $GITHUB_ENV
