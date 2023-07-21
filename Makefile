@@ -150,13 +150,3 @@ aws-configure:
 
 aws-login:
 	aws sso login --sso-session sso-session
-
-reshim:
-	asdf reshim nodejs
-	asdf reshim python
-	asdf reshim poetry
-	asdf reshim shellcheck
-	asdf reshim java
-	asdf reshim direnv
-	asdf reshim golang
-	asdf reshim golangci-lint
