@@ -30,7 +30,9 @@ jobs:
         uses: asdf-vm/actions/install@6a442392015fbbdd8b48696d41e0051b2698b2e4
         with:
           asdf_branch: v0.11.3
-
+        env:
+          PYTHON_CONFIGURE_OPTS: --enable-shared 
+  
       - name: make install
         run: |
           make reshim
