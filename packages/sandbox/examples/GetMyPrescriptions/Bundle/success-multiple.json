@@ -26,7 +26,7 @@
               "medicationCodeableConcept": {
                 "coding": [
                   {
-                    "system": "http://snomed.info/sct",
+                    "system": "https://snomed.info/sct",
                     "code": "39732311000001104",
                     "display": "Amoxicillin 250mg capsules"
                   }
@@ -48,7 +48,7 @@
               "courseOfTherapyType": {
                 "coding": [
                   {
-                    "system": "http://terminology.hl7.org/CodeSystem/medicationrequest-course-of-therapy",
+                    "system": "https://terminology.hl7.org/CodeSystem/medicationrequest-course-of-therapy",
                     "code": "acute",
                     "display": "Short course (acute) therapy"
                   }
@@ -61,7 +61,7 @@
                 "quantity": {
                   "value": 20,
                   "unit": "tablet",
-                  "system": "http://snomed.info/sct",
+                  "system": "https://snomed.info/sct",
                   "code": "428673006"
                 },
                 "performer": {
@@ -82,7 +82,7 @@
               "medicationCodeableConcept": {
                 "coding": [
                   {
-                    "system": "http://snomed.info/sct",
+                    "system": "https://snomed.info/sct",
                     "code": "322341003",
                     "display": "Co-codamol 30mg/500mg tablets"
                   }
@@ -104,7 +104,7 @@
               "courseOfTherapyType": {
                 "coding": [
                   {
-                    "system": "http://terminology.hl7.org/CodeSystem/medicationrequest-course-of-therapy",
+                    "system": "https://terminology.hl7.org/CodeSystem/medicationrequest-course-of-therapy",
                     "code": "acute",
                     "display": "Short course (acute) therapy"
                   }
@@ -117,7 +117,7 @@
                 "quantity": {
                   "value": 20,
                   "unit": "tablet",
-                  "system": "http://snomed.info/sct",
+                  "system": "https://snomed.info/sct",
                   "code": "428673006"
                 },
                 "performer": {
@@ -138,7 +138,7 @@
               "medicationCodeableConcept": {
                 "coding": [
                   {
-                    "system": "http://snomed.info/sct",
+                    "system": "https://snomed.info/sct",
                     "code": "321080004",
                     "display": "Pseudoephedrine hydrochloride 60mg tablets"
                   }
@@ -160,7 +160,7 @@
               "courseOfTherapyType": {
                 "coding": [
                   {
-                    "system": "http://terminology.hl7.org/CodeSystem/medicationrequest-course-of-therapy",
+                    "system": "https://terminology.hl7.org/CodeSystem/medicationrequest-course-of-therapy",
                     "code": "acute",
                     "display": "Short course (acute) therapy"
                   }
@@ -173,7 +173,7 @@
                 "quantity": {
                   "value": 30,
                   "unit": "tablet",
-                  "system": "http://snomed.info/sct",
+                  "system": "https://snomed.info/sct",
                   "code": "428673006"
                 },
                 "performer": {
@@ -194,7 +194,7 @@
               "medicationCodeableConcept": {
                 "coding": [
                   {
-                    "system": "http://snomed.info/sct",
+                    "system": "https://snomed.info/sct",
                     "code": "324252006",
                     "display": "Azithromycin 250mg capsules"
                   }
@@ -216,7 +216,7 @@
               "courseOfTherapyType": {
                 "coding": [
                   {
-                    "system": "http://terminology.hl7.org/CodeSystem/medicationrequest-course-of-therapy",
+                    "system": "https://terminology.hl7.org/CodeSystem/medicationrequest-course-of-therapy",
                     "code": "acute",
                     "display": "Short course (acute) therapy"
                   }
@@ -229,7 +229,7 @@
                 "quantity": {
                   "value": 30,
                   "unit": "tablet",
-                  "system": "http://snomed.info/sct",
+                  "system": "https://snomed.info/sct",
                   "code": "428673006"
                 },
                 "performer": {
@@ -262,8 +262,12 @@
               "name": [
                 {
                   "family": "BOIN",
-                  "given": ["C"],
-                  "prefix": ["DR"]
+                  "given": [
+                    "C"
+                  ],
+                  "prefix": [
+                    "DR"
+                  ]
                 }
               ]
             }
@@ -291,7 +295,10 @@
                 {
                   "use": "work",
                   "type": "both",
-                  "line": ["HALLGARTH SURGERY", "CHEAPSIDE"],
+                  "line": [
+                    "HALLGARTH SURGERY",
+                    "CHEAPSIDE"
+                  ],
                   "city": "SHILDON",
                   "district": "COUNTY DURHAM",
                   "postalCode": "DL4 2HP"
@@ -322,7 +329,10 @@
                 {
                   "use": "work",
                   "type": "both",
-                  "line": ["THE HEALTH AND WELLBEING INNOVATION C", "TRELISKE"],
+                  "line": [
+                    "THE HEALTH AND WELLBEING INNOVATION C",
+                    "TRELISKE"
+                  ],
                   "city": "TRURO",
                   "district": "CORNWALL",
                   "postalCode": "TR1 3FF"
@@ -352,7 +362,7 @@
               "medicationCodeableConcept": {
                 "coding": [
                   {
-                    "system": "http://snomed.info/sct",
+                    "system": "https://snomed.info/sct",
                     "code": "324252006",
                     "display": "Azithromycin 250mg capsules"
                   }
@@ -374,7 +384,7 @@
               "courseOfTherapyType": {
                 "coding": [
                   {
-                    "system": "http://terminology.hl7.org/CodeSystem/medicationrequest-course-of-therapy",
+                    "system": "https://terminology.hl7.org/CodeSystem/medicationrequest-course-of-therapy",
                     "code": "acute",
                     "display": "Short course (acute) therapy"
                   }
@@ -387,7 +397,7 @@
                 "quantity": {
                   "value": 30,
                   "unit": "tablet",
-                  "system": "http://snomed.info/sct",
+                  "system": "https://snomed.info/sct",
                   "code": "428673006"
                 }
               },
@@ -417,8 +427,12 @@
               "name": [
                 {
                   "family": "ROBINSON",
-                  "given": ["C"],
-                  "prefix": ["DR"]
+                  "given": [
+                    "C"
+                  ],
+                  "prefix": [
+                    "DR"
+                  ]
                 }
               ]
             }
@@ -445,7 +459,9 @@
                 {
                   "use": "work",
                   "type": "both",
-                  "line": ["IVESON APPROACH"],
+                  "line": [
+                    "IVESON APPROACH"
+                  ],
                   "city": "LEEDS",
                   "district": "WEST YORKSHIRE",
                   "postalCode": "LS16 6FR",
