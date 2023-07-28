@@ -37,7 +37,9 @@ jobs:
       # using git commit sha for version of action to ensure we have stable version
       - name: Install asdf
         uses: asdf-vm/actions/setup@6a442392015fbbdd8b48696d41e0051b2698b2e4
-
+        with:
+          asdf_branch: v0.11.3
+  
       - name: Cache asdf
         uses: actions/cache@v3
         with:
@@ -49,9 +51,15 @@ jobs:
 
       - name: Install asdf dependencies in .tool-versions
         uses: asdf-vm/actions/install@6a442392015fbbdd8b48696d41e0051b2698b2e4
-
+        with:
+          asdf_branch: v0.11.3
+        env:
+          PYTHON_CONFIGURE_OPTS: --enable-shared 
+  
       - name: Install python packages
-        run: poetry install
+        run: |
+          export PATH="/home/runner/.asdf/installs/poetry/1.3.1/bin:$PATH"
+          poetry install
 
       - name: Set SPEC_VERSION env var for merges to main
         run: echo "SPEC_VERSION=$(poetry run python scripts/calculate_version.py)" >> $GITHUB_ENV

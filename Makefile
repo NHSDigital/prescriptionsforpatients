@@ -124,7 +124,6 @@ clean:
 	rm -rf packages/getMyPrescriptions/coverage
 	rm -rf packages/middleware/coverage
 	rm -rf packages/sandbox/coverage
-	rm -rf packages/specification/coverage
 	rm -rf packages/spineClient/coverage
 	rm -rf packages/splunkProcessor/coverage
 	rm -rf packages/statusLambda/coverage
@@ -132,7 +131,6 @@ clean:
 	rm -rf packages/getMyPrescriptions/lib
 	rm -rf packages/middleware/lib
 	rm -rf packages/sandbox/lib
-	rm -rf packages/specification/lib
 	rm -rf packages/spineClient/lib
 	rm -rf packages/splunkProcessor/lib
 	rm -rf packages/statusLambda/lib

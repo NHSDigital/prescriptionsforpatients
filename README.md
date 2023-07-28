@@ -6,12 +6,11 @@ This is an API for accessing prescription information.
 
 - `packages/getMyPrescriptions/` Get prescription details for /Bundle endpoint.
 - `packages/splunkProcessor/` Processes CloudWatch logs for Splunk.
-- `packages/sandbox/` Returns [static data](./packages/specification/examples/GetMyPrescriptions/Bundle/success.json) from the Sandbox
+- `packages/sandbox/` Returns [static data](./packages/sandbox/examples/GetMyPrescriptions/Bundle/success.json) from the Sandbox
 - `packages/middleware/` A modified [middy-error-handler](https://github.com/schibsted/middy-error-handler) to return FHIR responses
 - `packages/statusLambda/` Returns the status of the getMyPrescriptions endpoint
 - `packages/capabilityStatement/` Returns a static capability statement
 - `packages/getSecretLayer/` golang code that is used as a lambda layer to inject secrets to environment variables used by lambdas
-- `packages/specification/` OAS spec for the API
 - `packages/spineClient/` Module for connecting to spine
 - `postman/` Contains a postman collection for interacting with the API.
 - `scripts/` Utilities helpful to developers of this specification.
