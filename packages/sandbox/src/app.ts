@@ -23,7 +23,7 @@ const lambdaHandler = async (): Promise<APIGatewayProxyResult> => {
   return {
     statusCode: 200,
     body: JSON.stringify({
-      message: successData
+      successData
     }),
     headers: {
       "Content-Type": "application/json"
