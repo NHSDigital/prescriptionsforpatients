@@ -1,4 +1,11 @@
-This folder contains cloudformation definitions for 'manually' created resources that are only created once per environment. These need to manually applied as they are not created as part of a CI or pull request build
+This folder contains cloudformation definitions for 'manually' created resources that are only created once per environment. These need to manually applied as they are not created as part of a CI or pull request build.
+
+To bootstrap an account, you should run through the following in order
+
+- [CI Resources](#ci-resources)
+- [Route 53 resources - environment accounts](#route-53-resources---environment-accounts)
+- [Route 53 resources - management account](#route-53-resources---management-account)
+- Run the script in privateCA folder to create mutual TLS keys
 
 # CI Resources
 
@@ -40,26 +47,6 @@ aws cloudformation list-exports \
 
 This value should then be stored in the github project as a repository secret called `<ENVIRONMENT>_CLOUD_FORMATION_DEPLOY_ROLE`
 
-# Route 53 resources - management account
-
-management_route53.yml contains route 53 resources created in the management account. This should only be applied to the management account.  
-It creates the following resources
-
-- route 53 hosted zone for prescriptionsforpatients.national.nhs.uk
-- NS records for {dev, int, ref, qa, prod}.prescriptionsforpatients.national.nhs.uk pointing to route 53 hosted zones in each account
-
-To deploy the stack, use the following
-
-```
-export AWS_PROFILE=prescription-management
-aws sso login --sso-session sso-session
-
-aws cloudformation deploy \
-          --template-file cloudformation/management_route53.yml \
-          --stack-name route53-resources \
-          --region eu-west-2
-```
-
 # Route 53 resources - environment accounts
 
 environment_route53.yml contains route 53 resources created in each environment account.  
@@ -83,4 +70,26 @@ aws cloudformation deploy \
           --stack-name route53-resources \
           --region eu-west-2 \
           --parameter-overrides environment=<ENVIRONMENT>
+```
+
+On bootstrap or major changes, you should get the name server host names for the created zone and update the file management_route53.yml and deploy it
+
+# Route 53 resources - management account
+
+management_route53.yml contains route 53 resources created in the management account. This should only be applied to the management account.  
+It creates the following resources
+
+- route 53 hosted zone for prescriptionsforpatients.national.nhs.uk
+- NS records for {dev, int, ref, qa, prod}.prescriptionsforpatients.national.nhs.uk pointing to route 53 hosted zones in each account
+
+To deploy the stack, use the following
+
+```
+export AWS_PROFILE=prescription-management
+aws sso login --sso-session sso-session
+
+aws cloudformation deploy \
+          --template-file cloudformation/management_route53.yml \
+          --stack-name route53-resources \
+          --region eu-west-2
 ```
