@@ -60,10 +60,6 @@ describe("Unit test for app handler", function () {
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
     expect(result.statusCode).toEqual(200)
-    expect(result.body).toEqual(
-      JSON.stringify({
-        message: successData
-      })
-    )
+    expect(result.body).toEqual(JSON.stringify(successData))
   })
 })
