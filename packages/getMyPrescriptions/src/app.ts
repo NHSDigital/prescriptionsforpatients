@@ -29,8 +29,11 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
 
   const returnData = await spineClient.getPrescriptions(event.headers, logger)
   return {
-    statusCode: returnData.status,
-    body: returnData.data
+    statusCode: 200,
+    body: returnData.data,
+    headers: {
+      "Content-Type": "application/fhir+json"
+    }
   }
 }
 
