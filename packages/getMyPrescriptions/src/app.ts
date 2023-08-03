@@ -20,17 +20,13 @@ const logger = new Logger({serviceName: "getMyPrescriptions"})
  */
 
 const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  // nhsd-nhslogin-user looks like P9:9912003071
-  const nhsNumber = event.headers["nhsd-nhslogin-user"]?.split(":")[1]
-  logger.info(`nhsNumber: ${nhsNumber}`)
-
   /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   const spineClient = createSpineClient()
 
   const returnData = await spineClient.getPrescriptions(event.headers, logger)
   return {
     statusCode: 200,
-    body: returnData.data,
+    body: JSON.stringify(returnData.data),
     headers: {
       "Content-Type": "application/fhir+json"
     }
