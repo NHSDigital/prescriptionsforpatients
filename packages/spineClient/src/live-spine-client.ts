@@ -36,7 +36,7 @@ export class LiveSpineClient implements SpineClient {
       const queryParams = {
         nhsNumber: inboundHeaders["nhsd-nhslogin-user"]?.split(":")[1]
       }
-      const response = await axios.get(address, {
+      const response = await axios.get<string>(address, {
         headers: outboundHeaders,
         params: queryParams,
         httpsAgent: this.httpsAgent
@@ -44,7 +44,19 @@ export class LiveSpineClient implements SpineClient {
 
       return response
     } catch (error) {
-      logger.error("received an error response from spine", {error})
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          logger.error("received an error response from spine", {
+            error_response: error.response.data,
+            error_status: error.response.status,
+            error_headers: error.response.headers
+          })
+        } else if (error.request) {
+          logger.error("error in request", error.request)
+        }
+      } else {
+        logger.error("general error")
+      }
       throw error
     }
   }
