@@ -40,7 +40,7 @@ export class LiveSpineClient implements SpineClient {
         nhsNumber: nhsNumber
       }
       logger.info(`making request to ${address}`)
-      const response = await axios.get<string>(address, {
+      const response = await axios.get(address, {
         headers: outboundHeaders,
         params: queryParams,
         httpsAgent: this.httpsAgent
