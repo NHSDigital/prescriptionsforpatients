@@ -52,7 +52,13 @@ export class LiveSpineClient implements SpineClient {
               status: error.response.status,
               Headers: error.response.headers
             },
-            request: error.request
+            request: {
+              method: error.request.method,
+              path: error.request.path,
+              params: error.request.params,
+              headers: error.request.headers,
+              host: error.request.host
+            }
           })
         } else if (error.request) {
           logger.error("error in request to spine", {
