@@ -83,10 +83,10 @@ export class LiveSpineClient implements SpineClient {
             host: error.request.host
           })
         } else {
-          logger.error("general error calling spine")
+          logger.error("general error calling spine", {error})
         }
       } else {
-        logger.error("general error")
+        logger.error("general error", {error})
       }
       throw error
     }
