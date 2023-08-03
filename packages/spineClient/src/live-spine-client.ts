@@ -24,24 +24,29 @@ export class LiveSpineClient implements SpineClient {
     })
   }
   async getPrescriptions(inboundHeaders: APIGatewayProxyEventHeaders, logger: Logger): Promise<AxiosResponse> {
-    const outboundHeaders = {
-      Accept: "application/json",
-      "Spine-From-Asid": this.spineASID,
-      "nhsd-party-key": this.spinePartyKey
-    }
+    try {
+      const outboundHeaders = {
+        Accept: "application/json",
+        "Spine-From-Asid": this.spineASID,
+        "nhsd-party-key": this.spinePartyKey
+      }
 
-    const address = this.getSpineEndpoint("mm/patientfacingprescriptions")
-    logger.info(`making request to ${address}`)
-    const queryParams = {
-      nhsNumber: inboundHeaders["nhsd-nhslogin-user"]?.split(":")[1]
-    }
-    const response = await axios.get(address, {
-      headers: outboundHeaders,
-      params: queryParams,
-      httpsAgent: this.httpsAgent
-    })
+      const address = this.getSpineEndpoint("mm/patientfacingprescriptions")
+      logger.info(`making request to ${address}`)
+      const queryParams = {
+        nhsNumber: inboundHeaders["nhsd-nhslogin-user"]?.split(":")[1]
+      }
+      const response = await axios.get(address, {
+        headers: outboundHeaders,
+        params: queryParams,
+        httpsAgent: this.httpsAgent
+      })
 
-    return response
+      return response
+    } catch (error) {
+      logger.error("received an error response from spine", {error})
+      throw error
+    }
   }
 
   private getSpineEndpoint(requestPath?: string) {
