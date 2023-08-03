@@ -27,34 +27,10 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
   /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   const spineClient = createSpineClient()
 
-  const returnType = event.queryStringParameters?.returnType
-  logger.info({message: "value of returnType", returnType})
-  switch (returnType) {
-    case "teapot": {
-      return {
-        statusCode: 418,
-        body: JSON.stringify({
-          message: "I am a teapot short and stout"
-        }),
-        headers: {
-          "Content-Type": "application/json"
-        }
-      }
-    }
-    case "error": {
-      throw Error("error running lambda")
-    }
-    default: {
-      return {
-        statusCode: 200,
-        body: JSON.stringify({
-          message: "hello world from getMyPrescriptions lambda"
-        }),
-        headers: {
-          "Content-Type": "application/json"
-        }
-      }
-    }
+  const returnData = await spineClient.getPrescriptions(event.headers, logger)
+  return {
+    statusCode: returnData.status,
+    body: returnData.data
   }
 }
 

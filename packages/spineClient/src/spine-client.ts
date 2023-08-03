@@ -1,12 +1,13 @@
-import {ClientRequest, SpineResponse} from "./models/spine"
 import {Logger} from "@aws-lambda-powertools/logger"
 import {StatusCheckResponse} from "./status"
 import {LiveSpineClient} from "./live-spine-client"
 import {SandboxSpineClient} from "./sandbox-spine-client"
+import {APIGatewayProxyEventHeaders} from "aws-lambda"
+import {AxiosResponse} from "axios"
 
 export interface SpineClient {
-  send(request: ClientRequest, logger: Logger): Promise<SpineResponse<unknown>>
   getStatus(logger: Logger): Promise<StatusCheckResponse>
+  getPrescriptions(inboundHeaders: APIGatewayProxyEventHeaders, logger: Logger): Promise<AxiosResponse>
 }
 
 export function createSpineClient(): SpineClient {

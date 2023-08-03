@@ -1,8 +1,9 @@
-import {ClientRequest, SpineResponse} from "./models/spine"
 import {Logger} from "@aws-lambda-powertools/logger"
 import {serviceHealthCheck, StatusCheckResponse} from "./status"
 import {SpineClient} from "./spine-client"
 import {Agent} from "https"
+import axios, {AxiosResponse} from "axios"
+import {APIGatewayProxyEventHeaders} from "aws-lambda"
 
 const SPINE_URL_SCHEME = "https"
 const SPINE_ENDPOINT = process.env.TargetSpineServer
@@ -10,9 +11,11 @@ const SPINE_ENDPOINT = process.env.TargetSpineServer
 export class LiveSpineClient implements SpineClient {
   private readonly spineASID: string | undefined
   private readonly httpsAgent: Agent
+  private readonly spinePartyKey: string | undefined
 
   constructor() {
     this.spineASID = process.env.SpineASID
+    this.spinePartyKey = process.env.SpinePartyKey
 
     this.httpsAgent = new Agent({
       cert: process.env.SpinePublicCertificate,
@@ -20,37 +23,25 @@ export class LiveSpineClient implements SpineClient {
       ca: process.env.SpineCAChain
     })
   }
-
-  async send(clientRequest: ClientRequest): Promise<SpineResponse<unknown>> {
-    return await this.handleSpineRequest(clientRequest)
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async handleSpineRequest(spineRequest: ClientRequest): Promise<SpineResponse<unknown>> {
-    const notSupportedOperationOutcome = {
-      resourceType: "OperationOutcome",
-      issue: [
-        {
-          severity: "information",
-          code: "exception",
-          details: {
-            coding: [
-              {
-                code: "INTERACTION_NOT_SUPPORTED",
-                display: "Interaction not supported",
-                system: "https://fhir.nhs.uk/R4/CodeSystem/Spine-ErrorOrWarningCode",
-                version: "1"
-              }
-            ]
-          }
-        }
-      ]
+  async getPrescriptions(inboundHeaders: APIGatewayProxyEventHeaders, logger: Logger): Promise<AxiosResponse> {
+    const outboundHeaders = {
+      Accept: "application/json",
+      "Spine-From-Asid": this.spineASID,
+      "nhsd-party-key": this.spinePartyKey
     }
 
-    return Promise.resolve({
-      statusCode: 400,
-      body: notSupportedOperationOutcome
+    const address = this.getSpineEndpoint("mm/patientfacingprescriptions")
+    logger.info(`making request to ${address}`)
+    const queryParams = {
+      nhsNumber: inboundHeaders["nhsd-nhslogin-user"]?.split(":")[1]
+    }
+    const response = await axios.get(address, {
+      headers: outboundHeaders,
+      params: queryParams,
+      httpsAgent: this.httpsAgent
     })
+
+    return response
   }
 
   private getSpineEndpoint(requestPath?: string) {
