@@ -18,6 +18,7 @@ Globals:
         SpinePrivateKeyARN: !ImportValue ci-resources:SpinePrivateKey
         SpinePublicCertificateARN: !ImportValue ci-resources:SpinePublicCertificate
         SpineASIDARN: !ImportValue ci-resources:SpineASID
+        SpinePartyKeyARN: !ImportValue ci-resources:SpinePartyKey
         SpineCAChainARN: !ImportValue ci-resources:SpineCAChain
 
 Parameters:
@@ -150,6 +151,7 @@ Resources:
               - !ImportValue ci-resources:SpinePrivateKey
               - !ImportValue ci-resources:SpinePublicCertificate
               - !ImportValue ci-resources:SpineASID
+              - !ImportValue ci-resources:SpinePartyKey
               - !ImportValue ci-resources:SpineCAChain
       Roles:
         - !Ref GetMyPrescriptionsRole
@@ -348,6 +350,7 @@ Resources:
               - !ImportValue ci-resources:SpinePrivateKey
               - !ImportValue ci-resources:SpinePublicCertificate
               - !ImportValue ci-resources:SpineASID
+              - !ImportValue ci-resources:SpinePartyKey
               - !ImportValue ci-resources:SpineCAChain
       Roles:
         - !Ref StatusLambdaRole
