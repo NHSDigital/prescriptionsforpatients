@@ -46,13 +46,20 @@ export class LiveSpineClient implements SpineClient {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response) {
-          logger.error("received an error response from spine", {
-            error_response: error.response.data,
-            error_status: error.response.status,
-            error_headers: error.response.headers
+          logger.error("error in response from spine", {
+            response: {
+              data: error.response.data,
+              status: error.response.status,
+              Headers: error.response.headers
+            },
+            request: error.request
           })
         } else if (error.request) {
-          logger.error("error in request", error.request)
+          logger.error("error in request to spine", {
+            request: error.request
+          })
+        } else {
+          logger.error("general error calling spine")
         }
       } else {
         logger.error("general error")
