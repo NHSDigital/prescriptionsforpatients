@@ -22,5 +22,8 @@
     "@middy/input-output-logger": "^4.5.3",
     "@prescriptionsforpatients/middleware": "^1.0.0",
     "@prescriptionsforpatients/spineClient": "^1.0.0"
+  },
+  "devDependencies": {
+    "moxios": "^0.4.0"
   }
 }

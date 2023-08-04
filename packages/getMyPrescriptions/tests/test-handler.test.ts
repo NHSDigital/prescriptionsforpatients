@@ -2,13 +2,17 @@ import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
 import {handler} from "../src/app"
 import {expect, describe, it} from "@jest/globals"
 import {ContextExamples} from "@aws-lambda-powertools/commons"
+import "jest"
+import * as moxios from "moxios"
+import axios from "axios"
 
 const dummyContext = ContextExamples.helloworldContext
+process.env.TargetSpineServer = "live"
 
 const exampleEvent = JSON.stringify({
   httpMethod: "get",
   body: "",
-  headers: {},
+  headers: {"nhsd-nhslogin-user": "P9:9912003071"},
   isBase64Encoded: false,
   multiValueHeaders: {},
   multiValueQueryStringParameters: {},
@@ -56,38 +60,72 @@ const exampleEvent = JSON.stringify({
 })
 
 describe("Unit test for app handler", function () {
-  it.skip("verifies successful response with no params", async () => {
+  beforeEach(() => {
+    moxios.install(axios)
+  })
+
+  afterEach(() => {
+    moxios.uninstall(axios)
+  })
+
+  it("verifies successful response", async () => {
+    moxios.wait(() => {
+      const request = moxios.requests.mostRecent()
+      request.respondWith({
+        status: 200,
+        response: {statusCode: "0"}
+      })
+    })
+
     const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
     expect(result.statusCode).toEqual(200)
-    expect(result.body).toEqual(
-      JSON.stringify({
-        message: "hello world from getMyPrescriptions lambda"
-      })
-    )
+    expect(result.body).toEqual(JSON.stringify({statusCode: "0"}))
+    expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
   })
 
-  it.skip("verifies teapot response", async () => {
+  it("verifies error response when spine responds with bad statusCode", async () => {
+    moxios.wait(() => {
+      const request = moxios.requests.mostRecent()
+      request.respondWith({
+        status: 200,
+        response: {statusCode: "50"}
+      })
+    })
     const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
-    event.queryStringParameters = {
-      returnType: "teapot"
-    }
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
-    expect(result.statusCode).toEqual(418)
-    expect(result.body).toEqual(
-      JSON.stringify({
-        message: "I am a teapot short and stout"
-      })
-    )
+    expect(result.statusCode).toBe(500)
+    expect(JSON.parse(result.body)).toEqual({
+      id: "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
+      resourceType: "OperationOutcome",
+      issue: [
+        {
+          severity: "fatal",
+          code: "exception",
+          details: {
+            coding: [
+              {
+                code: "SERVER_ERROR",
+                display: "500: The Server has encountered an error processing the request.",
+                system: "https://fhir.nhs.uk/CodeSystem/http-error-codes"
+              }
+            ]
+          }
+        }
+      ]
+    })
   })
 
-  it.skip("verifies error response", async () => {
+  it("verifies error response when spine responds with bad http statusCode", async () => {
+    moxios.wait(() => {
+      const request = moxios.requests.mostRecent()
+      request.respondWith({
+        status: 500
+      })
+    })
     const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
-    event.queryStringParameters = {
-      returnType: "error"
-    }
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
     expect(result.statusCode).toBe(500)
