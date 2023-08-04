@@ -47,7 +47,7 @@ export class LiveSpineClient implements SpineClient {
         httpsAgent: this.httpsAgent
       })
 
-      if (response.data["statusCode"] !== 0) {
+      if (response.data["statusCode"] !== "00") {
         logger.error("Unsuccessful status code response from spine", {
           response: {
             data: response.data,
@@ -55,7 +55,7 @@ export class LiveSpineClient implements SpineClient {
             Headers: response.headers
           }
         })
-        throw "Unsuccessful status code response from spine"
+        throw new Error("Unsuccessful status code response from spine")
       }
       return response
     } catch (error) {
