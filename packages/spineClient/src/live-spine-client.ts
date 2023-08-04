@@ -26,16 +26,17 @@ export class LiveSpineClient implements SpineClient {
   }
   async getPrescriptions(inboundHeaders: APIGatewayProxyEventHeaders, logger: Logger): Promise<AxiosResponse> {
     try {
-      const outboundHeaders = {
-        Accept: "application/json",
-        "Spine-From-Asid": this.spineASID,
-        "nhsd-party-key": this.spinePartyKey
-      }
-
       const address = this.getSpineEndpoint("mm/patientfacingprescriptions")
       // nhsd-nhslogin-user looks like P9:9912003071
       const nhsNumber = extractNHSNumber(inboundHeaders["nhsd-nhslogin-user"])
       logger.info(`nhsNumber: ${nhsNumber}`)
+
+      const outboundHeaders = {
+        Accept: "application/json",
+        "Spine-From-Asid": this.spineASID,
+        "nhsd-party-key": this.spinePartyKey,
+        nhsNumber: nhsNumber
+      }
 
       const queryParams = {
         nhsNumber: nhsNumber
@@ -47,7 +48,7 @@ export class LiveSpineClient implements SpineClient {
         httpsAgent: this.httpsAgent
       })
 
-      if (response.data["statusCode"] !== "00") {
+      if (response.data["statusCode"] !== "1" && response.data["statusCode"] !== "0") {
         logger.error("Unsuccessful status code response from spine", {
           response: {
             data: response.data,
