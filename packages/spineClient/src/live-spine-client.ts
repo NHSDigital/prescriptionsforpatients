@@ -39,7 +39,7 @@ export class LiveSpineClient implements SpineClient {
       }
 
       const queryParams = {
-        nhsNumber: nhsNumber
+        format: "trace-summary"
       }
       logger.info(`making request to ${address}`)
       const response = await axios.get(address, {
