@@ -35,7 +35,12 @@ export class LiveSpineClient implements SpineClient {
         Accept: "application/json",
         "Spine-From-Asid": this.spineASID,
         "nhsd-party-key": this.spinePartyKey,
-        nhsNumber: nhsNumber
+        nhsNumber: nhsNumber,
+        "nhsd-correlation-id": inboundHeaders["nhsd-correlation-id"],
+        "nhsd-nhslogin-user": inboundHeaders["nhsd-nhslogin-user"],
+        "x-request-id": inboundHeaders["x-request-id"],
+        "x-correlation-id": inboundHeaders["x-correlation-id"],
+        "nhsd-request-id": inboundHeaders["nhsd-request-id"]
       }
 
       const queryParams = {
