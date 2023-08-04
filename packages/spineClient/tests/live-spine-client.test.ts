@@ -21,7 +21,7 @@ describe("live spine client", () => {
       const request = moxios.requests.mostRecent()
       request.respondWith({
         status: 200,
-        response: {statusCode: "00"}
+        response: {statusCode: "0"}
       })
     })
 
@@ -32,7 +32,7 @@ describe("live spine client", () => {
     const spineResponse = await spineClient.getPrescriptions(headers, logger)
 
     expect(spineResponse.status).toBe(200)
-    expect(spineResponse.data).toStrictEqual({statusCode: "00"})
+    expect(spineResponse.data).toStrictEqual({statusCode: "0"})
   })
 
   test("should throw error when unsuccessful status response from spine", async () => {
