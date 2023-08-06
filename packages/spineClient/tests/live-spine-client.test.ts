@@ -1,30 +1,22 @@
 import {LiveSpineClient} from "../src/live-spine-client"
 import "jest"
-import * as moxios from "moxios"
+import MockAdapter from "axios-mock-adapter"
 import axios from "axios"
 import {Logger} from "@aws-lambda-powertools/logger"
 import {APIGatewayProxyEventHeaders} from "aws-lambda"
 
+const mock = new MockAdapter(axios)
+process.env.TargetSpineServer = "spine"
+
 describe("live spine client", () => {
   const logger = new Logger({serviceName: "spineClient"})
 
-  beforeEach(() => {
-    moxios.install(axios)
-  })
-
   afterEach(() => {
-    moxios.uninstall(axios)
+    mock.reset()
   })
 
-  test("should work when successful response from spine", async () => {
-    moxios.wait(() => {
-      const request = moxios.requests.mostRecent()
-      request.respondWith({
-        status: 200,
-        response: {statusCode: "0"}
-      })
-    })
-
+  test("should work when successful response 0 from spine", async () => {
+    mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, {statusCode: "0"})
     const spineClient = new LiveSpineClient()
     const headers: APIGatewayProxyEventHeaders = {
       "nhsd-nhslogin-user": "P9:9912003071"
@@ -35,14 +27,20 @@ describe("live spine client", () => {
     expect(spineResponse.data).toStrictEqual({statusCode: "0"})
   })
 
-  test("should throw error when unsuccessful status response from spine", async () => {
-    moxios.wait(() => {
-      const request = moxios.requests.mostRecent()
-      request.respondWith({
-        status: 200,
-        response: {statusCode: "01"}
-      })
-    })
+  test("should work when successful response 1 from spine", async () => {
+    mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, {statusCode: "1"})
+    const spineClient = new LiveSpineClient()
+    const headers: APIGatewayProxyEventHeaders = {
+      "nhsd-nhslogin-user": "P9:9912003071"
+    }
+    const spineResponse = await spineClient.getPrescriptions(headers, logger)
+
+    expect(spineResponse.status).toBe(200)
+    expect(spineResponse.data).toStrictEqual({statusCode: "1"})
+  })
+
+  test("should throw error when unsuccessful statusCode response from spine", async () => {
+    mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, {statusCode: "99"})
 
     const spineClient = new LiveSpineClient()
     const headers: APIGatewayProxyEventHeaders = {
@@ -54,18 +52,23 @@ describe("live spine client", () => {
   })
 
   test("should throw error when unsuccessful http response from spine", async () => {
-    moxios.wait(() => {
-      const request = moxios.requests.mostRecent()
-      request.respondWith({
-        status: 500
-      })
-    })
+    mock.onGet("https://spine/mm/patientfacingprescriptions").reply(500, {statusCode: "0"})
 
     const spineClient = new LiveSpineClient()
     const headers: APIGatewayProxyEventHeaders = {
       "nhsd-nhslogin-user": "P9:9912003071"
     }
     await expect(spineClient.getPrescriptions(headers, logger)).rejects.toThrow("Request failed with status code 500")
+  })
+
+  test("should throw error when unsuccessful http request", async () => {
+    mock.onGet("https://spine/mm/patientfacingprescriptions").networkError()
+
+    const spineClient = new LiveSpineClient()
+    const headers: APIGatewayProxyEventHeaders = {
+      "nhsd-nhslogin-user": "P9:9912003071"
+    }
+    await expect(spineClient.getPrescriptions(headers, logger)).rejects.toThrow("Network Error")
   })
 
   test("should throw error when no nhsd-nhslogin-user header is passed", async () => {

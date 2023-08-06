@@ -6,10 +6,9 @@ import axios, {AxiosResponse} from "axios"
 import {APIGatewayProxyEventHeaders} from "aws-lambda"
 import {extractNHSNumber} from "./extractNHSNmuber"
 
-const SPINE_URL_SCHEME = "https"
-const SPINE_ENDPOINT = process.env.TargetSpineServer
-
 export class LiveSpineClient implements SpineClient {
+  private readonly SPINE_URL_SCHEME = "https"
+  private readonly SPINE_ENDPOINT = process.env.TargetSpineServer
   private readonly spineASID: string | undefined
   private readonly httpsAgent: Agent
   private readonly spinePartyKey: string | undefined
@@ -74,11 +73,10 @@ export class LiveSpineClient implements SpineClient {
               Headers: error.response.headers
             },
             request: {
-              method: error.request.method,
-              path: error.request.path,
-              params: error.request.params,
-              headers: error.request.headers,
-              host: error.request.host
+              method: error.request?.path,
+              params: error.request?.params,
+              headers: error.request?.headers,
+              host: error.request?.host
             }
           })
         } else if (error.request) {
@@ -100,7 +98,7 @@ export class LiveSpineClient implements SpineClient {
   }
 
   private getSpineEndpoint(requestPath?: string) {
-    return `${SPINE_URL_SCHEME}://${SPINE_ENDPOINT}/${requestPath}`
+    return `${this.SPINE_URL_SCHEME}://${this.SPINE_ENDPOINT}/${requestPath}`
   }
 
   async getStatus(logger: Logger): Promise<StatusCheckResponse> {

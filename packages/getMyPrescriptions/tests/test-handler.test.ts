@@ -3,10 +3,11 @@ import {handler} from "../src/app"
 import {expect, describe, it} from "@jest/globals"
 import {ContextExamples} from "@aws-lambda-powertools/commons"
 import "jest"
-import * as moxios from "moxios"
+import MockAdapter from "axios-mock-adapter"
 import axios from "axios"
 
 const dummyContext = ContextExamples.helloworldContext
+const mock = new MockAdapter(axios)
 process.env.TargetSpineServer = "live"
 
 const exampleEvent = JSON.stringify({
@@ -60,22 +61,14 @@ const exampleEvent = JSON.stringify({
 })
 
 describe("Unit test for app handler", function () {
-  beforeEach(() => {
-    moxios.install(axios)
-  })
-
   afterEach(() => {
-    moxios.uninstall(axios)
+    mock.reset()
   })
 
   it("verifies successful response", async () => {
-    moxios.wait(() => {
-      const request = moxios.requests.mostRecent()
-      request.respondWith({
-        status: 200,
-        response: {statusCode: "0"}
-      })
-    })
+    process.env.TargetSpineServer = "live"
+
+    mock.onGet("https://live/mm/patientfacingprescriptions").reply(200, {statusCode: "0"})
 
     const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
@@ -86,13 +79,7 @@ describe("Unit test for app handler", function () {
   })
 
   it("verifies error response when spine responds with bad statusCode", async () => {
-    moxios.wait(() => {
-      const request = moxios.requests.mostRecent()
-      request.respondWith({
-        status: 200,
-        response: {statusCode: "50"}
-      })
-    })
+    mock.onGet("https://live/mm/patientfacingprescriptions").reply(200, {statusCode: "99"})
     const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
@@ -119,12 +106,7 @@ describe("Unit test for app handler", function () {
   })
 
   it("verifies error response when spine responds with bad http statusCode", async () => {
-    moxios.wait(() => {
-      const request = moxios.requests.mostRecent()
-      request.respondWith({
-        status: 500
-      })
-    })
+    mock.onGet("https://live/mm/patientfacingprescriptions").reply(500, {statusCode: "0"})
     const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
@@ -151,4 +133,30 @@ describe("Unit test for app handler", function () {
   })
 })
 
+it("verifies error response when spine responds with network error", async () => {
+  mock.onGet("https://live/mm/patientfacingprescriptions").networkError()
+  const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+  const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
+
+  expect(result.statusCode).toBe(500)
+  expect(JSON.parse(result.body)).toEqual({
+    id: "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
+    resourceType: "OperationOutcome",
+    issue: [
+      {
+        severity: "fatal",
+        code: "exception",
+        details: {
+          coding: [
+            {
+              code: "SERVER_ERROR",
+              display: "500: The Server has encountered an error processing the request.",
+              system: "https://fhir.nhs.uk/CodeSystem/http-error-codes"
+            }
+          ]
+        }
+      }
+    ]
+  })
+})
 export {}
