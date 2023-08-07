@@ -131,32 +131,195 @@ describe("Unit test for app handler", function () {
       ]
     })
   })
-})
 
-it("verifies error response when spine responds with network error", async () => {
-  mock.onGet("https://live/mm/patientfacingprescriptions").networkError()
-  const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
-  const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
+  it("verifies error response when spine responds with network error", async () => {
+    mock.onGet("https://live/mm/patientfacingprescriptions").networkError()
+    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+    const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
-  expect(result.statusCode).toBe(500)
-  expect(JSON.parse(result.body)).toEqual({
-    id: "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
-    resourceType: "OperationOutcome",
-    issue: [
-      {
-        severity: "fatal",
-        code: "exception",
-        details: {
-          coding: [
-            {
-              code: "SERVER_ERROR",
-              display: "500: The Server has encountered an error processing the request.",
-              system: "https://fhir.nhs.uk/CodeSystem/http-error-codes"
-            }
-          ]
+    expect(result.statusCode).toBe(500)
+    expect(JSON.parse(result.body)).toEqual({
+      id: "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
+      resourceType: "OperationOutcome",
+      issue: [
+        {
+          severity: "fatal",
+          code: "exception",
+          details: {
+            coding: [
+              {
+                code: "SERVER_ERROR",
+                display: "500: The Server has encountered an error processing the request.",
+                system: "https://fhir.nhs.uk/CodeSystem/http-error-codes"
+              }
+            ]
+          }
         }
-      }
-    ]
+      ]
+    })
+  })
+
+  it("verifies error response when no nhs number passed in", async () => {
+    mock.onGet("https://live/mm/patientfacingprescriptions").networkError()
+    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+    event.headers = {}
+    const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
+
+    expect(result.statusCode).toBe(400)
+    expect(JSON.parse(result.body)).toEqual({
+      resourceType: "OperationOutcome",
+      issue: [
+        {
+          code: "value",
+          severity: "error",
+          details: {
+            coding: [
+              {
+                system: "https://fhir.nhs.uk/CodeSystem/Spine-ErrorOrWarningCode",
+                code: "INVALID_RESOURCE_ID",
+                display: "Invalid resource ID"
+              }
+            ]
+          }
+        }
+      ]
+    })
+  })
+
+  it("verifies error response when nhs login user cant be split", async () => {
+    mock.onGet("https://live/mm/patientfacingprescriptions").networkError()
+    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+    event.headers = {"nhsd-nhslogin-user": "1"}
+    const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
+
+    expect(result.statusCode).toBe(400)
+    expect(JSON.parse(result.body)).toEqual({
+      resourceType: "OperationOutcome",
+      issue: [
+        {
+          code: "value",
+          severity: "error",
+          details: {
+            coding: [
+              {
+                system: "https://fhir.nhs.uk/CodeSystem/Spine-ErrorOrWarningCode",
+                code: "INVALID_RESOURCE_ID",
+                display: "Invalid resource ID"
+              }
+            ]
+          }
+        }
+      ]
+    })
+  })
+
+  it("verifies error response when nhs login user has a string for NHS number", async () => {
+    mock.onGet("https://live/mm/patientfacingprescriptions").networkError()
+    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+    event.headers = {"nhsd-nhslogin-user": "P9:A"}
+    const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
+
+    expect(result.statusCode).toBe(400)
+    expect(JSON.parse(result.body)).toEqual({
+      resourceType: "OperationOutcome",
+      issue: [
+        {
+          code: "value",
+          severity: "error",
+          details: {
+            coding: [
+              {
+                system: "https://fhir.nhs.uk/CodeSystem/Spine-ErrorOrWarningCode",
+                code: "INVALID_RESOURCE_ID",
+                display: "Invalid resource ID"
+              }
+            ]
+          }
+        }
+      ]
+    })
+  })
+
+  it("verifies error response when nhs login user has a short NHS number", async () => {
+    mock.onGet("https://live/mm/patientfacingprescriptions").networkError()
+    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+    event.headers = {"nhsd-nhslogin-user": "P9:123"}
+    const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
+
+    expect(result.statusCode).toBe(400)
+    expect(JSON.parse(result.body)).toEqual({
+      resourceType: "OperationOutcome",
+      issue: [
+        {
+          code: "value",
+          severity: "error",
+          details: {
+            coding: [
+              {
+                system: "https://fhir.nhs.uk/CodeSystem/Spine-ErrorOrWarningCode",
+                code: "INVALID_RESOURCE_ID",
+                display: "Invalid resource ID"
+              }
+            ]
+          }
+        }
+      ]
+    })
+  })
+
+  it("verifies error response when nhs login user does not have P9 auth level", async () => {
+    mock.onGet("https://live/mm/patientfacingprescriptions").networkError()
+    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+    event.headers = {"nhsd-nhslogin-user": "P1:9912003071"}
+    const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
+
+    expect(result.statusCode).toBe(400)
+    expect(JSON.parse(result.body)).toEqual({
+      resourceType: "OperationOutcome",
+      issue: [
+        {
+          code: "value",
+          severity: "error",
+          details: {
+            coding: [
+              {
+                system: "https://fhir.nhs.uk/CodeSystem/Spine-ErrorOrWarningCode",
+                code: "INVALID_RESOURCE_ID",
+                display: "Invalid resource ID"
+              }
+            ]
+          }
+        }
+      ]
+    })
+  })
+
+  it("verifies error response when nhs login user has invalid check digit in NHS number", async () => {
+    mock.onGet("https://live/mm/patientfacingprescriptions").networkError()
+    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+    event.headers = {"nhsd-nhslogin-user": "P9:9912003072"}
+    const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
+
+    expect(result.statusCode).toBe(400)
+    expect(JSON.parse(result.body)).toEqual({
+      resourceType: "OperationOutcome",
+      issue: [
+        {
+          code: "value",
+          severity: "error",
+          details: {
+            coding: [
+              {
+                system: "https://fhir.nhs.uk/CodeSystem/Spine-ErrorOrWarningCode",
+                code: "INVALID_RESOURCE_ID",
+                display: "Invalid resource ID"
+              }
+            ]
+          }
+        }
+      ]
+    })
   })
 })
+
 export {}

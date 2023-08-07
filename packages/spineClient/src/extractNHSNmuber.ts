@@ -1,15 +1,24 @@
+export class NHSNumberValidationError extends Error {
+  constructor(msg: string) {
+    super(msg)
+
+    // Set the prototype explicitly.
+    Object.setPrototypeOf(this, NHSNumberValidationError.prototype)
+  }
+}
+
 export function extractNHSNumber(nhsloginUser: string | undefined): string {
   if (nhsloginUser === undefined || nhsloginUser === null) {
-    throw new Error("nhsloginUser not passed in")
+    throw new NHSNumberValidationError("nhsloginUser not passed in")
   }
   let nhsNumber = nhsloginUser.split(":")[1]
   const authLevel = nhsloginUser.split(":")[0]
   if (nhsNumber === undefined || nhsNumber === null || isNaN(Number(nhsNumber)) || nhsNumber.toString().length !== 10) {
-    throw new Error("NHS Number failed preflight checks")
+    throw new NHSNumberValidationError("NHS Number failed preflight checks")
   }
 
   if (authLevel !== "P9") {
-    throw new Error("Identity proofing level is not P9")
+    throw new NHSNumberValidationError("Identity proofing level is not P9")
   }
   // convert numbers to strings, for internal consistency
   if (Number.isInteger(nhsNumber)) {
@@ -33,7 +42,7 @@ export function extractNHSNumber(nhsloginUser: string | undefined): string {
 
   // Do the check digits match?
   if (checkDigit !== Number(providedCheckDigit)) {
-    throw new Error("invalid check digit in NHS number")
+    throw new NHSNumberValidationError("invalid check digit in NHS number")
   }
   return nhsNumber
 }

@@ -3,7 +3,7 @@ import {Logger, injectLambdaContext} from "@aws-lambda-powertools/logger"
 import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
 import errorHandler from "@prescriptionsforpatients/middleware"
-import createSpineClient from "@prescriptionsforpatients/spineClient"
+import {createSpineClient, NHSNumberValidationError} from "@prescriptionsforpatients/spineClient"
 
 const logger = new Logger({serviceName: "getMyPrescriptions"})
 
@@ -23,12 +23,44 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
   /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   const spineClient = createSpineClient()
 
-  const returnData = await spineClient.getPrescriptions(event.headers, logger)
-  return {
-    statusCode: 200,
-    body: JSON.stringify(returnData.data),
-    headers: {
-      "Content-Type": "application/fhir+json"
+  try {
+    const returnData = await spineClient.getPrescriptions(event.headers, logger)
+    return {
+      statusCode: 200,
+      body: JSON.stringify(returnData.data),
+      headers: {
+        "Content-Type": "application/fhir+json"
+      }
+    }
+  } catch (error) {
+    if (error instanceof NHSNumberValidationError) {
+      const errorResponseBody = {
+        resourceType: "OperationOutcome",
+        issue: [
+          {
+            code: "value",
+            severity: "error",
+            details: {
+              coding: [
+                {
+                  system: "https://fhir.nhs.uk/CodeSystem/Spine-ErrorOrWarningCode",
+                  code: "INVALID_RESOURCE_ID",
+                  display: "Invalid resource ID"
+                }
+              ]
+            }
+          }
+        ]
+      }
+      return {
+        statusCode: 400,
+        body: JSON.stringify(errorResponseBody),
+        headers: {
+          "Content-Type": "application/fhir+json"
+        }
+      }
+    } else {
+      throw error
     }
   }
 }
