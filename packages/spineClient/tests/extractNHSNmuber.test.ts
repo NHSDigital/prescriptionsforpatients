@@ -1,16 +1,41 @@
 import {extractNHSNumber, NHSNumberValidationError} from "../src/extractNHSNumber"
 import "jest"
 
-type failureTestData = [nhsdLoginUser: string | undefined, errorMessage: string]
+type failureTestData = {nhsdLoginUser: string | undefined; errorMessage: string; scenarioDescription: string}
 
 describe("failureTestData nhs number", () => {
-  test.each<failureTestData>([
-    ["P9:A", "NHS Number failed preflight checks"],
-    [undefined, "nhsloginUser not passed in"],
-    ["P9:123", "NHS Number failed preflight checks"],
-    ["P0:9912003071", "Identity proofing level is not P9"],
-    ["P9:9912003072", "invalid check digit in NHS number"]
-  ])("throw error when nhsd-login-user %j is passed in", (nhsdLoginUser, errorMessage) => {
+  it.each<failureTestData>([
+    {
+      nhsdLoginUser: undefined,
+      errorMessage: "nhsdloginUser not passed in",
+      scenarioDescription: "no nhsdLoginUser passed in"
+    },
+    {
+      nhsdLoginUser: "9912003072",
+      errorMessage: "NHS Number failed preflight checks",
+      scenarioDescription: "cant split nhsdLoginUser"
+    },
+    {
+      nhsdLoginUser: "P9:A",
+      errorMessage: "NHS Number failed preflight checks",
+      scenarioDescription: "nhs number in nhsdLoginUser contains a string"
+    },
+    {
+      nhsdLoginUser: "P9:123",
+      errorMessage: "NHS Number failed preflight checks",
+      scenarioDescription: "nhs number in nhsdLoginUser is too short"
+    },
+    {
+      nhsdLoginUser: "P0:9912003071",
+      errorMessage: "Identity proofing level is not P9",
+      scenarioDescription: "Identity proofing in nhsdLoginUser is not P9"
+    },
+    {
+      nhsdLoginUser: "P0:9912003072",
+      errorMessage: "Identity proofing level is not P9",
+      scenarioDescription: "nhs number does not validate checksum"
+    }
+  ])("throw error when $scenarioDescription", ({nhsdLoginUser, errorMessage}) => {
     expect(() => {
       extractNHSNumber(nhsdLoginUser)
     }).toThrow(new NHSNumberValidationError(errorMessage))

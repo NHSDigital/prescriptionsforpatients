@@ -98,13 +98,14 @@ const responseStatus500 = {
   ]
 }
 
-type spineFailureTestData = [
-  httpResponseCode: number,
-  spineStatusCode: string,
-  nhsdLoginUser: string | undefined,
-  errorResponse: object,
+type spineFailureTestData = {
+  httpResponseCode: number
+  spineStatusCode: string
+  nhsdLoginUser: string | undefined
+  errorResponse: object
   expectedHttpResponse: number
-]
+  scenarioDescription: string
+}
 
 describe("Unit test for app handler", function () {
   beforeEach(() => {
@@ -126,17 +127,73 @@ describe("Unit test for app handler", function () {
   })
 
   it.each<spineFailureTestData>([
-    [200, "99", "P9:9912003071", responseStatus500, 500],
-    [500, "0", "P9:9912003071", responseStatus500, 500],
-    [200, "0", undefined, responseStatus400, 400],
-    [200, "0", "9912003072", responseStatus400, 400],
-    [200, "0", "P9:A", responseStatus400, 400],
-    [200, "0", "P9:123", responseStatus400, 400],
-    [200, "0", "P0:9912003071", responseStatus400, 400],
-    [200, "0", "P9:9912003072", responseStatus400, 400]
+    {
+      httpResponseCode: 200,
+      spineStatusCode: "99",
+      nhsdLoginUser: "P9:9912003071",
+      errorResponse: responseStatus500,
+      expectedHttpResponse: 500,
+      scenarioDescription: "failure response status code from spine"
+    },
+    {
+      httpResponseCode: 500,
+      spineStatusCode: "0",
+      nhsdLoginUser: "P9:9912003071",
+      errorResponse: responseStatus500,
+      expectedHttpResponse: 500,
+      scenarioDescription: "failure http response code from spine"
+    },
+    {
+      httpResponseCode: 200,
+      spineStatusCode: "0",
+      nhsdLoginUser: undefined,
+      errorResponse: responseStatus400,
+      expectedHttpResponse: 400,
+      scenarioDescription: "no nhsdLoginUser passed in"
+    },
+    {
+      httpResponseCode: 200,
+      spineStatusCode: "0",
+      nhsdLoginUser: "9912003072",
+      errorResponse: responseStatus400,
+      expectedHttpResponse: 400,
+      scenarioDescription: "cant split nhsdLoginUser"
+    },
+    {
+      httpResponseCode: 200,
+      spineStatusCode: "0",
+      nhsdLoginUser: "P9:A",
+      errorResponse: responseStatus400,
+      expectedHttpResponse: 400,
+      scenarioDescription: "nhs number in nhsdLoginUser contains a string"
+    },
+    {
+      httpResponseCode: 200,
+      spineStatusCode: "0",
+      nhsdLoginUser: "P9:123",
+      errorResponse: responseStatus400,
+      expectedHttpResponse: 400,
+      scenarioDescription: "nhs number in nhsdLoginUser is too short"
+    },
+    {
+      httpResponseCode: 200,
+      spineStatusCode: "0",
+      nhsdLoginUser: "P0:9912003071",
+      errorResponse: responseStatus400,
+      expectedHttpResponse: 400,
+      scenarioDescription: "auth level in nhsdLoginUser is not P9"
+    },
+    {
+      httpResponseCode: 200,
+      spineStatusCode: "0",
+      nhsdLoginUser: "P0:9912003072",
+      errorResponse: responseStatus400,
+      expectedHttpResponse: 400,
+      scenarioDescription: "nhs number does not validate checksum"
+    }
   ])(
-    "return error when http response is %i and spine status is %i and nhsd-login-user %j is passed in",
-    async (httpResponseCode, spineStatusCode, nhsdLoginUser, errorResponse, expectedHttpResponse) => {
+    "return error when $scenarioDescription",
+    async ({httpResponseCode, spineStatusCode, nhsdLoginUser, errorResponse, expectedHttpResponse}) => {
       mock.onGet("https://spine/mm/patientfacingprescriptions").reply(httpResponseCode, {statusCode: spineStatusCode})
       const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
       event.headers = {"nhsd-nhslogin-user": nhsdLoginUser}
@@ -148,7 +205,7 @@ describe("Unit test for app handler", function () {
     }
   )
 
-  it("verifies error response when spine responds with network error", async () => {
+  it("return error when spine responds with network error", async () => {
     mock.onGet("https://live/mm/patientfacingprescriptions").networkError()
     const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult

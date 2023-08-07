@@ -9,7 +9,7 @@ export class NHSNumberValidationError extends Error {
 
 export function extractNHSNumber(nhsloginUser: string | undefined): string {
   if (nhsloginUser === undefined || nhsloginUser === null) {
-    throw new NHSNumberValidationError("nhsloginUser not passed in")
+    throw new NHSNumberValidationError("nhsdloginUser not passed in")
   }
   let nhsNumber = nhsloginUser.split(":")[1]
   const authLevel = nhsloginUser.split(":")[0]
