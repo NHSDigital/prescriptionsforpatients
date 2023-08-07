@@ -12,6 +12,6 @@ export class SandboxSpineClient implements SpineClient {
   }
 
   async getPrescriptions(): Promise<AxiosResponse> {
-    throw "INTERACTION_NOT_SUPPORTED_BY_SANDBOX"
+    throw new Error("INTERACTION_NOT_SUPPORTED_BY_SANDBOX")
   }
 }
