@@ -20,7 +20,6 @@ const logger = new Logger({serviceName: "getMyPrescriptions"})
  */
 
 const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   const spineClient = createSpineClient()
 
   try {
