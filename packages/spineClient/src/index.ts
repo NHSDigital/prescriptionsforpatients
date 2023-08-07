@@ -1,5 +1,5 @@
 import {createSpineClient} from "./spine-client"
-import {NHSNumberValidationError} from "./extractNHSNmuber"
+import {NHSNumberValidationError} from "./extractNHSNumber"
 
 export {createSpineClient}
 

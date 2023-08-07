@@ -1,4 +1,4 @@
-import {extractNHSNumber, NHSNumberValidationError} from "../src/extractNHSNmuber"
+import {extractNHSNumber, NHSNumberValidationError} from "../src/extractNHSNumber"
 import "jest"
 
 describe("extract nhs number", () => {

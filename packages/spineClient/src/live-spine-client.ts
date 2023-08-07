@@ -4,7 +4,7 @@ import {SpineClient} from "./spine-client"
 import {Agent} from "https"
 import axios, {AxiosResponse} from "axios"
 import {APIGatewayProxyEventHeaders} from "aws-lambda"
-import {extractNHSNumber} from "./extractNHSNmuber"
+import {extractNHSNumber} from "./extractNHSNumber"
 
 export class LiveSpineClient implements SpineClient {
   private readonly SPINE_URL_SCHEME = "https"

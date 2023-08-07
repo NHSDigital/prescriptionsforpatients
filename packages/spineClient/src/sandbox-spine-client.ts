@@ -12,6 +12,7 @@ export class SandboxSpineClient implements SpineClient {
   }
 
   async getPrescriptions(): Promise<AxiosResponse> {
+    // This is not implemented as sandbox lambda does not use this code
     throw new Error("INTERACTION_NOT_SUPPORTED_BY_SANDBOX")
   }
 }

@@ -7,6 +7,13 @@ import {APIGatewayProxyEventHeaders} from "aws-lambda"
 
 const mock = new MockAdapter(axios)
 process.env.TargetSpineServer = "spine"
+type spineSuccessTestData = [spineStatusCode: string]
+type spineFailureTestData = [
+  httpResponseCode: number,
+  spineStatusCode: string,
+  nhsdLoginUser: string | undefined,
+  errorMessage: string
+]
 
 describe("live spine client", () => {
   const logger = new Logger({serviceName: "spineClient"})
@@ -15,51 +22,40 @@ describe("live spine client", () => {
     mock.reset()
   })
 
-  test("should work when successful response 0 from spine", async () => {
-    mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, {statusCode: "0"})
-    const spineClient = new LiveSpineClient()
-    const headers: APIGatewayProxyEventHeaders = {
-      "nhsd-nhslogin-user": "P9:9912003071"
+  test.each<spineSuccessTestData>([["0"], ["1"]])(
+    "successful response when http response is status 200 and spine status is %i",
+    async (spineStatusCode) => {
+      mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, {statusCode: spineStatusCode})
+      const spineClient = new LiveSpineClient()
+      const headers: APIGatewayProxyEventHeaders = {
+        "nhsd-nhslogin-user": "P9:9912003071"
+      }
+      const spineResponse = await spineClient.getPrescriptions(headers, logger)
+
+      expect(spineResponse.status).toBe(200)
+      expect(spineResponse.data).toStrictEqual({statusCode: spineStatusCode})
     }
-    const spineResponse = await spineClient.getPrescriptions(headers, logger)
+  )
 
-    expect(spineResponse.status).toBe(200)
-    expect(spineResponse.data).toStrictEqual({statusCode: "0"})
-  })
-
-  test("should work when successful response 1 from spine", async () => {
-    mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, {statusCode: "1"})
-    const spineClient = new LiveSpineClient()
-    const headers: APIGatewayProxyEventHeaders = {
-      "nhsd-nhslogin-user": "P9:9912003071"
+  test.each<spineFailureTestData>([
+    [200, "99", "P9:9912003071", "Unsuccessful status code response from spine"],
+    [500, "0", "P9:9912003071", "Request failed with status code 500"],
+    [200, "0", undefined, "nhsloginUser not passed in"],
+    [200, "0", "P9:A", "NHS Number failed preflight checks"],
+    [200, "0", "P9:123", "NHS Number failed preflight checks"],
+    [200, "0", "P0:9912003071", "Identity proofing level is not P9"],
+    [200, "0", "P9:9912003072", "invalid check digit in NHS number"]
+  ])(
+    "throw error when http response is %i and spine status is %i and nhsd-login-user %i is passed in",
+    async (httpResponseCode, spineStatusCode, nhsdLoginUser, errorMessage) => {
+      mock.onGet("https://spine/mm/patientfacingprescriptions").reply(httpResponseCode, {statusCode: spineStatusCode})
+      const spineClient = new LiveSpineClient()
+      const headers: APIGatewayProxyEventHeaders = {
+        "nhsd-nhslogin-user": nhsdLoginUser
+      }
+      await expect(spineClient.getPrescriptions(headers, logger)).rejects.toThrow(errorMessage)
     }
-    const spineResponse = await spineClient.getPrescriptions(headers, logger)
-
-    expect(spineResponse.status).toBe(200)
-    expect(spineResponse.data).toStrictEqual({statusCode: "1"})
-  })
-
-  test("should throw error when unsuccessful statusCode response from spine", async () => {
-    mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, {statusCode: "99"})
-
-    const spineClient = new LiveSpineClient()
-    const headers: APIGatewayProxyEventHeaders = {
-      "nhsd-nhslogin-user": "P9:9912003071"
-    }
-    await expect(spineClient.getPrescriptions(headers, logger)).rejects.toThrow(
-      "Unsuccessful status code response from spine"
-    )
-  })
-
-  test("should throw error when unsuccessful http response from spine", async () => {
-    mock.onGet("https://spine/mm/patientfacingprescriptions").reply(500, {statusCode: "0"})
-
-    const spineClient = new LiveSpineClient()
-    const headers: APIGatewayProxyEventHeaders = {
-      "nhsd-nhslogin-user": "P9:9912003071"
-    }
-    await expect(spineClient.getPrescriptions(headers, logger)).rejects.toThrow("Request failed with status code 500")
-  })
+  )
 
   test("should throw error when unsuccessful http request", async () => {
     mock.onGet("https://spine/mm/patientfacingprescriptions").networkError()
@@ -69,43 +65,5 @@ describe("live spine client", () => {
       "nhsd-nhslogin-user": "P9:9912003071"
     }
     await expect(spineClient.getPrescriptions(headers, logger)).rejects.toThrow("Network Error")
-  })
-
-  test("should throw error when no nhsd-nhslogin-user header is passed", async () => {
-    const spineClient = new LiveSpineClient()
-    const headers: APIGatewayProxyEventHeaders = {}
-    await expect(spineClient.getPrescriptions(headers, logger)).rejects.toThrow("nhsloginUser not passed in")
-  })
-
-  test("should throw error when nhsd-nhslogin-user header has a string for nhs number", async () => {
-    const spineClient = new LiveSpineClient()
-    const headers: APIGatewayProxyEventHeaders = {
-      "nhsd-nhslogin-user": "P9:A"
-    }
-    await expect(spineClient.getPrescriptions(headers, logger)).rejects.toThrow("NHS Number failed preflight checks")
-  })
-
-  test("should throw error when nhsd-nhslogin-user header has short nhs number", async () => {
-    const spineClient = new LiveSpineClient()
-    const headers: APIGatewayProxyEventHeaders = {
-      "nhsd-nhslogin-user": "P9:123"
-    }
-    await expect(spineClient.getPrescriptions(headers, logger)).rejects.toThrow("NHS Number failed preflight checks")
-  })
-
-  test("should throw error when nhsd-nhslogin-user header has does not have P9 auth level", async () => {
-    const spineClient = new LiveSpineClient()
-    const headers: APIGatewayProxyEventHeaders = {
-      "nhsd-nhslogin-user": "P1:9912003071"
-    }
-    await expect(spineClient.getPrescriptions(headers, logger)).rejects.toThrow("Identity proofing level is not P9")
-  })
-
-  test("should throw error when nhsd-nhslogin-user header has nhs number with invalid check digit", async () => {
-    const spineClient = new LiveSpineClient()
-    const headers: APIGatewayProxyEventHeaders = {
-      "nhsd-nhslogin-user": "P9:9912003072"
-    }
-    await expect(spineClient.getPrescriptions(headers, logger)).rejects.toThrow("invalid check digit in NHS number")
   })
 })
