@@ -60,6 +60,45 @@ const exampleEvent = JSON.stringify({
   stageVariables: {}
 })
 
+const responseStatus400 = {
+  resourceType: "OperationOutcome",
+  issue: [
+    {
+      code: "value",
+      severity: "error",
+      details: {
+        coding: [
+          {
+            system: "https://fhir.nhs.uk/CodeSystem/Spine-ErrorOrWarningCode",
+            code: "INVALID_RESOURCE_ID",
+            display: "Invalid resource ID"
+          }
+        ]
+      }
+    }
+  ]
+}
+
+const responseStatus500 = {
+  id: "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
+  resourceType: "OperationOutcome",
+  issue: [
+    {
+      severity: "fatal",
+      code: "exception",
+      details: {
+        coding: [
+          {
+            code: "SERVER_ERROR",
+            display: "500: The Server has encountered an error processing the request.",
+            system: "https://fhir.nhs.uk/CodeSystem/http-error-codes"
+          }
+        ]
+      }
+    }
+  ]
+}
+
 describe("Unit test for app handler", function () {
   afterEach(() => {
     mock.reset()
@@ -84,25 +123,9 @@ describe("Unit test for app handler", function () {
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
     expect(result.statusCode).toBe(500)
-    expect(JSON.parse(result.body)).toEqual({
-      id: "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
-      resourceType: "OperationOutcome",
-      issue: [
-        {
-          severity: "fatal",
-          code: "exception",
-          details: {
-            coding: [
-              {
-                code: "SERVER_ERROR",
-                display: "500: The Server has encountered an error processing the request.",
-                system: "https://fhir.nhs.uk/CodeSystem/http-error-codes"
-              }
-            ]
-          }
-        }
-      ]
-    })
+    // TODO when https://github.com/NHSDigital/prescriptionsforpatients/pull/131 is merged
+    // expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
+    expect(JSON.parse(result.body)).toEqual(responseStatus500)
   })
 
   it("verifies error response when spine responds with bad http statusCode", async () => {
@@ -111,25 +134,9 @@ describe("Unit test for app handler", function () {
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
     expect(result.statusCode).toBe(500)
-    expect(JSON.parse(result.body)).toEqual({
-      id: "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
-      resourceType: "OperationOutcome",
-      issue: [
-        {
-          severity: "fatal",
-          code: "exception",
-          details: {
-            coding: [
-              {
-                code: "SERVER_ERROR",
-                display: "500: The Server has encountered an error processing the request.",
-                system: "https://fhir.nhs.uk/CodeSystem/http-error-codes"
-              }
-            ]
-          }
-        }
-      ]
-    })
+    // TODO when https://github.com/NHSDigital/prescriptionsforpatients/pull/131 is merged
+    // expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
+    expect(JSON.parse(result.body)).toEqual(responseStatus500)
   })
 
   it("verifies error response when spine responds with network error", async () => {
@@ -138,25 +145,9 @@ describe("Unit test for app handler", function () {
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
     expect(result.statusCode).toBe(500)
-    expect(JSON.parse(result.body)).toEqual({
-      id: "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
-      resourceType: "OperationOutcome",
-      issue: [
-        {
-          severity: "fatal",
-          code: "exception",
-          details: {
-            coding: [
-              {
-                code: "SERVER_ERROR",
-                display: "500: The Server has encountered an error processing the request.",
-                system: "https://fhir.nhs.uk/CodeSystem/http-error-codes"
-              }
-            ]
-          }
-        }
-      ]
-    })
+    // TODO when https://github.com/NHSDigital/prescriptionsforpatients/pull/131 is merged
+    // expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
+    expect(JSON.parse(result.body)).toEqual(responseStatus500)
   })
 
   it("verifies error response when no nhs number passed in", async () => {
@@ -166,24 +157,8 @@ describe("Unit test for app handler", function () {
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
     expect(result.statusCode).toBe(400)
-    expect(JSON.parse(result.body)).toEqual({
-      resourceType: "OperationOutcome",
-      issue: [
-        {
-          code: "value",
-          severity: "error",
-          details: {
-            coding: [
-              {
-                system: "https://fhir.nhs.uk/CodeSystem/Spine-ErrorOrWarningCode",
-                code: "INVALID_RESOURCE_ID",
-                display: "Invalid resource ID"
-              }
-            ]
-          }
-        }
-      ]
-    })
+    expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
+    expect(JSON.parse(result.body)).toEqual(responseStatus400)
   })
 
   it("verifies error response when nhs login user cant be split", async () => {
@@ -193,24 +168,8 @@ describe("Unit test for app handler", function () {
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
     expect(result.statusCode).toBe(400)
-    expect(JSON.parse(result.body)).toEqual({
-      resourceType: "OperationOutcome",
-      issue: [
-        {
-          code: "value",
-          severity: "error",
-          details: {
-            coding: [
-              {
-                system: "https://fhir.nhs.uk/CodeSystem/Spine-ErrorOrWarningCode",
-                code: "INVALID_RESOURCE_ID",
-                display: "Invalid resource ID"
-              }
-            ]
-          }
-        }
-      ]
-    })
+    expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
+    expect(JSON.parse(result.body)).toEqual(responseStatus400)
   })
 
   it("verifies error response when nhs login user has a string for NHS number", async () => {
@@ -220,24 +179,8 @@ describe("Unit test for app handler", function () {
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
     expect(result.statusCode).toBe(400)
-    expect(JSON.parse(result.body)).toEqual({
-      resourceType: "OperationOutcome",
-      issue: [
-        {
-          code: "value",
-          severity: "error",
-          details: {
-            coding: [
-              {
-                system: "https://fhir.nhs.uk/CodeSystem/Spine-ErrorOrWarningCode",
-                code: "INVALID_RESOURCE_ID",
-                display: "Invalid resource ID"
-              }
-            ]
-          }
-        }
-      ]
-    })
+    expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
+    expect(JSON.parse(result.body)).toEqual(responseStatus400)
   })
 
   it("verifies error response when nhs login user has a short NHS number", async () => {
@@ -247,24 +190,8 @@ describe("Unit test for app handler", function () {
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
     expect(result.statusCode).toBe(400)
-    expect(JSON.parse(result.body)).toEqual({
-      resourceType: "OperationOutcome",
-      issue: [
-        {
-          code: "value",
-          severity: "error",
-          details: {
-            coding: [
-              {
-                system: "https://fhir.nhs.uk/CodeSystem/Spine-ErrorOrWarningCode",
-                code: "INVALID_RESOURCE_ID",
-                display: "Invalid resource ID"
-              }
-            ]
-          }
-        }
-      ]
-    })
+    expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
+    expect(JSON.parse(result.body)).toEqual(responseStatus400)
   })
 
   it("verifies error response when nhs login user does not have P9 auth level", async () => {
@@ -274,24 +201,8 @@ describe("Unit test for app handler", function () {
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
     expect(result.statusCode).toBe(400)
-    expect(JSON.parse(result.body)).toEqual({
-      resourceType: "OperationOutcome",
-      issue: [
-        {
-          code: "value",
-          severity: "error",
-          details: {
-            coding: [
-              {
-                system: "https://fhir.nhs.uk/CodeSystem/Spine-ErrorOrWarningCode",
-                code: "INVALID_RESOURCE_ID",
-                display: "Invalid resource ID"
-              }
-            ]
-          }
-        }
-      ]
-    })
+    expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
+    expect(JSON.parse(result.body)).toEqual(responseStatus400)
   })
 
   it("verifies error response when nhs login user has invalid check digit in NHS number", async () => {
@@ -301,24 +212,8 @@ describe("Unit test for app handler", function () {
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
     expect(result.statusCode).toBe(400)
-    expect(JSON.parse(result.body)).toEqual({
-      resourceType: "OperationOutcome",
-      issue: [
-        {
-          code: "value",
-          severity: "error",
-          details: {
-            coding: [
-              {
-                system: "https://fhir.nhs.uk/CodeSystem/Spine-ErrorOrWarningCode",
-                code: "INVALID_RESOURCE_ID",
-                display: "Invalid resource ID"
-              }
-            ]
-          }
-        }
-      ]
-    })
+    expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
+    expect(JSON.parse(result.body)).toEqual(responseStatus400)
   })
 })
 
