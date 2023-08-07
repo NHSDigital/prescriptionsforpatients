@@ -46,7 +46,7 @@ describe("live spine client", () => {
     [200, "0", "P0:9912003071", "Identity proofing level is not P9"],
     [200, "0", "P9:9912003072", "invalid check digit in NHS number"]
   ])(
-    "throw error when http response is %i and spine status is %i and nhsd-login-user %i is passed in",
+    "throw error when http response is %i and spine status is %i and nhsd-login-user %j is passed in",
     async (httpResponseCode, spineStatusCode, nhsdLoginUser, errorMessage) => {
       mock.onGet("https://spine/mm/patientfacingprescriptions").reply(httpResponseCode, {statusCode: spineStatusCode})
       const spineClient = new LiveSpineClient()
