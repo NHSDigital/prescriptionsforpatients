@@ -8,7 +8,6 @@ import axios from "axios"
 
 const dummyContext = ContextExamples.helloworldContext
 const mock = new MockAdapter(axios)
-process.env.TargetSpineServer = "live"
 
 const exampleEvent = JSON.stringify({
   httpMethod: "get",
@@ -99,14 +98,23 @@ const responseStatus500 = {
   ]
 }
 
+type spineFailureTestData = [
+  httpResponseCode: number,
+  spineStatusCode: string,
+  nhsdLoginUser: string | undefined,
+  errorResponse: object,
+  expectedHttpResponse: number
+]
+
 describe("Unit test for app handler", function () {
+  beforeEach(() => {
+    process.env.TargetSpineServer = "live"
+  })
   afterEach(() => {
     mock.reset()
   })
 
   it("verifies successful response", async () => {
-    process.env.TargetSpineServer = "live"
-
     mock.onGet("https://live/mm/patientfacingprescriptions").reply(200, {statusCode: "0"})
 
     const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
@@ -117,27 +125,28 @@ describe("Unit test for app handler", function () {
     expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
   })
 
-  it("verifies error response when spine responds with bad statusCode", async () => {
-    mock.onGet("https://live/mm/patientfacingprescriptions").reply(200, {statusCode: "99"})
-    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
-    const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
-
-    expect(result.statusCode).toBe(500)
-    // TODO when https://github.com/NHSDigital/prescriptionsforpatients/pull/131 is merged
-    // expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
-    expect(JSON.parse(result.body)).toEqual(responseStatus500)
-  })
-
-  it("verifies error response when spine responds with bad http statusCode", async () => {
-    mock.onGet("https://live/mm/patientfacingprescriptions").reply(500, {statusCode: "0"})
-    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
-    const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
-
-    expect(result.statusCode).toBe(500)
-    // TODO when https://github.com/NHSDigital/prescriptionsforpatients/pull/131 is merged
-    // expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
-    expect(JSON.parse(result.body)).toEqual(responseStatus500)
-  })
+  it.each<spineFailureTestData>([
+    [200, "99", "P9:9912003071", responseStatus500, 500],
+    [500, "0", "P9:9912003071", responseStatus500, 500],
+    [200, "0", undefined, responseStatus400, 400],
+    [200, "0", "9912003072", responseStatus400, 400],
+    [200, "0", "P9:A", responseStatus400, 400],
+    [200, "0", "P9:123", responseStatus400, 400],
+    [200, "0", "P0:9912003071", responseStatus400, 400],
+    [200, "0", "P9:9912003072", responseStatus400, 400]
+  ])(
+    "return error when http response is %i and spine status is %i and nhsd-login-user %j is passed in",
+    async (httpResponseCode, spineStatusCode, nhsdLoginUser, errorResponse, expectedHttpResponse) => {
+      mock.onGet("https://spine/mm/patientfacingprescriptions").reply(httpResponseCode, {statusCode: spineStatusCode})
+      const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+      event.headers = {"nhsd-nhslogin-user": nhsdLoginUser}
+      const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
+      expect(result.statusCode).toBe(expectedHttpResponse)
+      // TODO when https://github.com/NHSDigital/prescriptionsforpatients/pull/131 is merged
+      // expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
+      expect(JSON.parse(result.body)).toEqual(errorResponse)
+    }
+  )
 
   it("verifies error response when spine responds with network error", async () => {
     mock.onGet("https://live/mm/patientfacingprescriptions").networkError()
@@ -148,72 +157,6 @@ describe("Unit test for app handler", function () {
     // TODO when https://github.com/NHSDigital/prescriptionsforpatients/pull/131 is merged
     // expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
     expect(JSON.parse(result.body)).toEqual(responseStatus500)
-  })
-
-  it("verifies error response when no nhs number passed in", async () => {
-    mock.onGet("https://live/mm/patientfacingprescriptions").networkError()
-    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
-    event.headers = {}
-    const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
-
-    expect(result.statusCode).toBe(400)
-    expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
-    expect(JSON.parse(result.body)).toEqual(responseStatus400)
-  })
-
-  it("verifies error response when nhs login user cant be split", async () => {
-    mock.onGet("https://live/mm/patientfacingprescriptions").networkError()
-    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
-    event.headers = {"nhsd-nhslogin-user": "1"}
-    const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
-
-    expect(result.statusCode).toBe(400)
-    expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
-    expect(JSON.parse(result.body)).toEqual(responseStatus400)
-  })
-
-  it("verifies error response when nhs login user has a string for NHS number", async () => {
-    mock.onGet("https://live/mm/patientfacingprescriptions").networkError()
-    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
-    event.headers = {"nhsd-nhslogin-user": "P9:A"}
-    const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
-
-    expect(result.statusCode).toBe(400)
-    expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
-    expect(JSON.parse(result.body)).toEqual(responseStatus400)
-  })
-
-  it("verifies error response when nhs login user has a short NHS number", async () => {
-    mock.onGet("https://live/mm/patientfacingprescriptions").networkError()
-    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
-    event.headers = {"nhsd-nhslogin-user": "P9:123"}
-    const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
-
-    expect(result.statusCode).toBe(400)
-    expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
-    expect(JSON.parse(result.body)).toEqual(responseStatus400)
-  })
-
-  it("verifies error response when nhs login user does not have P9 auth level", async () => {
-    mock.onGet("https://live/mm/patientfacingprescriptions").networkError()
-    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
-    event.headers = {"nhsd-nhslogin-user": "P1:9912003071"}
-    const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
-
-    expect(result.statusCode).toBe(400)
-    expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
-    expect(JSON.parse(result.body)).toEqual(responseStatus400)
-  })
-
-  it("verifies error response when nhs login user has invalid check digit in NHS number", async () => {
-    mock.onGet("https://live/mm/patientfacingprescriptions").networkError()
-    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
-    event.headers = {"nhsd-nhslogin-user": "P9:9912003072"}
-    const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
-
-    expect(result.statusCode).toBe(400)
-    expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
-    expect(JSON.parse(result.body)).toEqual(responseStatus400)
   })
 })
 
