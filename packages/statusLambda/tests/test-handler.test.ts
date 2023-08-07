@@ -8,6 +8,7 @@ const dummyContext = ContextExamples.helloworldContext
 describe("Unit test for status check", function () {
   it("returns commit id from environment", async () => {
     process.env.COMMIT_ID = "test_commit_id"
+    process.env.TargetSpineServer = "sandbox"
 
     const event: Partial<APIGatewayProxyEvent> = {}
     const result: APIGatewayProxyResult = (await handler(
@@ -23,6 +24,7 @@ describe("Unit test for status check", function () {
 
   it("returns version number from environment", async () => {
     process.env.VERSION_NUMBER = "test_version_number"
+    process.env.TargetSpineServer = "sandbox"
 
     const event: Partial<APIGatewayProxyEvent> = {}
     const result: APIGatewayProxyResult = (await handler(

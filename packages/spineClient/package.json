@@ -18,7 +18,6 @@
     "axios": "^1.4.0"
   },
   "devDependencies": {
-    "@types/moxios": "^0.4.15",
-    "moxios": "^0.4.0"
+    "axios-mock-adapter": "^1.21.5"
   }
 }
