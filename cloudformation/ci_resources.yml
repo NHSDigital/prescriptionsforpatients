@@ -414,6 +414,14 @@ Resources:
       KmsKeyId: alias/SecretsKMSKeyAlias
       SecretString: ChangeMe
 
+  SpinePartyKey:
+    DependsOn: SecretsKMSKeyKMSKeyAlias
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: PartyKey for spine
+      KmsKeyId: alias/SecretsKMSKeyAlias
+      SecretString: ChangeMe
+
   SpineCAChain:
     DependsOn: SecretsKMSKeyKMSKeyAlias
     Type: AWS::SecretsManager::Secret
@@ -476,6 +484,11 @@ Outputs:
     Value: !GetAtt SpineASID.Id
     Export:
       Name: !Join [":", [!Ref "AWS::StackName", "SpineASID"]]
+  SpinePartyKey:
+    Description: PartyKey for spine
+    Value: !GetAtt SpinePartyKey.Id
+    Export:
+      Name: !Join [":", [!Ref "AWS::StackName", "SpinePartyKey"]]
   SecretsKMSKey:
     Description: SecretsKMSKey
     Value: !GetAtt SecretsKMSKey.Arn

@@ -3,7 +3,7 @@ import {Logger, injectLambdaContext} from "@aws-lambda-powertools/logger"
 import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
 import errorHandler from "@prescriptionsforpatients/middleware"
-import createSpineClient from "@prescriptionsforpatients/spineClient"
+import {createSpineClient, NHSNumberValidationError} from "@prescriptionsforpatients/spineClient"
 
 const logger = new Logger({serviceName: "getMyPrescriptions"})
 
@@ -20,40 +20,46 @@ const logger = new Logger({serviceName: "getMyPrescriptions"})
  */
 
 const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  // nhsd-nhslogin-user looks like P9:9912003071
-  const nhsNumber = event.headers["nhsd-nhslogin-user"]?.split(":")[1]
-  logger.info(`nhsNumber: ${nhsNumber}`)
-
-  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   const spineClient = createSpineClient()
 
-  const returnType = event.queryStringParameters?.returnType
-  logger.info({message: "value of returnType", returnType})
-  switch (returnType) {
-    case "teapot": {
-      return {
-        statusCode: 418,
-        body: JSON.stringify({
-          message: "I am a teapot short and stout"
-        }),
-        headers: {
-          "Content-Type": "application/json"
-        }
+  try {
+    const returnData = await spineClient.getPrescriptions(event.headers, logger)
+    return {
+      statusCode: 200,
+      body: JSON.stringify(returnData.data),
+      headers: {
+        "Content-Type": "application/fhir+json"
       }
     }
-    case "error": {
-      throw Error("error running lambda")
-    }
-    default: {
+  } catch (error) {
+    if (error instanceof NHSNumberValidationError) {
+      const errorResponseBody = {
+        resourceType: "OperationOutcome",
+        issue: [
+          {
+            code: "value",
+            severity: "error",
+            details: {
+              coding: [
+                {
+                  system: "https://fhir.nhs.uk/CodeSystem/Spine-ErrorOrWarningCode",
+                  code: "INVALID_RESOURCE_ID",
+                  display: "Invalid resource ID"
+                }
+              ]
+            }
+          }
+        ]
+      }
       return {
-        statusCode: 200,
-        body: JSON.stringify({
-          message: "hello world from getMyPrescriptions lambda"
-        }),
+        statusCode: 400,
+        body: JSON.stringify(errorResponseBody),
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/fhir+json"
         }
       }
+    } else {
+      throw error
     }
   }
 }
