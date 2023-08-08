@@ -182,8 +182,8 @@ Resources:
         - !Ref GetSecretsLayer
       VpcConfig:
         SubnetIds:
-          - Ref: !ImportValue vpc-resources:PrivateSubnetA
-          - Ref: !ImportValue vpc-resources:PrivateSubnetB
+          - !ImportValue vpc-resources:PrivateSubnetA
+          - !ImportValue vpc-resources:PrivateSubnetB
       Events:
         getMyPrescriptions:
           Type: HttpApi
@@ -387,8 +387,8 @@ Resources:
         - !Ref GetSecretsLayer
       VpcConfig:
         SubnetIds:
-          - Ref: !ImportValue vpc-resources:PrivateSubnetA
-          - Ref: !ImportValue vpc-resources:PrivateSubnetB
+          - !ImportValue vpc-resources:PrivateSubnetA
+          - !ImportValue vpc-resources:PrivateSubnetB
       Events:
         status:
           Type: HttpApi
