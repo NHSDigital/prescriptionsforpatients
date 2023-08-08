@@ -155,6 +155,20 @@ Resources:
               - !ImportValue ci-resources:SpineCAChain
       Roles:
         - !Ref GetMyPrescriptionsRole
+  GetMyPrescriptionsNetworkPolicies:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-vpc-network-access"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - ec2:CreateNetworkInterface
+              - ec2:DescribeNetworkInterfaces
+              - ec2:DeleteNetworkInterface
+      Roles:
+        - !Ref GetMyPrescriptionsRole
   GetMyPrescriptionsLogGroup:
     Type: "AWS::Logs::LogGroup"
     Properties:
@@ -186,6 +200,7 @@ Resources:
         SubnetIds:
           - !ImportValue vpc-resources:PrivateSubnetA
           - !ImportValue vpc-resources:PrivateSubnetB
+          - !ImportValue vpc-resources:PrivateSubnetC
       Events:
         getMyPrescriptions:
           Type: HttpApi
@@ -360,6 +375,20 @@ Resources:
               - !ImportValue ci-resources:SpineCAChain
       Roles:
         - !Ref StatusLambdaRole
+  StatusLambdaNetworkPolicies:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-vpc-network-access"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - ec2:CreateNetworkInterface
+              - ec2:DescribeNetworkInterfaces
+              - ec2:DeleteNetworkInterface
+      Roles:
+        - !Ref StatusLambdaRole
   StatusLambdaLogGroup:
     Type: "AWS::Logs::LogGroup"
     Properties:
@@ -393,6 +422,7 @@ Resources:
         SubnetIds:
           - !ImportValue vpc-resources:PrivateSubnetA
           - !ImportValue vpc-resources:PrivateSubnetB
+          - !ImportValue vpc-resources:PrivateSubnetC
       Events:
         status:
           Type: HttpApi

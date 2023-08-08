@@ -35,7 +35,6 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${AWS::StackName}-Public-A
-
   PublicSubnetB:
     Type: AWS::EC2::Subnet
     Properties:
@@ -45,6 +44,15 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${AWS::StackName}-Public-B
+  PublicSubnetC:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.1.30.0/24
+      AvailabilityZone: !Select [1, !GetAZs ] # Get the second AZ in the list
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-Public-C
   PrivateSubnetA:
     Type: AWS::EC2::Subnet
     Properties:
@@ -63,6 +71,15 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${AWS::StackName}-Private-B
+  PrivateSubnetC:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.1.70.0/24
+      AvailabilityZone: !Select [1, !GetAZs ] # Get the second AZ in the list
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-Private-C
 
   # Some route tables for our subnets:
   PublicRouteTableA:
@@ -92,6 +109,21 @@ Resources:
     DependsOn: AttachGateway
     Properties:
       RouteTableId: !Ref PublicRouteTableB
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  PublicRouteTableC:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-PublicRouteTable-C
+  PublicRouteC1: # Public route table has direct routing to IGW:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref PublicRouteTableC
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId: !Ref InternetGateway
 
@@ -126,6 +158,21 @@ Resources:
       # Route traffic through the NAT Gateway:
       NatGatewayId: !Ref NATGatewayB
 
+  PrivateRouteTableC:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-PrivateRouteTable-C
+  PrivateRouteC1: # Private route table can access web via NAT (created below)
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTableC
+      DestinationCidrBlock: 0.0.0.0/0
+      # Route traffic through the NAT Gateway:
+      NatGatewayId: !Ref NATGatewayC
+
   # A NAT Gateway:
   NATGatewayA:
     Type: AWS::EC2::NatGateway
@@ -148,7 +195,7 @@ Resources:
     Type: AWS::EC2::NatGateway
     Properties:
       AllocationId: !GetAtt ElasticIPAddressB.AllocationId
-      SubnetId: !Ref PublicSubnetA
+      SubnetId: !Ref PublicSubnetB
       Tags:
         - Key: Name
           Value: !Sub ${AWS::StackName}-NatGateway-B
@@ -159,6 +206,24 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${AWS::StackName}-EIP-B
+
+  # A NAT Gateway:
+  NATGatewayC:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt ElasticIPAddressC.AllocationId
+      SubnetId: !Ref PublicSubnetC
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-NatGateway-C
+  ElasticIPAddressC:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: VPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-EIP-C
+
   # Attach the public subnets to public route tables,
   # and attach the private subnets to private route tables:
   PublicSubnetARouteTableAssociation:
@@ -171,6 +236,11 @@ Resources:
     Properties:
       SubnetId: !Ref PublicSubnetB
       RouteTableId: !Ref PublicRouteTableB
+  PublicSubnetCRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnetC
+      RouteTableId: !Ref PublicRouteTableC
   PrivateSubnetARouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
@@ -181,6 +251,11 @@ Resources:
     Properties:
       SubnetId: !Ref PrivateSubnetB
       RouteTableId: !Ref PrivateRouteTableB
+  PrivateSubnetCRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PrivateSubnetC
+      RouteTableId: !Ref PrivateRouteTableC
 
 Outputs:
   PrivateSubnetA:
@@ -193,6 +268,11 @@ Outputs:
     Value: !GetAtt PrivateSubnetB.SubnetId
     Export:
       Name: !Join [":", [!Ref "AWS::StackName", "PrivateSubnetB"]]
+  PrivateSubnetC:
+    Description: SubnetId of private subnet C
+    Value: !GetAtt PrivateSubnetC.SubnetId
+    Export:
+      Name: !Join [":", [!Ref "AWS::StackName", "PrivateSubnetC"]]
   DefaultSecurityGroup:
     Description: Default security group for the VPC
     Value: !GetAtt VPC.DefaultSecurityGroup

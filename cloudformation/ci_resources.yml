@@ -171,6 +171,9 @@ Resources:
                   - "route53:ListResourceRecordSets"
                   - "route53:GetChange"
                   - "ec2:DescribeSubnets"
+                  - "ec2:DescribeSecurityGroups"
+                  - "ec2:DescribeVpcs"
+                  - "ec2:CreateNetworkInterface"
                 Resource: "*"
         - PolicyName: UseTrustStoreBucketKMSKey
           PolicyDocument:
