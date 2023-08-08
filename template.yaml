@@ -180,6 +180,10 @@ Resources:
           AWS_LAMBDA_EXEC_WRAPPER: /opt/get-secrets-layer
       Layers:
         - !Ref GetSecretsLayer
+      VpcConfig:
+        SubnetIds:
+          - Ref: !ImportValue vpc-resources:PrivateSubnetA
+          - Ref: !ImportValue vpc-resources:PrivateSubnetB
       Events:
         getMyPrescriptions:
           Type: HttpApi
@@ -381,6 +385,10 @@ Resources:
           AWS_LAMBDA_EXEC_WRAPPER: /opt/get-secrets-layer
       Layers:
         - !Ref GetSecretsLayer
+      VpcConfig:
+        SubnetIds:
+          - Ref: !ImportValue vpc-resources:PrivateSubnetA
+          - Ref: !ImportValue vpc-resources:PrivateSubnetB
       Events:
         status:
           Type: HttpApi

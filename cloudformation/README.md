@@ -93,3 +93,17 @@ aws cloudformation deploy \
           --stack-name route53-resources \
           --region eu-west-2
 ```
+
+# VPC Resources
+
+To deploy the stack, use the following
+
+```
+export AWS_PROFILE=<name of AWS profile defined in ~/.aws/config>
+aws sso login --sso-session sso-session
+
+aws cloudformation deploy \
+          --template-file cloudformation/vpc_resources.yml \
+          --stack-name vpc-resources \
+          --region eu-west-2
+```
