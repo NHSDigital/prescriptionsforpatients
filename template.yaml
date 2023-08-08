@@ -181,6 +181,8 @@ Resources:
       Layers:
         - !Ref GetSecretsLayer
       VpcConfig:
+        SecurityGroupIds:
+          - !ImportValue vpc-resources:DefaultSecurityGroup
         SubnetIds:
           - !ImportValue vpc-resources:PrivateSubnetA
           - !ImportValue vpc-resources:PrivateSubnetB
@@ -386,6 +388,8 @@ Resources:
       Layers:
         - !Ref GetSecretsLayer
       VpcConfig:
+        SecurityGroupIds:
+          - !ImportValue vpc-resources:DefaultSecurityGroup
         SubnetIds:
           - !ImportValue vpc-resources:PrivateSubnetA
           - !ImportValue vpc-resources:PrivateSubnetB

@@ -170,6 +170,7 @@ Resources:
                   - "route53:GetHostedZone"
                   - "route53:ListResourceRecordSets"
                   - "route53:GetChange"
+                  - "ec2:DescribeSubnets"
                 Resource: "*"
         - PolicyName: UseTrustStoreBucketKMSKey
           PolicyDocument:
