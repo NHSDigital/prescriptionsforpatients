@@ -5,6 +5,7 @@ To bootstrap an account, you should run through the following in order
 - [CI Resources](#ci-resources)
 - [Route 53 resources - environment accounts](#route-53-resources---environment-accounts)
 - [Route 53 resources - management account](#route-53-resources---management-account)
+- [VPC Resources](#vpc-resources)
 - Run the script in privateCA folder to create mutual TLS keys
 
 # CI Resources
@@ -96,6 +97,25 @@ aws cloudformation deploy \
 
 # VPC Resources
 
+This creates VPC resources that provide static outbound IP addresses from lambdas to allow the static IP addresses to be added to an allow list on the target servers.  
+For more details about how this works see https://docs.aws.amazon.com/prescriptive-guidance/latest/patterns/generate-a-static-outbound-ip-address-using-a-lambda-function-amazon-vpc-and-a-serverless-architecture.html  
+This should be applied in each environment.  
+It creates the following resources
+
+- a VPC
+- an internet gateway attacthed to the VPC
+- public subnets for 3 availability zones
+- private subnets for 3 availability zones
+- elastic IP address for each of 3 availability zones
+- NAT gateway for 3 availability zones with attached elastic IP address
+- route tables for the 3 public subnets with a route to internet gateway
+- route tables for the 3 private subnets with a route to each NAT gateway
+
+It outputs the following
+
+- subnetId for each of the private subnets
+- default security group for the VPC
+
 To deploy the stack, use the following
 
 ```
@@ -106,4 +126,33 @@ aws cloudformation deploy \
           --template-file cloudformation/vpc_resources.yml \
           --stack-name vpc-resources \
           --region eu-west-2
+```
+
+To use this for a lambda, you must add the following.  
+In the role properties, you must add this policy document. This must be on the role and not a policy attached to the role
+
+```
+      Policies:
+        - PolicyName: FunctionPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "ec2:CreateNetworkInterface"
+                  - "ec2:DescribeNetworkInterfaces"
+                  - "ec2:DeleteNetworkInterface"
+                Resource: "*"
+```
+
+In the properties of the AWS::Serverless::Function you must add the following
+
+```
+      VpcConfig:
+        SecurityGroupIds:
+          - !ImportValue vpc-resources:DefaultSecurityGroup
+        SubnetIds:
+          - !ImportValue vpc-resources:PrivateSubnetA
+          - !ImportValue vpc-resources:PrivateSubnetB
+          - !ImportValue vpc-resources:PrivateSubnetC
 ```
