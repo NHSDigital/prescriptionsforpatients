@@ -43,10 +43,10 @@ module.exports = ({logger = console, level = "error", filter = () => true} = {})
       ]
     }
 
-    if(requestId!==null){
+    if (requestId !== null) {
       responseBody.id = requestId
     }
-    if(timeEpoch!==null){
+    if (timeEpoch !== null) {
       responseBody.meta = {
         lastUpdated: timeEpoch
       }
@@ -56,7 +56,7 @@ module.exports = ({logger = console, level = "error", filter = () => true} = {})
       statusCode: 500,
       body: JSON.stringify(responseBody),
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/fhir+json"
       }
     }
   }

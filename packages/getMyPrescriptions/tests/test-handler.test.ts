@@ -199,8 +199,7 @@ describe("Unit test for app handler", function () {
       event.headers = {"nhsd-nhslogin-user": nhsdLoginUser}
       const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
       expect(result.statusCode).toBe(expectedHttpResponse)
-      // TODO when https://github.com/NHSDigital/prescriptionsforpatients/pull/131 is merged
-      // expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
+      expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
       expect(JSON.parse(result.body)).toEqual(errorResponse)
     }
   )
@@ -211,8 +210,7 @@ describe("Unit test for app handler", function () {
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
     expect(result.statusCode).toBe(500)
-    // TODO when https://github.com/NHSDigital/prescriptionsforpatients/pull/131 is merged
-    // expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
+    expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
     expect(JSON.parse(result.body)).toEqual(responseStatus500)
   })
 })
