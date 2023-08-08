@@ -90,6 +90,17 @@ Resources:
             Principal:
               Service: "lambda.amazonaws.com"
             Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: FunctionPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "ec2:CreateNetworkInterface"
+                  - "ec2:DescribeNetworkInterfaces"
+                  - "ec2:DeleteNetworkInterface"
+                Resource: "*"
   GetMyPrescriptionsLambdaPolicy:
     Type: "AWS::IAM::Policy"
     Properties:
@@ -153,22 +164,6 @@ Resources:
               - !ImportValue ci-resources:SpineASID
               - !ImportValue ci-resources:SpinePartyKey
               - !ImportValue ci-resources:SpineCAChain
-      Roles:
-        - !Ref GetMyPrescriptionsRole
-  GetMyPrescriptionsNetworkPolicies:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: "allow-vpc-network-access"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - ec2:CreateNetworkInterface
-              - ec2:DescribeNetworkInterfaces
-              - ec2:DeleteNetworkInterface
-            Resource:
-              - "*"
       Roles:
         - !Ref GetMyPrescriptionsRole
   GetMyPrescriptionsLogGroup:
@@ -312,6 +307,17 @@ Resources:
             Principal:
               Service: "lambda.amazonaws.com"
             Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: FunctionPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "ec2:CreateNetworkInterface"
+                  - "ec2:DescribeNetworkInterfaces"
+                  - "ec2:DeleteNetworkInterface"
+                Resource: "*"
   StatusLambdaLambdaPolicy:
     Type: "AWS::IAM::Policy"
     Properties:
@@ -375,22 +381,6 @@ Resources:
               - !ImportValue ci-resources:SpineASID
               - !ImportValue ci-resources:SpinePartyKey
               - !ImportValue ci-resources:SpineCAChain
-      Roles:
-        - !Ref StatusLambdaRole
-  StatusLambdaNetworkPolicies:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: "allow-vpc-network-access"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - ec2:CreateNetworkInterface
-              - ec2:DescribeNetworkInterfaces
-              - ec2:DeleteNetworkInterface
-            Resource:
-              - "*"
       Roles:
         - !Ref StatusLambdaRole
   StatusLambdaLogGroup:
