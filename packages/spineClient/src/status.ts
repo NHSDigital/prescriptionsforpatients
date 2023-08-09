@@ -12,6 +12,8 @@ export interface StatusCheckResponse {
 
 export async function serviceHealthCheck(url: string, logger: Logger, httpsAgent: Agent): Promise<StatusCheckResponse> {
   try {
+    logger.info(`making request to ${url}`)
+
     const response = await axios.get<string>(url, {timeout: 20000, httpsAgent})
     return {
       status: response.status === 200 ? "pass" : "error",
