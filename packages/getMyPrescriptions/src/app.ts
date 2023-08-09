@@ -20,7 +20,13 @@ const logger = new Logger({serviceName: "getMyPrescriptions"})
  */
 
 const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  logger.info(`APIGW Request ID: ${event.requestContext.requestId}`)
+  logger.appendKeys({
+    "nhsd-correlation-id": event.headers["nhsd-correlation-id"],
+    "x-request-id": event.headers["x-request-id"],
+    "nhsd-request-id": event.headers["nhsd-request-id"],
+    "x-correlation-id": event.headers["x-correlation-id"],
+    "apigw-request-id": event.requestContext.requestId
+  })
   const spineClient = createSpineClient()
 
   try {
