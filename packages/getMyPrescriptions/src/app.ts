@@ -20,6 +20,7 @@ const logger = new Logger({serviceName: "getMyPrescriptions"})
  */
 
 const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  logger.info(`APIGW Request ID: ${event.requestContext.requestId}`)
   const spineClient = createSpineClient()
 
   try {
