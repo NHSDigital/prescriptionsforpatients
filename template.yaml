@@ -167,7 +167,7 @@ Resources:
     Properties:
       RoleArn: !GetAtt SplunkFirehose.Outputs.SplunkSubscriptionFilterRole
       LogGroupName: !Ref GetMyPrescriptionsLogGroup
-      FilterPattern: '""' # All logs
+      FilterPattern: '" "' # All logs
       DestinationArn: !GetAtt SplunkFirehose.Outputs.SplunkDeliveryStream
   GetMyPrescriptions:
     Type: AWS::Serverless::Function
@@ -253,7 +253,7 @@ Resources:
     Properties:
       RoleArn: !GetAtt SplunkFirehose.Outputs.SplunkSubscriptionFilterRole
       LogGroupName: !Ref CapabilityStatementLogGroup
-      FilterPattern: '""' # All logs
+      FilterPattern: '" "' # All logs
       DestinationArn: !GetAtt SplunkFirehose.Outputs.SplunkDeliveryStream
   CapabilityStatement:
     Type: AWS::Serverless::Function
@@ -366,7 +366,7 @@ Resources:
     Properties:
       RoleArn: !GetAtt SplunkFirehose.Outputs.SplunkSubscriptionFilterRole
       LogGroupName: !Ref StatusLambdaLogGroup
-      FilterPattern: '""' # All logs
+      FilterPattern: '" "' # All logs
       DestinationArn: !GetAtt SplunkFirehose.Outputs.SplunkDeliveryStream
   StatusLambda:
     Type: AWS::Serverless::Function
