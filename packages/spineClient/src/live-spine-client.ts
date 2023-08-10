@@ -52,7 +52,12 @@ export class LiveSpineClient implements SpineClient {
         httpsAgent: this.httpsAgent
       })
 
-      if (response.data["statusCode"] !== "1" && response.data["statusCode"] !== "0") {
+      // This can be removed when https://nhsd-jira.digital.nhs.uk/browse/AEA-3448 is complete
+      if (
+        response.data["statusCode"] !== undefined &&
+        response.data["statusCode"] !== "1" &&
+        response.data["statusCode"] !== "0"
+      ) {
         logger.error("Unsuccessful status code response from spine", {
           response: {
             data: response.data,
