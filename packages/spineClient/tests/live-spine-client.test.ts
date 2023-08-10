@@ -7,7 +7,6 @@ import {APIGatewayProxyEventHeaders} from "aws-lambda"
 
 const mock = new MockAdapter(axios)
 process.env.TargetSpineServer = "spine"
-type spineSuccessTestData = [spineStatusCode: string]
 type spineFailureTestData = {
   httpResponseCode: number
   spineStatusCode: string
@@ -23,20 +22,17 @@ describe("live spine client", () => {
     mock.reset()
   })
 
-  test.each<spineSuccessTestData>([["0"], ["1"]])(
-    "successful response when http response is status 200 and spine status is %i",
-    async (spineStatusCode) => {
-      mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, {statusCode: spineStatusCode})
-      const spineClient = new LiveSpineClient()
-      const headers: APIGatewayProxyEventHeaders = {
-        "nhsd-nhslogin-user": "P9:9912003071"
-      }
-      const spineResponse = await spineClient.getPrescriptions(headers, logger)
-
-      expect(spineResponse.status).toBe(200)
-      expect(spineResponse.data).toStrictEqual({statusCode: spineStatusCode})
+  test("successful response when http response is status 200 and spine status does not exist", async () => {
+    mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, {resourceType: "Bundle"})
+    const spineClient = new LiveSpineClient()
+    const headers: APIGatewayProxyEventHeaders = {
+      "nhsd-nhslogin-user": "P9:9912003071"
     }
-  )
+    const spineResponse = await spineClient.getPrescriptions(headers, logger)
+
+    expect(spineResponse.status).toBe(200)
+    expect(spineResponse.data).toStrictEqual({resourceType: "Bundle"})
+  })
 
   test.each<spineFailureTestData>([
     {

@@ -116,13 +116,13 @@ describe("Unit test for app handler", function () {
   })
 
   it("verifies successful response", async () => {
-    mock.onGet("https://live/mm/patientfacingprescriptions").reply(200, {statusCode: "0"})
+    mock.onGet("https://live/mm/patientfacingprescriptions").reply(200, {resourceType: "Bundle"})
 
     const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
     expect(result.statusCode).toEqual(200)
-    expect(result.body).toEqual(JSON.stringify({statusCode: "0"}))
+    expect(result.body).toEqual(JSON.stringify({resourceType: "Bundle"}))
     expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
   })
 
