@@ -20,6 +20,8 @@ Globals:
         SpineASIDARN: !ImportValue ci-resources:SpineASID
         SpinePartyKeyARN: !ImportValue ci-resources:SpinePartyKey
         SpineCAChainARN: !ImportValue ci-resources:SpineCAChain
+    Layers:
+      - !Sub "arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:38"
 
 Parameters:
   TargetSpineServer:
@@ -172,6 +174,8 @@ Resources:
   GetMyPrescriptions:
     Type: AWS::Serverless::Function
     Properties:
+      Policies:
+        - CloudWatchLambdaInsightsExecutionRolePolicy
       CodeUri: packages
       Handler: app.handler
       Role: !GetAtt GetMyPrescriptionsRole.Arn
@@ -258,6 +262,8 @@ Resources:
   CapabilityStatement:
     Type: AWS::Serverless::Function
     Properties:
+      Policies:
+        - CloudWatchLambdaInsightsExecutionRolePolicy
       CodeUri: packages
       Handler: app.handler
       Role: !GetAtt CapabilityStatementRole.Arn
@@ -371,6 +377,8 @@ Resources:
   StatusLambda:
     Type: AWS::Serverless::Function
     Properties:
+      Policies:
+        - CloudWatchLambdaInsightsExecutionRolePolicy
       CodeUri: packages
       Handler: app.handler
       Role: !GetAtt StatusLambdaRole.Arn
