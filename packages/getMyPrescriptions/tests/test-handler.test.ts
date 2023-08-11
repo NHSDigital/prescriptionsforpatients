@@ -2,6 +2,7 @@ import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
 import {handler} from "../src/app"
 import {expect, describe, it} from "@jest/globals"
 import {ContextExamples} from "@aws-lambda-powertools/commons"
+import {Logger} from "@aws-lambda-powertools/logger"
 import "jest"
 import MockAdapter from "axios-mock-adapter"
 import axios from "axios"
@@ -12,7 +13,13 @@ const mock = new MockAdapter(axios)
 const exampleEvent = JSON.stringify({
   httpMethod: "get",
   body: "",
-  headers: {"nhsd-nhslogin-user": "P9:9912003071"},
+  headers: {
+    "nhsd-nhslogin-user": "P9:9912003071",
+    "nhsd-correlation-id": "test-request-id.test-correlation-id.rrt-5789322914740101037-b-aet2-20145-482635-2",
+    "x-request-id": "test-request-id",
+    "nhsd-request-id": "test-request-id",
+    "x-correlation-id": "test-correlation-id"
+  },
   isBase64Encoded: false,
   multiValueHeaders: {},
   multiValueQueryStringParameters: {},
@@ -212,6 +219,23 @@ describe("Unit test for app handler", function () {
     expect(result.statusCode).toBe(500)
     expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
     expect(JSON.parse(result.body)).toEqual(responseStatus500)
+  })
+
+  it("appends trace id's to the logger", async () => {
+    const mockAppendKeys = jest.spyOn(Logger.prototype, "appendKeys")
+
+    mock.onGet("https://live/mm/patientfacingprescriptions").reply(200, {statusCode: "0"})
+
+    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+    await handler(event, dummyContext)
+
+    expect(mockAppendKeys).toHaveBeenCalledWith({
+      "nhsd-correlation-id": "test-request-id.test-correlation-id.rrt-5789322914740101037-b-aet2-20145-482635-2",
+      "x-request-id": "test-request-id",
+      "nhsd-request-id": "test-request-id",
+      "x-correlation-id": "test-correlation-id",
+      "apigw-request-id": "c6af9ac6-7b61-11e6-9a41-93e8deadbeef"
+    })
   })
 })
 
