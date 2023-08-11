@@ -106,6 +106,12 @@ Resources:
             Resource:
               - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${GetMyPrescriptionsLogGroup}"
               - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${GetMyPrescriptionsLogGroup}:log-stream:*"
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:aws/lambda-insights:*"
+          - Effect: Allow
+            Action:
+              - logs:CreateLogGroup
+            Resource:
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:aws/lambda-insights:*"
       Roles:
         - !Ref GetMyPrescriptionsRole
   GetMyPrescriptionsKMSPolicy:
@@ -174,8 +180,6 @@ Resources:
   GetMyPrescriptions:
     Type: AWS::Serverless::Function
     Properties:
-      Policies:
-        - CloudWatchLambdaInsightsExecutionRolePolicy
       CodeUri: packages
       Handler: app.handler
       Role: !GetAtt GetMyPrescriptionsRole.Arn
