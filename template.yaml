@@ -92,6 +92,8 @@ Resources:
             Principal:
               Service: "lambda.amazonaws.com"
             Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
   GetMyPrescriptionsLambdaPolicy:
     Type: "AWS::IAM::Policy"
     Properties:
@@ -106,12 +108,6 @@ Resources:
             Resource:
               - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${GetMyPrescriptionsLogGroup}"
               - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${GetMyPrescriptionsLogGroup}:log-stream:*"
-              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:aws/lambda-insights:*"
-          - Effect: Allow
-            Action:
-              - logs:CreateLogGroup
-            Resource:
-              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:aws/lambda-insights:*"
       Roles:
         - !Ref GetMyPrescriptionsRole
   GetMyPrescriptionsKMSPolicy:
