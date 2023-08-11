@@ -20,7 +20,6 @@ const logger = new Logger({serviceName: "capabilityStatement"})
  */
 
 const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  const targetSpineServer = process.env.TargetSpineServer
   logger.appendKeys({
     "nhsd-correlation-id": event.headers["nhsd-correlation-id"],
     "x-request-id": event.headers["x-request-id"],
@@ -28,7 +27,6 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     "x-correlation-id": event.headers["x-correlation-id"],
     "apigw-request-id": event.requestContext.requestId
   })
-  logger.info(`hello world from sandbox logger - target spine server ${targetSpineServer}`)
 
   return {
     statusCode: 200,
