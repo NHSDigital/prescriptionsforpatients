@@ -20,7 +20,15 @@ const logger = new Logger({serviceName: "status"})
  */
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const lambdaHandler = async (_event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  logger.appendKeys({
+    "nhsd-correlation-id": event.headers["nhsd-correlation-id"],
+    "x-request-id": event.headers["x-request-id"],
+    "nhsd-request-id": event.headers["nhsd-request-id"],
+    "x-correlation-id": event.headers["x-correlation-id"],
+    "apigw-request-id": event.requestContext.requestId
+  })
+
   const spineClient = createSpineClient()
 
   const spineStatus = await spineClient.getStatus(logger)
