@@ -129,7 +129,12 @@ describe("Unit test for app handler", function () {
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
     expect(result.statusCode).toEqual(200)
-    expect(result.body).toEqual(JSON.stringify({resourceType: "Bundle"}))
+    expect(result.body).toEqual(
+      JSON.stringify({
+        resourceType: "Bundle",
+        id: "test-request-id"
+      })
+    )
     expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
   })
 
