@@ -23,7 +23,7 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
   const xRequestId = event.headers["x-request-id"]
   logger.appendKeys({
     "nhsd-correlation-id": event.headers["nhsd-correlation-id"],
-    "x-request-id": event.headers["x-request-id"],
+    "x-request-id": xRequestId,
     "nhsd-request-id": event.headers["nhsd-request-id"],
     "x-correlation-id": event.headers["x-correlation-id"],
     "apigw-request-id": event.requestContext.requestId
