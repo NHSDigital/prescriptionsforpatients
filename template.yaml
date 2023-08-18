@@ -460,3 +460,28 @@ Resources:
           - ShouldUseMutualTLS
           - true
           - !Ref "AWS::NoValue"
+      AccessLogSettings:
+        DestinationArn: ""
+        Format: "{ \
+          'requestTime': '$context.requestTime', \
+          'apiId': '$context.apiId', \
+          'accountId': '$context.accountId', \
+          'resourceId': '$context.resourceId', \
+          'resourcePath': '$context.resourcePath', \
+          'stage': '$context.stage', \
+          'requestId': '$context.requestId', \
+          'extendedRequestId': '$context.extendedRequestId', \
+          'httpMethod': '$context.httpMethod', \
+          'protocol': '$context.protocol', \
+          'path': '$context.path', \
+          'domainName': '$context.domainName', \
+          'identity': { \
+          'sourceIp': '$context.identity.sourceIp', \
+          'userAgent': '$context.identity.userAgent', \
+          'clientCert':{ \
+          'subjectDN': '$context.identity.clientCert.subjectDN', \
+          'issuerDN': '$context.identity.clientCert.issuerDN', \
+          'serialNumber': '$context.identity.clientCert.serialNumber', \
+          'validityNotBefore': '$context.identity.clientCert.validity.notBefore', \
+          'validityNotAfter': '$context.identity.clientCert.validity.notAfter', \
+          }}}"
