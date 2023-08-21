@@ -1,0 +1,16 @@
+{
+    "name": "@prescriptionsforpatients/common",
+    "version": "1.0.0",
+    "description": "Common resources for prescriptionsforpatients",
+    "author": "",
+    "license": "ISC",
+    "main": "lib/src/index.js",
+    "scripts": {
+        "unit": "jest",
+        "lint": "eslint . --ext .ts --max-warnings 0 --fix",
+        "compile": "tsc",
+        "test": "npm run compile && npm run unit",
+        "check-licenses": "license-checker --failOn GPL --failOn LGPL --start ../.."
+    },
+    "dependencies": {}
+}
