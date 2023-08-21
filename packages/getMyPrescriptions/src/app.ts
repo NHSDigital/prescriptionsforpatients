@@ -38,7 +38,9 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       statusCode: 200,
       body: JSON.stringify(resBody),
       headers: {
-        "Content-Type": "application/fhir+json"
+        "Content-Type": "application/fhir+json",
+        "Cache-Control": "no-cache",
+        Pragma: "no-store"
       }
     }
   } catch (error) {
@@ -65,7 +67,9 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
         statusCode: 400,
         body: JSON.stringify(errorResponseBody),
         headers: {
-          "Content-Type": "application/fhir+json"
+          "Content-Type": "application/fhir+json",
+          "Cache-Control": "no-cache",
+          Pragma: "no-store"
         }
       }
     } else {
