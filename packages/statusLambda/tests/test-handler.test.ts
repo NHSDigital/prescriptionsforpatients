@@ -97,7 +97,7 @@ describe("Unit test for status check", function () {
       "apigw-request-id": "c6af9ac6-7b61-11e6-9a41-93e8deadbeef"
     })
   }),
-  it("returns no-cache Cache-Control and no-store Pragma headers", async () => {
+  it("returns no-cache Cache-Control header", async () => {
     process.env.COMMIT_ID = "test_commit_id"
     process.env.TargetSpineServer = "sandbox"
 
@@ -106,8 +106,7 @@ describe("Unit test for status check", function () {
     const headers = result.headers
 
     expect(headers).toMatchObject({
-      "Cache-Control": "no-cache",
-      Pragma: "no-store"
+      "Cache-Control": "no-cache"
     })
   })
 })

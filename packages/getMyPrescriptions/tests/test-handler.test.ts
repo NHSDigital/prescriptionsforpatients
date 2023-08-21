@@ -137,8 +137,7 @@ describe("Unit test for app handler", function () {
     )
     expect(result.headers).toEqual({
       "Content-Type": "application/fhir+json",
-      "Cache-Control": "no-cache",
-      Pragma: "no-store"
+      "Cache-Control": "no-cache"
     })
   })
 
@@ -217,8 +216,7 @@ describe("Unit test for app handler", function () {
       expect(result.statusCode).toBe(expectedHttpResponse)
       expect(result.headers).toEqual({
         "Content-Type": "application/fhir+json",
-        "Cache-Control": "no-cache",
-        Pragma: "no-store"
+        "Cache-Control": "no-cache"
       })
       expect(JSON.parse(result.body)).toEqual(errorResponse)
     }
@@ -232,8 +230,7 @@ describe("Unit test for app handler", function () {
     expect(result.statusCode).toBe(500)
     expect(result.headers).toEqual({
       "Content-Type": "application/fhir+json",
-      "Cache-Control": "no-cache",
-      Pragma: "no-store"
+      "Cache-Control": "no-cache"
     })
     expect(JSON.parse(result.body)).toEqual(responseStatus500)
   })

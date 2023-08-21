@@ -45,8 +45,7 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     }),
     headers: {
       "Content-Type": "application/health+json",
-      "Cache-Control": "no-cache",
-      Pragma: "no-store"
+      "Cache-Control": "no-cache"
     }
   }
 }

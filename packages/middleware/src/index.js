@@ -57,8 +57,7 @@ module.exports = ({logger = console, level = "error", filter = () => true} = {})
       body: JSON.stringify(responseBody),
       headers: {
         "Content-Type": "application/fhir+json",
-        "Cache-Control": "no-cache",
-        Pragma: "no-store"
+        "Cache-Control": "no-cache"
       }
     }
   }

@@ -126,7 +126,6 @@ test("Returns a response with the correct MIME type", async () => {
 
   expect(response.headers).toEqual({
     "Content-Type": "application/fhir+json",
-    "Cache-Control": "no-cache",
-    Pragma: "no-store"
+    "Cache-Control": "no-cache"
   })
 })
