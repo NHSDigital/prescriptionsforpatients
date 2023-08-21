@@ -84,6 +84,7 @@ describe("Unit test for status check", function () {
       versionNumber: "test_version_number"
     })
   })
+
   it("appends trace id's to the logger", async () => {
     const mockAppendKeys = jest.spyOn(Logger.prototype, "appendKeys")
 
@@ -96,7 +97,8 @@ describe("Unit test for status check", function () {
       "x-correlation-id": "test-correlation-id",
       "apigw-request-id": "c6af9ac6-7b61-11e6-9a41-93e8deadbeef"
     })
-  }),
+  })
+
   it("returns no-cache Cache-Control header", async () => {
     process.env.COMMIT_ID = "test_commit_id"
     process.env.TargetSpineServer = "sandbox"
