@@ -71,7 +71,7 @@ describe("Unit test for app handler", function () {
   it("returns a response with the correct MIME type", async () => {
     const result: APIGatewayProxyResult = await handler(mockEvent, dummyContext)
 
-    expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
+    expect(result.headers).toEqual({"Content-Type": "application/fhir+json", "Cache-Control": "no-cache"})
   })
 
   it("appends trace id's to the logger", async () => {
