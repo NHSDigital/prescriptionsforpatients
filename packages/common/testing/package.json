@@ -1,7 +1,7 @@
 {
-    "name": "@prescriptionsforpatients/common",
+    "name": "@prescriptionsforpatients/common_testing",
     "version": "1.0.0",
-    "description": "Common resources for prescriptionsforpatients",
+    "description": "Common resources for testing prescriptionsforpatients",
     "author": "",
     "license": "ISC",
     "main": "lib/src/index.js",

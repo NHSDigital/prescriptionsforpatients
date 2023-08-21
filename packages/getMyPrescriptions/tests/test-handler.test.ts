@@ -6,7 +6,7 @@ import {Logger} from "@aws-lambda-powertools/logger"
 import "jest"
 import MockAdapter from "axios-mock-adapter"
 import axios from "axios"
-import {mockAPIGatewayProxyEvent} from "@prescriptionsforpatients/common"
+import {mockAPIGatewayProxyEvent} from "@prescriptionsforpatients/common_testing"
 
 const dummyContext = ContextExamples.helloworldContext
 const mock = new MockAdapter(axios)

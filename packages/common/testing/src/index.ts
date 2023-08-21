@@ -1,5 +1,5 @@
 import {APIGatewayProxyEvent} from "aws-lambda"
-import * as _mockAPIGatewayProxyEvent from "./events/mockAPIGatewayProxyEvent.json"
+import * as _mockAPIGatewayProxyEvent from "./mockAPIGatewayProxyEvent.json"
 
 const mockAPIGatewayProxyEvent: APIGatewayProxyEvent = _mockAPIGatewayProxyEvent
 

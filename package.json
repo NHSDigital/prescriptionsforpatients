@@ -24,7 +24,7 @@
     "packages/splunkProcessor",
     "packages/statusLambda",
     "packages/spineClient",
-    "packages/common"
+    "packages/common/testing"
   ],
   "private": true,
   "devDependencies": {

@@ -10,6 +10,6 @@
     { "path": "packages/getMyPrescriptions" },
     { "path": "packages/sandbox" },
     { "path": "packages/statusLambda" },
-    { "path": "packages/common" }
+    { "path": "packages/common/testing" }
   ]
 }

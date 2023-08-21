@@ -18,6 +18,6 @@
     "@middy/core": "^4.5.2",
     "@middy/input-output-logger": "^4.5.3",
     "@prescriptionsforpatients/middleware": "^1.0.0",
-    "@prescriptionsforpatients/common": "^1.0.0"
+    "@prescriptionsforpatients/common_testing": "^1.0.0"
   }
 }
