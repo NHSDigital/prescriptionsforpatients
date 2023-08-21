@@ -153,6 +153,7 @@ Resources:
                   - "s3:DeleteBucket"
                   - "s3:SetBucketEncryption"
                   - "s3:PutEncryptionConfiguration"
+                  - "s3:PutBucketVersioning"
                   - "firehose:CreateDeliveryStream"
                   - "firehose:DescribeDeliveryStream"
                   - "firehose:DeleteDeliveryStream"
