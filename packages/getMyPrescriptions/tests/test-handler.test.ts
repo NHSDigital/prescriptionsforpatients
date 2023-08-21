@@ -135,7 +135,11 @@ describe("Unit test for app handler", function () {
         id: "test-request-id"
       })
     )
-    expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
+    expect(result.headers).toEqual({
+      "Content-Type": "application/fhir+json",
+      "Cache-Control": "no-cache",
+      Pragma: "no-store"
+    })
   })
 
   it.each<spineFailureTestData>([
@@ -211,7 +215,11 @@ describe("Unit test for app handler", function () {
       event.headers = {"nhsd-nhslogin-user": nhsdLoginUser}
       const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
       expect(result.statusCode).toBe(expectedHttpResponse)
-      expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
+      expect(result.headers).toEqual({
+        "Content-Type": "application/fhir+json",
+        "Cache-Control": "no-cache",
+        Pragma: "no-store"
+      })
       expect(JSON.parse(result.body)).toEqual(errorResponse)
     }
   )
@@ -222,7 +230,11 @@ describe("Unit test for app handler", function () {
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
     expect(result.statusCode).toBe(500)
-    expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
+    expect(result.headers).toEqual({
+      "Content-Type": "application/fhir+json",
+      "Cache-Control": "no-cache",
+      Pragma: "no-store"
+    })
     expect(JSON.parse(result.body)).toEqual(responseStatus500)
   })
 
