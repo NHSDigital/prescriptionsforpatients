@@ -4,8 +4,7 @@ import {expect, describe, it} from "@jest/globals"
 import {ContextExamples} from "@aws-lambda-powertools/commons"
 import {Logger} from "@aws-lambda-powertools/logger"
 import successData from "../examples/GetMyPrescriptions/Bundle/success.json"
-
-import {mockAPIGatewayProxyEvent} from "@prescriptionsforpatients_common/testing"
+import {mockAPIGatewayProxyEvent, test_mime_type} from "@prescriptionsforpatients_common/testing"
 
 const dummyContext = ContextExamples.helloworldContext
 const mockEvent: APIGatewayProxyEvent = mockAPIGatewayProxyEvent
@@ -17,11 +16,7 @@ describe("Unit test for app handler", function () {
     expect(result.statusCode).toEqual(200)
     expect(result.body).toEqual(JSON.stringify(successData))
   })
-  it("returns a response with the correct MIME type", async () => {
-    const result: APIGatewayProxyResult = await handler(mockEvent, dummyContext)
-
-    expect(result.headers).toEqual({"Content-Type": "application/fhir+json", "Cache-Control": "no-cache"})
-  })
+  it("returns a response with the correct MIME type", test_mime_type(handler, mockEvent, dummyContext))
   it("appends trace id's to the logger", async () => {
     const mockAppendKeys = jest.spyOn(Logger.prototype, "appendKeys")
 

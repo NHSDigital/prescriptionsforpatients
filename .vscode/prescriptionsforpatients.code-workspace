@@ -44,7 +44,6 @@
 	"settings": {
 		"jest.disabledWorkspaceFolders": [
 			"prescriptionsforpatients-monorepo",
-			"packages/sandbox",
 			"packages/splunkProcessor",
 			"packages/getSecretLayer",
 			"packages/common"
