@@ -195,6 +195,8 @@ Resources:
   SplunkDeliveryStreamBackupBucket:
     Type: AWS::S3::Bucket
     Properties:
+      VersioningConfiguration:
+        Status: Enabled
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - BucketKeyEnabled: false
