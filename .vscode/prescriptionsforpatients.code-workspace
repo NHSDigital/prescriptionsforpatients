@@ -50,6 +50,7 @@
 		},
         "cSpell.words": [
 			"apigw",
+			"ASID",
 			"AWSKMS",
 			"Caldicott",
 			"canonicalise",
@@ -92,9 +93,11 @@
 			"smartcards",
 			"Snomed",
 			"sourcetype",
+			"Truststore",
 			"URID",
 			"URPID",
 			"vars",
+			"versionable",
 			"whens"
 		],
 		"cSpell.dictionaries": [
