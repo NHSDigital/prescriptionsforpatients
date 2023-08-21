@@ -461,7 +461,7 @@ Resources:
           - true
           - !Ref "AWS::NoValue"
       AccessLogSettings:
-        DestinationArn: ""
+        DestinationArn: !GetAtt ApiGwAccessLogs.Arn
         Format: "{ \
           'requestTime': '$context.requestTime', \
           'apiId': '$context.apiId', \
@@ -485,3 +485,9 @@ Resources:
           'validityNotBefore': '$context.identity.clientCert.validity.notBefore', \
           'validityNotAfter': '$context.identity.clientCert.validity.notAfter', \
           }}}"
+
+  ApiGwAccessLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/api-gateway/${HttpApiGateway}"
+      RetentionInDays: 30
