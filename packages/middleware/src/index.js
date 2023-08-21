@@ -56,7 +56,9 @@ module.exports = ({logger = console, level = "error", filter = () => true} = {})
       statusCode: 500,
       body: JSON.stringify(responseBody),
       headers: {
-        "Content-Type": "application/fhir+json"
+        "Content-Type": "application/fhir+json",
+        "Cache-Control": "no-cache",
+        Pragma: "no-store"
       }
     }
   }
