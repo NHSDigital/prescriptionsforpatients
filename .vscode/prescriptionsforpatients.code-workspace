@@ -44,10 +44,10 @@
 	"settings": {
 		"jest.disabledWorkspaceFolders": [
 			"prescriptionsforpatients-monorepo",
-			"packages/capabilityStatement",
 			"packages/sandbox",
 			"packages/splunkProcessor",
-			"packages/getSecretLayer"
+			"packages/getSecretLayer",
+			"packages/common"
 		],
 		"files.exclude": {
 			"packages/": true,
