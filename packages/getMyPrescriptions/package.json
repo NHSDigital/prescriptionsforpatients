@@ -22,7 +22,7 @@
     "@middy/input-output-logger": "^4.5.3",
     "@prescriptionsforpatients/middleware": "^1.0.0",
     "@prescriptionsforpatients/spineClient": "^1.0.0",
-    "@prescriptionsforpatients/common_testing": "^1.0.0"
+    "@prescriptionsforpatients_common/testing": "^1.0.0"
   },
   "devDependencies": {
     "axios-mock-adapter": "^1.21.5"

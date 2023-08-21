@@ -5,7 +5,7 @@ import {ContextExamples} from "@aws-lambda-powertools/commons"
 import {Logger} from "@aws-lambda-powertools/logger"
 import successData from "../examples/GetMyPrescriptions/Bundle/success.json"
 
-import {mockAPIGatewayProxyEvent} from "@prescriptionsforpatients/common_testing"
+import {mockAPIGatewayProxyEvent} from "@prescriptionsforpatients_common/testing"
 
 const dummyContext = ContextExamples.helloworldContext
 const mockEvent: APIGatewayProxyEvent = mockAPIGatewayProxyEvent
