@@ -63,15 +63,15 @@ const mockEvent: APIGatewayProxyEvent = {
 
 describe("Unit test for app handler", function () {
   it("verifies successful response with no params", async () => {
-    const result: APIGatewayProxyResult = (await handler(mockEvent, dummyContext)) as APIGatewayProxyResult
+    const result: APIGatewayProxyResult = await handler(mockEvent, dummyContext)
 
     expect(result.statusCode).toEqual(200)
     expect(result.body).toEqual(JSON.stringify(successData))
   })
   it("returns a response with the correct MIME type", async () => {
-    const result: APIGatewayProxyResult = (await handler(mockEvent, dummyContext)) as APIGatewayProxyResult
+    const result: APIGatewayProxyResult = await handler(mockEvent, dummyContext)
 
-    expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
+    expect(result.headers).toEqual({"Content-Type": "application/fhir+json", "Cache-Control": "no-cache"})
   })
   it("appends trace id's to the logger", async () => {
     const mockAppendKeys = jest.spyOn(Logger.prototype, "appendKeys")
