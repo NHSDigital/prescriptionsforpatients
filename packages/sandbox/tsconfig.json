@@ -5,7 +5,7 @@
     "outDir": "lib",
     "resolveJsonModule": true
   },
-  "references": [{"path": "../middleware"}],
+  "references": [{"path": "../middleware"}, {"path": "../common"}],
   "include": ["src/**/*", "tests/**/*", "examples/GetMyPrescriptions/Bundle/success.json"],
   "exclude": ["node_modules"]
 }
