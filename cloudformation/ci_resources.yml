@@ -121,6 +121,7 @@ Resources:
                   - "logs:DescribeSubscriptionFilters"
                   - "logs:DeleteSubscriptionFilter"
                   - "logs:DescribeLogGroups"
+                  - "logs:CreateLogDelivery"
                   - "lambda:Add*"
                   - "lambda:CreateFunction"
                   - "lambda:Delete*"
