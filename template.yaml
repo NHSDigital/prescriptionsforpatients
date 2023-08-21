@@ -466,7 +466,6 @@ Resources:
           'requestTime': '$context.requestTime', \
           'apiId': '$context.apiId', \
           'accountId': '$context.accountId', \
-          'resourceId': '$context.resourceId', \
           'resourcePath': '$context.resourcePath', \
           'stage': '$context.stage', \
           'requestId': '$context.requestId', \
