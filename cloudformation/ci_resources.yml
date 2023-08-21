@@ -120,6 +120,7 @@ Resources:
                   - "logs:PutSubscriptionFilter"
                   - "logs:DescribeSubscriptionFilters"
                   - "logs:DeleteSubscriptionFilter"
+                  - "logs:DescribeLogGroups"
                   - "lambda:Add*"
                   - "lambda:CreateFunction"
                   - "lambda:Delete*"
