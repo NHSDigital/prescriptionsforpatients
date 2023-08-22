@@ -124,5 +124,8 @@ test("Returns a response with the correct MIME type", async () => {
 
   const response = await handler(mockEvent, {})
 
-  expect(response.headers).toEqual({"Content-Type": "application/fhir+json"})
+  expect(response.headers).toEqual({
+    "Content-Type": "application/fhir+json",
+    "Cache-Control": "no-cache"
+  })
 })

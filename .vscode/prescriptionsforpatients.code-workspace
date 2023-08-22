@@ -35,20 +35,25 @@
 		{
 			"name": "packages/getSecretLayer",
 			"path": "../packages/getSecretLayer"
+		},
+		{
+			"name": "packages/common",
+			"path": "../packages/common"
 		}
 	],
 	"settings": {
 		"jest.disabledWorkspaceFolders": [
 			"prescriptionsforpatients-monorepo",
-			"packages/capabilityStatement",
-			"packages/sandbox",
 			"packages/splunkProcessor",
-			"packages/getSecretLayer"
+			"packages/getSecretLayer",
+			"packages/common"
 		],
 		"files.exclude": {
 			"packages/": true,
 		},
         "cSpell.words": [
+			"apigw",
+			"ASID",
 			"AWSKMS",
 			"Caldicott",
 			"canonicalise",
@@ -64,18 +69,23 @@
 			"Formik",
 			"Fulfillment",
 			"Hashable",
+			"healthcheck",
 			"Helpdesk",
 			"homecare",
 			"HSCN",
 			"liter",
 			"milliliter",
 			"NHSD",
+			"nhsdlogin",
+			"nhslogin",
 			"NOSONAR",
 			"OIDC",
 			"Orthoptist",
 			"Payor",
 			"pino",
 			"pollable",
+			"powertools",
+			"prescriptionsforpatients",
 			"Prosthetist",
 			"querystring",
 			"reingest",
@@ -86,8 +96,11 @@
 			"smartcards",
 			"Snomed",
 			"sourcetype",
+			"Truststore",
 			"URID",
 			"URPID",
+			"vars",
+			"versionable",
 			"whens"
 		],
 		"cSpell.dictionaries": [

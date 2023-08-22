@@ -23,7 +23,8 @@
     "packages/sandbox",
     "packages/splunkProcessor",
     "packages/statusLambda",
-    "packages/spineClient"
+    "packages/spineClient",
+    "packages/common/testing"
   ],
   "private": true,
   "devDependencies": {

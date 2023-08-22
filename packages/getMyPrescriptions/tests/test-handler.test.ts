@@ -6,66 +6,12 @@ import {Logger} from "@aws-lambda-powertools/logger"
 import "jest"
 import MockAdapter from "axios-mock-adapter"
 import axios from "axios"
+import {mockAPIGatewayProxyEvent} from "@prescriptionsforpatients_common/testing"
 
 const dummyContext = ContextExamples.helloworldContext
 const mock = new MockAdapter(axios)
 
-const exampleEvent = JSON.stringify({
-  httpMethod: "get",
-  body: "",
-  headers: {
-    "nhsd-nhslogin-user": "P9:9912003071",
-    "nhsd-correlation-id": "test-request-id.test-correlation-id.rrt-5789322914740101037-b-aet2-20145-482635-2",
-    "x-request-id": "test-request-id",
-    "nhsd-request-id": "test-request-id",
-    "x-correlation-id": "test-correlation-id"
-  },
-  isBase64Encoded: false,
-  multiValueHeaders: {},
-  multiValueQueryStringParameters: {},
-  path: "/hello",
-  pathParameters: {},
-  queryStringParameters: {},
-  requestContext: {
-    accountId: "123456789012",
-    apiId: "1234",
-    authorizer: {},
-    httpMethod: "get",
-    identity: {
-      accessKey: "",
-      accountId: "",
-      apiKey: "",
-      apiKeyId: "",
-      caller: "",
-      clientCert: {
-        clientCertPem: "",
-        issuerDN: "",
-        serialNumber: "",
-        subjectDN: "",
-        validity: {notAfter: "", notBefore: ""}
-      },
-      cognitoAuthenticationProvider: "",
-      cognitoAuthenticationType: "",
-      cognitoIdentityId: "",
-      cognitoIdentityPoolId: "",
-      principalOrgId: "",
-      sourceIp: "",
-      user: "",
-      userAgent: "",
-      userArn: ""
-    },
-    path: "/hello",
-    protocol: "HTTP/1.1",
-    requestId: "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
-    requestTimeEpoch: 1428582896000,
-    resourceId: "123456",
-    resourcePath: "/hello",
-    stage: "dev"
-  },
-  resource: "",
-  stageVariables: {}
-})
-
+const exampleEvent = JSON.stringify(mockAPIGatewayProxyEvent)
 const responseStatus400 = {
   resourceType: "OperationOutcome",
   issue: [
@@ -135,7 +81,10 @@ describe("Unit test for app handler", function () {
         id: "test-request-id"
       })
     )
-    expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
+    expect(result.headers).toEqual({
+      "Content-Type": "application/fhir+json",
+      "Cache-Control": "no-cache"
+    })
   })
 
   it.each<spineFailureTestData>([
@@ -211,7 +160,10 @@ describe("Unit test for app handler", function () {
       event.headers = {"nhsd-nhslogin-user": nhsdLoginUser}
       const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
       expect(result.statusCode).toBe(expectedHttpResponse)
-      expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
+      expect(result.headers).toEqual({
+        "Content-Type": "application/fhir+json",
+        "Cache-Control": "no-cache"
+      })
       expect(JSON.parse(result.body)).toEqual(errorResponse)
     }
   )
@@ -222,7 +174,10 @@ describe("Unit test for app handler", function () {
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
     expect(result.statusCode).toBe(500)
-    expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
+    expect(result.headers).toEqual({
+      "Content-Type": "application/fhir+json",
+      "Cache-Control": "no-cache"
+    })
     expect(JSON.parse(result.body)).toEqual(responseStatus500)
   })
 
