@@ -75,7 +75,22 @@ function transformLogEvent(logEvent, logGroup, accountNumber) {
   try {
     eventMessage = JSON.parse(logEvent.message)
   } catch (_) {
-    eventMessage = logEvent.message
+    let functionRequestId = ""
+    const summaryPattern = /RequestId:\s*([a-fA-F0-9-]+)/
+    const match = logEvent.message.match(summaryPattern)
+    if (match) {
+      functionRequestId = match[1]
+    } else {
+      const noSummaryPattern = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\s+([a-fA-F0-9-]+)/
+      const match = logEvent.message.match(noSummaryPattern)
+      if (match) {
+        functionRequestId = match[1]
+      }
+    }
+    eventMessage = {
+      message: logEvent.message,
+      function_request_id: functionRequestId
+    }
   }
 
   const event = {
