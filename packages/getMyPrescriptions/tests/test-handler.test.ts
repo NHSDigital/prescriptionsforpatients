@@ -204,7 +204,10 @@ describe("Unit test for app handler", function () {
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
     expect(result.statusCode).toBe(500)
-    expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
+    expect(result.headers).toEqual({
+      "Content-Type": "application/fhir+json",
+      "Cache-Control": "no-cache"
+    })
     expect(JSON.parse(result.body)).toEqual(responseStatus500)
   })
 })

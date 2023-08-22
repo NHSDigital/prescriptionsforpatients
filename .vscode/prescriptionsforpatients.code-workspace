@@ -44,8 +44,6 @@
 	"settings": {
 		"jest.disabledWorkspaceFolders": [
 			"prescriptionsforpatients-monorepo",
-			"packages/capabilityStatement",
-			"packages/sandbox",
 			"packages/getSecretLayer",
 			"packages/common"
 		],
