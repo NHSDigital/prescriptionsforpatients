@@ -105,4 +105,14 @@ describe("live spine client", () => {
     }
     await expect(spineClient.getPrescriptions(headers, logger)).rejects.toThrow("Network Error")
   })
+
+  test("should throw error when timout on http request", async () => {
+    mock.onGet("https://spine/mm/patientfacingprescriptions").timeout()
+
+    const spineClient = new LiveSpineClient()
+    const headers: APIGatewayProxyEventHeaders = {
+      "nhsd-nhslogin-user": "P9:9912003071"
+    }
+    await expect(spineClient.getPrescriptions(headers, logger)).rejects.toThrow("timeout of 45000ms exceeded")
+  })
 })

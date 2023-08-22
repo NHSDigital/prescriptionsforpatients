@@ -119,6 +119,7 @@ test: compile
 	npm run test --workspace packages/sandbox
 	npm run test --workspace packages/statusLambda
 	npm run test --workspace packages/spineClient
+	npm run test --workspace packages/splunkProcessor
 
 clean:
 	rm -rf packages/capabilityStatement/coverage

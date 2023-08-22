@@ -197,6 +197,19 @@ describe("Unit test for app handler", function () {
       "apigw-request-id": "c6af9ac6-7b61-11e6-9a41-93e8deadbeef"
     })
   })
+
+  it("return error when spine does not respond in time", async () => {
+    mock.onGet("https://live/mm/patientfacingprescriptions").timeout()
+    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+    const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
+
+    expect(result.statusCode).toBe(500)
+    expect(result.headers).toEqual({
+      "Content-Type": "application/fhir+json",
+      "Cache-Control": "no-cache"
+    })
+    expect(JSON.parse(result.body)).toEqual(responseStatus500)
+  })
 })
 
 export {}
