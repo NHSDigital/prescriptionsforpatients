@@ -490,31 +490,3 @@ Resources:
     Properties:
       LogGroupName: !Sub "/aws/api-gateway/${HttpApiGateway}"
       RetentionInDays: 30
-
-  ApiGwLoggingPolicy:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: "allow-api-gw-logging"
-      PolicyDocument:
-        Version: "2012-10-07"
-        Statement:
-          - Effect: Allow
-            Action:
-              - logs:DescribeLogGroups
-              - logs:DescribeLogStreams
-              - logs:GetLogEvents
-              - logs:FilterLogEvents
-            Resource:
-              - !GetAtt ApiGwAccessLogs.Arn
-          - Effect: Allow
-            Action:
-              - logs:CreateLogDelivery
-              - logs:PutResourcePolicy
-              - logs:UpdateLogDelivery
-              - logs:DeleteLogDelivery
-              - logs:CreateLogGroup
-              - logs:DescribeResourcePolicies
-              - logs:GetLogDelivery
-              - logs:ListLogDeliveries
-            Resource:
-              - "*"
