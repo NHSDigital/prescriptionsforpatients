@@ -175,6 +175,7 @@ Resources:
       CodeUri: packages
       Handler: app.handler
       Role: !GetAtt GetMyPrescriptionsRole.Arn
+      Timeout: 1
       Environment:
         Variables:
           AWS_LAMBDA_EXEC_WRAPPER: /opt/get-secrets-layer
