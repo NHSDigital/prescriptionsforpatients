@@ -24,6 +24,7 @@
     "@prescriptionsforpatients/spineClient": "^1.0.0"
   },
   "devDependencies": {
-    "axios-mock-adapter": "^1.21.5"
+    "axios-mock-adapter": "^1.21.5",
+    "@prescriptionsforpatients_common/testing": "^1.0.0"
   }
 }

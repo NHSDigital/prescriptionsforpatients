@@ -4,7 +4,7 @@
     "rootDir": ".",
     "outDir": "lib"
   },
-  "references": [{"path": "../spineClient"}, {"path": "../middleware"}],
+  "references": [{"path": "../spineClient"}, {"path": "../middleware"}, {"path": "../common/testing"}],
   "include": ["src/**/*", "tests/**/*"],
   "exclude": ["node_modules"],
   "ts-node": {

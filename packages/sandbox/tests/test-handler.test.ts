@@ -2,88 +2,20 @@ import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
 import {handler} from "../src/app"
 import {expect, describe, it} from "@jest/globals"
 import {ContextExamples} from "@aws-lambda-powertools/commons"
-import {Logger} from "@aws-lambda-powertools/logger"
 import successData from "../examples/GetMyPrescriptions/Bundle/success.json"
+import {mockAPIGatewayProxyEvent, test_append_trace_ids, test_mime_type} from "@prescriptionsforpatients_common/testing"
 
 const dummyContext = ContextExamples.helloworldContext
-const mockEvent: APIGatewayProxyEvent = {
-  httpMethod: "get",
-  body: "",
-  headers: {
-    "nhsd-correlation-id": "test-request-id.test-correlation-id.rrt-5789322914740101037-b-aet2-20145-482635-2",
-    "x-request-id": "test-request-id",
-    "nhsd-request-id": "test-request-id",
-    "x-correlation-id": "test-correlation-id"
-  },
-  isBase64Encoded: false,
-  multiValueHeaders: {},
-  multiValueQueryStringParameters: {},
-  path: "/hello",
-  pathParameters: {},
-  queryStringParameters: {},
-  requestContext: {
-    accountId: "123456789012",
-    apiId: "1234",
-    authorizer: {},
-    httpMethod: "get",
-    identity: {
-      accessKey: "",
-      accountId: "",
-      apiKey: "",
-      apiKeyId: "",
-      caller: "",
-      clientCert: {
-        clientCertPem: "",
-        issuerDN: "",
-        serialNumber: "",
-        subjectDN: "",
-        validity: {notAfter: "", notBefore: ""}
-      },
-      cognitoAuthenticationProvider: "",
-      cognitoAuthenticationType: "",
-      cognitoIdentityId: "",
-      cognitoIdentityPoolId: "",
-      principalOrgId: "",
-      sourceIp: "",
-      user: "",
-      userAgent: "",
-      userArn: ""
-    },
-    path: "/hello",
-    protocol: "HTTP/1.1",
-    requestId: "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
-    requestTimeEpoch: 1428582896000,
-    resourceId: "123456",
-    resourcePath: "/hello",
-    stage: "dev"
-  },
-  resource: "",
-  stageVariables: {}
-}
+const mockEvent: APIGatewayProxyEvent = mockAPIGatewayProxyEvent
 
 describe("Unit test for app handler", function () {
   it("verifies successful response with no params", async () => {
-    const result: APIGatewayProxyResult = (await handler(mockEvent, dummyContext)) as APIGatewayProxyResult
+    const result: APIGatewayProxyResult = await handler(mockEvent, dummyContext)
 
     expect(result.statusCode).toEqual(200)
     expect(result.body).toEqual(JSON.stringify(successData))
   })
-  it("returns a response with the correct MIME type", async () => {
-    const result: APIGatewayProxyResult = (await handler(mockEvent, dummyContext)) as APIGatewayProxyResult
+  it("returns a response with the correct MIME type", test_mime_type(handler, mockEvent, dummyContext))
 
-    expect(result.headers).toEqual({"Content-Type": "application/fhir+json"})
-  })
-  it("appends trace id's to the logger", async () => {
-    const mockAppendKeys = jest.spyOn(Logger.prototype, "appendKeys")
-
-    await handler(mockEvent, dummyContext)
-
-    expect(mockAppendKeys).toHaveBeenCalledWith({
-      "nhsd-correlation-id": "test-request-id.test-correlation-id.rrt-5789322914740101037-b-aet2-20145-482635-2",
-      "x-request-id": "test-request-id",
-      "nhsd-request-id": "test-request-id",
-      "x-correlation-id": "test-correlation-id",
-      "apigw-request-id": "c6af9ac6-7b61-11e6-9a41-93e8deadbeef"
-    })
-  })
+  it("appends trace id's to the logger", test_append_trace_ids(handler, mockEvent, dummyContext))
 })

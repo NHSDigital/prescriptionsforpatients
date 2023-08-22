@@ -357,7 +357,7 @@ exports.handler = (event, context, callback) => {
     })
   )
     .then((records) => {
-      const isSas = Object.prototype.hasOwnProperty.call(event, "sourceKinesisStreamArn")
+      const isSas = Object.hasOwn(event, "sourceKinesisStreamArn")
       const result = {records: records}
 
       const inputDataByRecId = {}
