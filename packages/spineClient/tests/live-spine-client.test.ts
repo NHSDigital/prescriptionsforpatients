@@ -113,6 +113,6 @@ describe("live spine client", () => {
     const headers: APIGatewayProxyEventHeaders = {
       "nhsd-nhslogin-user": "P9:9912003071"
     }
-    await expect(spineClient.getPrescriptions(headers, logger)).rejects.toThrow("timeout of 2000ms exceeded")
+    await expect(spineClient.getPrescriptions(headers, logger)).rejects.toThrow("timeout of 45000ms exceeded")
   })
 })

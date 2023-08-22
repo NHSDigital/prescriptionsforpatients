@@ -7,7 +7,7 @@ import {APIGatewayProxyEventHeaders} from "aws-lambda"
 import {extractNHSNumber} from "./extractNHSNumber"
 
 // timeout in ms to wait for response from spine to avoid lambda timeout
-const SPINE_TIMEOUT = 2000
+const SPINE_TIMEOUT = 45000
 export class LiveSpineClient implements SpineClient {
   private readonly SPINE_URL_SCHEME = "https"
   private readonly SPINE_ENDPOINT = process.env.TargetSpineServer

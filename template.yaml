@@ -6,7 +6,7 @@ Description: >
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
-    Timeout: 30
+    Timeout: 50
     MemorySize: 256
     Architectures:
       - x86_64
@@ -175,7 +175,6 @@ Resources:
       CodeUri: packages
       Handler: app.handler
       Role: !GetAtt GetMyPrescriptionsRole.Arn
-      Timeout: 1
       Environment:
         Variables:
           AWS_LAMBDA_EXEC_WRAPPER: /opt/get-secrets-layer
