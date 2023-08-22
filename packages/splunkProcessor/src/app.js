@@ -75,25 +75,29 @@ function transformLogEvent(logEvent, logGroup, accountNumber) {
   try {
     eventMessage = JSON.parse(logEvent.message)
   } catch (_) {
-    let functionRequestId = ""
-    const summaryPattern = /RequestId:\s*([a-fA-F0-9-]+)/
-    const match = logEvent.message.match(summaryPattern)
-    if (match) {
-      functionRequestId = match[1]
-    } else {
-      const noSummaryPattern = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\s+([a-fA-F0-9-]+)/
-      const match = logEvent.message.match(noSummaryPattern)
+    if (logGroup.startsWith("/aws/lambda/")) {
+      let functionRequestId = ""
+      const summaryPattern = /RequestId:\s*([a-fA-F0-9-]+)/
+      const match = logEvent.message.match(summaryPattern)
       if (match) {
         functionRequestId = match[1]
+      } else {
+        const noSummaryPattern = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\s+([a-fA-F0-9-]+)/
+        const match = logEvent.message.match(noSummaryPattern)
+        if (match) {
+          functionRequestId = match[1]
+        }
       }
-    }
-    if (functionRequestId === "") {
-      eventMessage = logEvent.message
+      if (functionRequestId === "") {
+        eventMessage = logEvent.message
+      } else {
+        eventMessage = {
+          message: logEvent.message,
+          function_request_id: functionRequestId
+        }
+      }
     } else {
-      eventMessage = {
-        message: logEvent.message,
-        function_request_id: functionRequestId
-      }
+      eventMessage = logEvent.message
     }
   }
 
