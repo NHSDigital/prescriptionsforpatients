@@ -42,7 +42,6 @@
 			"prescriptionsforpatients-monorepo",
 			"packages/capabilityStatement",
 			"packages/sandbox",
-			"packages/splunkProcessor",
 			"packages/getSecretLayer"
 		],
 		"files.exclude": {

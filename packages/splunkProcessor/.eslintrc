@@ -6,6 +6,9 @@
   },
   "plugins": ["import-newlines"],
   "extends": ["eslint:recommended"],
+  "parserOptions": {
+    "ecmaVersion": 2018
+  },
   "rules": {
     "block-spacing": "error",
     "brace-style": ["error", "1tbs"],
