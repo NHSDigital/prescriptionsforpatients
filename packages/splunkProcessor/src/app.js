@@ -87,9 +87,13 @@ function transformLogEvent(logEvent, logGroup, accountNumber) {
         functionRequestId = match[1]
       }
     }
-    eventMessage = {
-      message: logEvent.message,
-      function_request_id: functionRequestId
+    if (functionRequestId === "") {
+      eventMessage = logEvent.message
+    } else {
+      eventMessage = {
+        message: logEvent.message,
+        function_request_id: functionRequestId
+      }
     }
   }
 
