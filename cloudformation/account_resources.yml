@@ -87,4 +87,4 @@ Outputs:
     Description: "The Arn of the API GW cloudwatch logs KMS Key"
     Value: !GetAtt CloudwatchLogsKmsKey.Arn
     Export:
-      Name: !Join [":", [!Ref "AWS::StackName", "CWLogsKmsKeyArn"]]
+      Name: !Join [":", [!Ref "AWS::StackName", "CloudwatchLogsKmsKeyArn"]]
