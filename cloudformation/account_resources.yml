@@ -87,4 +87,4 @@ Outputs:
     Description: "The ID of the API GW cloudwatch logs KMS Key"
     Value: !GetAtt CloudwatchLogsKmsKey.KeyId
     Export:
-      Name: !Join [":", [!Ref "AWS::StackName", "CloudwatchLogsKmsKeyId"]]
+      Name: !Join [":", [!Ref "AWS::StackName", "CWLogsKmsKeyId"]]
