@@ -1,4 +1,4 @@
-const transformLogEvent = require("../src/app.js")
+const {transformLogEvent} = require("../src/app.js")
 const {expect, describe, it} = require("@jest/globals")
 
 /* eslint-disable  max-len */
