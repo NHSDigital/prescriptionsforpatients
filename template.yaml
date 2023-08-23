@@ -490,3 +490,4 @@ Resources:
     Properties:
       LogGroupName: !Sub "/aws/api-gateway/${HttpApiGateway}"
       RetentionInDays: 30
+      KmsKeyId: !ImportValue account-resources:CloudwatchLogsKmsKey
