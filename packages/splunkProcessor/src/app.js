@@ -384,4 +384,4 @@ exports.handler = (event, context, callback) => {
     })
 }
 
-module.exports = transformLogEvent
+exports.transformLogEvent = transformLogEvent
