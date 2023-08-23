@@ -6,9 +6,8 @@
   "author": "SAM CLI",
   "license": "MIT",
   "scripts": {
-    "unit": "jest",
+    "test": "jest",
     "lint": "eslint . --ext .js --max-warnings 0 --fix",
-    "test": "npm run compile && npm run unit",
     "check-licenses": "license-checker --failOn GPL --failOn LGPL --start ../.."
   },
   "dependencies": {

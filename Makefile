@@ -105,6 +105,7 @@ lint-node: compile-node
 	npm run lint --workspace packages/splunkProcessor
 	npm run lint --workspace packages/statusLambda
 	npm run lint --workspace packages/spineClient
+	npm run lint --workspace packages/common/testing
 
 lint-go:
 	cd packages/getSecretLayer/src && golangci-lint run
@@ -118,6 +119,7 @@ test: compile
 	npm run test --workspace packages/sandbox
 	npm run test --workspace packages/statusLambda
 	npm run test --workspace packages/spineClient
+	npm run test --workspace packages/splunkProcessor
 
 clean:
 	rm -rf packages/capabilityStatement/coverage
@@ -127,6 +129,7 @@ clean:
 	rm -rf packages/spineClient/coverage
 	rm -rf packages/splunkProcessor/coverage
 	rm -rf packages/statusLambda/coverage
+	rm -rf packages/common/testing/coverage
 	rm -rf packages/capabilityStatement/lib
 	rm -rf packages/getMyPrescriptions/lib
 	rm -rf packages/middleware/lib
@@ -135,6 +138,7 @@ clean:
 	rm -rf packages/splunkProcessor/lib
 	rm -rf packages/statusLambda/lib
 	rm -rf packages/getSecretLayer/lib
+	rm -rf packages/common/testing/lib
 	rm -rf .aws-sam
 
 deep-clean: clean

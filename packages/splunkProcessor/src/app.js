@@ -70,12 +70,46 @@ const {Kinesis} = require("@aws-sdk/client-kinesis")
 const SPLUNK_SOURCE_TYPE = "aws:cloudwatch"
 
 function transformLogEvent(logEvent, logGroup, accountNumber) {
-  // Parse message as JSON or wrap as string if not
+  // Try and parse message as JSON
   let eventMessage = ""
   try {
     eventMessage = JSON.parse(logEvent.message)
   } catch (_) {
-    eventMessage = logEvent.message
+    /*
+    if its a lambda log that we could not parse to json object
+    then we want to try and extract the function_request_id to easier search and link in splunk
+    possible messages are
+    REPORT RequestId: ff7fe271-9934-4688-b9f9-f2c0cd9857cd	....
+    END RequestId: ff7fe271-9934-4688-b9f9-f2c0cd9857cd ...
+    START RequestId: ff7fe271-9934-4688-b9f9-f2c0cd9857cd ...
+    2023-08-22T09:52:29.585Z 720f4d20-ffd3-4a06-924a-0a61c9c594c8 <message>
+    */
+    if (logGroup.startsWith("/aws/lambda/")) {
+      let functionRequestId = ""
+      const summaryPattern = /RequestId:\s*([a-fA-F0-9-]+)/
+      const match = logEvent.message.match(summaryPattern)
+      if (match) {
+        functionRequestId = match[1]
+      } else {
+        const noSummaryPattern = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\s+([a-fA-F0-9-]+)/
+        const match = logEvent.message.match(noSummaryPattern)
+        if (match) {
+          functionRequestId = match[1]
+        }
+      }
+      if (functionRequestId === "") {
+        // could not get function request id so just log message as a string
+        eventMessage = logEvent.message
+      } else {
+        eventMessage = {
+          message: logEvent.message,
+          function_request_id: functionRequestId
+        }
+      }
+    } else {
+      // not a lambda log and can not parse as json so just log message as a string
+      eventMessage = logEvent.message
+    }
   }
 
   const event = {
@@ -323,7 +357,7 @@ exports.handler = (event, context, callback) => {
     })
   )
     .then((records) => {
-      const isSas = Object.prototype.hasOwnProperty.call(event, "sourceKinesisStreamArn")
+      const isSas = Object.hasOwn(event, "sourceKinesisStreamArn")
       const result = {records: records}
 
       const inputDataByRecId = {}
@@ -349,3 +383,5 @@ exports.handler = (event, context, callback) => {
       callback(ex, null)
     })
 }
+
+exports.transformLogEvent = transformLogEvent

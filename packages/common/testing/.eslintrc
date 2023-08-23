@@ -2,13 +2,18 @@
   "root": true,
   "env": {
     "node": true,
-    "es6": true
+    "es6": true,
+    "jest": true
   },
+  "ignorePatterns": ["**/lib/*"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {"ecmaVersion": "latest"},
   "plugins": ["import-newlines"],
-  "extends": ["eslint:recommended"],
-  "parserOptions": {
-    "ecmaVersion": 2018
-  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
   "rules": {
     "block-spacing": "error",
     "brace-style": ["error", "1tbs"],

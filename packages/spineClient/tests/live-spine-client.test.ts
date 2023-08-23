@@ -40,14 +40,14 @@ describe("live spine client", () => {
       spineStatusCode: "99",
       nhsdLoginUser: "P9:9912003071",
       errorMessage: "Unsuccessful status code response from spine",
-      scenarioDescription: "spine returns a non succesful response status"
+      scenarioDescription: "spine returns a non successful response status"
     },
     {
       httpResponseCode: 500,
       spineStatusCode: "0",
       nhsdLoginUser: "P9:9912003071",
       errorMessage: "Request failed with status code 500",
-      scenarioDescription: "spine returns an unsuccesful http status code"
+      scenarioDescription: "spine returns an unsuccessful http status code"
     },
     {
       httpResponseCode: 200,
@@ -104,5 +104,15 @@ describe("live spine client", () => {
       "nhsd-nhslogin-user": "P9:9912003071"
     }
     await expect(spineClient.getPrescriptions(headers, logger)).rejects.toThrow("Network Error")
+  })
+
+  test("should throw error when timout on http request", async () => {
+    mock.onGet("https://spine/mm/patientfacingprescriptions").timeout()
+
+    const spineClient = new LiveSpineClient()
+    const headers: APIGatewayProxyEventHeaders = {
+      "nhsd-nhslogin-user": "P9:9912003071"
+    }
+    await expect(spineClient.getPrescriptions(headers, logger)).rejects.toThrow("timeout of 45000ms exceeded")
   })
 })

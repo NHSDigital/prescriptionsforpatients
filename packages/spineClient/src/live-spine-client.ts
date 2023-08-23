@@ -6,6 +6,8 @@ import axios, {AxiosResponse} from "axios"
 import {APIGatewayProxyEventHeaders} from "aws-lambda"
 import {extractNHSNumber} from "./extractNHSNumber"
 
+// timeout in ms to wait for response from spine to avoid lambda timeout
+const SPINE_TIMEOUT = 45000
 export class LiveSpineClient implements SpineClient {
   private readonly SPINE_URL_SCHEME = "https"
   private readonly SPINE_ENDPOINT = process.env.TargetSpineServer
@@ -49,7 +51,8 @@ export class LiveSpineClient implements SpineClient {
       const response = await axios.get(address, {
         headers: outboundHeaders,
         params: queryParams,
-        httpsAgent: this.httpsAgent
+        httpsAgent: this.httpsAgent,
+        timeout: SPINE_TIMEOUT
       })
 
       // This can be removed when https://nhsd-jira.digital.nhs.uk/browse/AEA-3448 is complete

@@ -9,6 +9,7 @@
     { "path": "packages/capabilityStatement" },
     { "path": "packages/getMyPrescriptions" },
     { "path": "packages/sandbox" },
-    { "path": "packages/statusLambda" }
+    { "path": "packages/statusLambda" },
+    { "path": "packages/common/testing" }
   ]
 }
