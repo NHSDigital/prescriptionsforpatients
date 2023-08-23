@@ -81,3 +81,10 @@ Resources:
               - kms:Encrypt
               - kms:ReEncrypt*
             Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/api-gateway/*"
+
+Outputs:
+  CloudwatchLogsKmsKeyId:
+    Description: The ID of the API GW cloudwatch logs KMS Key
+    Value: !GetAtt CloudwatchLogsKmsKey.KeyId
+    Export:
+      Name: !Join [":", [!Ref "AWS::StackName", "CloudwatchLogsKmsKeyId"]]
