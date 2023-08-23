@@ -47,6 +47,31 @@ aws cloudformation list-exports \
 
 This value should then be stored in the github project as a repository secret called `<ENVIRONMENT>_CLOUD_FORMATION_DEPLOY_ROLE`
 
+# Account Resources
+
+account_resources.yml contains resources that are account wide. This should be applied to each environment, and should be deployed before the app.
+
+It creates the following resources
+
+- API Gateway account role with logging permissions
+- Cloudwatch Logs Resource Policy
+- KMS Key for Cloudwatch (API GW) logging
+
+The stack deployed in each environment must be called `account-resources` as the main app deployment imports the KMS key arn.
+
+To deploy the stack, use the following
+
+```
+export AWS_PROFILE=<name of AWS profile defined in ~/.aws/config>
+aws sso login --sso-session sso-session
+
+aws cloudformation deploy \
+          --template-file cloudformation/account_resources.yml \
+          --stack-name account-resources \
+          --region eu-west-2 \
+          --capabilities CAPABILITY_IAM
+```
+
 # Route 53 resources - environment accounts
 
 environment_route53.yml contains route 53 resources created in each environment account.  
