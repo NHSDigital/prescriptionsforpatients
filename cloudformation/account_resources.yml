@@ -83,8 +83,8 @@ Resources:
             Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/api-gateway/*"
 
 Outputs:
-  CWLogsKmsKeyId:
-    Description: The ID of the API GW cloudwatch logs KMS Key
+  CloudwatchLogsKmsKeyId:
+    Description: "The ID of the API GW cloudwatch logs KMS Key"
     Value: !GetAtt CloudwatchLogsKmsKey.KeyId
     Export:
-      Name: !Join [":", [!Ref "AWS::StackName", "CWLogsKmsKeyId"]]
+      Name: !Join [":", [!Ref "AWS::StackName", "CloudwatchLogsKmsKeyId"]]
