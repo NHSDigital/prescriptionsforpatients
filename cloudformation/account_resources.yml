@@ -33,6 +33,7 @@ Resources:
                   - "logs:GetLogDelivery"
                   - "logs:ListLogDeliveries"
                 Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/api-gateway/*"
+
   Account:
     Type: "AWS::ApiGateway::Account"
     Properties:
