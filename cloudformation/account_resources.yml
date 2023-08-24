@@ -83,6 +83,12 @@ Resources:
               - kms:ReEncrypt*
             Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/api-gateway/*"
 
+  CloudwatchLogsKmsKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/CloudwatchLogsKmsKeyAlias
+      TargetKeyId: !Ref CloudwatchLogsKmsKey
+
 Outputs:
   CloudwatchLogsKmsKeyArn:
     Description: "The Arn of the API GW cloudwatch logs KMS Key"
