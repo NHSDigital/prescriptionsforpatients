@@ -389,7 +389,6 @@ Resources:
           \"httpMethod\": \"$context.httpMethod\", \
           \"protocol\": \"$context.protocol\", \
           \"path\": \"$context.path\", \
-          \"xrayTraceId\": \"$context.xrayTraceId\", \
           \"responseLatency\": \"$context.responseLatency\", \
           \"responseLength\": \"$context.responseLength\",
           \"domainName\": \"$context.domainName\", \
