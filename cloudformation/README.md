@@ -3,6 +3,7 @@ This folder contains cloudformation definitions for 'manually' created resources
 To bootstrap an account, you should run through the following in order
 
 - [CI Resources](#ci-resources)
+- [Account Resources](#account-resources)
 - [Route 53 resources - environment accounts](#route-53-resources---environment-accounts)
 - [Route 53 resources - management account](#route-53-resources---management-account)
 - Run the script in privateCA folder to create mutual TLS keys
