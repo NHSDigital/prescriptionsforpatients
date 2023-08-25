@@ -71,7 +71,7 @@ Resources:
             Resource: "*"
             Condition:
               ArnEquals:
-                kms:EncryptionContext:aws:logs:arn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/api-gateway/*"
+                kms:EncryptionContext:aws:logs:arn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/apigateway/*"
           - Sid: Allow API Gateway Role
             Effect: Allow
             Principal:
@@ -81,7 +81,7 @@ Resources:
               - kms:GenerateDataKey*
               - kms:Encrypt
               - kms:ReEncrypt*
-            Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/api-gateway/*"
+            Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/apigateway/*"
 
   CloudwatchLogsKmsKeyAlias:
     Type: AWS::KMS::Alias
