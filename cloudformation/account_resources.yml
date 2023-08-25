@@ -86,7 +86,7 @@ Resources:
   CloudwatchLogsKmsKeyAlias:
     Type: AWS::KMS::Alias
     Properties:
-      AliasName: alias/CloudwatchLogsKmsKeyAlias
+      AliasName: alias/ApiGwCloudwatchLogsKmsKeyAlias
       TargetKeyId: !Ref CloudwatchLogsKmsKey
 
 Outputs:
