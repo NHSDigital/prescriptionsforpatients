@@ -1,0 +1,97 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:
+  ApiGwCloudWatchRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - apigateway.amazonaws.com
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: "AllowApiGwLogging"
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:DescribeLogGroups"
+                  - "logs:DescribeLogStreams"
+                  - "logs:PutLogEvents"
+                  - "logs:GetLogEvents"
+                  - "logs:FilterLogEvents"
+                  - "logs:CreateLogDelivery"
+                  - "logs:PutResourcePolicy"
+                  - "logs:UpdateLogDelivery"
+                  - "logs:DeleteLogDelivery"
+                  - "logs:DescribeResourcePolicies"
+                  - "logs:GetLogDelivery"
+                  - "logs:ListLogDeliveries"
+                Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/api-gateway/*"
+
+  Account:
+    Type: "AWS::ApiGateway::Account"
+    Properties:
+      CloudWatchRoleArn: !GetAtt ApiGwCloudWatchRole.Arn
+
+  CloudwatchResourcePolicy:
+    Type: "AWS::Logs::ResourcePolicy"
+    Properties:
+      PolicyName: "AWSLogDeliveryWrite20150319"
+      PolicyDocument: '{ "Version": "2012-10-17", "Statement": [ { "Sid": "AWSLogDeliveryWrite", "Effect": "Allow", "Principal": { "Service": "delivery.logs.amazonaws.com" }, "Action": [ "logs:CreateLogStream", "logs:PutLogEvents" ], "Resource": [ "*" ] } ] }'
+
+  CloudwatchLogsKmsKey:
+    Type: "AWS::KMS::Key"
+    Properties:
+      KeyPolicy:
+        Version: 2012-10-17
+        Id: key-policy-id
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+            Action: "kms:*"
+            Resource: "*"
+          - Sid: Allow API Gateway Logging
+            Effect: Allow
+            Principal:
+              Service: !Sub "logs.${AWS::Region}.amazonaws.com"
+            Action:
+              - kms:Encrypt*
+              - kms:Decrypt*
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+              - kms:Describe*
+            Resource: "*"
+            Condition:
+              ArnEquals:
+                kms:EncryptionContext:aws:logs:arn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/api-gateway/*"
+          - Sid: Allow API Gateway Role
+            Effect: Allow
+            Principal:
+              AWS: !GetAtt ApiGwCloudWatchRole.Arn
+            Action:
+              - kms:DescribeKey
+              - kms:GenerateDataKey*
+              - kms:Encrypt
+              - kms:ReEncrypt*
+            Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/api-gateway/*"
+
+  CloudwatchLogsKmsKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/ApiGwCloudwatchLogsKmsKeyAlias
+      TargetKeyId: !Ref CloudwatchLogsKmsKey
+
+Outputs:
+  CloudwatchLogsKmsKeyArn:
+    Description: "The Arn of the API GW cloudwatch logs KMS Key"
+    Value: !GetAtt CloudwatchLogsKmsKey.Arn
+    Export:
+      Name: !Join [":", [!Ref "AWS::StackName", "CloudwatchLogsKmsKeyArn"]]
