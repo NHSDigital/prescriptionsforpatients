@@ -501,7 +501,7 @@ Resources:
       LogGroupName:
         !Join [
           "/",
-          ["/aws/api-gateway", !Ref "AWS::StackName", !Sub "${HttpApiGateway}"],
+          ["/aws/apigateway", !Ref "AWS::StackName", !Sub "${HttpApiGateway}"],
         ]
       RetentionInDays: 30
       KmsKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
