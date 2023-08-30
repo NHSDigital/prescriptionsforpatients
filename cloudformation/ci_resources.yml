@@ -122,6 +122,7 @@ Resources:
                   - "logs:DeleteSubscriptionFilter"
                   - "logs:DescribeLogGroups"
                   - "logs:CreateLogDelivery"
+                  - "logs:DeleteLogDelivery"
                   - "logs:ListLogDeliveries"
                   - "logs:GetLogDelivery"
                   - "logs:UpdateLogDelivery"
