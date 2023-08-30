@@ -64,7 +64,10 @@ describe("Unit test for status check", function () {
     process.env.COMMIT_ID = "test_commit_id"
     process.env.TargetSpineServer = "sandbox"
 
-    const result: APIGatewayProxyResult = (await handler(mockEvent, dummyContext)) as APIGatewayProxyResult
+    const result: APIGatewayProxyResult = (await handler(
+      mockAPIGatewayProxyEvent,
+      dummyContext
+    )) as APIGatewayProxyResult
 
     const headers = result.headers
 
