@@ -15,7 +15,7 @@ type spineFailureTestData = {
   scenarioDescription: string
 }
 
-describe.skip("live spine client", () => {
+describe("live spine client", () => {
   const logger = new Logger({serviceName: "spineClient"})
 
   afterEach(() => {

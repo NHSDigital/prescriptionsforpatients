@@ -11,7 +11,7 @@ const mock = new MockAdapter(axios)
 
 const dummyContext = ContextExamples.helloworldContext
 
-describe.skip("Unit test for status check", function () {
+describe("Unit test for status check", function () {
   afterEach(() => {
     mock.reset()
   })

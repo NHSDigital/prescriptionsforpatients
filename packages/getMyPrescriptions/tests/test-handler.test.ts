@@ -68,7 +68,7 @@ describe("Unit test for app handler", function () {
     mock.reset()
   })
 
-  it.skip("verifies successful response", async () => {
+  it("verifies successful response", async () => {
     mock.onGet("https://live/mm/patientfacingprescriptions").reply(200, {resourceType: "Bundle"})
 
     const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
