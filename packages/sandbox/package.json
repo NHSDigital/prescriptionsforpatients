@@ -6,7 +6,7 @@
   "author": "SAM CLI",
   "license": "MIT",
   "scripts": {
-    "unit": "jest",
+    "unit": "jest --coverage",
     "lint": "eslint . --ext .ts --max-warnings 0 --fix",
     "compile": "tsc",
     "test": "npm run compile && npm run unit",
