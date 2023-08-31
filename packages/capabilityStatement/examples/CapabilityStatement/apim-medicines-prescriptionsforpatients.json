@@ -41,11 +41,11 @@
           "extension": [
             {
               "url": "documentation",
-              "valueUrl": "https://digital.nhs.uk/developer/api-catalogue/electronic-prescription-service-fhir"
+              "valueUrl": "https://digital.nhs.uk/developer/api-catalogue/prescriptions-for-patients"
             },
             {
               "url": "description",
-              "valueString": "Electronic Prescription Service - FHIR API"
+              "valueString": "Electronic Prescription Service - Prescriptions for Patients FHIR API"
             }
           ]
         }
@@ -91,7 +91,7 @@
       "resource": [
         {
           "type": "Bundle",
-          "profile": "https://fhir.nhs.uk/StructureDefinition/NHSDigital-Bundle-Collection",
+          "profile": "http://hl7.org/fhir/StructureDefinition/Bundle",
           "interaction": [
             {
               "extension": [
@@ -122,24 +122,20 @@
           ]
         },
         {
-          "type": "CommunicationRequest",
-          "profile": "https://fhir.nhs.uk/StructureDefinition/NHSDigital-CommunicationRequest"
-        },
-        {
           "type": "MedicationRequest",
-          "profile": "https://fhir.nhs.uk/StructureDefinition/NHSDigital-MedicationRequest"
+          "profile": "https://fhir.nhs.uk/StructureDefinition/UKCore-MedicationRequest"
         },
         {
           "type": "PractitionerRole",
-          "profile": "https://fhir.nhs.uk/StructureDefinition/NHSDigital-PractitionerRole"
+          "profile": "https://fhir.nhs.uk/StructureDefinition/UKCore-PractitionerRole"
         },
         {
           "type": "Practitioner",
-          "profile": "https://fhir.nhs.uk/StructureDefinition/NHSDigital-Practitioner"
+          "profile": "https://fhir.nhs.uk/StructureDefinition/UKCore-Practitioner"
         },
         {
           "type": "Organization",
-          "profile": "https://fhir.nhs.uk/StructureDefinition/NHSDigital-Organization"
+          "profile": "https://fhir.nhs.uk/StructureDefinition/UKCore-Organization"
         }
       ]
     }
