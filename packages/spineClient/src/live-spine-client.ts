@@ -106,7 +106,7 @@ export class LiveSpineClient implements SpineClient {
   }
 
   private getSpineEndpoint(requestPath?: string) {
-    return `${this.SPINE_URL_SCHEME}://${this.SPINE_ENDPOINT}/${requestPath}AAA`
+    return `${this.SPINE_URL_SCHEME}://${this.SPINE_ENDPOINT}/AAA${requestPath}`
   }
 
   async getStatus(logger: Logger): Promise<StatusCheckResponse> {
