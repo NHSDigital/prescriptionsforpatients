@@ -110,12 +110,10 @@ export class LiveSpineClient implements SpineClient {
   }
 
   async getStatus(logger: Logger): Promise<StatusCheckResponse> {
-    let healthCheckUrl: string
     if (process.env.healthCheckUrl === undefined) {
-      healthCheckUrl = this.getSpineEndpoint("healthcheck")
+      return serviceHealthCheck(this.getSpineEndpoint("healthcheck"), logger, this.httpsAgent)
     } else {
-      healthCheckUrl = process.env.healthCheckUrl
+      return serviceHealthCheck(process.env.healthCheckUrl, logger, new Agent())
     }
-    return serviceHealthCheck(healthCheckUrl, logger, this.httpsAgent)
   }
 }
