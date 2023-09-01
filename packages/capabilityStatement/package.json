@@ -2,7 +2,7 @@
   "name": "capabilityStatement",
   "version": "1.0.0",
   "description": "CapabilityStatement",
-  "main": "app.js",
+  "main": "capabilityStatement.js",
   "author": "SAM CLI",
   "license": "MIT",
   "scripts": {

@@ -2,7 +2,7 @@
   "name": "splunkProcessor",
   "version": "1.0.0",
   "description": "Processor lambda for converting cloudwatch logs to splunk",
-  "main": "app.js",
+  "main": "splunkProcessor.js",
   "author": "SAM CLI",
   "license": "MIT",
   "scripts": {

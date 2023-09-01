@@ -128,7 +128,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: packages
-      Handler: app.handler
+      Handler: sandbox.handler
       Role: !GetAtt SandboxRole.Arn
       Events:
         sandbox:
@@ -145,7 +145,7 @@ Resources:
         Sourcemap: true
         tsconfig: sandbox/tsconfig.json
         EntryPoints:
-          - sandbox/src/app.ts
+          - sandbox/src/sandbox.ts
 
   # capabilityStatement lambda
   CapabilityStatementRole:

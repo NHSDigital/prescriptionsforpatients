@@ -173,7 +173,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: packages
-      Handler: app.handler
+      Handler: getMyPrescriptions.handler
       Role: !GetAtt GetMyPrescriptionsRole.Arn
       Environment:
         Variables:
@@ -195,7 +195,7 @@ Resources:
         Sourcemap: true
         tsconfig: getMyPrescriptions/tsconfig.json
         EntryPoints:
-          - getMyPrescriptions/src/app.ts
+          - getMyPrescriptions/src/getMyPrescriptions.ts
 
   # capabilityStatement lambda
   CapabilityStatementRole:
@@ -259,7 +259,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: packages
-      Handler: app.handler
+      Handler: capabilityStatement.handler
       Role: !GetAtt CapabilityStatementRole.Arn
       Events:
         capabilityStatement:
@@ -276,7 +276,7 @@ Resources:
         Sourcemap: true
         tsconfig: capabilityStatement/tsconfig.json
         EntryPoints:
-          - capabilityStatement/src/app.ts
+          - capabilityStatement/src/capabilityStatement.ts
 
   # _status endpoint lambda
   StatusLambdaRole:
@@ -372,7 +372,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: packages
-      Handler: app.handler
+      Handler: statusLambda.handler
       Role: !GetAtt StatusLambdaRole.Arn
       Environment:
         Variables:
@@ -396,7 +396,7 @@ Resources:
         Sourcemap: true
         tsconfig: statusLambda/tsconfig.json
         EntryPoints:
-          - statusLambda/src/app.ts
+          - statusLambda/src/statusLambda.ts
 
   # TLS cert for custom domain
   GenerateCertificate:

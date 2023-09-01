@@ -243,7 +243,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: packages
-      Handler: app.handler
+      Handler: splunkProcessor.handler
       Runtime: nodejs18.x
       Role: !GetAtt SplunkDeliveryStreamProcessorRole.Arn
       Architectures:
@@ -261,7 +261,7 @@ Resources:
         Sourcemap: true
         tsconfig: splunkProcessor/tsconfig.json
         EntryPoints:
-          - splunkProcessor/src/app.js
+          - splunkProcessor/src/splunkProcessor.js
   SplunkDeliveryStreamProcessorRole:
     Type: "AWS::IAM::Role"
     Properties:
