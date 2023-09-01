@@ -1,5 +1,5 @@
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
-import {handler} from "../src/app"
+import {handler} from "../src/capabilityStatement"
 import {expect, describe, it} from "@jest/globals"
 import {ContextExamples} from "@aws-lambda-powertools/commons"
 import capabilityStatement from "../examples/CapabilityStatement/apim-medicines-prescriptionsforpatients.json"
