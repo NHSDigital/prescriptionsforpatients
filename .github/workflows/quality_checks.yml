@@ -1,6 +1,10 @@
 name: quality checks
 
-on: workflow_call
+on:
+  workflow_call:
+    secrets:
+      SONAR_TOKEN:
+        required: true
 
 jobs:
   quality_checks:
@@ -10,6 +14,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: ${{ env.BRANCH_NAME }}
+          fetch-depth: 0
 
       # using git commit sha for version of action to ensure we have stable version
       - name: Install asdf
@@ -46,3 +51,9 @@ jobs:
 
       - name: run unit tests
         run: make test
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

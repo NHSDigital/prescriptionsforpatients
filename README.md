@@ -95,6 +95,13 @@ You will now be able to use AWS and SAM CLI commands to access the dev account. 
 
 When the token expires, you may need to reauthorise using `make aws-login`
 
+### CI Setup
+
+The GitHub Actions require a secret to exist on the repo called "SONAR_TOKEN".
+This can be obtained from [SonarCloud](https://sonarcloud.io/)
+as described [here](https://docs.sonarsource.com/sonarqube/latest/user-guide/user-account/generating-and-using-tokens/).
+You will need the "Execute Analysis" permission for the project (NHSDigital_prescriptionsforpatients) in order for the token to work.
+
 ### Continuos deployment for testing
 
 You can run the following command to deploy the code to AWS for testing

@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc --build --clean ./tsconfig.json",
     "lint": "eslint . --fix",
-    "test": "jest",
+    "test": "jest --coverage",
     "check-licenses": "license-checker --failOn GPL --failOn LGPL --start ../.."
   },
   "devDependencies": {

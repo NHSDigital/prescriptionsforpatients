@@ -1,14 +1,5 @@
 #########################################################################
 # Dependabot configuration file
-# -----------------------------
-# Checks for updates for the following components:
-# - E2E Tests (Pact tests): npm
-# - EPS API (Coordinator): npm + Docker
-# - EPS API Tool (EPSAT): npm + Docker
-#
-# rebase-strategy is set to 'disabled', as automated rebasing was causing
-# too many CI environments to be created, reducing available capacity for
-# us and other teams as well.
 #########################################################################
 
 version: 2
@@ -25,8 +16,15 @@ updates:
   ###################################
   - package-ecosystem: "npm"
     directory: "/"
-    rebase-strategy: "disabled"
     schedule:
       interval: "daily"
     versioning-strategy: increase
-    open-pull-requests-limit: 0
+
+  ###################################
+  # Poetry  #########################
+  ###################################
+  - package-ecosystem: "python"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    versioning-strategy: increase
