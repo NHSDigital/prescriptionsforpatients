@@ -162,18 +162,6 @@ function putRecordsToFirehoseStream(streamName, records, client, resolve, reject
   )
 }
 
-function createReingestionRecord(originalRecord) {
-  return {
-    Data: Buffer.from(originalRecord.data, "base64")
-  }
-}
-
-function getReingestionRecord(reIngestionRecord) {
-  return {
-    Data: reIngestionRecord.Data
-  }
-}
-
 function batchRecordsToReingest(records, event, result, inputDataByRecId) {
   let totalRecordsToBeReingested = 0
   let recordsToReingest = []
@@ -188,7 +176,9 @@ function batchRecordsToReingest(records, event, result, inputDataByRecId) {
     const rec = result.records[idx]
     if (rec.result === "Ok") {
       totalRecordsToBeReingested++
-      recordsToReingest.push(getReingestionRecord(inputDataByRecId[rec.recordId]))
+      recordsToReingest.push({
+        Data: inputDataByRecId[rec.recordId].Data
+      })
       projectedSize -= rec.data.length
       delete rec.data
       result.records[idx].result = "Dropped"
@@ -299,10 +289,15 @@ exports.handler = (event, context, callback) => {
     })
   )
     .then((records) => {
+      if (Object.hasOwn(event, "sourceKinesisStreamArn")) {
+        throw new Error("Can not reprocess kinesis streams")
+      }
       const result = {records: records}
 
       const inputDataByRecId = {}
-      event.records.forEach((r) => (inputDataByRecId[r.recordId] = createReingestionRecord(r)))
+      event.records.forEach((r) => (inputDataByRecId[r.recordId] = {
+        Data: Buffer.from(r.data, "base64")
+      }))
 
       const [putRecordBatches, totalRecordsToBeReingested] = batchRecordsToReingest(
         records,
