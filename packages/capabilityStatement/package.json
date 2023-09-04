@@ -2,11 +2,11 @@
   "name": "capabilityStatement",
   "version": "1.0.0",
   "description": "CapabilityStatement",
-  "main": "app.js",
+  "main": "capabilityStatement.js",
   "author": "SAM CLI",
   "license": "MIT",
   "scripts": {
-    "unit": "jest",
+    "unit": "jest --coverage",
     "lint": "eslint . --ext .ts --max-warnings 0 --fix",
     "compile": "tsc",
     "test": "npm run compile && npm run unit",
