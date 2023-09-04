@@ -87,7 +87,8 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 			  TargetSpineServer=$$target_spine_server \
 			  EnableSplunk=true \
 			  VersionNumber=$$VERSION_NUMBER \
-			  CommitId=$$COMMIT_ID
+			  CommitId=$$COMMIT_ID \
+			  LogLevel=$$LOG_LEVEL
 
 compile-node:
 	npx tsc --build tsconfig.build.json
