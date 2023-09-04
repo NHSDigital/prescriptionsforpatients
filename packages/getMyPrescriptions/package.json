@@ -2,7 +2,7 @@
   "name": "getMyPrescriptions",
   "version": "1.0.0",
   "description": "Get my prescriptions",
-  "main": "app.js",
+  "main": "getMyPrescriptions.js",
   "author": "SAM CLI",
   "license": "MIT",
   "type": "module",

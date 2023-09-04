@@ -2,7 +2,7 @@
   "name": "statusLambda",
   "version": "1.0.0",
   "description": "Lambda of the _status endpoint",
-  "main": "app.js",
+  "main": "statusLambda.js",
   "author": "SAM CLI",
   "license": "MIT",
   "scripts": {

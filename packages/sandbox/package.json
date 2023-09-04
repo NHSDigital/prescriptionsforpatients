@@ -2,7 +2,7 @@
   "name": "sandbox",
   "version": "1.0.0",
   "description": "Sandbox",
-  "main": "app.js",
+  "main": "sandbox.js",
   "author": "SAM CLI",
   "license": "MIT",
   "scripts": {
