@@ -50,7 +50,6 @@ The code below will:
 */
 const zlib = require("zlib")
 const {Firehose} = require("@aws-sdk/client-firehose")
-const {Kinesis} = require("@aws-sdk/client-kinesis")
 
 /**
  * logEvent has this format:
@@ -163,71 +162,19 @@ function putRecordsToFirehoseStream(streamName, records, client, resolve, reject
   )
 }
 
-function putRecordsToKinesisStream(streamName, records, client, resolve, reject, attemptsMade, maxAttempts) {
-  client.putRecords(
-    {
-      StreamName: streamName,
-      Records: records
-    },
-    (err, data) => {
-      const codes = []
-      let failed = []
-      let errMsg = err
-
-      if (err) {
-        failed = records
-      } else {
-        for (let i = 0; i < data.Records.length; i++) {
-          const code = data.Records[i].ErrorCode
-          if (code) {
-            codes.push(code)
-            failed.push(records[i])
-          }
-        }
-        errMsg = `Individual error codes: ${codes}`
-      }
-
-      if (failed.length > 0) {
-        if (attemptsMade + 1 < maxAttempts) {
-          console.log("Some records failed while calling PutRecords, retrying. %s", errMsg)
-          putRecordsToKinesisStream(streamName, failed, client, resolve, reject, attemptsMade + 1, maxAttempts)
-        } else {
-          reject(`Could not put records after ${maxAttempts} attempts. ${errMsg}`)
-        }
-      } else {
-        resolve("")
-      }
-    }
-  )
-}
-
-function createReingestionRecord(isSas, originalRecord) {
-  if (isSas) {
-    return {
-      Data: Buffer.from(originalRecord.data, "base64"),
-      PartitionKey: originalRecord.kinesisRecordMetadata.partitionKey
-    }
-  } else {
-    return {
-      Data: Buffer.from(originalRecord.data, "base64")
-    }
+function createReingestionRecord(originalRecord) {
+  return {
+    Data: Buffer.from(originalRecord.data, "base64")
   }
 }
 
-function getReingestionRecord(isSas, reIngestionRecord) {
-  if (isSas) {
-    return {
-      Data: reIngestionRecord.Data,
-      PartitionKey: reIngestionRecord.PartitionKey
-    }
-  } else {
-    return {
-      Data: reIngestionRecord.Data
-    }
+function getReingestionRecord(reIngestionRecord) {
+  return {
+    Data: reIngestionRecord.Data
   }
 }
 
-function batchRecordsToReingest(records, event, result, isSas, inputDataByRecId) {
+function batchRecordsToReingest(records, event, result, inputDataByRecId) {
   let totalRecordsToBeReingested = 0
   let recordsToReingest = []
   const putRecordBatches = []
@@ -241,7 +188,7 @@ function batchRecordsToReingest(records, event, result, isSas, inputDataByRecId)
     const rec = result.records[idx]
     if (rec.result === "Ok") {
       totalRecordsToBeReingested++
-      recordsToReingest.push(getReingestionRecord(isSas, inputDataByRecId[rec.recordId]))
+      recordsToReingest.push(getReingestionRecord(inputDataByRecId[rec.recordId]))
       projectedSize -= rec.data.length
       delete rec.data
       result.records[idx].result = "Dropped"
@@ -262,21 +209,16 @@ function batchRecordsToReingest(records, event, result, isSas, inputDataByRecId)
   return [putRecordBatches, totalRecordsToBeReingested]
 }
 
-function reingestRecordBatches(putRecordBatches, isSas, totalRecordsToBeReingested, event, callback, result) {
-  const streamARN = isSas ? event.sourceKinesisStreamArn : event.deliveryStreamArn
+function reingestRecordBatches(putRecordBatches, totalRecordsToBeReingested, event, callback, result) {
+  const streamARN = event.deliveryStreamArn
   const region = streamARN.split(":")[3]
   const streamName = streamARN.split("/")[1]
 
   new Promise((resolve, reject) => {
     let recordsReingestedSoFar = 0
     for (const recordBatch of putRecordBatches) {
-      if (isSas) {
-        const client = new Kinesis({region: region})
-        putRecordsToKinesisStream(streamName, recordBatch, client, resolve, reject, 0, 20)
-      } else {
-        const client = new Firehose({region: region})
-        putRecordsToFirehoseStream(streamName, recordBatch, client, resolve, reject, 0, 20)
-      }
+      const client = new Firehose({region: region})
+      putRecordsToFirehoseStream(streamName, recordBatch, client, resolve, reject, 0, 20)
       recordsReingestedSoFar += recordBatch.length
       console.log(
         "Reingested %s/%s records out of %s in to %s stream",
@@ -357,22 +299,20 @@ exports.handler = (event, context, callback) => {
     })
   )
     .then((records) => {
-      const isSas = Object.hasOwn(event, "sourceKinesisStreamArn")
       const result = {records: records}
 
       const inputDataByRecId = {}
-      event.records.forEach((r) => (inputDataByRecId[r.recordId] = createReingestionRecord(isSas, r)))
+      event.records.forEach((r) => (inputDataByRecId[r.recordId] = createReingestionRecord(r)))
 
       const [putRecordBatches, totalRecordsToBeReingested] = batchRecordsToReingest(
         records,
         event,
         result,
-        isSas,
         inputDataByRecId
       )
 
       if (putRecordBatches.length > 0) {
-        reingestRecordBatches(putRecordBatches, isSas, totalRecordsToBeReingested, event, callback, result)
+        reingestRecordBatches(putRecordBatches, totalRecordsToBeReingested, event, callback, result)
       } else {
         console.log("No records needed to be reingested. Transformation result reads\n" + JSON.stringify(result))
         callback(null, result)
