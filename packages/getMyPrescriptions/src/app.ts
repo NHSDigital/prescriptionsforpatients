@@ -4,8 +4,10 @@ import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
 import errorHandler from "@prescriptionsforpatients/middleware"
 import {createSpineClient, NHSNumberValidationError} from "@prescriptionsforpatients/spineClient"
+import {LogLevel} from "@aws-lambda-powertools/logger/lib/types"
 
-const logger = new Logger({serviceName: "getMyPrescriptions"})
+const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
+const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
 
 /* eslint-disable  max-len */
 
@@ -81,7 +83,11 @@ export const handler = middy(lambdaHandler)
   .use(
     inputOutputLogger({
       logger: (request) => {
-        logger.info(request)
+        if (request.response) {
+          logger.debug(request)
+        } else {
+          logger.info(request)
+        }
       }
     })
   )
