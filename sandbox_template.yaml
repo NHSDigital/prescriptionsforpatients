@@ -51,10 +51,6 @@ Parameters:
     Type: String
     Description: Most recent commit hash
     Default: "xxx"
-  LogLevel:
-    Type: String
-    Description: The log level to set in the lambda
-    Default: "INFO"
 
 Conditions:
   ShouldUseMutualTLS: !Equals [true, !Ref EnableMutualTLS]
