@@ -72,6 +72,32 @@ const helpers = require("./helpers.js")
  */
 const SPLUNK_SOURCE_TYPE = "aws:cloudwatch"
 
+function transformLambdaLogEvent(logEvent) {
+  let eventMessage
+  let functionRequestId = ""
+  const summaryPattern = /RequestId:\s*([a-fA-F0-9-]+)/
+  const match = logEvent.message.match(summaryPattern)
+  if (match) {
+    functionRequestId = match[1]
+  } else {
+    const noSummaryPattern = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\s+([a-fA-F0-9-]+)/
+    const match = logEvent.message.match(noSummaryPattern)
+    if (match) {
+      functionRequestId = match[1]
+    }
+  }
+  if (functionRequestId === "") {
+    // could not get function request id so just log message as a string
+    eventMessage = logEvent.message
+  } else {
+    eventMessage = {
+      message: logEvent.message,
+      function_request_id: functionRequestId
+    }
+  }
+  return eventMessage
+}
+
 function transformLogEvent(logEvent, logGroup, accountNumber) {
   // Try and parse message as JSON
   let eventMessage = ""
@@ -88,27 +114,7 @@ function transformLogEvent(logEvent, logGroup, accountNumber) {
     2023-08-22T09:52:29.585Z 720f4d20-ffd3-4a06-924a-0a61c9c594c8 <message>
     */
     if (logGroup.startsWith("/aws/lambda/")) {
-      let functionRequestId = ""
-      const summaryPattern = /RequestId:\s*([a-fA-F0-9-]+)/
-      const match = logEvent.message.match(summaryPattern)
-      if (match) {
-        functionRequestId = match[1]
-      } else {
-        const noSummaryPattern = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\s+([a-fA-F0-9-]+)/
-        const match = logEvent.message.match(noSummaryPattern)
-        if (match) {
-          functionRequestId = match[1]
-        }
-      }
-      if (functionRequestId === "") {
-        // could not get function request id so just log message as a string
-        eventMessage = logEvent.message
-      } else {
-        eventMessage = {
-          message: logEvent.message,
-          function_request_id: functionRequestId
-        }
-      }
+      eventMessage = transformLambdaLogEvent(logEvent)
     } else {
       // not a lambda log and can not parse as json so just log message as a string
       eventMessage = logEvent.message
