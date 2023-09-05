@@ -53,7 +53,7 @@ const {Firehose} = require("@aws-sdk/client-firehose")
 const {Kinesis} = require("@aws-sdk/client-kinesis")
 
 // import own function so exported functions can be mocked for testing
-const splunkProcessor = require("./splunkProcessor.js")
+const helpers = require("./helpers.js")
 
 /**
  * logEvent has this format:
@@ -128,98 +128,6 @@ function transformLogEvent(logEvent, logGroup, accountNumber) {
   return Promise.resolve(JSON.stringify(event))
 }
 
-function putRecordsToFirehoseStream(streamName, records, client, resolve, reject, attemptsMade, maxAttempts) {
-  client.putRecordBatch(
-    {
-      DeliveryStreamName: streamName,
-      Records: records
-    },
-    (err, data) => {
-      const codes = []
-      let failed = []
-      let errMsg = err
-
-      if (err) {
-        failed = records
-      } else {
-        for (let i = 0; i < data.RequestResponses.length; i++) {
-          const code = data.RequestResponses[i].ErrorCode
-          if (code) {
-            codes.push(code)
-            failed.push(records[i])
-          }
-        }
-        errMsg = `Individual error codes: ${codes}`
-      }
-
-      if (failed.length > 0) {
-        if (attemptsMade + 1 < maxAttempts) {
-          console.log("Some records failed while calling PutRecordBatch, retrying. %s", errMsg)
-          splunkProcessor.putRecordsToFirehoseStream(
-            streamName,
-            failed,
-            client,
-            resolve,
-            reject,
-            attemptsMade + 1,
-            maxAttempts
-          )
-        } else {
-          reject(`Could not put records after ${maxAttempts} attempts. ${errMsg}`)
-        }
-      } else {
-        resolve("")
-      }
-    }
-  )
-}
-
-function putRecordsToKinesisStream(streamName, records, client, resolve, reject, attemptsMade, maxAttempts) {
-  client.putRecords(
-    {
-      StreamName: streamName,
-      Records: records
-    },
-    (err, data) => {
-      const codes = []
-      let failed = []
-      let errMsg = err
-
-      if (err) {
-        failed = records
-      } else {
-        for (let i = 0; i < data.Records.length; i++) {
-          const code = data.Records[i].ErrorCode
-          if (code) {
-            codes.push(code)
-            failed.push(records[i])
-          }
-        }
-        errMsg = `Individual error codes: ${codes}`
-      }
-
-      if (failed.length > 0) {
-        if (attemptsMade + 1 < maxAttempts) {
-          console.log("Some records failed while calling PutRecords, retrying. %s", errMsg)
-          splunkProcessor.putRecordsToKinesisStream(
-            streamName,
-            failed,
-            client,
-            resolve,
-            reject,
-            attemptsMade + 1,
-            maxAttempts
-          )
-        } else {
-          reject(`Could not put records after ${maxAttempts} attempts. ${errMsg}`)
-        }
-      } else {
-        resolve("")
-      }
-    }
-  )
-}
-
 function createReingestionRecord(isSas, originalRecord) {
   if (isSas) {
     return {
@@ -291,10 +199,10 @@ function reingestRecordBatches(putRecordBatches, isSas, totalRecordsToBeReingest
     for (const recordBatch of putRecordBatches) {
       if (isSas) {
         const client = new Kinesis({region: region})
-        splunkProcessor.putRecordsToKinesisStream(streamName, recordBatch, client, resolve, reject, 0, 20)
+        helpers.putRecordsToKinesisStream(streamName, recordBatch, client, resolve, reject, 0, 20)
       } else {
         const client = new Firehose({region: region})
-        splunkProcessor.putRecordsToFirehoseStream(streamName, recordBatch, client, resolve, reject, 0, 20)
+        helpers.putRecordsToFirehoseStream(streamName, recordBatch, client, resolve, reject, 0, 20)
       }
       recordsReingestedSoFar += recordBatch.length
       console.log(
@@ -406,7 +314,5 @@ exports.handler = (event, context, callback) => {
 exports.transformLogEvent = transformLogEvent
 exports.createReingestionRecord = createReingestionRecord
 exports.getReingestionRecord = getReingestionRecord
-exports.putRecordsToFirehoseStream = putRecordsToFirehoseStream
-exports.putRecordsToKinesisStream = putRecordsToKinesisStream
 exports.batchRecordsToReingest = batchRecordsToReingest
 exports.reingestRecordBatches = reingestRecordBatches

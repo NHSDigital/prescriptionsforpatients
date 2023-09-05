@@ -1,4 +1,6 @@
 const splunkProcessor = require("../src/splunkProcessor.js")
+const helpers = require("../src/helpers.js")
+
 const {expect, describe, it} = require("@jest/globals")
 const {Firehose} = require("@aws-sdk/client-firehose")
 const {Kinesis} = require("@aws-sdk/client-kinesis")
@@ -10,13 +12,13 @@ describe("reingestRecordBatches", () => {
   beforeEach(() => {
     // Mock the putRecordsToKinesisStream and putRecordsToFirehoseStream functions
     jest
-      .spyOn(splunkProcessor, "putRecordsToKinesisStream")
+      .spyOn(helpers, "putRecordsToKinesisStream")
       // eslint-disable-next-line no-unused-vars
       .mockImplementation((streamName, records, client, resolve, reject, attemptsMade, maxAttempts) => {
         resolve("")
       })
     jest
-      .spyOn(splunkProcessor, "putRecordsToFirehoseStream")
+      .spyOn(helpers, "putRecordsToFirehoseStream")
       // eslint-disable-next-line no-unused-vars
       .mockImplementation((streamName, records, client, resolve, reject, attemptsMade, maxAttempts) => {
         resolve("")
@@ -44,7 +46,7 @@ describe("reingestRecordBatches", () => {
     splunkProcessor.reingestRecordBatches(putRecordBatches, isSas, totalRecordsToBeReingested, event, callback, result)
 
     expect(Kinesis).toHaveBeenCalledWith({region: "us-east-1"})
-    expect(splunkProcessor.putRecordsToKinesisStream).toHaveBeenCalledWith(
+    expect(helpers.putRecordsToKinesisStream).toHaveBeenCalledWith(
       "my-kinesis-stream",
       putRecordBatches[0],
       expect.any(Kinesis),
@@ -73,7 +75,7 @@ describe("reingestRecordBatches", () => {
     splunkProcessor.reingestRecordBatches(putRecordBatches, isSas, totalRecordsToBeReingested, event, callback, result)
 
     expect(Firehose).toHaveBeenCalledWith({region: "us-east-1"})
-    expect(splunkProcessor.putRecordsToFirehoseStream).toHaveBeenCalledWith(
+    expect(helpers.putRecordsToFirehoseStream).toHaveBeenCalledWith(
       "my-firehose-stream",
       putRecordBatches[0],
       expect.any(Firehose),
@@ -100,7 +102,7 @@ describe("reingestRecordBatches", () => {
 
     // Mock a rejected promise for putRecordsToKinesisStream
     jest
-      .spyOn(splunkProcessor, "putRecordsToKinesisStream")
+      .spyOn(helpers, "putRecordsToKinesisStream")
       // eslint-disable-next-line no-unused-vars
       .mockImplementation((streamName, records, client, resolve, reject, attemptsMade, maxAttempts) => {
         reject("Some error")

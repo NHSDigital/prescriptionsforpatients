@@ -1,4 +1,4 @@
-const {putRecordsToKinesisStream} = require("../src/splunkProcessor.js")
+const {putRecordsToKinesisStream} = require("../src/helpers.js")
 const {expect, describe, it} = require("@jest/globals")
 const {Kinesis} = require("@aws-sdk/client-kinesis")
 

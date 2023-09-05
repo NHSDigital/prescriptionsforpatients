@@ -1,4 +1,4 @@
-const {putRecordsToFirehoseStream} = require("../src/splunkProcessor.js")
+const {putRecordsToFirehoseStream} = require("../src/helpers.js")
 const {expect, describe, it} = require("@jest/globals")
 const {Firehose} = require("@aws-sdk/client-firehose")
 
