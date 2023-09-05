@@ -51,8 +51,6 @@ The code below will:
 const zlib = require("zlib")
 const {Firehose} = require("@aws-sdk/client-firehose")
 const {Kinesis} = require("@aws-sdk/client-kinesis")
-
-// import own function so exported functions can be mocked for testing
 const helpers = require("./helpers.js")
 
 /**
