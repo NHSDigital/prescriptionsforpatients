@@ -78,6 +78,14 @@ jobs:
         with:
           tag_name: ${{ env.SPEC_VERSION }}
           release_name: ${{ env.SPEC_VERSION }}
+          body: |
+            ## Commit message
+            ${{ github.event.head_commit.message }}
+            ## Info
+            [See code diff](${{ github.event.compare }})
+            [Release workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+            It was initialized by [${{ github.event.sender.login }}](${{ github.event.sender.html_url }})
 
       - name: output SPEC_VERSION
         id: output_spec_version
