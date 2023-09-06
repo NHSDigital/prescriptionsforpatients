@@ -30,6 +30,9 @@ on:
       COMMIT_ID:
         required: true
         type: string
+      LOG_LEVEL:
+        required: true
+        type: string
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
@@ -84,6 +87,7 @@ jobs:
           --prefix ${{ inputs.TRUSTSTORE_FILE }} \
           --query 'Versions[?IsLatest].[VersionId]' --output text)
           export enable_mutual_tls=${{ inputs.ENABLE_MUTUAL_TLS }}
+          export LOG_LEVEL=${{inputs.LOG_LEVEL}}
           export deploy_sandbox=${{ inputs.DEPLOY_SANDBOX }}
           cd .aws-sam/build
           make sam-deploy-package
