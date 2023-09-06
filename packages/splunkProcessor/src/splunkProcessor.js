@@ -51,6 +51,7 @@ The code below will:
 const zlib = require("zlib")
 const {Firehose} = require("@aws-sdk/client-firehose")
 const {Kinesis} = require("@aws-sdk/client-kinesis")
+const helpers = require("./helpers.js")
 
 /**
  * logEvent has this format:
@@ -69,6 +70,32 @@ const {Kinesis} = require("@aws-sdk/client-kinesis")
  */
 const SPLUNK_SOURCE_TYPE = "aws:cloudwatch"
 
+function transformLambdaLogEvent(logEvent) {
+  let eventMessage
+  let functionRequestId = ""
+  const summaryPattern = /RequestId:\s*([a-fA-F0-9-]+)/
+  const match = logEvent.message.match(summaryPattern)
+  if (match) {
+    functionRequestId = match[1]
+  } else {
+    const noSummaryPattern = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\s+([a-fA-F0-9-]+)/
+    const match = logEvent.message.match(noSummaryPattern)
+    if (match) {
+      functionRequestId = match[1]
+    }
+  }
+  if (functionRequestId === "") {
+    // could not get function request id so just log message as a string
+    eventMessage = logEvent.message
+  } else {
+    eventMessage = {
+      message: logEvent.message,
+      function_request_id: functionRequestId
+    }
+  }
+  return eventMessage
+}
+
 function transformLogEvent(logEvent, logGroup, accountNumber) {
   // Try and parse message as JSON
   let eventMessage = ""
@@ -85,27 +112,7 @@ function transformLogEvent(logEvent, logGroup, accountNumber) {
     2023-08-22T09:52:29.585Z 720f4d20-ffd3-4a06-924a-0a61c9c594c8 <message>
     */
     if (logGroup.startsWith("/aws/lambda/")) {
-      let functionRequestId = ""
-      const summaryPattern = /RequestId:\s*([a-fA-F0-9-]+)/
-      const match = logEvent.message.match(summaryPattern)
-      if (match) {
-        functionRequestId = match[1]
-      } else {
-        const noSummaryPattern = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\s+([a-fA-F0-9-]+)/
-        const match = logEvent.message.match(noSummaryPattern)
-        if (match) {
-          functionRequestId = match[1]
-        }
-      }
-      if (functionRequestId === "") {
-        // could not get function request id so just log message as a string
-        eventMessage = logEvent.message
-      } else {
-        eventMessage = {
-          message: logEvent.message,
-          function_request_id: functionRequestId
-        }
-      }
+      eventMessage = transformLambdaLogEvent(logEvent)
     } else {
       // not a lambda log and can not parse as json so just log message as a string
       eventMessage = logEvent.message
@@ -123,82 +130,6 @@ function transformLogEvent(logEvent, logGroup, accountNumber) {
     }
   }
   return Promise.resolve(JSON.stringify(event))
-}
-
-function putRecordsToFirehoseStream(streamName, records, client, resolve, reject, attemptsMade, maxAttempts) {
-  client.putRecordBatch(
-    {
-      DeliveryStreamName: streamName,
-      Records: records
-    },
-    (err, data) => {
-      const codes = []
-      let failed = []
-      let errMsg = err
-
-      if (err) {
-        failed = records
-      } else {
-        for (let i = 0; i < data.RequestResponses.length; i++) {
-          const code = data.RequestResponses[i].ErrorCode
-          if (code) {
-            codes.push(code)
-            failed.push(records[i])
-          }
-        }
-        errMsg = `Individual error codes: ${codes}`
-      }
-
-      if (failed.length > 0) {
-        if (attemptsMade + 1 < maxAttempts) {
-          console.log("Some records failed while calling PutRecordBatch, retrying. %s", errMsg)
-          putRecordsToFirehoseStream(streamName, failed, client, resolve, reject, attemptsMade + 1, maxAttempts)
-        } else {
-          reject(`Could not put records after ${maxAttempts} attempts. ${errMsg}`)
-        }
-      } else {
-        resolve("")
-      }
-    }
-  )
-}
-
-function putRecordsToKinesisStream(streamName, records, client, resolve, reject, attemptsMade, maxAttempts) {
-  client.putRecords(
-    {
-      StreamName: streamName,
-      Records: records
-    },
-    (err, data) => {
-      const codes = []
-      let failed = []
-      let errMsg = err
-
-      if (err) {
-        failed = records
-      } else {
-        for (let i = 0; i < data.Records.length; i++) {
-          const code = data.Records[i].ErrorCode
-          if (code) {
-            codes.push(code)
-            failed.push(records[i])
-          }
-        }
-        errMsg = `Individual error codes: ${codes}`
-      }
-
-      if (failed.length > 0) {
-        if (attemptsMade + 1 < maxAttempts) {
-          console.log("Some records failed while calling PutRecords, retrying. %s", errMsg)
-          putRecordsToKinesisStream(streamName, failed, client, resolve, reject, attemptsMade + 1, maxAttempts)
-        } else {
-          reject(`Could not put records after ${maxAttempts} attempts. ${errMsg}`)
-        }
-      } else {
-        resolve("")
-      }
-    }
-  )
 }
 
 function createReingestionRecord(isSas, originalRecord) {
@@ -272,10 +203,10 @@ function reingestRecordBatches(putRecordBatches, isSas, totalRecordsToBeReingest
     for (const recordBatch of putRecordBatches) {
       if (isSas) {
         const client = new Kinesis({region: region})
-        putRecordsToKinesisStream(streamName, recordBatch, client, resolve, reject, 0, 20)
+        helpers.putRecordsToKinesisStream(streamName, recordBatch, client, resolve, reject, 0, 20)
       } else {
         const client = new Firehose({region: region})
-        putRecordsToFirehoseStream(streamName, recordBatch, client, resolve, reject, 0, 20)
+        helpers.putRecordsToFirehoseStream(streamName, recordBatch, client, resolve, reject, 0, 20)
       }
       recordsReingestedSoFar += recordBatch.length
       console.log(
@@ -385,3 +316,7 @@ exports.handler = (event, context, callback) => {
 }
 
 exports.transformLogEvent = transformLogEvent
+exports.createReingestionRecord = createReingestionRecord
+exports.getReingestionRecord = getReingestionRecord
+exports.batchRecordsToReingest = batchRecordsToReingest
+exports.reingestRecordBatches = reingestRecordBatches
