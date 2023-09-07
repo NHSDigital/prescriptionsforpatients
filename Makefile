@@ -79,6 +79,7 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 		--role-arn $$cloud_formation_execution_role \
 		--no-confirm-changeset \
 		--force-upload \
+		--tags "version=$$VERSION_NUMBER" \
 		--parameter-overrides \
 			  SplunkHECToken=$$SPLUNK_HEC_TOKEN \
 			  SplunkHECEndpoint=$$SPLUNK_HEC_ENDPOINT \
