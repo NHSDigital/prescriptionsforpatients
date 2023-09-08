@@ -2,3 +2,5 @@ private
 crl
 config
 certs
+certs_backup_*
+private_backup_*
