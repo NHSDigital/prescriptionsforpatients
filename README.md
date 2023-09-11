@@ -209,7 +209,7 @@ These are used to do common commands
 - `check-licenses` checks licenses for all packages used - calls check-licenses-node, check-licenses-python, check-licenses-golang
 - `check-licenses-node` checks licenses for all node code
 - `check-licenses-python` checks licenses for all python code
-- `check-licenses-golang` checks licenses for all golang code
+- `check-licenses-go` checks licenses for all golang code
 
 #### CLI Login to AWS
 
