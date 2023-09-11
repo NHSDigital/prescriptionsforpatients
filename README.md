@@ -2,7 +2,8 @@
 
 ![Build](https://github.com/NHSDigital/prescriptionsforpatients/workflows/release/badge.svg?branch=main)
 
-This is an API for accessing prescription information.
+This is the AWS layer that provides an API for accessing prescription information for a patient.  
+It is called by an Apigee proxy that is defined at https://github.com/NHSDigital/prescriptions-for-patients
 
 - `packages/getMyPrescriptions/` Get prescription details for /Bundle endpoint.
 - `packages/splunkProcessor/` Processes CloudWatch logs for Splunk.
