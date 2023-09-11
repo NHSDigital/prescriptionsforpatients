@@ -206,7 +206,10 @@ These are used to do common commands
 
 #### Check licenses
 
-- `check-licenses` checks licensces for all packages used
+- `check-licenses` checks licenses for all packages used - calls check-licenses-node, check-licenses-python, check-licenses-golang
+- `check-licenses-node` checks licenses for all node code
+- `check-licenses-python` checks licenses for all python code
+- `check-licenses-golang` checks licenses for all golang code
 
 #### CLI Login to AWS
 

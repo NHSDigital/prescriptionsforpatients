@@ -147,7 +147,9 @@ deep-clean: clean
 	rm -rf .venv
 	find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +
 
-check-licenses:
+check-licenses: check-licenses-node check-licenses-python check-licenses-golang
+
+check-licenses-node:
 	npm run check-licenses --workspace packages/getMyPrescriptions
 	npm run check-licenses --workspace packages/capabilityStatement
 	npm run check-licenses --workspace packages/sandbox
@@ -155,12 +157,17 @@ check-licenses:
 	npm run check-licenses --workspace packages/splunkProcessor
 	npm run check-licenses --workspace packages/statusLambda
 	npm run check-licenses --workspace packages/spineClient
+
+check-licenses-python:
 	scripts/check_python_licenses.sh
+
+check-licenses-golang:
 	go_path="$(asdf which go)"; \
 		GOROOT="$(dirname "$(dirname "${go_path:A}")")"; \
 		go install github.com/google/go-licenses@latest; \
 		cd packages/getSecretLayer/src; \
 		go mod download; \
+		PATH=$$PATH:$$GOROOT/../packages/bin; \
 		go-licenses report . ; \
 		go-licenses check . --disallowed_types forbidden,restricted
 
