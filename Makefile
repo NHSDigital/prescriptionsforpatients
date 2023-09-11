@@ -149,7 +149,19 @@ deep-clean: clean
 
 check-licenses:
 	npm run check-licenses --workspace packages/getMyPrescriptions
+	npm run check-licenses --workspace packages/capabilityStatement
+	npm run check-licenses --workspace packages/sandbox
+	npm run check-licenses --workspace packages/middleware
+	npm run check-licenses --workspace packages/splunkProcessor
+	npm run check-licenses --workspace packages/statusLambda
+	npm run check-licenses --workspace packages/spineClient
 	scripts/check_python_licenses.sh
+	go_path="$(asdf which go)"; \
+		GOROOT="$(dirname "$(dirname "${go_path:A}")")"; \
+		go install github.com/google/go-licenses@latest; \
+		cd packages/getSecretLayer/src; \
+		go mod download; \
+		go-licenses check . --disallowed_types forbidden,restricted
 
 aws-configure:
 	aws configure sso --region eu-west-2

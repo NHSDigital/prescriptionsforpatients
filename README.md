@@ -12,11 +12,14 @@ This is an API for accessing prescription information.
 - `packages/capabilityStatement/` Returns a static capability statement
 - `packages/getSecretLayer/` golang code that is used as a lambda layer to inject secrets to environment variables used by lambdas
 - `packages/spineClient/` Module for connecting to spine
+- `packages/common/testing` Module that contains some test data used for tests in other modules
 - `postman/` Contains a postman collection for interacting with the API.
 - `scripts/` Utilities helpful to developers of this specification.
 - `cloudformation/` Contains cloudformation files used to create resources for CI builds and deployments
 - `privateCA/` Contains script to create self signed CA certificate and a client certificate used for mutual TLS
 - `.github` Contains github workflows that are used for building and deploying from pull requests and releases
+- `.devcontainer` Contains a dockerfile and vscode devcontainer definition
+- `.vscode` Contains vscode workspace file
 
 Consumers of the API will find developer documentation on the [NHS Digital Developer Hub](https://digital.nhs.uk/developer/api-catalogue).
 
