@@ -162,14 +162,7 @@ check-licenses-python:
 	scripts/check_python_licenses.sh
 
 check-licenses-golang:
-	go_path="$(asdf which go)"; \
-		GOROOT="$(dirname "$(dirname "${go_path:A}")")"; \
-		go install github.com/google/go-licenses@latest; \
-		cd packages/getSecretLayer/src; \
-		go mod download; \
-		PATH=$$PATH:$$GOROOT/../packages/bin; \
-		go-licenses report . ; \
-		go-licenses check . --disallowed_types forbidden,restricted
+	cd packages/getSecretLayer && ./check_licence.sh
 
 aws-configure:
 	aws configure sso --region eu-west-2
