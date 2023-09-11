@@ -161,6 +161,7 @@ check-licenses:
 		go install github.com/google/go-licenses@latest; \
 		cd packages/getSecretLayer/src; \
 		go mod download; \
+		go-licenses report . ; \
 		go-licenses check . --disallowed_types forbidden,restricted
 
 aws-configure:
