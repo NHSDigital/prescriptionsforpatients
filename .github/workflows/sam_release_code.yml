@@ -92,6 +92,11 @@ jobs:
           cd .aws-sam/build
           make sam-deploy-package
 
+
+  fix_deployments:
+    runs-on: ubuntu-latest
+    needs: sam_release_code
+    steps:          
       - name: Create tagged deployment
         uses: actions/github-script@v6
         with:
