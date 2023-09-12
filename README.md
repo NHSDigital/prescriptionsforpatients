@@ -232,4 +232,5 @@ Workflows are in the .github/workflows folder
 - `release.yml`: Run when code is merged to main branch or a tag starting v is pushed. Calls sam_package_code and sam_release_code to build and deploy the code.
 - `sam_package_code.yml`: Packages code and uploads to a github artifact for later deployment
 - `sam_release_code.yml`: Release code built by sam_package_code.yml to an environment
+- `pr-link.yaml`: This workflow template links Pull Request's to Jira tickets and runs when a pull request is opened.
 - `dependabot.yml`: Dependabot definition file
