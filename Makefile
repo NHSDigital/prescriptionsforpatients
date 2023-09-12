@@ -115,7 +115,7 @@ lint-go:
 	cd packages/getSecretLayer/src && golangci-lint run
 
 lint-cloudformation:
-	cfn-lint -t cloudformation/*.yml
+	poetry run cfn-lint -t cloudformation/*.yml
 
 lint: lint-node lint-go lint-cloudformation
 

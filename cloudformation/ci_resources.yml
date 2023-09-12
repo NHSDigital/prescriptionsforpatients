@@ -227,7 +227,7 @@ Resources:
     Properties:
       LoggingConfiguration:
         DestinationBucketName: !Ref AuditLoggingBucket
-        LogFilePrefix: artifact
+        LogFilePrefix: artifact/
       VersioningConfiguration:
         Status: Enabled
       BucketEncryption:
@@ -294,7 +294,7 @@ Resources:
     Properties:
       LoggingConfiguration:
         DestinationBucketName: !Ref AuditLoggingBucket
-        LogFilePrefix: truststore
+        LogFilePrefix: truststore/
       VersioningConfiguration:
         Status: Enabled
       BucketEncryption:
@@ -366,10 +366,9 @@ Resources:
                   "",
                   [
                     !GetAtt AuditLoggingBucket.Arn,
-                    "/splunkDeliveryStreamBackup",
+                    "/splunkDeliveryStreamBackup/*",
                   ],
                 ]
-              - !GetAtt AuditLoggingBucket.Arn
             Principal:
               Service: logging.s3.amazonaws.com
             Condition:
@@ -381,8 +380,7 @@ Resources:
             Action:
               - "s3:PutObject*"
             Resource:
-              - !Join ["", [!GetAtt AuditLoggingBucket.Arn, "/artifact"]]
-              - !GetAtt AuditLoggingBucket.Arn
+              - !Join ["", [!GetAtt AuditLoggingBucket.Arn, "/artifact/*"]]
             Principal:
               Service: logging.s3.amazonaws.com
             Condition:
@@ -394,8 +392,7 @@ Resources:
             Action:
               - "s3:PutObject*"
             Resource:
-              - !Join ["", [!GetAtt AuditLoggingBucket.Arn, "/truststore"]]
-              - !GetAtt AuditLoggingBucket.Arn
+              - !Join ["", [!GetAtt AuditLoggingBucket.Arn, "/truststore/*"]]
             Principal:
               Service: logging.s3.amazonaws.com
             Condition:
@@ -436,7 +433,7 @@ Resources:
         Status: Enabled
       LoggingConfiguration:
         DestinationBucketName: !Ref AuditLoggingBucket
-        LogFilePrefix: splunkDeliveryStreamBackup
+        LogFilePrefix: splunkDeliveryStreamBackup/
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - BucketKeyEnabled: false
