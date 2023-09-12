@@ -137,7 +137,7 @@ Resources:
                   ParameterValue: !GetAtt SplunkDeliveryStreamProcessorInvokeRole.Arn
         S3Configuration:
           BucketARN: !ImportValue ci-resources:SplunkDeliveryStreamBackupBucket
-          RoleARN: !ImportValue ci-resources:SplunkDeliveryStreamBackupBucketRole
+          RoleARN: !ImportValue ci-resources:SplunkDeliveryStreamBackupBucketRoleArn
           Prefix: !Ref "AWS::StackName"
           EncryptionConfiguration:
             KMSEncryptionConfig:
