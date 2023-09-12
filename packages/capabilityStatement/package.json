@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "CapabilityStatement",
   "main": "capabilityStatement.js",
-  "author": "SAM CLI",
+  "author": "NHS Digital",
   "license": "MIT",
   "scripts": {
     "unit": "jest --coverage",
