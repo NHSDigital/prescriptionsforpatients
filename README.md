@@ -62,6 +62,8 @@ https://stackoverflow.com/a/59170001
 You will need to create the files, if they do not already exist.
 This will ensure that your VSCode bash terminal prompts you for your GPG key password.
 
+You can cache the gpg key passphrase by following instructions at https://superuser.com/questions/624343/keep-gnupg-credentials-cached-for-entire-user-session
+
 ### SAM setup and usage
 
 [SAM](https://aws.amazon.com/serverless/sam/) allows rapid local development and deployment to AWS for development and testing.
