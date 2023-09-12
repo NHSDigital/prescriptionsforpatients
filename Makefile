@@ -150,6 +150,7 @@ deep-clean: clean
 check-licenses: check-licenses-node check-licenses-python check-licenses-go
 
 check-licenses-node:
+	npm run check-licenses
 	npm run check-licenses --workspace packages/getMyPrescriptions
 	npm run check-licenses --workspace packages/capabilityStatement
 	npm run check-licenses --workspace packages/sandbox
