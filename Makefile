@@ -115,10 +115,7 @@ lint-go:
 	cd packages/getSecretLayer/src && golangci-lint run
 
 lint-cloudformation:
-	cfn-lint -t cloudformation/ci_resources.yml 
-	cfn-lint -t cloudformation/account_resources.yml 
-	cfn-lint -t cloudformation/environment_route53.yml 
-	cfn-lint -t cloudformation/management_route53.yml 
+	cfn-lint -t cloudformation/*.yml
 
 lint: lint-node lint-go lint-cloudformation
 
