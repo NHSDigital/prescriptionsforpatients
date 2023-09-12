@@ -151,7 +151,7 @@ Any code changes you make are automatically uploaded to AWS while `make sam-sync
 
 ### Pre-commit hooks
 
-Some pre-commit hooks are installed as part of the install above to ensure you can't commit invalid changes by accident and by running basic lint checks.
+Some pre-commit hooks are installed as part of the install above, to run basic lint checks and ensure you can't accidentally commit invalid changes.
 The pre-commit hook uses python package pre-commit and is configured in the file .pre-commit-config.yaml.
 A combination of these checks are also run in CI.
 
@@ -227,10 +227,10 @@ Workflows are in the .github/workflows folder
 
 - `combine-dependabot-prs.yml`: Workflow for combining dependabot pull requests. Runs on demand
 - `delete_old_cloudformation_stacks.yml`: Workflow for deleting old cloud formation stacks. Runs daily
-- `pull_request.yml`: Called when pull request is opened or updated. Calls sam_package_code and sam_release_code to build and deploy the code. Deploys to dev AWS account. The main and sandbox stacks deployed have PR-<PULL REQUEST_ID> in the name
-- `quality_checks.yml`: Runs check-licenses, lint, test and sonarcloud scan agains the repo. Called from pull_request.yml and release.yml
+- `pull_request.yml`: Called when pull request is opened or updated. Calls sam_package_code and sam_release_code to build and deploy the code. Deploys to dev AWS account. The main and sandbox stacks deployed have PR-<PULL_REQUEST_ID> in the name
+- `quality_checks.yml`: Runs check-licenses, lint, test and sonarcloud scan against the repo. Called from pull_request.yml and release.yml
 - `release.yml`: Run when code is merged to main branch or a tag starting v is pushed. Calls sam_package_code and sam_release_code to build and deploy the code.
 - `sam_package_code.yml`: Packages code and uploads to a github artifact for later deployment
 - `sam_release_code.yml`: Release code built by sam_package_code.yml to an environment
-- `pr-link.yaml`: This workflow template links Pull Request's to Jira tickets and runs when a pull request is opened.
+- `pr-link.yaml`: This workflow template links Pull Requests to Jira tickets and runs when a pull request is opened.
 - `dependabot.yml`: Dependabot definition file
