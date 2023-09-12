@@ -10,6 +10,7 @@ Resources:
   Zone:
     Type: "AWS::Route53::HostedZone"
     DeletionPolicy: Retain
+    UpdateReplacePolicy: Delete
     Properties:
       HostedZoneConfig:
         Comment: "My hosted zone for prescriptionsforpatients.national.nhs.uk"
@@ -28,7 +29,6 @@ Resources:
           "ns-25.awsdns-03.com",
           "ns-1854.awsdns-39.co.uk",
         ]
-    DependsOn: Zone
 
   nsQAHostedZoneRecordSet:
     Type: "AWS::Route53::RecordSet"
@@ -44,7 +44,6 @@ Resources:
           "ns-816.awsdns-38.net",
           "ns-1174.awsdns-18.org",
         ]
-    DependsOn: Zone
 
   nsIntHostedZoneRecordSet:
     Type: "AWS::Route53::RecordSet"
@@ -60,7 +59,6 @@ Resources:
           "ns-1915.awsdns-47.co.uk",
           "ns-947.awsdns-54.net",
         ]
-    DependsOn: Zone
 
   nsRefHostedZoneRecordSet:
     Type: "AWS::Route53::RecordSet"
@@ -76,4 +74,3 @@ Resources:
           "ns-28.awsdns-03.com",
           "ns-1854.awsdns-39.co.uk",
         ]
-    DependsOn: Zone

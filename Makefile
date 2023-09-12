@@ -62,9 +62,11 @@ sam-list-outputs: guard-AWS_DEFAULT_PROFILE guard-stack_name
 
 sam-validate: 
 	sam validate
+	sam validate --template-file template_splunk_firehose.yaml
 
 sam-validate-sandbox: 
 	sam validate --template-file sandbox_template.yaml
+	sam validate --template-file template_splunk_firehose.yaml
 
 sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role guard-LATEST_TRUSTSTORE_VERSION guard-enable_mutual_tls guard-SPLUNK_HEC_TOKEN guard-SPLUNK_HEC_ENDPOINT guard-VERSION_NUMBER guard-COMMIT_ID guard-LOG_LEVEL
 	sam deploy \
@@ -112,7 +114,13 @@ lint-node: compile-node
 lint-go:
 	cd packages/getSecretLayer/src && golangci-lint run
 
-lint: lint-node lint-go
+lint-cloudformation:
+	cfn-lint -t cloudformation/ci_resources.yml 
+	cfn-lint -t cloudformation/account_resources.yml 
+	cfn-lint -t cloudformation/environment_route53.yml 
+	cfn-lint -t cloudformation/management_route53.yml 
+
+lint: lint-node lint-go lint-cloudformation
 
 test: compile
 	npm run test --workspace packages/capabilityStatement

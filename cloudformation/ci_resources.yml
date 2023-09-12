@@ -332,30 +332,7 @@ Resources:
                 - !GetAtt CloudFormationDeployRole.Arn
                 - !GetAtt CloudFormationExecutionRole.Arn
 
-  # KMS S3 encryption key
-  AuditLoggingBucketKMSKey:
-    Type: AWS::KMS::Key
-    Properties:
-      KeyPolicy:
-        Version: 2012-10-17
-        Id: key-s3
-        Statement:
-          - Sid: Enable IAM User Permissions
-            Effect: Allow
-            Principal:
-              AWS: !Join
-                - ""
-                - - "arn:aws:iam::"
-                  - !Ref "AWS::AccountId"
-                  - ":root"
-            Action: "kms:*"
-            Resource: "*"
-  AuditLoggingBucketKMSKeyAlias:
-    Type: AWS::KMS::Alias
-    Properties:
-      AliasName: alias/AuditLoggingBucketKMSKeyAlias
-      TargetKeyId: !Ref AuditLoggingBucketKMSKey
-
+  # Note we can not use KMS key for encryption on this bucket
   AuditLoggingBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -364,8 +341,7 @@ Resources:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
-              KMSMasterKeyID: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:${AuditLoggingBucketKMSKeyAlias}"
-              SSEAlgorithm: "aws:kms"
+              SSEAlgorithm: "AES256"
 
   AuditLoggingBucketPolicy:
     Type: AWS::S3::BucketPolicy

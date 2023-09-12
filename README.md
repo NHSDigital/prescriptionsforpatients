@@ -175,7 +175,8 @@ These are used to do common commands
 - `sam-list-endpoints` lists endpoints created for the current stack. Needs AWS_DEFAULT_PROFILE and stack_name environment variables set.
 - `sam-list-resources` lists resources created for the current stack. Needs AWS_DEFAULT_PROFILE and stack_name environment variables set.
 - `sam-list-outputs` lists outputs from the current stack. Needs AWS_DEFAULT_PROFILE and stack_name environment variables set.
-- `sam-validate` validates the SAM template.
+- `sam-validate` validates the main SAM template and the splunk firehose template.
+- `sam-validate-sandbox` validates the sandbox SAM template and the splunk firehose template.
 - `sam-deploy-package` deploys a package created by sam-build. Used in CI builds. Needs the following environment variables set
   - artifact_bucket - bucket where uploaded packaged files are
   - artifact_bucket_prefix - prefix in bucket of where uploaded packaged files ore
@@ -193,6 +194,7 @@ These are used to do common commands
 - `lint` runs lint for all code
 - `lint-node` runs lint for node code
 - `lint-go` runs lint for golang code
+- `lint-cloudformation` runs lint for cloudformation templates
 - `test` runs unit tests for all code
 
 #### Compiling
