@@ -154,6 +154,7 @@ Resources:
                   - "apigateway:AddCertificateToDomain"
                   - "apigateway:RemoveCertificateFromDomain"
                   - "apigateway:TagResource"
+                  # s3 permissions can be removed once https://github.com/NHSDigital/prescriptionsforpatients/pull/165 is merged
                   - "s3:CreateBucket"
                   - "s3:DeleteBucket"
                   - "s3:SetBucketEncryption"
@@ -699,13 +700,22 @@ Outputs:
     Export:
       Name: !Join [":", [!Ref "AWS::StackName", "AuditLoggingBucket"]]
   SplunkDeliveryStreamBackupBucketRole:
-    Description: ARN of the splunk delivery stream role
-    Value: !GetAtt SplunkDeliveryStreamBackupBucketRole.Arn
+    Description: The splunk delivery stream role
+    Value: !Ref SplunkDeliveryStreamBackupBucketRole
     Export:
       Name:
         !Join [
           ":",
           [!Ref "AWS::StackName", "SplunkDeliveryStreamBackupBucketRole"],
+        ]
+  SplunkDeliveryStreamBackupBucketRoleArn:
+    Description: The splunk delivery stream role
+    Value: !GetAtt SplunkDeliveryStreamBackupBucketRole.Arn
+    Export:
+      Name:
+        !Join [
+          ":",
+          [!Ref "AWS::StackName", "SplunkDeliveryStreamBackupBucketRoleArn"],
         ]
   SplunkDeliveryStreamBackupBucket:
     Description: ARN of the splunk delivery stream backup bucket
