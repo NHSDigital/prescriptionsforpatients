@@ -41,8 +41,9 @@ The stack deployed in each environment must be called `ci-resources` as the depl
 To deploy the stack, use the following
 
 ```
+make aws-login
 export AWS_PROFILE=<name of AWS profile defined in ~/.aws/config>
-aws sso login --sso-session sso-session
+
 
 aws cloudformation deploy \
           --template-file cloudformation/ci_resources.yml \
@@ -75,8 +76,8 @@ The stack deployed in each environment must be called `account-resources` as the
 To deploy the stack, use the following
 
 ```
+make aws-login
 export AWS_PROFILE=<name of AWS profile defined in ~/.aws/config>
-aws sso login --sso-session sso-session
 
 aws cloudformation deploy \
           --template-file cloudformation/account_resources.yml \
@@ -100,8 +101,8 @@ It outputs the following as exports as they are used in SAM deployments
 To deploy the stack, use the following
 
 ```
+make aws-login
 export AWS_PROFILE=<name of AWS profile defined in ~/.aws/config>
-aws sso login --sso-session sso-session
 
 aws cloudformation deploy \
           --template-file cloudformation/environment_route53.yml \
@@ -123,8 +124,8 @@ It creates the following resources
 To deploy the stack, use the following
 
 ```
+make aws-login
 export AWS_PROFILE=prescription-management
-aws sso login --sso-session sso-session
 
 aws cloudformation deploy \
           --template-file cloudformation/management_route53.yml \
