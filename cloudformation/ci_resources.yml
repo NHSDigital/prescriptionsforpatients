@@ -76,9 +76,6 @@ Resources:
   CloudFormationExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      Tags:
-        - Key: ManagedStackSource
-          Value: AwsSamCli
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -227,9 +224,9 @@ Resources:
     # TODO uncomment this once happy with everything
     # DeletionPolicy: "Retain"
     Properties:
-      Tags:
-        - Key: ManagedStackSource
-          Value: AwsSamCli
+      LoggingConfiguration:
+        DestinationBucketName: !Ref AuditLoggingBucket
+        LogFilePrefix: artifact
       VersioningConfiguration:
         Status: Enabled
       BucketEncryption:
@@ -294,6 +291,9 @@ Resources:
   TrustStoreBucket:
     Type: AWS::S3::Bucket
     Properties:
+      LoggingConfiguration:
+        DestinationBucketName: !Ref AuditLoggingBucket
+        LogFilePrefix: truststore
       VersioningConfiguration:
         Status: Enabled
       BucketEncryption:
@@ -330,6 +330,186 @@ Resources:
               AWS:
                 - !GetAtt CloudFormationDeployRole.Arn
                 - !GetAtt CloudFormationExecutionRole.Arn
+
+  # KMS S3 encryption key
+  AuditLoggingBucketKMSKey:
+    Type: AWS::KMS::Key
+    Properties:
+      KeyPolicy:
+        Version: 2012-10-17
+        Id: key-s3
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Join
+                - ""
+                - - "arn:aws:iam::"
+                  - !Ref "AWS::AccountId"
+                  - ":root"
+            Action: "kms:*"
+            Resource: "*"
+  AuditLoggingBucketKMSKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/AuditLoggingBucketKMSKeyAlias
+      TargetKeyId: !Ref AuditLoggingBucketKMSKey
+
+  AuditLoggingBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              KMSMasterKeyID: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:${AuditLoggingBucketKMSKeyAlias}"
+              SSEAlgorithm: "aws:kms"
+
+  AuditLoggingBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref AuditLoggingBucket
+      PolicyDocument:
+        Statement:
+          - Effect: "Deny"
+            Action: "s3:*"
+            Principal: "*"
+            Resource:
+              - !Join ["", [!GetAtt AuditLoggingBucket.Arn, "/*"]]
+              - !GetAtt AuditLoggingBucket.Arn
+            Condition:
+              Bool:
+                aws:SecureTransport: false
+          - Effect: "Allow"
+            Action:
+              - "s3:PutObject*"
+            Resource:
+              - !Join [
+                  "",
+                  [
+                    !GetAtt AuditLoggingBucket.Arn,
+                    "/splunkDeliveryStreamBackup",
+                  ],
+                ]
+              - !GetAtt AuditLoggingBucket.Arn
+            Principal:
+              Service: logging.s3.amazonaws.com
+            Condition:
+              StringEquals:
+                aws:SourceAccount: !Ref "AWS::AccountId"
+              ArnLike:
+                aws:SourceArn: !GetAtt SplunkDeliveryStreamBackupBucket.Arn
+          - Effect: "Allow"
+            Action:
+              - "s3:PutObject*"
+            Resource:
+              - !Join ["", [!GetAtt AuditLoggingBucket.Arn, "/artifact"]]
+              - !GetAtt AuditLoggingBucket.Arn
+            Principal:
+              Service: logging.s3.amazonaws.com
+            Condition:
+              StringEquals:
+                aws:SourceAccount: !Ref "AWS::AccountId"
+              ArnLike:
+                aws:SourceArn: !GetAtt ArtifactsBucket.Arn
+          - Effect: "Allow"
+            Action:
+              - "s3:PutObject*"
+            Resource:
+              - !Join ["", [!GetAtt AuditLoggingBucket.Arn, "/truststore"]]
+              - !GetAtt AuditLoggingBucket.Arn
+            Principal:
+              Service: logging.s3.amazonaws.com
+            Condition:
+              StringEquals:
+                aws:SourceAccount: !Ref "AWS::AccountId"
+              ArnLike:
+                aws:SourceArn: !GetAtt TrustStoreBucket.Arn
+
+  # Backup bucket, roles and policies
+  # KMS S3 encryption key
+  SplunkDeliveryStreamBackupKMSKey:
+    Type: AWS::KMS::Key
+    Properties:
+      KeyPolicy:
+        Version: 2012-10-17
+        Id: key-s3
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Join
+                - ""
+                - - "arn:aws:iam::"
+                  - !Ref "AWS::AccountId"
+                  - ":root"
+            Action: "kms:*"
+            Resource: "*"
+  SplunkDeliveryStreamBackupKMSKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/SplunkDeliveryStreamBackupKMSKeyAlias
+      TargetKeyId: !Ref SplunkDeliveryStreamBackupKMSKey
+
+  SplunkDeliveryStreamBackupBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+      LoggingConfiguration:
+        DestinationBucketName: !Ref AuditLoggingBucket
+        LogFilePrefix: splunkDeliveryStreamBackup
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - BucketKeyEnabled: false
+            ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:${SplunkDeliveryStreamBackupKMSKeyAlias}"
+  # Delivery stream uses the backup bucket role for non-destination permissions
+  SplunkDeliveryStreamBackupBucketRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "firehose.amazonaws.com"
+            Action: "sts:AssumeRole"
+  SplunkDeliveryStreamBackupBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref SplunkDeliveryStreamBackupBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Deny"
+            Action: "s3:*"
+            Principal: "*"
+            Resource:
+              - !Join ["", [!GetAtt SplunkDeliveryStreamBackupBucket.Arn, "/*"]]
+              - !GetAtt SplunkDeliveryStreamBackupBucket.Arn
+            Condition:
+              Bool:
+                aws:SecureTransport: false
+          - Effect: Allow
+            Action:
+              - s3:AbortMultipartUpload
+              - s3:GetBucketLocation
+              - s3:GetObject
+              - s3:ListBucket
+              - s3:ListBucketMultipartUploads
+              - s3:PutObject
+            Resource:
+              - !GetAtt SplunkDeliveryStreamBackupBucket.Arn
+              - !Join # Access to bucket contents
+                - ""
+                - - !GetAtt SplunkDeliveryStreamBackupBucket.Arn
+                  - "/*"
+            Principal:
+              AWS:
+                - !GetAtt SplunkDeliveryStreamBackupBucketRole.Arn
 
   # KMS secrets encryption key
   SecretsKMSKey:
@@ -513,3 +693,29 @@ Outputs:
     Value: !GetAtt SpineCAChain.Id
     Export:
       Name: !Join [":", [!Ref "AWS::StackName", "SpineCAChain"]]
+  AuditLoggingBucket:
+    Description: ARN of the audit logging bucket
+    Value: !GetAtt AuditLoggingBucket.Arn
+    Export:
+      Name: !Join [":", [!Ref "AWS::StackName", "AuditLoggingBucket"]]
+  SplunkDeliveryStreamBackupBucketRole:
+    Description: ARN of the splunk delivery stream role
+    Value: !GetAtt SplunkDeliveryStreamBackupBucketRole.Arn
+    Export:
+      Name:
+        !Join [
+          ":",
+          [!Ref "AWS::StackName", "SplunkDeliveryStreamBackupBucketRole"],
+        ]
+  SplunkDeliveryStreamBackupBucket:
+    Description: ARN of the splunk delivery stream backup bucket
+    Value: !GetAtt SplunkDeliveryStreamBackupBucket.Arn
+    Export:
+      Name:
+        !Join [":", [!Ref "AWS::StackName", "SplunkDeliveryStreamBackupBucket"]]
+  SplunkDeliveryStreamBackupKMSKey:
+    Description: SplunkDeliveryStreamBackupKMSKey
+    Value: !GetAtt SplunkDeliveryStreamBackupKMSKey.Arn
+    Export:
+      Name:
+        !Join [":", [!Ref "AWS::StackName", "SplunkDeliveryStreamBackupKMSKey"]]

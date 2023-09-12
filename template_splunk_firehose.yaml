@@ -118,7 +118,6 @@ Resources:
     Condition: ShouldUseSplunk
     # Depends on policy as delivery streams require a role with correct policies to be build, and a role reference doesn't provide a dependency as Stream -> Role <- Policy, so Stream -!> Policy
     DependsOn:
-      - SplunkDeliveryStreamBackupBucketPolicy
       - SplunkDeliveryStreamProcessorInvokePolicy
     Type: AWS::KinesisFirehose::DeliveryStream
     Properties:
@@ -137,11 +136,12 @@ Resources:
                 - ParameterName: RoleArn
                   ParameterValue: !GetAtt SplunkDeliveryStreamProcessorInvokeRole.Arn
         S3Configuration:
-          BucketARN: !GetAtt SplunkDeliveryStreamBackupBucket.Arn
-          RoleARN: !GetAtt SplunkDeliveryStreamBackupBucketRole.Arn
+          BucketARN: !ImportValue ci-resources:SplunkDeliveryStreamBackupBucket
+          RoleARN: !ImportValue ci-resources:SplunkDeliveryStreamBackupBucketRole
+          Prefix: !Ref "AWS::StackName"
           EncryptionConfiguration:
             KMSEncryptionConfig:
-              AWSKMSKeyARN: !GetAtt CloudWatchKMSKey.Arn
+              AWSKMSKeyARN: !ImportValue ci-resources:SplunkDeliveryStreamBackupKMSKey
         CloudWatchLoggingOptions:
           Enabled: true
           LogGroupName: !Ref SplunkDeliveryStreamLogGroup
@@ -172,7 +172,7 @@ Resources:
               - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${SplunkDeliveryStreamLogGroup}"
               - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${SplunkDeliveryStreamLogGroup}:log-stream:*"
       Roles:
-        - !Ref SplunkDeliveryStreamBackupBucketRole
+        - !ImportValue ci-resources:SplunkDeliveryStreamBackupBucketRole
   SplunkDeliveryStreamKMSPolicy:
     Type: "AWS::IAM::Policy"
     Properties:
@@ -189,54 +189,7 @@ Resources:
             Resource:
               - !GetAtt CloudWatchKMSKey.Arn
       Roles:
-        - !Ref SplunkDeliveryStreamBackupBucketRole
-
-  # Backup bucket, roles and policies
-  SplunkDeliveryStreamBackupBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      VersioningConfiguration:
-        Status: Enabled
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-          - BucketKeyEnabled: false
-            ServerSideEncryptionByDefault:
-              SSEAlgorithm: aws:kms
-              KMSMasterKeyID: !GetAtt CloudWatchKMSKey.Arn
-  # Delivery stream uses the backup bucket role for non-destination permissions
-  SplunkDeliveryStreamBackupBucketRole:
-    Type: "AWS::IAM::Role"
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: "firehose.amazonaws.com"
-            Action: "sts:AssumeRole"
-  SplunkDeliveryStreamBackupBucketPolicy:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: "allow-backup-bucket-access"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - s3:AbortMultipartUpload
-              - s3:GetBucketLocation
-              - s3:GetObject
-              - s3:ListBucket
-              - s3:ListBucketMultipartUploads
-              - s3:PutObject
-            Resource:
-              - !GetAtt SplunkDeliveryStreamBackupBucket.Arn
-              - !Join # Access to bucket contents
-                - ""
-                - - !GetAtt SplunkDeliveryStreamBackupBucket.Arn
-                  - "/*"
-      Roles:
-        - !Ref SplunkDeliveryStreamBackupBucketRole
+        - !ImportValue ci-resources:SplunkDeliveryStreamBackupBucketRole
 
   # Stream processor, roles,  policies and log groups
   SplunkDeliveryStreamProcessor:
