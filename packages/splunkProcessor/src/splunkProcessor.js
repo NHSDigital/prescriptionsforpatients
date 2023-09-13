@@ -48,7 +48,7 @@ The code below will:
    method.
 6) Any additional records which exceed 6MB will be re-ingested back into Firehose.
 */
-const zlib = require("zlib")
+//const zlib = require("zlib")
 const {Firehose} = require("@aws-sdk/client-firehose")
 const {Kinesis} = require("@aws-sdk/client-kinesis")
 const helpers = require("./helpers.js")
@@ -234,6 +234,10 @@ function reingestRecordBatches(putRecordBatches, isSas, totalRecordsToBeReingest
   )
 }
 
+exports.handler = () => {
+  throw(new Error("not doing anything"))
+}
+/*
 exports.handler = (event, context, callback) => {
   console.log(
     `Processor given event\n${JSON.stringify(event, null, 2)}\n` +
@@ -314,7 +318,7 @@ exports.handler = (event, context, callback) => {
       callback(ex, null)
     })
 }
-
+*/
 exports.transformLogEvent = transformLogEvent
 exports.createReingestionRecord = createReingestionRecord
 exports.getReingestionRecord = getReingestionRecord
