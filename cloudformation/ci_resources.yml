@@ -504,7 +504,46 @@ Resources:
             Principal:
               AWS:
                 - !GetAtt SplunkDeliveryStreamBackupBucketRole.Arn
-
+  SplunkDeliveryStreamBackupBucketRoleKMSPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-SplunkDeliveryStreamBackupKMSKey-access"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - kms:DescribeKey
+              - kms:GenerateDataKey*
+              - kms:Encrypt
+              - kms:ReEncrypt*
+            Resource:
+              - !GetAtt SplunkDeliveryStreamBackupKMSKey.Arn
+      Roles:
+        - !Ref SplunkDeliveryStreamBackupBucketRole
+  SplunkDeliveryStreamBackupBucketIAMPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-backup-bucket-access"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:AbortMultipartUpload
+              - s3:GetBucketLocation
+              - s3:GetObject
+              - s3:ListBucket
+              - s3:ListBucketMultipartUploads
+              - s3:PutObject
+            Resource:
+              - !GetAtt SplunkDeliveryStreamBackupBucket.Arn
+              - !Join # Access to bucket contents
+                - ""
+                - - !GetAtt SplunkDeliveryStreamBackupBucket.Arn
+                  - "/*"
+      Roles:
+        - !Ref SplunkDeliveryStreamBackupBucketRole
   # KMS secrets encryption key
   SecretsKMSKey:
     Type: AWS::KMS::Key
