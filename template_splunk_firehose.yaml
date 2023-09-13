@@ -53,7 +53,7 @@ Resources:
                 kms:EncryptionContext:aws:logs:arn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
           - Sid: Allow Firehose Logging
             Effect: Allow
-            Principal: "firehose.amazonaws.com"
+            Principal: "*"
             Action:
               - kms:Encrypt*
               - kms:Decrypt*
@@ -133,7 +133,7 @@ Resources:
                 - ParameterName: LambdaArn
                   ParameterValue: !GetAtt SplunkDeliveryStreamProcessor.Arn
                 - ParameterName: RoleArn
-                  ParameterValue: !Ref SplunkDeliveryStreamProcessorInvokeRole
+                  ParameterValue: !GetAtt SplunkDeliveryStreamProcessorInvokeRole.Arn
         S3Configuration:
           BucketARN: !ImportValue ci-resources:SplunkDeliveryStreamBackupBucket
           RoleARN: !ImportValue ci-resources:SplunkDeliveryStreamBackupBucketRoleArn
