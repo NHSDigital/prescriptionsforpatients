@@ -51,7 +51,19 @@ Resources:
             Condition:
               ArnEquals:
                 kms:EncryptionContext:aws:logs:arn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
-
+          - Sid: Allow Firehose Logging
+            Effect: Allow
+            Principal: "*"
+            Action:
+              - kms:Encrypt*
+              - kms:Decrypt*
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+              - kms:Describe*
+            Resource: "*"
+            Condition:
+              ArnEquals:
+                kms:EncryptionContext:aws:logs:arn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/kinesisfirehose/*"
   CloudWatchKMSKeyAlias:
     Type: "AWS::KMS::Alias"
     Properties:
