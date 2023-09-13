@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Sandbox",
   "main": "sandbox.js",
-  "author": "SAM CLI",
+  "author": "NHS Digital",
   "license": "MIT",
   "scripts": {
     "unit": "jest --coverage",
