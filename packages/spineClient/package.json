@@ -11,8 +11,8 @@
     "check-licenses": "license-checker --failOn GPL --failOn LGPL --start ../..",
     "compile": "tsc"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "NHS Digital",
+  "license": "MIT",
   "dependencies": {
     "@aws-lambda-powertools/logger": "^1.11.0",
     "axios": "^1.4.0"

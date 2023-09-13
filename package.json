@@ -2,20 +2,17 @@
   "name": "prescriptionsforpatients-monorepo",
   "version": "1.0.0",
   "description": "![Build](https://github.com/NHSDigital/prescriptionsforpatients/workflows/Build/badge.svg?branch=main)",
-  "main": "index.js",
-  "directories": {
-    "example": "examples"
-  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "check-licenses": "node_modules/.bin/license-checker --failOn GPL --failOn LGPL"
   },
   "repository": {
     "type": "git",
-    "url": "github-work:NHSDigital/prescriptionsforpatients.git"
+    "url": "https://github.com/NHSDigital/prescriptionsforpatients"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "NHS Digital",
+  "license": "MIT",
   "workspaces": [
     "packages/capabilityStatement",
     "packages/getMyPrescriptions",
@@ -26,7 +23,6 @@
     "packages/spineClient",
     "packages/common/testing"
   ],
-  "private": true,
   "devDependencies": {
     "@types/aws-lambda": "^8.10.119",
     "@types/jest": "^29.5.2",

@@ -10,13 +10,13 @@ authors = [
     "Anthony Brown <anthony.brown8@nhs.net>",
     "Matthew Popat <matthew.popat1@nhs.net>",
     "Chris Matus <chris.matus@nhs.net>",
-    "Taiye Ogunnigbo <taiye.ogunnigbo2@nhs.net>",
     "Phil Gee <phil.gee@nhs.net>",
     "Kris Szlapa <kris.szlapa1@nhs.net>",
-    "Seun Akinbode <seun.akinbode1@nhs.net>",
     "Jack Spagnoli <jack.spagnoli1@nhs.net>",
     "Tom Smith <tom.smith24@nhs.net>",
-    "Segun Ake <segun.ake1@nhs.net>"
+    "Adam Brown <adam.brown41@nhs.net>",
+    "Sean Steberis <sean.steberis2@nhs.net>",
+    "Kate.Bobyn <kate.bobyn2@nhs.net>"
 ]
 readme = "README.md"
 repository = "https://github.com/NHSDigital/prescriptionsforpatients"
@@ -27,7 +27,7 @@ pyyaml = "^5.2"
 docopt = "^0.6.2"
 jsonpath-rw = "^1.4.0"
 semver = "^2.9.0"
-gitpython = "^3.1.33"
+gitpython = "^3.1.36"
 requests = "^2.31.0"
 boto3 = "^1.17.41"
 argparse = "^1.4.0"
