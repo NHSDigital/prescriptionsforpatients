@@ -2,8 +2,8 @@
     "name": "@prescriptionsforpatients_common/testing",
     "version": "1.0.0",
     "description": "Common resources for testing prescriptionsforpatients",
-    "author": "",
-    "license": "ISC",
+    "author": "NHS Digital",
+    "license": "MIT",
     "main": "lib/src/index.js",
     "scripts": {
         "unit": "jest",

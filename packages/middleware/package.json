@@ -4,6 +4,7 @@
   "description": "Adaptation of Middy middleware to return FHIR compliant error messages",
   "main": "src/index.js",
   "license": "MIT",
+  "author": "NHS Digital",
   "scripts": {
     "build": "tsc --build --clean ./tsconfig.json",
     "lint": "eslint . --fix",

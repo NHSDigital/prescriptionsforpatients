@@ -147,9 +147,23 @@ deep-clean: clean
 	rm -rf .venv
 	find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +
 
-check-licenses:
+check-licenses: check-licenses-node check-licenses-python check-licenses-go
+
+check-licenses-node:
+	npm run check-licenses
 	npm run check-licenses --workspace packages/getMyPrescriptions
+	npm run check-licenses --workspace packages/capabilityStatement
+	npm run check-licenses --workspace packages/sandbox
+	npm run check-licenses --workspace packages/middleware
+	npm run check-licenses --workspace packages/splunkProcessor
+	npm run check-licenses --workspace packages/statusLambda
+	npm run check-licenses --workspace packages/spineClient
+
+check-licenses-python:
 	scripts/check_python_licenses.sh
+
+check-licenses-go:
+	cd packages/getSecretLayer && ./check_licence.sh
 
 aws-configure:
 	aws configure sso --region eu-west-2

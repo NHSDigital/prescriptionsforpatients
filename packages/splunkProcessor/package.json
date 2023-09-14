@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Processor lambda for converting cloudwatch logs to splunk",
   "main": "splunkProcessor.js",
-  "author": "SAM CLI",
+  "author": "NHS Digital",
   "license": "MIT",
   "scripts": {
     "test": "jest --coverage",

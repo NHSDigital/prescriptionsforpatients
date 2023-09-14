@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Lambda of the _status endpoint",
   "main": "statusLambda.js",
-  "author": "SAM CLI",
+  "author": "NHS Digital",
   "license": "MIT",
   "scripts": {
     "unit": "jest",
