@@ -10,11 +10,16 @@ repos:
 
       - id: check-shebang-scripts-are-executable
         name: Check shell scripts are executable
-        types: [bash, shell]
+        files: \.(sh)$
 
       - id: check-yaml
         name: Check pipelines configuration
-        files: ^(azure|packages\/tool\/azure)
+        files: ^(.github)
+
+  - repo: https://github.com/pycqa/flake8
+    rev: "7ef0350a439c93166bc8ba89fcc3de6a9a664e6c" # release 6.1.0
+    hooks:
+      - id: flake8
 
   - repo: local
     hooks:
@@ -78,6 +83,15 @@ repos:
         args: ["run", "--prefix=packages/spineClient", "lint"]
         language: system
         files: ^packages\/spineClient
+        types_or: [ts, tsx, javascript, jsx, json]
+        pass_filenames: false
+
+      - id: lint-common-testing
+        name: Lint common testing
+        entry: npm
+        args: ["run", "--prefix=packages/common/testing", "lint"]
+        language: system
+        files: ^packages\/common\/testing
         types_or: [ts, tsx, javascript, jsx, json]
         pass_filenames: false
 

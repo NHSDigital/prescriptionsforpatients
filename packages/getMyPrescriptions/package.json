@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Get my prescriptions",
   "main": "getMyPrescriptions.js",
-  "author": "SAM CLI",
+  "author": "NHS Digital",
   "license": "MIT",
   "type": "module",
   "scripts": {
