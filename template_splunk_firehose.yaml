@@ -53,7 +53,8 @@ Resources:
                 kms:EncryptionContext:aws:logs:arn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
           - Sid: Allow Firehose Logging
             Effect: Allow
-            Principal: "*"
+            Principal:
+              Service: !Sub "logs.${AWS::Region}.amazonaws.com"
             Action:
               - kms:Encrypt*
               - kms:Decrypt*
