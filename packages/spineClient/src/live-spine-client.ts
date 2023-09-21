@@ -116,4 +116,13 @@ export class LiveSpineClient implements SpineClient {
       return serviceHealthCheck(process.env.healthCheckUrl, logger, new Agent())
     }
   }
+
+  async isCertificateConfigured(): Promise<boolean> {
+    // Check if the required certificate-related environment variables are defined
+    return (
+      process.env.SpinePublicCertificate !== undefined &&
+      process.env.SpinePrivateKey !== undefined &&
+      process.env.SpineCAChain !== undefined
+    )
+  }
 }
