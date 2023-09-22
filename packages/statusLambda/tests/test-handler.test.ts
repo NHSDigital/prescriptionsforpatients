@@ -1,4 +1,4 @@
-import {APIGatewayProxyResult} from "aws-lambda"
+import {APIGatewayProxyResult, APIGatewayProxyEventHeaders} from "aws-lambda"
 import {handler} from "../src/statusLambda"
 import {expect, describe, it} from "@jest/globals"
 import {ContextExamples} from "@aws-lambda-powertools/commons"
@@ -6,10 +6,43 @@ import {Logger} from "@aws-lambda-powertools/logger"
 import MockAdapter from "axios-mock-adapter"
 import axios from "axios"
 import {mockAPIGatewayProxyEvent} from "@prescriptionsforpatients_common/testing"
+import * as SpineClientModule from "@prescriptionsforpatients/spineClient"
+import {AxiosResponse} from "axios"
+import {StatusCheckResponse} from "../../spineClient/lib/src/status"
 
 const mock = new MockAdapter(axios)
 
 const dummyContext = ContextExamples.helloworldContext
+
+class MockSpineClient {
+  private axiosMock: MockAdapter
+
+  constructor() {
+    const axiosInstance = axios.create()
+    this.axiosMock = new MockAdapter(axiosInstance)
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async getStatus(logger: Logger): Promise<StatusCheckResponse> {
+    return {
+      status: "pass",
+      timeout: "false",
+      responseCode: 200
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async getPrescriptions(inboundHeaders: APIGatewayProxyEventHeaders, logger: Logger): Promise<AxiosResponse> {
+    this.axiosMock.onGet("/_status").reply(200, {
+      data: {}
+    })
+    return axios.get("/_status")
+  }
+
+  async isCertificateConfigured(): Promise<boolean> {
+    return true
+  }
+}
 
 describe("Unit test for status check", function () {
   afterEach(() => {
@@ -76,7 +109,7 @@ describe("Unit test for status check", function () {
     })
   })
 
-  it("returns success when spine check succeeds", async () => {
+  it("returns success when spine check succeeds and the certificate is not configured", async () => {
     mock.onGet("https://live/healthcheck").reply(200, {})
     process.env.TargetSpineServer = "live"
 
@@ -87,10 +120,42 @@ describe("Unit test for status check", function () {
 
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
+    expect(result_body.message).toEqual("Spine certificate is not configured")
     expect(result_body.status).toEqual("pass")
     expect(result_body.spineStatus.status).toEqual("pass")
     expect(result_body.spineStatus.timeout).toEqual("false")
     expect(result_body.spineStatus.responseCode).toEqual(200)
+  })
+
+  it("returns success when spine check succeeds and the certificate is configured", async () => {
+    mock.onGet("https://live/healthcheck").reply(200, {})
+    process.env.TargetSpineServer = "live"
+
+    const mockSpineClient = new MockSpineClient()
+
+    jest.spyOn(mockSpineClient, "isCertificateConfigured").mockResolvedValue(true)
+
+    const createSpineClientSpy = jest.spyOn(SpineClientModule, "createSpineClient")
+    createSpineClientSpy.mockReturnValue(mockSpineClient)
+
+    const result: APIGatewayProxyResult = (await handler(
+      mockAPIGatewayProxyEvent,
+      dummyContext
+    )) as APIGatewayProxyResult
+
+    expect(result.statusCode).toEqual(200)
+    const result_body = JSON.parse(result.body)
+
+    // Expect that the message property is undefined when the certificate is configured
+    expect(result_body.message).toBeUndefined()
+
+    expect(result_body.status).toEqual("pass")
+    expect(result_body.spineStatus.status).toEqual("pass")
+    expect(result_body.spineStatus.timeout).toEqual("false")
+    expect(result_body.spineStatus.responseCode).toEqual(200)
+
+    // Restore the original createSpineClient function
+    createSpineClientSpy.mockRestore()
   })
 
   it("returns failure when spine check fails", async () => {
@@ -104,6 +169,7 @@ describe("Unit test for status check", function () {
 
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
+    expect(result_body.message).toEqual("Spine certificate is not configured")
     expect(result_body.status).toEqual("error")
     expect(result_body.spineStatus.status).toEqual("error")
     expect(result_body.spineStatus.timeout).toEqual("false")
@@ -121,6 +187,7 @@ describe("Unit test for status check", function () {
 
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
+    expect(result_body.message).toEqual("Spine certificate is not configured")
     expect(result_body.status).toEqual("error")
     expect(result_body.spineStatus.status).toEqual("error")
     expect(result_body.spineStatus.timeout).toEqual("false")
@@ -138,6 +205,7 @@ describe("Unit test for status check", function () {
 
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
+    expect(result_body.message).toEqual("Spine certificate is not configured")
     expect(result_body.status).toEqual("error")
     expect(result_body.spineStatus.status).toEqual("error")
     expect(result_body.spineStatus.timeout).toEqual("true")

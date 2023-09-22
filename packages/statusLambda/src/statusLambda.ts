@@ -3,7 +3,16 @@ import {Logger, injectLambdaContext} from "@aws-lambda-powertools/logger"
 import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
 import errorHandler from "@prescriptionsforpatients/middleware"
-import {createSpineClient} from "@prescriptionsforpatients/spineClient"
+import {createSpineClient, StatusCheckResponse} from "@prescriptionsforpatients/spineClient"
+
+// Define a type for the response body
+interface ResponseBody {
+  commitId: string | undefined
+  versionNumber: string | undefined
+  status: string
+  spineStatus: StatusCheckResponse
+  message?: string // Optional message property
+}
 
 const logger = new Logger({serviceName: "status"})
 
@@ -31,33 +40,30 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
 
   const spineClient = createSpineClient()
 
-  // Check if the Spine certificate is configured
-  if (!spineClient.isCertificateConfigured()) {
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        message: "Spine certificate is not configured"
-      }),
-      headers: {
-        "Content-Type": "application/health+json",
-        "Cache-Control": "no-cache"
-      }
-    }
-  }
-
   const spineStatus = await spineClient.getStatus(logger)
 
   const commitId = process.env.COMMIT_ID
   const versionNumber = process.env.VERSION_NUMBER
 
+  // Check if the Spine certificate is configured
+  const isCertificateConfigured = await spineClient.isCertificateConfigured()
+
+  // Define the response body
+  const responseBody: ResponseBody = {
+    commitId: commitId,
+    versionNumber: versionNumber,
+    status: spineStatus.status,
+    spineStatus: spineStatus
+  }
+
+  // Add a message if the Spine certificate is not configured
+  if (!isCertificateConfigured) {
+    responseBody.message = "Spine certificate is not configured"
+  }
+
   return {
     statusCode: 200,
-    body: JSON.stringify({
-      commitId: commitId,
-      versionNumber: versionNumber,
-      status: spineStatus.status,
-      spineStatus: spineStatus
-    }),
+    body: JSON.stringify(responseBody),
     headers: {
       "Content-Type": "application/health+json",
       "Cache-Control": "no-cache"
