@@ -56,8 +56,8 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     spineStatus: spineStatus
   }
 
-  // Add a message if the Spine certificate is not configured
-  if (!isCertificateConfigured) {
+  // Add a message if the Spine certificate is not configured and Spine check not fails
+  if (!isCertificateConfigured && spineStatus.responseCode !== 500) {
     responseBody.message = "Spine certificate is not configured"
   }
 

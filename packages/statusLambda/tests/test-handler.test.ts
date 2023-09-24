@@ -133,8 +133,10 @@ describe("Unit test for status check", function () {
 
     const mockSpineClient = new MockSpineClient()
 
+    // Spy on the isCertificateConfigured method to return true
     jest.spyOn(mockSpineClient, "isCertificateConfigured").mockResolvedValue(true)
 
+    // Mock the @prescriptionsforpatients/spineClient module to return the mock SpineClient
     const createSpineClientSpy = jest.spyOn(SpineClientModule, "createSpineClient")
     createSpineClientSpy.mockReturnValue(mockSpineClient)
 
@@ -146,8 +148,8 @@ describe("Unit test for status check", function () {
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
 
-    // Expect that the message property is undefined when the certificate is configured
-    expect(result_body.message).toBeUndefined()
+    // Expect that the message property does not exist in the response
+    expect(result_body).not.toHaveProperty("message")
 
     expect(result_body.status).toEqual("pass")
     expect(result_body.spineStatus.status).toEqual("pass")
@@ -169,7 +171,10 @@ describe("Unit test for status check", function () {
 
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
-    expect(result_body.message).toEqual("Spine certificate is not configured")
+
+    // Expect that the message property does not exist in the response
+    expect(result_body).not.toHaveProperty("message")
+
     expect(result_body.status).toEqual("error")
     expect(result_body.spineStatus.status).toEqual("error")
     expect(result_body.spineStatus.timeout).toEqual("false")
@@ -187,7 +192,10 @@ describe("Unit test for status check", function () {
 
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
-    expect(result_body.message).toEqual("Spine certificate is not configured")
+
+    // Expect that the message property does not exist in the response
+    expect(result_body).not.toHaveProperty("message")
+
     expect(result_body.status).toEqual("error")
     expect(result_body.spineStatus.status).toEqual("error")
     expect(result_body.spineStatus.timeout).toEqual("false")
@@ -205,7 +213,10 @@ describe("Unit test for status check", function () {
 
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
-    expect(result_body.message).toEqual("Spine certificate is not configured")
+
+    // Expect that the message property does not exist in the response
+    expect(result_body).not.toHaveProperty("message")
+
     expect(result_body.status).toEqual("error")
     expect(result_body.spineStatus.status).toEqual("error")
     expect(result_body.spineStatus.timeout).toEqual("true")
