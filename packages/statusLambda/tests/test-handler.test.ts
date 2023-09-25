@@ -78,7 +78,7 @@ describe("Unit test for status check", function () {
     })
   })
 
-  it("certificate is always configured", async () => {
+  it("checks if the certificate is always configured for the sandbox", async () => {
     process.env.TargetSpineServer = "sandbox"
     process.env.SpinePublicCertificate = "ChangeMe"
     process.env.SpinePrivateKey = "ChangeMe"
