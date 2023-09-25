@@ -12,7 +12,9 @@ const mock = new MockAdapter(axios)
 const dummyContext = ContextExamples.helloworldContext
 
 describe("Unit test for status check", function () {
+  let originalEnv: {[key: string]: string | undefined}
   afterEach(() => {
+    process.env = {...originalEnv}
     mock.reset()
   })
 
@@ -74,6 +76,22 @@ describe("Unit test for status check", function () {
     expect(headers).toMatchObject({
       "Cache-Control": "no-cache"
     })
+  })
+
+  it("certificate is always configured", async () => {
+    process.env.TargetSpineServer = "sandbox"
+    process.env.SpinePublicCertificate = "ChangeMe"
+    process.env.SpinePrivateKey = "ChangeMe"
+    process.env.SpineCAChain = "ChangeMe"
+
+    const result: APIGatewayProxyResult = (await handler(
+      mockAPIGatewayProxyEvent,
+      dummyContext
+    )) as APIGatewayProxyResult
+
+    expect(result.statusCode).toEqual(200)
+    const result_body = JSON.parse(result.body)
+    expect(result_body).not.toHaveProperty("message")
   })
 
   it("returns success when spine check succeeds", async () => {
