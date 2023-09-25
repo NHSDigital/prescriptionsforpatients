@@ -182,9 +182,6 @@ describe("Unit test for status check", function () {
   it("returns failure when Spine check fails and the certificate is configured", async () => {
     mock.onGet("https://live/healthcheck").reply(500, {})
     process.env.TargetSpineServer = "live"
-    process.env.SpinePublicCertificate = "noChangeMe"
-    process.env.SpinePrivateKey = "noChangeMe"
-    process.env.SpineCAChain = "noChangeMe"
 
     const result: APIGatewayProxyResult = (await handler(
       mockAPIGatewayProxyEvent,
