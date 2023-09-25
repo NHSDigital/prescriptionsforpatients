@@ -11,8 +11,6 @@ export interface SpineClient {
   isCertificateConfigured(): Promise<boolean>
 }
 
-export {StatusCheckResponse}
-
 export function createSpineClient(): SpineClient {
   const liveMode = process.env.TargetSpineServer !== "sandbox"
   if (liveMode) {
