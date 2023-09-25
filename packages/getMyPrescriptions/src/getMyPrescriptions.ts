@@ -33,6 +33,36 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
   const spineClient = createSpineClient()
 
   try {
+    const isCertificateConfigured = await spineClient.isCertificateConfigured()
+    if (!isCertificateConfigured) {
+      const errorResponseBody = {
+        resourceType: "OperationOutcome",
+        issue: [
+          {
+            code: "security",
+            severity: "fatal",
+            details: {
+              coding: [
+                {
+                  system: "https://fhir.nhs.uk/CodeSystem/http-error-codes",
+                  code: "SERVER_ERROR",
+                  display: "500: The Server has encountered an error processing the request."
+                }
+              ]
+            },
+            diagnostics: "Spine certificate is not configured"
+          }
+        ]
+      }
+      return {
+        statusCode: 500,
+        body: JSON.stringify(errorResponseBody),
+        headers: {
+          "Content-Type": "application/fhir+json",
+          "Cache-Control": "no-cache"
+        }
+      }
+    }
     const returnData = await spineClient.getPrescriptions(event.headers, logger)
     const resBody = returnData.data
     resBody.id = xRequestId

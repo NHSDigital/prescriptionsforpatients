@@ -51,6 +51,26 @@ const responseStatus500 = {
   ]
 }
 
+const responseNotConfCertStatus500 = {
+  resourceType: "OperationOutcome",
+  issue: [
+    {
+      code: "security",
+      severity: "fatal",
+      details: {
+        coding: [
+          {
+            system: "https://fhir.nhs.uk/CodeSystem/http-error-codes",
+            code: "SERVER_ERROR",
+            display: "500: The Server has encountered an error processing the request."
+          }
+        ]
+      },
+      diagnostics: "Spine certificate is not configured"
+    }
+  ]
+}
+
 type spineFailureTestData = {
   httpResponseCode: number
   spineStatusCode: string
@@ -209,6 +229,23 @@ describe("Unit test for app handler", function () {
       "Cache-Control": "no-cache"
     })
     expect(JSON.parse(result.body)).toEqual(responseStatus500)
+  })
+
+  it("return error when the certificate is not configured", async () => {
+    process.env.SpinePublicCertificate = "ChangeMe"
+    process.env.SpinePrivateKey = "ChangeMe"
+    process.env.SpineCAChain = "ChangeMe"
+
+    mock.onGet("https://live/mm/patientfacingprescriptions").reply(500, {resourceType: "Bundle"})
+    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+    const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
+
+    expect(result.statusCode).toBe(500)
+    expect(result.headers).toEqual({
+      "Content-Type": "application/fhir+json",
+      "Cache-Control": "no-cache"
+    })
+    expect(JSON.parse(result.body)).toEqual(responseNotConfCertStatus500)
   })
 })
 
