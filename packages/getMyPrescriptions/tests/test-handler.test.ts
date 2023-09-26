@@ -238,7 +238,7 @@ describe("Unit test for app handler", function () {
 
     mock.onGet("https://live/mm/patientfacingprescriptions").reply(500, {resourceType: "Bundle"})
     const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
-    const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
+    const result: APIGatewayProxyResult = await handler(event, dummyContext)
 
     expect(result.statusCode).toBe(500)
     expect(result.headers).toEqual({

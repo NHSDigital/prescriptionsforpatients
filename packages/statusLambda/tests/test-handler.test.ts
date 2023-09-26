@@ -84,10 +84,7 @@ describe("Unit test for status check", function () {
     process.env.SpinePrivateKey = "ChangeMe"
     process.env.SpineCAChain = "ChangeMe"
 
-    const result: APIGatewayProxyResult = (await handler(
-      mockAPIGatewayProxyEvent,
-      dummyContext
-    )) as APIGatewayProxyResult
+    const result: APIGatewayProxyResult = await handler(mockAPIGatewayProxyEvent, dummyContext)
 
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
@@ -169,10 +166,7 @@ describe("Unit test for status check", function () {
     process.env.SpinePrivateKey = "ChangeMe"
     process.env.SpineCAChain = "ChangeMe"
 
-    const result: APIGatewayProxyResult = (await handler(
-      mockAPIGatewayProxyEvent,
-      dummyContext
-    )) as APIGatewayProxyResult
+    const result: APIGatewayProxyResult = await handler(mockAPIGatewayProxyEvent, dummyContext)
 
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
@@ -184,10 +178,7 @@ describe("Unit test for status check", function () {
     process.env.TargetSpineServer = "live"
     process.env.SpinePublicCertificate = "ChangeMe"
 
-    const result: APIGatewayProxyResult = (await handler(
-      mockAPIGatewayProxyEvent,
-      dummyContext
-    )) as APIGatewayProxyResult
+    const result: APIGatewayProxyResult = await handler(mockAPIGatewayProxyEvent, dummyContext)
 
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
@@ -199,10 +190,7 @@ describe("Unit test for status check", function () {
     process.env.TargetSpineServer = "live"
     process.env.SpinePrivateKey = "ChangeMe"
 
-    const result: APIGatewayProxyResult = (await handler(
-      mockAPIGatewayProxyEvent,
-      dummyContext
-    )) as APIGatewayProxyResult
+    const result: APIGatewayProxyResult = await handler(mockAPIGatewayProxyEvent, dummyContext)
 
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
@@ -214,10 +202,7 @@ describe("Unit test for status check", function () {
     process.env.TargetSpineServer = "live"
     process.env.SpineCAChain = "ChangeMe"
 
-    const result: APIGatewayProxyResult = (await handler(
-      mockAPIGatewayProxyEvent,
-      dummyContext
-    )) as APIGatewayProxyResult
+    const result: APIGatewayProxyResult = await handler(mockAPIGatewayProxyEvent, dummyContext)
 
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
@@ -228,10 +213,7 @@ describe("Unit test for status check", function () {
     mock.onGet("https://live/healthcheck").reply(500, {})
     process.env.TargetSpineServer = "live"
 
-    const result: APIGatewayProxyResult = (await handler(
-      mockAPIGatewayProxyEvent,
-      dummyContext
-    )) as APIGatewayProxyResult
+    const result: APIGatewayProxyResult = await handler(mockAPIGatewayProxyEvent, dummyContext)
 
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
