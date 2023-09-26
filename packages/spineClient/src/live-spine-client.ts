@@ -117,11 +117,11 @@ export class LiveSpineClient implements SpineClient {
     }
   }
 
-  async isCertificateConfigured(): Promise<boolean> {
+  isCertificateConfigured(): boolean {
     // Check if the required certificate-related environment variables are defined
     return (
-      process.env.SpinePublicCertificate !== "ChangeMe" ||
-      process.env.SpinePrivateKey !== "ChangeMe" ||
+      process.env.SpinePublicCertificate !== "ChangeMe" &&
+      process.env.SpinePrivateKey !== "ChangeMe" &&
       process.env.SpineCAChain !== "ChangeMe"
     )
   }
