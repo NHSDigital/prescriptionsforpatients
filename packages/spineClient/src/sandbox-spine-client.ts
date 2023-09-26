@@ -16,7 +16,7 @@ export class SandboxSpineClient implements SpineClient {
     throw new Error("INTERACTION_NOT_SUPPORTED_BY_SANDBOX")
   }
 
-  async isCertificateConfigured(): Promise<boolean> {
+  isCertificateConfigured(): boolean {
     // In the sandbox environment, assume the certificate is always configured
     return true
   }

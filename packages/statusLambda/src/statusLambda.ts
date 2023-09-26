@@ -34,7 +34,7 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
   const commitId = process.env.COMMIT_ID
   const versionNumber = process.env.VERSION_NUMBER
 
-  const isCertificateConfigured = await spineClient.isCertificateConfigured()
+  const isCertificateConfigured = spineClient.isCertificateConfigured()
 
   if (!isCertificateConfigured) {
     return {

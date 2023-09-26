@@ -33,7 +33,7 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
   const spineClient = createSpineClient()
 
   try {
-    const isCertificateConfigured = await spineClient.isCertificateConfigured()
+    const isCertificateConfigured = spineClient.isCertificateConfigured()
     if (!isCertificateConfigured) {
       const errorResponseBody = {
         resourceType: "OperationOutcome",

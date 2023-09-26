@@ -179,6 +179,51 @@ describe("Unit test for status check", function () {
     expect(result_body.message).toEqual("Spine certificate is not configured")
   })
 
+  it("returns success when Spine check succeeds without SpinePublicCertificate", async () => {
+    mock.onGet("https://live/healthcheck").reply(200, {})
+    process.env.TargetSpineServer = "live"
+    process.env.SpinePublicCertificate = "ChangeMe"
+
+    const result: APIGatewayProxyResult = (await handler(
+      mockAPIGatewayProxyEvent,
+      dummyContext
+    )) as APIGatewayProxyResult
+
+    expect(result.statusCode).toEqual(200)
+    const result_body = JSON.parse(result.body)
+    expect(result_body.message).toEqual("Spine certificate is not configured")
+  })
+
+  it("returns success when Spine check succeeds without SpinePrivateKey", async () => {
+    mock.onGet("https://live/healthcheck").reply(200, {})
+    process.env.TargetSpineServer = "live"
+    process.env.SpinePrivateKey = "ChangeMe"
+
+    const result: APIGatewayProxyResult = (await handler(
+      mockAPIGatewayProxyEvent,
+      dummyContext
+    )) as APIGatewayProxyResult
+
+    expect(result.statusCode).toEqual(200)
+    const result_body = JSON.parse(result.body)
+    expect(result_body.message).toEqual("Spine certificate is not configured")
+  })
+
+  it("returns success when Spine check succeeds without SpineCAChain", async () => {
+    mock.onGet("https://live/healthcheck").reply(200, {})
+    process.env.TargetSpineServer = "live"
+    process.env.SpineCAChain = "ChangeMe"
+
+    const result: APIGatewayProxyResult = (await handler(
+      mockAPIGatewayProxyEvent,
+      dummyContext
+    )) as APIGatewayProxyResult
+
+    expect(result.statusCode).toEqual(200)
+    const result_body = JSON.parse(result.body)
+    expect(result_body.message).toEqual("Spine certificate is not configured")
+  })
+
   it("returns failure when Spine check fails and the certificate is configured", async () => {
     mock.onGet("https://live/healthcheck").reply(500, {})
     process.env.TargetSpineServer = "live"
