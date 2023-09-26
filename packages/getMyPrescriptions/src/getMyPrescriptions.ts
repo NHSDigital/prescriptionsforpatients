@@ -92,3 +92,5 @@ export const handler = middy(lambdaHandler)
     })
   )
   .use(errorHandler({logger}))
+
+// Add test comment
