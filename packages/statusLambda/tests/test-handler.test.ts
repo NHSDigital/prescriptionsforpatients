@@ -170,6 +170,7 @@ describe("Unit test for status check", function () {
 
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
+    expect(result_body.status).toEqual("pass")
     expect(result_body.message).toEqual("Spine certificate is not configured")
   })
 
@@ -182,6 +183,7 @@ describe("Unit test for status check", function () {
 
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
+    expect(result_body.status).toEqual("pass")
     expect(result_body.message).toEqual("Spine certificate is not configured")
   })
 
@@ -194,6 +196,7 @@ describe("Unit test for status check", function () {
 
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
+    expect(result_body.status).toEqual("pass")
     expect(result_body.message).toEqual("Spine certificate is not configured")
   })
 
@@ -206,6 +209,7 @@ describe("Unit test for status check", function () {
 
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
+    expect(result_body.status).toEqual("pass")
     expect(result_body.message).toEqual("Spine certificate is not configured")
   })
 

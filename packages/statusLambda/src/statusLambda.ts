@@ -42,6 +42,7 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       body: JSON.stringify({
         commitId: commitId,
         versionNumber: versionNumber,
+        status: "pass",
         message: "Spine certificate is not configured"
       }),
       headers: {
