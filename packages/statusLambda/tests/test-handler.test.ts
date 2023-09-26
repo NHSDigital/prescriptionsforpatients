@@ -12,7 +12,9 @@ const mock = new MockAdapter(axios)
 const dummyContext = ContextExamples.helloworldContext
 
 describe("Unit test for status check", function () {
+  let originalEnv: {[key: string]: string | undefined}
   afterEach(() => {
+    process.env = {...originalEnv}
     mock.reset()
   })
 
@@ -74,6 +76,19 @@ describe("Unit test for status check", function () {
     expect(headers).toMatchObject({
       "Cache-Control": "no-cache"
     })
+  })
+
+  it("checks if the certificate is always configured for the sandbox", async () => {
+    process.env.TargetSpineServer = "sandbox"
+    process.env.SpinePublicCertificate = "ChangeMe"
+    process.env.SpinePrivateKey = "ChangeMe"
+    process.env.SpineCAChain = "ChangeMe"
+
+    const result: APIGatewayProxyResult = await handler(mockAPIGatewayProxyEvent, dummyContext)
+
+    expect(result.statusCode).toEqual(200)
+    const result_body = JSON.parse(result.body)
+    expect(result_body).not.toHaveProperty("message")
   })
 
   it("returns success when spine check succeeds", async () => {
@@ -141,6 +156,75 @@ describe("Unit test for status check", function () {
     expect(result_body.status).toEqual("error")
     expect(result_body.spineStatus.status).toEqual("error")
     expect(result_body.spineStatus.timeout).toEqual("true")
+    expect(result_body.spineStatus.responseCode).toEqual(500)
+  })
+
+  it("returns success when Spine check succeeds and the certificate is not configured", async () => {
+    mock.onGet("https://live/healthcheck").reply(200, {})
+    process.env.TargetSpineServer = "live"
+    process.env.SpinePublicCertificate = "ChangeMe"
+    process.env.SpinePrivateKey = "ChangeMe"
+    process.env.SpineCAChain = "ChangeMe"
+
+    const result: APIGatewayProxyResult = await handler(mockAPIGatewayProxyEvent, dummyContext)
+
+    expect(result.statusCode).toEqual(200)
+    const result_body = JSON.parse(result.body)
+    expect(result_body.status).toEqual("pass")
+    expect(result_body.message).toEqual("Spine certificate is not configured")
+  })
+
+  it("returns success when Spine check succeeds without SpinePublicCertificate", async () => {
+    mock.onGet("https://live/healthcheck").reply(200, {})
+    process.env.TargetSpineServer = "live"
+    process.env.SpinePublicCertificate = "ChangeMe"
+
+    const result: APIGatewayProxyResult = await handler(mockAPIGatewayProxyEvent, dummyContext)
+
+    expect(result.statusCode).toEqual(200)
+    const result_body = JSON.parse(result.body)
+    expect(result_body.status).toEqual("pass")
+    expect(result_body.message).toEqual("Spine certificate is not configured")
+  })
+
+  it("returns success when Spine check succeeds without SpinePrivateKey", async () => {
+    mock.onGet("https://live/healthcheck").reply(200, {})
+    process.env.TargetSpineServer = "live"
+    process.env.SpinePrivateKey = "ChangeMe"
+
+    const result: APIGatewayProxyResult = await handler(mockAPIGatewayProxyEvent, dummyContext)
+
+    expect(result.statusCode).toEqual(200)
+    const result_body = JSON.parse(result.body)
+    expect(result_body.status).toEqual("pass")
+    expect(result_body.message).toEqual("Spine certificate is not configured")
+  })
+
+  it("returns success when Spine check succeeds without SpineCAChain", async () => {
+    mock.onGet("https://live/healthcheck").reply(200, {})
+    process.env.TargetSpineServer = "live"
+    process.env.SpineCAChain = "ChangeMe"
+
+    const result: APIGatewayProxyResult = await handler(mockAPIGatewayProxyEvent, dummyContext)
+
+    expect(result.statusCode).toEqual(200)
+    const result_body = JSON.parse(result.body)
+    expect(result_body.status).toEqual("pass")
+    expect(result_body.message).toEqual("Spine certificate is not configured")
+  })
+
+  it("returns failure when Spine check fails and the certificate is configured", async () => {
+    mock.onGet("https://live/healthcheck").reply(500, {})
+    process.env.TargetSpineServer = "live"
+
+    const result: APIGatewayProxyResult = await handler(mockAPIGatewayProxyEvent, dummyContext)
+
+    expect(result.statusCode).toEqual(200)
+    const result_body = JSON.parse(result.body)
+    expect(result_body).not.toHaveProperty("message")
+    expect(result_body.status).toEqual("error")
+    expect(result_body.spineStatus.status).toEqual("error")
+    expect(result_body.spineStatus.timeout).toEqual("false")
     expect(result_body.spineStatus.responseCode).toEqual(500)
   })
 })

@@ -31,10 +31,28 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
 
   const spineClient = createSpineClient()
 
-  const spineStatus = await spineClient.getStatus(logger)
-
   const commitId = process.env.COMMIT_ID
   const versionNumber = process.env.VERSION_NUMBER
+
+  const isCertificateConfigured = spineClient.isCertificateConfigured()
+
+  if (!isCertificateConfigured) {
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        commitId: commitId,
+        versionNumber: versionNumber,
+        status: "pass",
+        message: "Spine certificate is not configured"
+      }),
+      headers: {
+        "Content-Type": "application/health+json",
+        "Cache-Control": "no-cache"
+      }
+    }
+  }
+
+  const spineStatus = await spineClient.getStatus(logger)
 
   return {
     statusCode: 200,

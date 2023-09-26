@@ -103,5 +103,13 @@ repos:
         files: ^packages\/getSecretLayer
         pass_filenames: false
 
+      - id: lint-cloudformation
+        name: Lint cloudformation
+        entry: make
+        args: ["lint-cloudformation"]
+        language: system
+        files: ^cloudformation
+        pass_filenames: false
+
 fail_fast: true
 default_stages: [commit]

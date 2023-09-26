@@ -8,6 +8,16 @@ To bootstrap an account, you should run through the following in order
 - [Route 53 resources - management account](#route-53-resources---management-account)
 - Run the script in privateCA folder to create mutual TLS keys
 
+# Linting
+
+You can run this from the root directory
+
+```
+make lint-cloudformation
+```
+
+to run [cfn-lint](https://github.com/aws-cloudformation/cfn-lint) against the cloudformation files. This is also run as a pre-commit hook and as part of the CI build
+
 # CI Resources
 
 ci_resources.yml contains resources that are needed for the CI pipeline to work. This should be applied to each environment.  
@@ -18,6 +28,8 @@ It creates the following resources
 - Cloudformation execution role - cloudformation uses this role when applying a changeset. This has minimum permissions so if a new resource type is added, the permissions will need modifying
 - Artifact bucket and KMS key - resources used by CI build are uploaded to this bucket
 - Trust store bucket and KMS key - public CA certs used for mutual TLS are uploaded to this bucket
+- Splunk delivery stream bucket and KMS key - cloudwatch logs that can be delivered to splunk are put in here
+- Audit logging bucket - s3 access logs from artifact, trust store and splunk delivery stream buckets are sent to here
 - Secrets and KMS key - there are various secrets created for storing keys used in mutual TLS. These have a default value set, but the values are modified when creating new keys.
 - - CAKeySecret - used to store the private CA key
 - - CACertSecret - used to store the public CA cert
@@ -29,8 +41,9 @@ The stack deployed in each environment must be called `ci-resources` as the depl
 To deploy the stack, use the following
 
 ```
+make aws-login
 export AWS_PROFILE=<name of AWS profile defined in ~/.aws/config>
-aws sso login --sso-session sso-session
+
 
 aws cloudformation deploy \
           --template-file cloudformation/ci_resources.yml \
@@ -63,8 +76,8 @@ The stack deployed in each environment must be called `account-resources` as the
 To deploy the stack, use the following
 
 ```
+make aws-login
 export AWS_PROFILE=<name of AWS profile defined in ~/.aws/config>
-aws sso login --sso-session sso-session
 
 aws cloudformation deploy \
           --template-file cloudformation/account_resources.yml \
@@ -88,8 +101,8 @@ It outputs the following as exports as they are used in SAM deployments
 To deploy the stack, use the following
 
 ```
+make aws-login
 export AWS_PROFILE=<name of AWS profile defined in ~/.aws/config>
-aws sso login --sso-session sso-session
 
 aws cloudformation deploy \
           --template-file cloudformation/environment_route53.yml \
@@ -111,8 +124,8 @@ It creates the following resources
 To deploy the stack, use the following
 
 ```
+make aws-login
 export AWS_PROFILE=prescription-management
-aws sso login --sso-session sso-session
 
 aws cloudformation deploy \
           --template-file cloudformation/management_route53.yml \
