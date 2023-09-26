@@ -8,6 +8,7 @@ import {AxiosResponse} from "axios"
 export interface SpineClient {
   getStatus(logger: Logger): Promise<StatusCheckResponse>
   getPrescriptions(inboundHeaders: APIGatewayProxyEventHeaders, logger: Logger): Promise<AxiosResponse>
+  isCertificateConfigured(): boolean
 }
 
 export function createSpineClient(): SpineClient {
