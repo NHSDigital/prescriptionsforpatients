@@ -94,6 +94,7 @@ Resources:
         SplunkDeliveryStream: !GetAtt SplunkFirehose.Outputs.SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
         LambdaName: !Sub "${AWS::StackName}-GetMyPrescriptions"
+        AccessToSpine: "true"
   GetMyPrescriptions:
     Type: AWS::Serverless::Function
     Properties:
@@ -170,6 +171,7 @@ Resources:
         SplunkDeliveryStream: !GetAtt SplunkFirehose.Outputs.SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
         LambdaName: !Sub "${AWS::StackName}-statusLambda"
+        AccessToSpine: "true"
   StatusLambda:
     Type: AWS::Serverless::Function
     Properties:

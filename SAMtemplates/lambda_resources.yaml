@@ -25,9 +25,15 @@ Parameters:
   LambdaName:
     Type: String
     Description: Name of lambda we are creating for
+  AccessToSpine:
+    Type: String
+    Description: Whether to use splunk
+    Default: false
+    AllowedValues: [true, false]
 
 Conditions:
   ShouldUseSplunk: !Equals [true, !Ref EnableSplunk]
+  AllowAccessToSpine: !Equals [true, !Ref AccessToSpine]
 
 Resources:
   LambdaRole:
@@ -88,9 +94,10 @@ Resources:
       Roles:
         - !Ref LambdaRole
   LambdaSecretsPolicy:
+    Condition: AllowAccessToSpine
     Type: "AWS::IAM::Policy"
     Properties:
-      PolicyName: "allow-secrets-access"
+      PolicyName: "allow-access-to-spine-secrets"
       PolicyDocument:
         Version: "2012-10-17"
         Statement:

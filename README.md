@@ -17,6 +17,7 @@ It is called by an Apigee proxy that is defined at https://github.com/NHSDigital
 - `postman/` Contains a postman collection for interacting with the API.
 - `scripts/` Utilities helpful to developers of this specification.
 - `cloudformation/` Contains cloudformation files used to create resources for CI builds and deployments
+- `SAMtemplates/` Contains the SAM templates used to define the stacks
 - `privateCA/` Contains script to create self signed CA certificate and a client certificate used for mutual TLS
 - `.github` Contains github workflows that are used for building and deploying from pull requests and releases
 - `.devcontainer` Contains a dockerfile and vscode devcontainer definition
@@ -75,6 +76,7 @@ Ensure you have the following lines in the file .envrc
 ```
 export AWS_DEFAULT_PROFILE=prescription-dev
 export stack_name=<UNIQUE_NAME_FOR_YOU>
+export TARGET_SPINE_SERVER=<NAME OF DEV TARGET SPINE SERVER>
 ```
 
 UNIQUE_NAME_FOR_YOU should be a unique name for you with no underscores in it - eg anthony-brown-1
@@ -119,32 +121,27 @@ make sam-sync
 This will take a few minutes to deploy - you will see something like this when deployment finishes
 
 ```
-CloudFormation outputs from deployed stack
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Outputs
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Key                 GetMyPrescriptionsFunctionIamRole
-Description         Implicit IAM Role created for the GetMyPrescriptions function
-Value               arn:aws:iam::591291862413:role/anthony-brown-1-GetMyPrescriptionsRole-11UP8H33K2UPT
-
-Key                 PrescriptionApi
-Description         API Gateway endpoint URL for Prod stage for the Main function
-Value               https://juzzbrgm97.execute-api.eu-west-2.amazonaws.com/Prod/
-
-Key                 GetMyPrescriptionsFunction
-Description         GetMyPrescriptions Lambda Function ARN
-Value               arn:aws:lambda:eu-west-2:591291862413:function:anthony-brown-1-GetMyPrescriptions-cLwkpIBkBDNN
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+......
+CloudFormation events from stack operations (refresh every 0.5 seconds)
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ResourceStatus                            ResourceType                              LogicalResourceId                         ResourceStatusReason
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+.....
+CREATE_IN_PROGRESS                        AWS::ApiGatewayV2::ApiMapping             HttpApiGatewayApiMapping                  -
+CREATE_IN_PROGRESS                        AWS::ApiGatewayV2::ApiMapping             HttpApiGatewayApiMapping                  Resource creation Initiated
+CREATE_COMPLETE                           AWS::ApiGatewayV2::ApiMapping             HttpApiGatewayApiMapping                  -
+CREATE_COMPLETE                           AWS::CloudFormation::Stack                ab-1                                      -
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-Stack update succeeded. Sync infra completed.
+Stack creation succeeded. Sync infra completed.
 ```
 
 Note - the command will keep running and should not be stopped.
-You can call the api using the prescription API from the output - eg
+You can now call this api - note getMyPrescriptions requires an nhsd-nhslogin-user header
 
 ```
-curl https://juzzbrgm97.execute-api.eu-west-2.amazonaws.com/Prod/getMyPrescriptions
+curl --header "nhsd-nhslogin-user: P9:9446041481" https://${stack_name}.dev.prescriptionsforpatients.national.nhs.uk/Bundle
 ```
 
 You can also use the AWS vscode extension to invoke the API or lambda directly
@@ -201,6 +198,7 @@ These are used to do common commands
 - `lint-node` runs lint for node code
 - `lint-go` runs lint for golang code
 - `lint-cloudformation` runs lint for cloudformation templates
+- `lint-samtemplates` runs lint for SAM templates
 - `test` runs unit tests for all code
 
 #### Compiling
