@@ -74,3 +74,18 @@ Resources:
           "ns-28.awsdns-03.com",
           "ns-1854.awsdns-39.co.uk",
         ]
+
+  nsProdHostedZoneRecordSet:
+    Type: "AWS::Route53::RecordSet"
+    Properties:
+      HostedZoneId: !Ref Zone
+      Name: !Join [".", ["prod", !Ref hostedZone, ""]]
+      Type: NS
+      TTL: "900"
+      ResourceRecords:
+        [
+          "ns-1239.awsdns-26.org",
+          "ns-827.awsdns-39.net",
+          "ns-409.awsdns-51.com",
+          "ns-1922.awsdns-48.co.uk",
+        ]
