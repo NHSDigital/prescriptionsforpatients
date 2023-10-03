@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  prescriptions api
+  prescriptions api sandbox template
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
@@ -60,76 +60,30 @@ Resources:
   SplunkFirehose:
     Type: AWS::Serverless::Application
     Properties:
-      Location: template_splunk_firehose.yaml
+      Location: splunk_firehose_resources.yaml
       Parameters:
         SplunkHECToken: !Ref SplunkHECToken
         SplunkHECEndpoint: !Ref SplunkHECEndpoint
         EnableSplunk: !Ref EnableSplunk
 
   # sandbox lambda
-  SandboxRole:
-    Type: "AWS::IAM::Role"
+  SandboxResources:
+    Type: AWS::Serverless::Application
     Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: "lambda.amazonaws.com"
-            Action: "sts:AssumeRole"
-  SandboxLambdaPolicy:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: "allow-lambda-logging"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - logs:CreateLogStream
-              - logs:PutLogEvents
-            Resource:
-              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${SandboxLogGroup}"
-              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${SandboxLogGroup}:log-stream:*"
-      Roles:
-        - !Ref SandboxRole
-  SandboxKMSPolicy:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: "allow-CloudWatchKMS-access"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - kms:DescribeKey
-              - kms:GenerateDataKey*
-              - kms:Encrypt
-              - kms:ReEncrypt*
-            Resource:
-              - !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
-      Roles:
-        - !Ref SandboxRole
-  SandboxLogGroup:
-    Type: "AWS::Logs::LogGroup"
-    Properties:
-      LogGroupName: !Sub "/aws/lambda/${Sandbox}"
-      RetentionInDays: 90
-      KmsKeyId: !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
-  SandboxSplunkSubscriptionFilter:
-    Condition: ShouldUseSplunk
-    Type: AWS::Logs::SubscriptionFilter
-    Properties:
-      RoleArn: !GetAtt SplunkFirehose.Outputs.SplunkSubscriptionFilterRole
-      LogGroupName: !Ref SandboxLogGroup
-      FilterPattern: "" # All logs
-      DestinationArn: !GetAtt SplunkFirehose.Outputs.SplunkDeliveryStream
+      Location: lambda_resources.yaml
+      Parameters:
+        CloudWatchKMSKey: !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
+        SplunkSubscriptionFilterRole: !GetAtt SplunkFirehose.Outputs.SplunkSubscriptionFilterRole
+        SplunkDeliveryStream: !GetAtt SplunkFirehose.Outputs.SplunkDeliveryStream
+        EnableSplunk: !Ref EnableSplunk
+        LambdaName: !Sub "${AWS::StackName}-Sandbox"
   Sandbox:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: packages
+      FunctionName: !Sub "${AWS::StackName}-Sandbox"
+      CodeUri: ../packages
       Handler: sandbox.handler
-      Role: !GetAtt SandboxRole.Arn
+      Role: !GetAtt SandboxResources.Outputs.LambdaRoleArn
       Events:
         sandbox:
           Type: HttpApi
@@ -148,69 +102,23 @@ Resources:
           - sandbox/src/sandbox.ts
 
   # capabilityStatement lambda
-  CapabilityStatementRole:
-    Type: "AWS::IAM::Role"
+  CapabilityStatementResources:
+    Type: AWS::Serverless::Application
     Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: "lambda.amazonaws.com"
-            Action: "sts:AssumeRole"
-  CapabilityStatementLambdaPolicy:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: "allow-lambda-logging"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - logs:CreateLogStream
-              - logs:PutLogEvents
-            Resource:
-              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${CapabilityStatementLogGroup}"
-              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${CapabilityStatementLogGroup}:log-stream:*"
-      Roles:
-        - !Ref CapabilityStatementRole
-  CapabilityStatementKMSPolicy:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: "allow-CloudWatchKMS-access"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - kms:DescribeKey
-              - kms:GenerateDataKey*
-              - kms:Encrypt
-              - kms:ReEncrypt*
-            Resource:
-              - !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
-      Roles:
-        - !Ref CapabilityStatementRole
-  CapabilityStatementLogGroup:
-    Type: "AWS::Logs::LogGroup"
-    Properties:
-      LogGroupName: !Sub "/aws/lambda/${CapabilityStatement}"
-      RetentionInDays: 90
-      KmsKeyId: !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
-  CapabilityStatementSplunkSubscriptionFilter:
-    Condition: ShouldUseSplunk
-    Type: AWS::Logs::SubscriptionFilter
-    Properties:
-      RoleArn: !GetAtt SplunkFirehose.Outputs.SplunkSubscriptionFilterRole
-      LogGroupName: !Ref CapabilityStatementLogGroup
-      FilterPattern: "" # All logs
-      DestinationArn: !GetAtt SplunkFirehose.Outputs.SplunkDeliveryStream
+      Location: lambda_resources.yaml
+      Parameters:
+        CloudWatchKMSKey: !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
+        SplunkSubscriptionFilterRole: !GetAtt SplunkFirehose.Outputs.SplunkSubscriptionFilterRole
+        SplunkDeliveryStream: !GetAtt SplunkFirehose.Outputs.SplunkDeliveryStream
+        EnableSplunk: !Ref EnableSplunk
+        LambdaName: !Sub "${AWS::StackName}-CapabilityStatement"
   CapabilityStatement:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: packages
+      FunctionName: !Sub "${AWS::StackName}-CapabilityStatement"
+      CodeUri: ../packages
       Handler: capabilityStatement.handler
-      Role: !GetAtt CapabilityStatementRole.Arn
+      Role: !GetAtt CapabilityStatementResources.Outputs.LambdaRoleArn
       Events:
         capabilityStatement:
           Type: HttpApi
@@ -229,69 +137,23 @@ Resources:
           - capabilityStatement/src/capabilityStatement.ts
 
   # _status endpoint lambda
-  StatusLambdaRole:
-    Type: "AWS::IAM::Role"
+  StatusLambdaResources:
+    Type: AWS::Serverless::Application
     Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: "lambda.amazonaws.com"
-            Action: "sts:AssumeRole"
-  StatusLambdaLambdaPolicy:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: "allow-lambda-logging"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - logs:CreateLogStream
-              - logs:PutLogEvents
-            Resource:
-              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${StatusLambdaLogGroup}"
-              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${StatusLambdaLogGroup}:log-stream:*"
-      Roles:
-        - !Ref StatusLambdaRole
-  StatusLambdaKMSPolicy:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: "allow-CloudWatchKMS-access"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - kms:DescribeKey
-              - kms:GenerateDataKey*
-              - kms:Encrypt
-              - kms:ReEncrypt*
-            Resource:
-              - !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
-      Roles:
-        - !Ref StatusLambdaRole
-  StatusLambdaLogGroup:
-    Type: "AWS::Logs::LogGroup"
-    Properties:
-      LogGroupName: !Sub "/aws/lambda/${StatusLambda}"
-      RetentionInDays: 30
-      KmsKeyId: !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
-  StatusLambdaSplunkSubscriptionFilter:
-    Condition: ShouldUseSplunk
-    Type: AWS::Logs::SubscriptionFilter
-    Properties:
-      RoleArn: !GetAtt SplunkFirehose.Outputs.SplunkSubscriptionFilterRole
-      LogGroupName: !Ref StatusLambdaLogGroup
-      FilterPattern: "" # All logs
-      DestinationArn: !GetAtt SplunkFirehose.Outputs.SplunkDeliveryStream
+      Location: lambda_resources.yaml
+      Parameters:
+        CloudWatchKMSKey: !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
+        SplunkSubscriptionFilterRole: !GetAtt SplunkFirehose.Outputs.SplunkSubscriptionFilterRole
+        SplunkDeliveryStream: !GetAtt SplunkFirehose.Outputs.SplunkDeliveryStream
+        EnableSplunk: !Ref EnableSplunk
+        LambdaName: !Sub "${AWS::StackName}-statusLambda"
   StatusLambda:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: packages
+      FunctionName: !Sub "${AWS::StackName}-statusLambda"
+      CodeUri: ../packages
       Handler: statusLambda.handler
-      Role: !GetAtt StatusLambdaRole.Arn
+      Role: !GetAtt StatusLambdaResources.Outputs.LambdaRoleArn
       Environment:
         Variables:
           VERSION_NUMBER: !Ref VersionNumber

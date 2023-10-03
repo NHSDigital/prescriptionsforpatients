@@ -195,7 +195,7 @@ Resources:
   SplunkDeliveryStreamProcessor:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: packages
+      CodeUri: ../packages
       Handler: splunkProcessor.handler
       Runtime: nodejs18.x
       Role: !GetAtt SplunkDeliveryStreamProcessorRole.Arn

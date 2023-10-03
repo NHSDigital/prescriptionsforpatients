@@ -1,0 +1,126 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Description: >
+  Resources for a lambda
+
+Parameters:
+  CloudWatchKMSKey:
+    Type: String
+    Description: Cloudwatch KMS key
+    Default: none
+  SplunkSubscriptionFilterRole:
+    Type: String
+    Description: Subscription filter role for sending logs to splunk
+    Default: none
+  SplunkDeliveryStream:
+    Type: String
+    Description: Splunk delivery stream
+    Default: none
+  EnableSplunk:
+    Type: String
+    Description: Whether to use splunk
+    Default: false
+    AllowedValues: [true, false]
+  LambdaName:
+    Type: String
+    Description: Name of lambda we are creating for
+
+Conditions:
+  ShouldUseSplunk: !Equals [true, !Ref EnableSplunk]
+
+Resources:
+  LambdaRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+  LambdaPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-lambda-logging"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource:
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${LambdaLogGroup}"
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${LambdaLogGroup}:log-stream:*"
+      Roles:
+        - !Ref LambdaRole
+  LambdaKMSPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-CloudWatchKMS-access"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - kms:DescribeKey
+              - kms:GenerateDataKey*
+              - kms:Encrypt
+              - kms:ReEncrypt*
+            Resource:
+              - !Ref CloudWatchKMSKey
+      Roles:
+        - !Ref LambdaRole
+  LambdaSecretsKMSPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-SecretsKMS-access"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - kms:Decrypt
+            Resource:
+              - !ImportValue ci-resources:SecretsKMSKey
+      Roles:
+        - !Ref LambdaRole
+  LambdaSecretsPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-secrets-access"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - secretsmanager:GetSecretValue
+            Resource:
+              - !ImportValue ci-resources:SpinePrivateKey
+              - !ImportValue ci-resources:SpinePublicCertificate
+              - !ImportValue ci-resources:SpineASID
+              - !ImportValue ci-resources:SpinePartyKey
+              - !ImportValue ci-resources:SpineCAChain
+      Roles:
+        - !Ref LambdaRole
+  LambdaLogGroup:
+    Type: "AWS::Logs::LogGroup"
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${LambdaName}"
+      RetentionInDays: 30
+      KmsKeyId: !Ref CloudWatchKMSKey
+  LambdaSplunkSubscriptionFilter:
+    Condition: ShouldUseSplunk
+    Type: AWS::Logs::SubscriptionFilter
+    Properties:
+      RoleArn: !Ref SplunkSubscriptionFilterRole
+      LogGroupName: !Ref LambdaLogGroup
+      FilterPattern: "" # All logs
+      DestinationArn: !Ref SplunkDeliveryStream
+
+Outputs:
+  LambdaRoleArn:
+    Description: "LambdaRole ARN"
+    Value: !GetAtt LambdaRole.Arn

@@ -18,10 +18,10 @@ install-hooks: install-python
 	poetry run pre-commit install --install-hooks --overwrite
 
 sam-build: sam-validate compile
-	sam build
+	sam build --template-file SAMtemplates/main_template.yaml
 
 sam-build-sandbox: sam-validate-sandbox compile
-	sam build --template-file sandbox_template.yaml
+	sam build --template-file SAMtemplates/sandbox_template.yaml
 
 sam-run-local: sam-build
 	sam local start-api
@@ -30,6 +30,7 @@ sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name compile
 	sam sync \
 		--stack-name $$stack_name \
 		--watch \
+		--template-file SAMtemplates/main_template.yaml \
 		--parameter-overrides \
 			  EnableSplunk=false
 
@@ -37,7 +38,7 @@ sam-sync-sandbox: guard-stack_name compile
 	sam sync \
 		--stack-name $$stack_name-sandbox \
 		--watch \
-		--template-file sandbox_template.yaml \
+		--template-file SAMtemplates/sandbox_template.yaml \
 		--parameter-overrides \
 			  EnableSplunk=false
 
@@ -61,12 +62,12 @@ sam-list-outputs: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam list stack-outputs --stack-name $$stack_name
 
 sam-validate: 
-	sam validate
-	sam validate --template-file template_splunk_firehose.yaml
+	sam validate --template-file SAMtemplates/main_template.yaml
+	sam validate --template-file SAMtemplates/splunk_firehose_resources.yaml
 
 sam-validate-sandbox: 
-	sam validate --template-file sandbox_template.yaml
-	sam validate --template-file template_splunk_firehose.yaml
+	sam validate --template-file SAMtemplates/sandbox_template.yaml
+	sam validate --template-file SAMtemplates/splunk_firehose_resources.yaml
 
 sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role guard-LATEST_TRUSTSTORE_VERSION guard-enable_mutual_tls guard-SPLUNK_HEC_TOKEN guard-SPLUNK_HEC_ENDPOINT guard-VERSION_NUMBER guard-COMMIT_ID guard-LOG_LEVEL
 	sam deploy \
@@ -117,7 +118,10 @@ lint-go:
 lint-cloudformation:
 	poetry run cfn-lint -t cloudformation/*.yml
 
-lint: lint-node lint-go lint-cloudformation
+lint-samtemplates:
+	poetry run cfn-lint -t SAMtemplates/*.yaml
+
+lint: lint-node lint-go lint-cloudformation lint-samtemplates
 
 test: compile
 	npm run test --workspace packages/capabilityStatement
