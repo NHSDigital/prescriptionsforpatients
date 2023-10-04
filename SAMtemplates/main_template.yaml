@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  prescriptions api
+  prescriptions for patients api
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
@@ -60,6 +60,35 @@ Parameters:
     Type: String
     Description: The log level to set in the lambda
     Default: "INFO"
+  LogRetentionDays:
+    Type: Number
+    Description: How long to keep logs for
+    Default: 30
+    AllowedValues:
+      [
+        1,
+        3,
+        5,
+        7,
+        14,
+        30,
+        60,
+        90,
+        120,
+        150,
+        180,
+        365,
+        400,
+        545,
+        731,
+        1096,
+        1827,
+        2192,
+        2557,
+        2922,
+        3288,
+        3653,
+      ]
 
 Conditions:
   ShouldUseMutualTLS: !Equals [true, !Ref EnableMutualTLS]
@@ -69,116 +98,41 @@ Resources:
   SplunkFirehose:
     Type: AWS::Serverless::Application
     Properties:
-      Location: template_splunk_firehose.yaml
+      Location: splunk_firehose_resources.yaml
       Parameters:
         SplunkHECToken: !Ref SplunkHECToken
         SplunkHECEndpoint: !Ref SplunkHECEndpoint
         EnableSplunk: !Ref EnableSplunk
+        LogRetentionDays: !Ref LogRetentionDays
 
   GetSecretsLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
       LayerName: get-secrets-layer
       Description: get secrets layer
-      ContentUri: packages/getSecretLayer/lib/get-secrets-layer.zip
+      ContentUri: ../packages/getSecretLayer/lib/get-secrets-layer.zip
       RetentionPolicy: Retain
 
   # getMyPrescription lambda
-  GetMyPrescriptionsRole:
-    Type: "AWS::IAM::Role"
+  GetMyPrescriptionsResources:
+    Type: AWS::Serverless::Application
     Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: "lambda.amazonaws.com"
-            Action: "sts:AssumeRole"
-  GetMyPrescriptionsLambdaPolicy:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: "allow-lambda-logging"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - logs:CreateLogStream
-              - logs:PutLogEvents
-            Resource:
-              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${GetMyPrescriptionsLogGroup}"
-              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${GetMyPrescriptionsLogGroup}:log-stream:*"
-      Roles:
-        - !Ref GetMyPrescriptionsRole
-  GetMyPrescriptionsKMSPolicy:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: "allow-CloudWatchKMS-access"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - kms:DescribeKey
-              - kms:GenerateDataKey*
-              - kms:Encrypt
-              - kms:ReEncrypt*
-            Resource:
-              - !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
-      Roles:
-        - !Ref GetMyPrescriptionsRole
-  GetMyPrescriptionsSecretsKMSPolicy:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: "allow-SecretsKMS-access"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - kms:Decrypt
-            Resource:
-              - !ImportValue ci-resources:SecretsKMSKey
-      Roles:
-        - !Ref GetMyPrescriptionsRole
-  GetMyPrescriptionsSecretsPolicy:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: "allow-secrets-access"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - secretsmanager:GetSecretValue
-            Resource:
-              - !ImportValue ci-resources:SpinePrivateKey
-              - !ImportValue ci-resources:SpinePublicCertificate
-              - !ImportValue ci-resources:SpineASID
-              - !ImportValue ci-resources:SpinePartyKey
-              - !ImportValue ci-resources:SpineCAChain
-      Roles:
-        - !Ref GetMyPrescriptionsRole
-  GetMyPrescriptionsLogGroup:
-    Type: "AWS::Logs::LogGroup"
-    Properties:
-      LogGroupName: !Sub "/aws/lambda/${GetMyPrescriptions}"
-      RetentionInDays: 90
-      KmsKeyId: !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
-  GetMyPrescriptionsSplunkSubscriptionFilter:
-    Condition: ShouldUseSplunk
-    Type: AWS::Logs::SubscriptionFilter
-    Properties:
-      RoleArn: !GetAtt SplunkFirehose.Outputs.SplunkSubscriptionFilterRole
-      LogGroupName: !Ref GetMyPrescriptionsLogGroup
-      FilterPattern: "" # All logs
-      DestinationArn: !GetAtt SplunkFirehose.Outputs.SplunkDeliveryStream
+      Location: lambda_resources.yaml
+      Parameters:
+        CloudWatchKMSKey: !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
+        SplunkSubscriptionFilterRole: !GetAtt SplunkFirehose.Outputs.SplunkSubscriptionFilterRole
+        SplunkDeliveryStream: !GetAtt SplunkFirehose.Outputs.SplunkDeliveryStream
+        EnableSplunk: !Ref EnableSplunk
+        LambdaName: !Sub "${AWS::StackName}-GetMyPrescriptions"
+        AccessToSpine: "true"
+        LogRetentionDays: !Ref LogRetentionDays
   GetMyPrescriptions:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: packages
+      FunctionName: !Sub "${AWS::StackName}-GetMyPrescriptions"
+      CodeUri: ../packages
       Handler: getMyPrescriptions.handler
-      Role: !GetAtt GetMyPrescriptionsRole.Arn
+      Role: !GetAtt GetMyPrescriptionsResources.Outputs.LambdaRoleArn
       Environment:
         Variables:
           AWS_LAMBDA_EXEC_WRAPPER: /opt/get-secrets-layer
@@ -203,69 +157,24 @@ Resources:
           - getMyPrescriptions/src/getMyPrescriptions.ts
 
   # capabilityStatement lambda
-  CapabilityStatementRole:
-    Type: "AWS::IAM::Role"
+  CapabilityStatementResources:
+    Type: AWS::Serverless::Application
     Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: "lambda.amazonaws.com"
-            Action: "sts:AssumeRole"
-  CapabilityStatementLambdaPolicy:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: "allow-lambda-logging"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - logs:CreateLogStream
-              - logs:PutLogEvents
-            Resource:
-              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${CapabilityStatementLogGroup}"
-              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${CapabilityStatementLogGroup}:log-stream:*"
-      Roles:
-        - !Ref CapabilityStatementRole
-  CapabilityStatementKMSPolicy:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: "allow-CloudWatchKMS-access"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - kms:DescribeKey
-              - kms:GenerateDataKey*
-              - kms:Encrypt
-              - kms:ReEncrypt*
-            Resource:
-              - !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
-      Roles:
-        - !Ref CapabilityStatementRole
-  CapabilityStatementLogGroup:
-    Type: "AWS::Logs::LogGroup"
-    Properties:
-      LogGroupName: !Sub "/aws/lambda/${CapabilityStatement}"
-      RetentionInDays: 90
-      KmsKeyId: !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
-  CapabilityStatementSplunkSubscriptionFilter:
-    Condition: ShouldUseSplunk
-    Type: AWS::Logs::SubscriptionFilter
-    Properties:
-      RoleArn: !GetAtt SplunkFirehose.Outputs.SplunkSubscriptionFilterRole
-      LogGroupName: !Ref CapabilityStatementLogGroup
-      FilterPattern: "" # All logs
-      DestinationArn: !GetAtt SplunkFirehose.Outputs.SplunkDeliveryStream
+      Location: lambda_resources.yaml
+      Parameters:
+        CloudWatchKMSKey: !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
+        SplunkSubscriptionFilterRole: !GetAtt SplunkFirehose.Outputs.SplunkSubscriptionFilterRole
+        SplunkDeliveryStream: !GetAtt SplunkFirehose.Outputs.SplunkDeliveryStream
+        EnableSplunk: !Ref EnableSplunk
+        LambdaName: !Sub "${AWS::StackName}-CapabilityStatement"
+        LogRetentionDays: !Ref LogRetentionDays
   CapabilityStatement:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: packages
+      FunctionName: !Sub "${AWS::StackName}-CapabilityStatement"
+      CodeUri: ../packages
       Handler: capabilityStatement.handler
-      Role: !GetAtt CapabilityStatementRole.Arn
+      Role: !GetAtt CapabilityStatementResources.Outputs.LambdaRoleArn
       Events:
         capabilityStatement:
           Type: HttpApi
@@ -284,101 +193,25 @@ Resources:
           - capabilityStatement/src/capabilityStatement.ts
 
   # _status endpoint lambda
-  StatusLambdaRole:
-    Type: "AWS::IAM::Role"
+  StatusLambdaResources:
+    Type: AWS::Serverless::Application
     Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: "lambda.amazonaws.com"
-            Action: "sts:AssumeRole"
-  StatusLambdaLambdaPolicy:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: "allow-lambda-logging"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - logs:CreateLogStream
-              - logs:PutLogEvents
-            Resource:
-              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${StatusLambdaLogGroup}"
-              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${StatusLambdaLogGroup}:log-stream:*"
-      Roles:
-        - !Ref StatusLambdaRole
-  StatusLambdaKMSPolicy:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: "allow-CloudWatchKMS-access"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - kms:DescribeKey
-              - kms:GenerateDataKey*
-              - kms:Encrypt
-              - kms:ReEncrypt*
-            Resource:
-              - !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
-      Roles:
-        - !Ref StatusLambdaRole
-  StatusLambdaSecretsKMSPolicy:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: "allow-SecretsKMS-access"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - kms:Decrypt
-            Resource:
-              - !ImportValue ci-resources:SecretsKMSKey
-      Roles:
-        - !Ref StatusLambdaRole
-  StatusLambdaSecretsPolicy:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: "allow-secrets-access"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - secretsmanager:GetSecretValue
-            Resource:
-              - !ImportValue ci-resources:SpinePrivateKey
-              - !ImportValue ci-resources:SpinePublicCertificate
-              - !ImportValue ci-resources:SpineASID
-              - !ImportValue ci-resources:SpinePartyKey
-              - !ImportValue ci-resources:SpineCAChain
-      Roles:
-        - !Ref StatusLambdaRole
-  StatusLambdaLogGroup:
-    Type: "AWS::Logs::LogGroup"
-    Properties:
-      LogGroupName: !Sub "/aws/lambda/${StatusLambda}"
-      RetentionInDays: 30
-      KmsKeyId: !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
-  StatusLambdaSplunkSubscriptionFilter:
-    Condition: ShouldUseSplunk
-    Type: AWS::Logs::SubscriptionFilter
-    Properties:
-      RoleArn: !GetAtt SplunkFirehose.Outputs.SplunkSubscriptionFilterRole
-      LogGroupName: !Ref StatusLambdaLogGroup
-      FilterPattern: "" # All logs
-      DestinationArn: !GetAtt SplunkFirehose.Outputs.SplunkDeliveryStream
+      Location: lambda_resources.yaml
+      Parameters:
+        CloudWatchKMSKey: !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
+        SplunkSubscriptionFilterRole: !GetAtt SplunkFirehose.Outputs.SplunkSubscriptionFilterRole
+        SplunkDeliveryStream: !GetAtt SplunkFirehose.Outputs.SplunkDeliveryStream
+        EnableSplunk: !Ref EnableSplunk
+        LambdaName: !Sub "${AWS::StackName}-statusLambda"
+        AccessToSpine: "true"
+        LogRetentionDays: !Ref LogRetentionDays
   StatusLambda:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: packages
+      FunctionName: !Sub "${AWS::StackName}-statusLambda"
+      CodeUri: ../packages
       Handler: statusLambda.handler
-      Role: !GetAtt StatusLambdaRole.Arn
+      Role: !GetAtt StatusLambdaResources.Outputs.LambdaRoleArn
       Environment:
         Variables:
           VERSION_NUMBER: !Ref VersionNumber
@@ -508,7 +341,7 @@ Resources:
           "/",
           ["/aws/apigateway", !Ref "AWS::StackName", !Sub "${HttpApiGateway}"],
         ]
-      RetentionInDays: 30
+      RetentionInDays: !Ref LogRetentionDays
       KmsKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
 
   ApiGwAccessLogsSplunkSubscriptionFilter:

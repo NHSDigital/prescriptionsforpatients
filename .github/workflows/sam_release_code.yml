@@ -33,6 +33,9 @@ on:
       LOG_LEVEL:
         required: true
         type: string
+      LOG_RETENTION_DAYS:
+        required: true
+        type: string
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
@@ -89,5 +92,6 @@ jobs:
           export enable_mutual_tls=${{ inputs.ENABLE_MUTUAL_TLS }}
           export LOG_LEVEL=${{inputs.LOG_LEVEL}}
           export deploy_sandbox=${{ inputs.DEPLOY_SANDBOX }}
+          export LOG_RETENTION_DAYS=${{inputs.LOG_RETENTION_DAYS}}
           cd .aws-sam/build
           make sam-deploy-package

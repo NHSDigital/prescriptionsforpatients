@@ -111,5 +111,13 @@ repos:
         files: ^cloudformation
         pass_filenames: false
 
+      - id: lint-samtemplatess
+        name: Lint sam templates
+        entry: make
+        args: ["lint-samtemplates"]
+        language: system
+        files: ^SAMtemplates
+        pass_filenames: false
+
 fail_fast: true
 default_stages: [commit]
