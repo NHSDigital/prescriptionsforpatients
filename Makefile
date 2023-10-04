@@ -95,7 +95,8 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 			  EnableSplunk=true \
 			  VersionNumber=$$VERSION_NUMBER \
 			  CommitId=$$COMMIT_ID \
-			  LogLevel=$$LOG_LEVEL
+			  LogLevel=$$LOG_LEVEL \
+			  LogRetentionDays=$$LOG_RETENTION_DAYS
 
 compile-node:
 	npx tsc --build tsconfig.build.json
