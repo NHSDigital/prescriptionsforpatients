@@ -1,0 +1,560 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Parameters:
+  SubjectClaimFilters:
+    Type: CommaDelimitedList
+    Default: "repo:NHSDigital/prescriptionsforpatients:*"
+    Description: >
+      Subject claim filter for valid tokens.
+      Default allows only pull requests of the NHSDigital/prescriptionsforpatients to assume the role.
+      See https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect#example-subject-claims
+      for examples of filtering by branch or deployment environment.
+
+Resources:
+  GitHubIdentityProvider:
+    Type: AWS::IAM::OIDCProvider
+    Properties:
+      Url: https://token.actions.githubusercontent.com
+      ThumbprintList:
+        - 6938fd4d98bab03faadb97b34396831e3780aea1
+      ClientIdList:
+        - sts.amazonaws.com
+
+  CloudFormationDeployRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRoleWithWebIdentity
+            Principal:
+              Federated: !GetAtt GitHubIdentityProvider.Arn
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+              StringLike:
+                token.actions.githubusercontent.com:sub: !Ref SubjectClaimFilters
+      Policies:
+        - PolicyName: CreateCloudFormationStack
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "cloudformation:CreateStack"
+                  - "cloudformation:UpdateStack"
+                  - "cloudformation:DeleteStack"
+                  - "cloudformation:DescribeStacks"
+                  - "cloudformation:ListExports"
+                  - "cloudformation:CreateChangeSet"
+                  - "cloudformation:DescribeChangeSet"
+                  - "cloudformation:ExecuteChangeSet"
+                  - "cloudformation:DescribeStackEvents"
+                  - "cloudformation:GetTemplateSummary"
+                  - "cloudformation:ListStacks"
+                Resource: "*"
+        - PolicyName: AssumeExecutionRole
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "iam:PassRole"
+                Resource: !GetAtt CloudFormationExecutionRole.Arn
+        - PolicyName: UseArtifactBucketKMSKey
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "kms:DescribeKey"
+                  - "kms:GenerateDataKey*"
+                  - "kms:Encrypt"
+                  - "kms:ReEncrypt*"
+                  - "kms:Decrypt"
+                Resource: "arn:aws:kms:eu-west-2:591291862413:key/91f11a0a-255d-4f25-9d5d-e2711d3c4b20"
+
+  CloudFormationExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: cloudformation.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      # see https://docs.aws.amazon.com/service-authorization/latest/reference/reference_policies_actions-resources-contextkeys.html for permissions
+      Policies:
+        - PolicyName: GrantCloudFormationDeployAccess
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "cloudformation:CreateChangeSet"
+                  - "iam:Attach*"
+                  - "iam:Create*"
+                  - "iam:Delete*"
+                  - "iam:Detach*"
+                  - "iam:Get*"
+                  - "iam:List*"
+                  - "iam:Put*"
+                  - "iam:Remove*"
+                  - "iam:Tag*"
+                  - "iam:Untag*"
+                  - "iam:Update*"
+                  - "iam:PassRole"
+                  - "logs:AssociateKmsKey"
+                  - "logs:DisassociateKmsKey"
+                  - "logs:CreateLogGroup"
+                  - "logs:DeleteLogGroup"
+                  - "logs:TagLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:DeleteLogStream"
+                  - "logs:PutRetentionPolicy"
+                  - "logs:DeleteRetentionPolicy"
+                  - "logs:PutSubscriptionFilter"
+                  - "logs:DescribeSubscriptionFilters"
+                  - "logs:DeleteSubscriptionFilter"
+                  - "logs:DescribeLogGroups"
+                  - "logs:CreateLogDelivery"
+                  - "logs:DeleteLogDelivery"
+                  - "logs:ListLogDeliveries"
+                  - "logs:GetLogDelivery"
+                  - "logs:UpdateLogDelivery"
+                  - "logs:ListTagsLogGroup"
+                  - "logs:UntagLogGroup"
+                  - "lambda:Add*"
+                  - "lambda:CreateFunction"
+                  - "lambda:Delete*"
+                  - "lambda:Get*"
+                  - "lambda:List*"
+                  - "lambda:Publish*"
+                  - "lambda:Put*"
+                  - "lambda:Remove*"
+                  - "lambda:Tag*"
+                  - "lambda:Untag*"
+                  - "lambda:Update*"
+                  - "kms:Create*"
+                  - "kms:Delete*"
+                  - "kms:Describe*"
+                  - "kms:Get*"
+                  - "kms:List*"
+                  - "kms:Put*"
+                  - "kms:ScheduleKeyDeletion*"
+                  - "kms:Tag*"
+                  - "kms:Untag*"
+                  - "kms:Update*"
+                  - "apigateway:DELETE"
+                  - "apigateway:GET"
+                  - "apigateway:POST"
+                  - "apigateway:PATCH"
+                  - "apigateway:PUT"
+                  - "apigateway:AddCertificateToDomain"
+                  - "apigateway:RemoveCertificateFromDomain"
+                  - "apigateway:TagResource"
+                  # s3 permissions can be removed once https://github.com/NHSDigital/prescriptionsforpatients/pull/165 is merged
+                  - "s3:CreateBucket"
+                  - "s3:DeleteBucket"
+                  - "s3:SetBucketEncryption"
+                  - "s3:PutEncryptionConfiguration"
+                  - "s3:PutBucketVersioning"
+                  - "s3:GetBucketTagging"
+                  - "s3:PutBucketTagging"
+                  - "firehose:CreateDeliveryStream"
+                  - "firehose:DescribeDeliveryStream"
+                  - "firehose:DeleteDeliveryStream"
+                  - "firehose:UpdateDestination"
+                  - "firehose:ListTagsForDeliveryStream"
+                  - "firehose:TagDeliveryStream"
+                  - "firehose:UntagDeliveryStream"
+                  - "acm:AddTagsToCertificate"
+                  - "acm:DeleteCertificate"
+                  - "acm:DescribeCertificate"
+                  - "acm:GetCertificate"
+                  - "acm:ListCertificates"
+                  - "acm:ListTagsForCertificate"
+                  - "acm:RemoveTagsFromCertificate"
+                  - "acm:RenewCertificate"
+                  - "acm:RequestCertificate"
+                  - "route53:ChangeResourceRecordSets"
+                  - "route53:GetHostedZone"
+                  - "route53:ListResourceRecordSets"
+                  - "route53:GetChange"
+                Resource: "*"
+        - PolicyName: UseTrustStoreBucketKMSKey
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "kms:DescribeKey"
+                  - "kms:GenerateDataKey*"
+                  - "kms:Encrypt"
+                  - "kms:ReEncrypt*"
+                  - "kms:Decrypt"
+                Resource: "arn:aws:kms:eu-west-2:591291862413:key/86bc22d8-391d-4597-b606-e366d1d4f069"
+
+  ArtifactsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: "ci-resources-artifactsbucket-8tfokumg8i3z"
+      PolicyDocument:
+        Statement:
+          - Effect: "Deny"
+            Action: "s3:*"
+            Principal: "*"
+            Resource:
+              - "arn:aws:s3:::ci-resources-artifactsbucket-8tfokumg8i3z/*"
+              - "arn:aws:s3:::ci-resources-artifactsbucket-8tfokumg8i3z"
+            Condition:
+              Bool:
+                aws:SecureTransport: false
+          - Effect: "Allow"
+            Action:
+              - "s3:GetObject*"
+              - "s3:PutObject*"
+              - "s3:GetBucket*"
+              - "s3:List*"
+            Resource:
+              - "arn:aws:s3:::ci-resources-artifactsbucket-8tfokumg8i3z/*"
+              - "arn:aws:s3:::ci-resources-artifactsbucket-8tfokumg8i3z"
+            Principal:
+              AWS:
+                - !GetAtt CloudFormationDeployRole.Arn
+                - !GetAtt CloudFormationExecutionRole.Arn
+
+  TrustStoreBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: "ci-resources-truststorebucket-1emm0xo65wil5"
+      PolicyDocument:
+        Statement:
+          - Effect: "Deny"
+            Action: "s3:*"
+            Principal: "*"
+            Resource:
+              - "arn:aws:s3:::ci-resources-truststorebucket-1emm0xo65wil5/*"
+              - "arn:aws:s3:::ci-resources-truststorebucket-1emm0xo65wil5"
+            Condition:
+              Bool:
+                aws:SecureTransport: false
+          - Effect: "Allow"
+            Action:
+              - "s3:GetObject*"
+              - "s3:PutObject*"
+              - "s3:GetBucket*"
+              - "s3:List*"
+            Resource:
+              - "arn:aws:s3:::ci-resources-truststorebucket-1emm0xo65wil5/*"
+              - "arn:aws:s3:::ci-resources-truststorebucket-1emm0xo65wil5"
+            Principal:
+              AWS:
+                - !GetAtt CloudFormationDeployRole.Arn
+                - !GetAtt CloudFormationExecutionRole.Arn
+
+  AuditLoggingBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: "ci-resources-auditloggingbucket-qinzx9hzgs2j"
+      PolicyDocument:
+        Statement:
+          - Effect: "Deny"
+            Action: "s3:*"
+            Principal: "*"
+            Resource:
+              - "arn:aws:s3:::ci-resources-auditloggingbucket-qinzx9hzgs2j/*"
+              - "arn:aws:s3:::ci-resources-auditloggingbucket-qinzx9hzgs2j"
+            Condition:
+              Bool:
+                aws:SecureTransport: false
+          - Effect: "Allow"
+            Action:
+              - "s3:PutObject*"
+            Resource:
+              - "arn:aws:s3:::ci-resources-auditloggingbucket-qinzx9hzgs2j/splunkDeliveryStreamBackup/*"
+            Principal:
+              Service: logging.s3.amazonaws.com
+            Condition:
+              StringEquals:
+                aws:SourceAccount: !Ref "AWS::AccountId"
+              ArnLike:
+                aws:SourceArn: "arn:aws:s3:::ci-resources-splunkdeliverystreambackupbucket-moadbtfdist3"
+          - Effect: "Allow"
+            Action:
+              - "s3:PutObject*"
+            Resource:
+              - "arn:aws:s3:::ci-resources-auditloggingbucket-qinzx9hzgs2j/artifact/*"
+            Principal:
+              Service: logging.s3.amazonaws.com
+            Condition:
+              StringEquals:
+                aws:SourceAccount: !Ref "AWS::AccountId"
+              ArnLike:
+                aws:SourceArn: "arn:aws:s3:::ci-resources-artifactsbucket-8tfokumg8i3z"
+          - Effect: "Allow"
+            Action:
+              - "s3:PutObject*"
+            Resource:
+              - "arn:aws:s3:::ci-resources-auditloggingbucket-qinzx9hzgs2j/truststore/*"
+            Principal:
+              Service: logging.s3.amazonaws.com
+            Condition:
+              StringEquals:
+                aws:SourceAccount: !Ref "AWS::AccountId"
+              ArnLike:
+                aws:SourceArn: "arn:aws:s3:::ci-resources-truststorebucket-1emm0xo65wil5"
+
+  SplunkDeliveryStreamBackupBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: "ci-resources-splunkdeliverystreambackupbucket-moadbtfdist3"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Deny"
+            Action: "s3:*"
+            Principal: "*"
+            Resource:
+              - "arn:aws:s3:::ci-resources-splunkdeliverystreambackupbucket-moadbtfdist3/*"
+              - "arn:aws:s3:::ci-resources-splunkdeliverystreambackupbucket-moadbtfdist3"
+            Condition:
+              Bool:
+                aws:SecureTransport: false
+          - Effect: Allow
+            Action:
+              - s3:AbortMultipartUpload
+              - s3:GetBucketLocation
+              - s3:GetObject
+              - s3:ListBucket
+              - s3:ListBucketMultipartUploads
+              - s3:PutObject
+            Resource:
+              - "arn:aws:s3:::ci-resources-splunkdeliverystreambackupbucket-moadbtfdist3"
+              - "arn:aws:s3:::ci-resources-splunkdeliverystreambackupbucket-moadbtfdist3/*"
+            Principal:
+              AWS:
+                - "arn:aws:iam::591291862413:role/ci-resources-SplunkDeliveryStreamBackupBucketRole-16K41IGY3PBER"
+
+  SplunkDeliveryStreamBackupBucketRoleKMSPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-SplunkDeliveryStreamBackupKMSKey-access"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - kms:DescribeKey
+              - kms:GenerateDataKey*
+              - kms:Encrypt
+              - kms:ReEncrypt*
+            Resource:
+              - "arn:aws:kms:eu-west-2:591291862413:key/01c6d877-d492-4000-8145-1cb0b626565a"
+      Roles:
+        - "arn:aws:iam::591291862413:role/ci-resources-SplunkDeliveryStreamBackupBucketRole-16K41IGY3PBER"
+
+  SplunkDeliveryStreamBackupBucketIAMPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "allow-backup-bucket-access"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:AbortMultipartUpload
+              - s3:GetBucketLocation
+              - s3:GetObject
+              - s3:ListBucket
+              - s3:ListBucketMultipartUploads
+              - s3:PutObject
+            Resource:
+              - "arn:aws:s3:::ci-resources-splunkdeliverystreambackupbucket-moadbtfdist3"
+              - "arn:aws:s3:::ci-resources-splunkdeliverystreambackupbucket-moadbtfdist3/*"
+      Roles:
+        - "arn:aws:iam::591291862413:role/ci-resources-SplunkDeliveryStreamBackupBucketRole-16K41IGY3PBER"
+
+  CAKeySecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: CA private key
+      KmsKeyId: alias/SecretsKMSKeyAlias
+      SecretString: ChangeMe
+
+  CACertSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: CA certificate
+      KmsKeyId: alias/SecretsKMSKeyAlias
+      SecretString: ChangeMe
+
+  ClientKeySecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: Client private key
+      KmsKeyId: alias/SecretsKMSKeyAlias
+      SecretString: ChangeMe
+
+  ClientCertSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: Client cert
+      KmsKeyId: alias/SecretsKMSKeyAlias
+      SecretString: ChangeMe
+
+  ClientSandboxKeySecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: Client sandbox private key
+      KmsKeyId: alias/SecretsKMSKeyAlias
+      SecretString: ChangeMe
+
+  ClientSandboxCertSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: Client sandbox cert
+      KmsKeyId: alias/SecretsKMSKeyAlias
+      SecretString: ChangeMe
+
+  SpinePrivateKey:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: Private key for spine mutual TLS
+      KmsKeyId: alias/SecretsKMSKeyAlias
+      SecretString: ChangeMe
+
+  SpinePublicCertificate:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: Public certificate for spine mutual TLS
+      KmsKeyId: alias/SecretsKMSKeyAlias
+      SecretString: ChangeMe
+
+  SpineASID:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: ASID for spine
+      KmsKeyId: alias/SecretsKMSKeyAlias
+      SecretString: ChangeMe
+
+  SpinePartyKey:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: PartyKey for spine
+      KmsKeyId: alias/SecretsKMSKeyAlias
+      SecretString: ChangeMe
+
+  SpineCAChain:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: CA chain for spine
+      KmsKeyId: alias/SecretsKMSKeyAlias
+      SecretString: ChangeMe
+
+Outputs:
+  CloudFormationDeployRole:
+    Description: ARN of the IAM Role(CloudFormationDeployRole)
+    Value: !GetAtt CloudFormationDeployRole.Arn
+    Export:
+      Name: !Join [":", [!Ref "AWS::StackName", "CloudFormationDeployRole"]]
+  CloudFormationExecutionRole:
+    Description: ARN of the IAM Role(CloudFormationExecutionRole)
+    Value: !GetAtt CloudFormationExecutionRole.Arn
+    Export:
+      Name: !Join [":", [!Ref "AWS::StackName", "CloudFormationExecutionRole"]]
+
+  ArtifactsBucket:
+    Description: ARN of the Artifacts bucket
+    Value: "arn:aws:s3:::ci-resources-artifactsbucket-8tfokumg8i3z"
+    Export:
+      Name: !Join [":", [!Ref "AWS::StackName", "ArtifactsBucket"]]
+  TrustStoreBucket:
+    Description: ARN of the Truststore bucket
+    Value: "arn:aws:s3:::ci-resources-truststorebucket-1emm0xo65wil5"
+    Export:
+      Name: !Join [":", [!Ref "AWS::StackName", "TrustStoreBucket"]]
+  CAKeySecret:
+    Description: ARN of the CA key secret
+    Value: "arn:aws:secretsmanager:eu-west-2:591291862413:secret:CAKeySecret-7g4tLfbycztz-cfA3s7"
+  CACertSecret:
+    Description: ARN of the CA cert secret
+    Value: "arn:aws:secretsmanager:eu-west-2:591291862413:secret:CACertSecret-gOWD4WVgmZdW-3gE9sC"
+  ClientKeySecret:
+    Description: ARN of the client key secret
+    Value: "arn:aws:secretsmanager:eu-west-2:591291862413:secret:ClientKeySecret-4Z1UJA6I1okR-kqSztG"
+  ClientCertSecret:
+    Description: ARN of the client cert secret
+    Value: "arn:aws:secretsmanager:eu-west-2:591291862413:secret:ClientCertSecret-AMQU5esIE2Pf-ORlGPr"
+  ClientSandboxKeySecret:
+    Description: ARN of the client key secret for sandbox
+    Value: "arn:aws:secretsmanager:eu-west-2:591291862413:secret:ClientSandboxKeySecret-i1BbVULPrHIp-VpaLkB"
+  ClientSandboxCertSecret:
+    Description: ARN of the client cert secret for sandbox
+    Value: "arn:aws:secretsmanager:eu-west-2:591291862413:secret:ClientSandboxCertSecret-afesUigB6XnZ-W2zDSp"
+  SpinePrivateKey:
+    Description: ARN of the private key for spine mutual TLS
+    Value: "arn:aws:secretsmanager:eu-west-2:591291862413:secret:SpinePrivateKey-HnChNrtt7V8s-0xkZv8"
+    Export:
+      Name: !Join [":", [!Ref "AWS::StackName", "SpinePrivateKey"]]
+  SpinePublicCertificate:
+    Description: ARN of the public certificate for spine mutual TLS
+    Value: "arn:aws:secretsmanager:eu-west-2:591291862413:secret:SpinePublicCertificate-BnxLh6WWp3ha-UMaI2i"
+    Export:
+      Name: !Join [":", [!Ref "AWS::StackName", "SpinePublicCertificate"]]
+  SpineASID:
+    Description: ASID for spine
+    Value: "arn:aws:secretsmanager:eu-west-2:591291862413:secret:SpineASID-zWa3SxTIKm5G-m0GZWS"
+    Export:
+      Name: !Join [":", [!Ref "AWS::StackName", "SpineASID"]]
+  SpinePartyKey:
+    Description: PartyKey for spine
+    Value: "arn:aws:secretsmanager:eu-west-2:591291862413:secret:SpinePartyKey-QwSRGcXj5iiE-Gy1KQR"
+    Export:
+      Name: !Join [":", [!Ref "AWS::StackName", "SpinePartyKey"]]
+  SecretsKMSKey:
+    Description: SecretsKMSKey
+    Value: "arn:aws:kms:eu-west-2:591291862413:key/2bd1ac53-f6a5-4d95-9553-764c0cbe5b0f"
+    Export:
+      Name: !Join [":", [!Ref "AWS::StackName", "SecretsKMSKey"]]
+  SpineCAChain:
+    Description: SpineCAChain
+    Value: "arn:aws:secretsmanager:eu-west-2:591291862413:secret:SpineCAChain-devzI7ZLqyPy-DaV6su"
+    Export:
+      Name: !Join [":", [!Ref "AWS::StackName", "SpineCAChain"]]
+  AuditLoggingBucket:
+    Description: ARN of the audit logging bucket
+    Value: "arn:aws:s3:::ci-resources-auditloggingbucket-qinzx9hzgs2j"
+    Export:
+      Name: !Join [":", [!Ref "AWS::StackName", "AuditLoggingBucket"]]
+  SplunkDeliveryStreamBackupBucketRole:
+    Description: The splunk delivery stream role
+    Value: "arn:aws:s3:::ci-resources-splunkdeliverystreambackupbucket-moadbtfdist3"
+    Export:
+      Name:
+        !Join [
+          ":",
+          [!Ref "AWS::StackName", "SplunkDeliveryStreamBackupBucketRole"],
+        ]
+  SplunkDeliveryStreamBackupBucketRoleArn:
+    Description: The splunk delivery stream role
+    Value: "arn:aws:iam::591291862413:role/ci-resources-SplunkDeliveryStreamBackupBucketRole-16K41IGY3PBER"
+    Export:
+      Name:
+        !Join [
+          ":",
+          [!Ref "AWS::StackName", "SplunkDeliveryStreamBackupBucketRoleArn"],
+        ]
+  SplunkDeliveryStreamBackupBucket:
+    Description: ARN of the splunk delivery stream backup bucket
+    Value: "arn:aws:s3:::ci-resources-splunkdeliverystreambackupbucket-moadbtfdist3"
+    Export:
+      Name:
+        !Join [":", [!Ref "AWS::StackName", "SplunkDeliveryStreamBackupBucket"]]
+  SplunkDeliveryStreamBackupKMSKey:
+    Description: SplunkDeliveryStreamBackupKMSKey
+    Value: "arn:aws:kms:eu-west-2:591291862413:key/01c6d877-d492-4000-8145-1cb0b626565a"
+    Export:
+      Name:
+        !Join [":", [!Ref "AWS::StackName", "SplunkDeliveryStreamBackupKMSKey"]]
