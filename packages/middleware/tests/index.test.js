@@ -92,7 +92,7 @@ test("Middleware returns details as valid fhir from lambda event", async () => {
   expect(JSON.parse(response.body)).toMatchObject({
     id: "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
     meta: {
-      lastUpdated: 1428582896001
+      lastUpdated: "2015-04-09T12:34:56.001Z"
     },
     resourceType: "OperationOutcome",
     issue: [
