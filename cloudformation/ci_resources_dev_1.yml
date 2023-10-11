@@ -759,7 +759,7 @@ Outputs:
       Name: !Join [":", [!Ref "AWS::StackName", "AuditLoggingBucket"]]
   SplunkDeliveryStreamBackupBucketRole:
     Description: The splunk delivery stream role
-    Value: "arn:aws:s3:::ci-resources-splunkdeliverystreambackupbucket-moadbtfdist3"
+    Value: "ci-resources-SplunkDeliveryStreamBackupBucketRole-16K41IGY3PBER"
     Export:
       Name:
         !Join [
