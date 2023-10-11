@@ -80,7 +80,7 @@ jobs:
       - shell: bash
         name: get target tag
         run: |
-          target_tag=$(aws cloudformation describe-stacks --stack-name int-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
+          target_tag=$(aws cloudformation describe-stacks --stack-name ${{ inputs.TARGET_ENVIRONMENT }}-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
           export target_tag
           echo "target_tag=${target_tag}" >> "$GITHUB_ENV"
 
@@ -91,8 +91,7 @@ jobs:
           CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_TOKEN }}
           JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}
         run: |
-          export int_tag=$(target_tag)
-          make publish-release-notes-int
+          int_tag=$(target_tag) make publish-release-notes-int
 
       - shell: bash
         name: create prod release notes
@@ -101,6 +100,5 @@ jobs:
           CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_TOKEN }}
           JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}
         run: |
-          export prod_tag=$(target_tag)
-          make publish-release-notes-prod
+          prod_tag=$(target_tag) make publish-release-notes-prod
           
