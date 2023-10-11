@@ -91,7 +91,7 @@ jobs:
           CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_TOKEN }}
           JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}
         run: |
-          int_tag=$(target_tag) make publish-release-notes-int
+          int_tag=${target_tag} make publish-release-notes-int
 
       - shell: bash
         name: create prod release notes
@@ -100,5 +100,5 @@ jobs:
           CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_TOKEN }}
           JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}
         run: |
-          prod_tag=$(target_tag) make publish-release-notes-prod
+          prod_tag=${target_tag} make publish-release-notes-prod
           
