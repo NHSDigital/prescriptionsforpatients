@@ -128,6 +128,9 @@ lint-samtemplates:
 lint-python:
 	poetry run flake8 scripts/*.py --config .flake8
 
+lint-githubactions:
+	actionlint
+
 lint: lint-node lint-go lint-cloudformation lint-samtemplates lint-python
 
 test: compile
