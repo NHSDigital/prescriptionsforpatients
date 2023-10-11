@@ -1,4 +1,4 @@
-module.exports = ({logger = console, level = "error", filter = () => true} = {}) => ({
+module.exports = ({logger = console, level = "error"} = {}) => ({
   onError: async (handler) => {
     const error = handler.error ?? {}
     const requestId = handler.event.requestContext?.requestId ?? null
@@ -6,7 +6,7 @@ module.exports = ({logger = console, level = "error", filter = () => true} = {})
 
     // if there are a `statusCode` and an `error` field
     // this is a valid http error object
-    if (filter(error) && typeof logger[level] === "function") {
+    if (typeof logger[level] === "function") {
       logger[level](
         {
           error: (({name, message, stack, details, cause, status, statusCode, expose}) => ({
@@ -48,7 +48,7 @@ module.exports = ({logger = console, level = "error", filter = () => true} = {})
     }
     if (timeEpoch !== null) {
       responseBody.meta = {
-        lastUpdated: timeEpoch
+        lastUpdated: new Date(timeEpoch)
       }
     }
 
