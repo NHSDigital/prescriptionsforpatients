@@ -1,0 +1,143 @@
+import git
+import os
+import argparse
+import re
+from atlassian import Jira, Confluence
+from typing import Tuple
+import traceback
+import sys
+
+SCRIPT_LOCATION = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+REPO_ROOT = os.path.abspath(os.path.join(SCRIPT_LOCATION, ".."))
+REPO = git.Repo(REPO_ROOT)
+JIRA_TOKEN = os.getenv("JIRA_TOKEN")
+JIRA_URL = "https://nhsd-jira.digital.nhs.uk/"
+CONFLUENCE_TOKEN = os.getenv("CONFLUENCE_TOKEN")
+CONFLUENCE_URL = "https://nhsd-confluence.digital.nhs.uk/"
+PROD_RELEASE_NOTES_PAGE_ID = 693750029
+INT_RELEASE_NOTES_PAGE_ID = 693750027
+GITHUB_REPO_NAME = "prescriptionsforpatients"
+PRODUCT_NAME = "Prescritpions for Patients AWS layer"
+INT_TITLE = "Current prescriptions for patients AWS layer release notes - INT"
+PROD_TITLE = "Current prescriptions for patients AWS layer release notes - PROD"
+
+
+def get_jira_details(jira, jira_ticket_number: str) -> Tuple[str, str, str, str, str]:
+    try:
+        jira_ticket = jira.get_issue(jira_ticket_number)
+        jira_title = jira_ticket["fields"]["summary"]
+        jira_description = jira_ticket["fields"]["description"]
+        components = [component["name"] for component in jira_ticket["fields"]["components"]]
+        match = match = re.search(r'(user story)(.*?)background', jira_description,
+                                  re.IGNORECASE | re.MULTILINE | re.DOTALL)
+        if match:
+            user_story = match.group(2).replace("*", "").replace("h3.", "").strip()
+        else:
+            user_story = "can not find user story"
+        impact_field = jira_ticket.get("fields", {}).get("customfield_26905", {})
+        if impact_field:
+            impact = impact_field.get("value", "")
+        else:
+            impact = ""
+        business_service_impact = jira_ticket["fields"].get("customfield_13618")
+        return jira_title, user_story, components, impact, business_service_impact
+    except:  # noqa: E722
+        print(jira_ticket_number)
+        print(traceback.format_exception(*sys.exc_info()))
+        return f"can not find jira ticket for {jira_ticket_number}", "", "", "", ""
+
+
+def append_output(current_output, text_to_add):
+    return f"{current_output}\n{text_to_add}"
+
+
+def create_release_notes(jira, current_tag, target_tag, repo, target_env):
+    output = ""
+
+    output = append_output(output, f"<h1 id='Currentreleasenotes{target_tag}-plannedreleasetotag{target_tag}'>{PRODUCT_NAME} planned release to {target_env} of tag {target_tag}</h1>")  # noqa: E501
+    output = append_output(output, f"<h2 id='Currentreleasenotes{target_tag}-Changessincecurrentlyreleasedtag{current_tag}'>Changes since currently released tag {current_tag}</h2>")  # noqa: E501
+
+    tagged_commits = [repo.commit(tag) for tag in repo.tags]
+    commits_in_range = repo.iter_commits(f"{current_tag}..{target_tag}")
+    tagged_commits_in_range = [commit for commit in commits_in_range if commit in tagged_commits]
+    for commit in tagged_commits_in_range:
+        match = re.search(r'tags\/(.*)$', commit.name_rev)
+        if match:
+            release_tag = match.group(1)
+        else:
+            release_tag = 'can not find release tag'
+        first_commit_line = commit.message.splitlines()[0]
+        match = re.search(r'(AEA[- ]\d*)', first_commit_line, re.IGNORECASE)
+        if match:
+            ticket_number = match.group(1).replace(' ', '-').upper()
+            jira_link = f"https://nhsd-jira.digital.nhs.uk/browse/{ticket_number}"
+            jira_title, user_story, components, impact, business_service_impact = get_jira_details(jira, ticket_number)
+        else:
+            jira_link = "n/a"
+            jira_title = "n/a"
+            user_story = "n/a"
+            components = "n/a"
+            impact = "n/a"
+            business_service_impact = "n/a"
+        user_story = user_story.replace("\n", "\n<br/>")
+        github_link = f"https://github.com/NHSDigital/{GITHUB_REPO_NAME}/releases/tag/{release_tag}"
+        output = append_output(output, "<p>***")
+
+        output = append_output(output, f"<br/>jira link               :  <a class='external-link' href='{jira_link}' rel='nofollow'>{jira_link}</a>")  # noqa: E501
+        output = append_output(output, f"<br/>jira title              : {jira_title}")
+        output = append_output(output, f"<br/>user story              : {user_story}")
+        output = append_output(output, f"<br/>commit title            : {first_commit_line}")
+        output = append_output(output, f"<br/>release tag             : {release_tag}")
+        output = append_output(output, f"<br/>github release          : <a class='external-link' href='{github_link}' rel='nofollow'>{github_link}</a>")  # noqa: E501
+        output = append_output(output, f"<br/>Area affected           : {components}")
+        output = append_output(output, f"<br/>Impact                  : {impact}")
+        output = append_output(output, f"<br/>Business/Service Impact : {business_service_impact}")
+        output = append_output(output, "</p>")
+
+    return output
+
+
+if __name__ == "__main__":
+    script = argparse.ArgumentParser(description="Identify release notes for commits between two tags")
+
+    script.add_argument(
+        "--target-tag",
+        help="A specific tag to deploy",
+        required=True
+    )
+
+    script.add_argument(
+        "--current-tag",
+        help="Current tag",
+        required=True
+    )
+    script.add_argument(
+        "--target-env",
+        help="Target environment",
+        required=True,
+        choices=['INT', 'PROD'],
+        default="INT"
+    )
+
+    args = script.parse_args()
+
+    repo = git.Repo(REPO_ROOT)
+
+    origin = repo.remote("origin")
+    origin.fetch()
+
+    current_tag = args.current_tag
+    target_tag = args.target_tag
+    target_env = args.target_env
+
+    jira = Jira(JIRA_URL, token=JIRA_TOKEN)
+    output = create_release_notes(jira, current_tag, target_tag, repo, target_env)
+    print(output)
+    confluence = Confluence(CONFLUENCE_URL, token=CONFLUENCE_TOKEN)
+    if target_env == "INT":
+        target_confluence_page_id = INT_RELEASE_NOTES_PAGE_ID
+        confluence_page_title = INT_TITLE
+    else:
+        target_confluence_page_id = PROD_RELEASE_NOTES_PAGE_ID
+        confluence_page_title = PROD_TITLE
+    confluence.update_page(page_id=target_confluence_page_id, body=output, title=confluence_page_title)

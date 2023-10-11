@@ -125,7 +125,10 @@ lint-cloudformation:
 lint-samtemplates:
 	poetry run cfn-lint -t SAMtemplates/*.yaml
 
-lint: lint-node lint-go lint-cloudformation lint-samtemplates
+lint-python:
+	poetry run flake8 scripts/*.py --config .flake8
+
+lint: lint-node lint-go lint-cloudformation lint-samtemplates lint-python
 
 test: compile
 	npm run test --workspace packages/capabilityStatement
@@ -183,3 +186,15 @@ aws-configure:
 
 aws-login:
 	aws sso login --sso-session sso-session
+
+publish-release-notes-int: guard-dev_tag guard-int_tag guard-JIRA_TOKEN guard-CONFLUENCE_TOKEN
+	poetry run python scripts/create_release_notes.py \
+		--target-tag $$dev_tag \
+		--current-tag $$int_tag \
+		--target-env INT
+
+publish-release-notes-prod: guard-dev_tag guard-prod_tag guard-JIRA_TOKEN guard-CONFLUENCE_TOKEN
+	poetry run python scripts/create_release_notes.py \
+		--target-tag $$dev_tag \
+		--current-tag $$prod_tag \
+		--target-env PROD
