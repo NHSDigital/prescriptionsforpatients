@@ -84,11 +84,17 @@ jobs:
 
       - shell: bash
         name: create int release notes
+        env:
+          CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_TOKEN }}
+          JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}
         run: |
           make publish-release-notes-int
 
       - shell: bash
         name: create prod release notes
+        env:
+          CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_TOKEN }}
+          JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}
         run: |
           make publish-release-notes-prod
           
