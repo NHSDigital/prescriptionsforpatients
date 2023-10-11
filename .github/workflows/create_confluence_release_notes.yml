@@ -67,6 +67,8 @@ jobs:
         run: |
           dev_tag=$(aws cloudformation describe-stacks --stack-name dev-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
           export dev_tag
+          echo "dev_tag=${dev_tag}" >> "$GITHUB_ENV"
+
 
       - name: Configure target AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -80,6 +82,7 @@ jobs:
         run: |
           target_tag=$(aws cloudformation describe-stacks --stack-name int-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
           export target_tag
+          echo "target_tag=${target_tag}" >> "$GITHUB_ENV"
 
       - shell: bash
         name: create int release notes
