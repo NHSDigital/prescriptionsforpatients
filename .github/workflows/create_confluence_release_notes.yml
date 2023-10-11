@@ -1,8 +1,20 @@
 name: 'Create confluence release notes'
 
 on:
-  workflow_dispatch:
   workflow_call:
+    inputs:
+      TARGET_ENVIRONMENT:
+        required: true
+        type: string
+    secrets:
+      DEV_CLOUD_FORMATION_DEPLOY_ROLE:
+        required: true
+      TARGET_CLOUD_FORMATION_DEPLOY_ROLE:
+        required: true
+      CONFLUENCE_TOKEN:
+        required: true
+      JIRA_TOKEN:
+        required: true
 
 jobs:
   create_confluence_release_notes:
@@ -56,45 +68,36 @@ jobs:
           dev_tag=$(aws cloudformation describe-stacks --stack-name dev-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
           export dev_tag
 
-      - name: Configure int AWS Credentials
+      - name: Configure target AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: eu-west-2
-          role-to-assume: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
+          role-to-assume: ${{ secrets.TARGET_CLOUD_FORMATION_DEPLOY_ROLE }}
           role-session-name: github-actions
 
       - shell: bash
-        name: get int tag
+        name: get target tag
         run: |
-          int_tag=$(aws cloudformation describe-stacks --stack-name int-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
-          export int_tag
-
-      - name: Configure prod AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: eu-west-2
-          role-to-assume: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
-          role-session-name: github-actions
-
-      - shell: bash
-        name: get prod tag
-        run: |
-          prod_tag=$(aws cloudformation describe-stacks --stack-name prod-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
-          export prod_tag
+          target_tag=$(aws cloudformation describe-stacks --stack-name int-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
+          export target_tag
 
       - shell: bash
         name: create int release notes
+        if: inputs.TARGET_ENVIRONMENT == 'int'
         env:
           CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_TOKEN }}
           JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}
         run: |
+          export int_tag=$(target_tag)
           make publish-release-notes-int
 
       - shell: bash
         name: create prod release notes
+        if: inputs.TARGET_ENVIRONMENT == 'prod'
         env:
           CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_TOKEN }}
           JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}
         run: |
+          export prod_tag=$(target_tag)
           make publish-release-notes-prod
           

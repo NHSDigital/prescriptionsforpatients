@@ -94,6 +94,22 @@ jobs:
       SPLUNK_HEC_TOKEN: ${{ secrets.DEV_SPLUNK_HEC_TOKEN }}
       TARGET_SPINE_SERVER: sandbox
 
-  create_release_notes:
-    needs: get_issue_number
+  create_int_release_notes:
     uses: ./.github/workflows/create_confluence_release_notes.yml
+    with:
+      TARGET_ENVIRONMENT: int
+    secrets:
+      DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
+      CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_TOKEN }}
+      JIRA_TOKEN:  ${{ secrets.JIRA_TOKEN }}
+
+  create_prod_release_notes:
+    uses: ./.github/workflows/create_confluence_release_notes.yml
+    with:
+      TARGET_ENVIRONMENT: prod
+    secrets:
+      DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
+      CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_TOKEN }}
+      JIRA_TOKEN:  ${{ secrets.JIRA_TOKEN }}      
