@@ -77,18 +77,18 @@ jobs:
         uses: ncipollo/release-action@6c75be85e571768fa31b40abf38de58ba0397db5
         continue-on-error: true
         env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-            tag: ${{ env.SPEC_VERSION }}
-            commit: ${{  github.sha }}
-            body: |
-              ## Commit message
-              ${{ github.event.head_commit.message }}
-              ## Info
-              [See code diff](${{ github.event.compare }})
-              [Release workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-  
-              It was initialized by [${{ github.event.sender.login }}](${{ github.event.sender.html_url }})
+          tag: ${{ env.SPEC_VERSION }}
+          commit: ${{  github.sha }}
+          body: |
+            ## Commit message
+            ${{ github.event.head_commit.message }}
+            ## Info
+            [See code diff](${{ github.event.compare }})
+            [Release workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+            It was initialized by [${{ github.event.sender.login }}](${{ github.event.sender.html_url }})
 
       - name: output SPEC_VERSION
         id: output_spec_version
