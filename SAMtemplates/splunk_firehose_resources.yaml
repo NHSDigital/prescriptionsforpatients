@@ -164,12 +164,12 @@ Resources:
                 - ParameterName: RoleArn
                   ParameterValue: !GetAtt SplunkDeliveryStreamProcessorInvokeRole.Arn
         S3Configuration:
-          BucketARN: !ImportValue ci-resources:SplunkDeliveryStreamBackupBucket
-          RoleARN: !ImportValue ci-resources:SplunkDeliveryStreamBackupBucketRoleArn
+          BucketARN: !ImportValue account-resources:SplunkDeliveryStreamBackupBucket
+          RoleARN: !ImportValue account-resources:SplunkDeliveryStreamBackupBucketRoleArn
           Prefix: !Ref "AWS::StackName"
           EncryptionConfiguration:
             KMSEncryptionConfig:
-              AWSKMSKeyARN: !ImportValue ci-resources:SplunkDeliveryStreamBackupKMSKey
+              AWSKMSKeyARN: !ImportValue account-resources:SplunkDeliveryStreamBackupKMSKey
         CloudWatchLoggingOptions:
           Enabled: true
           LogGroupName: !Ref SplunkDeliveryStreamLogGroup
@@ -200,7 +200,7 @@ Resources:
               - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${SplunkDeliveryStreamLogGroup}"
               - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${SplunkDeliveryStreamLogGroup}:log-stream:*"
       Roles:
-        - !ImportValue ci-resources:SplunkDeliveryStreamBackupBucketRole
+        - !ImportValue account-resources:SplunkDeliveryStreamBackupBucketRole
   SplunkDeliveryStreamKMSPolicy:
     Type: "AWS::IAM::Policy"
     Properties:
@@ -217,7 +217,7 @@ Resources:
             Resource:
               - !GetAtt CloudWatchKMSKey.Arn
       Roles:
-        - !ImportValue ci-resources:SplunkDeliveryStreamBackupBucketRole
+        - !ImportValue account-resources:SplunkDeliveryStreamBackupBucketRole
 
   # Stream processor, roles,  policies and log groups
   SplunkDeliveryStreamProcessor:

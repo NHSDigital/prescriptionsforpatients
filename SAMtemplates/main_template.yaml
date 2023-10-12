@@ -15,11 +15,11 @@ Globals:
       Variables:
         TargetSpineServer: !Ref TargetSpineServer
         NODE_OPTIONS: --enable-source-maps
-        SpinePrivateKeyARN: !ImportValue ci-resources:SpinePrivateKey
-        SpinePublicCertificateARN: !ImportValue ci-resources:SpinePublicCertificate
-        SpineASIDARN: !ImportValue ci-resources:SpineASID
-        SpinePartyKeyARN: !ImportValue ci-resources:SpinePartyKey
-        SpineCAChainARN: !ImportValue ci-resources:SpineCAChain
+        SpinePrivateKeyARN: !ImportValue account-resources:SpinePrivateKey
+        SpinePublicCertificateARN: !ImportValue account-resources:SpinePublicCertificate
+        SpineASIDARN: !ImportValue account-resources:SpineASID
+        SpinePartyKeyARN: !ImportValue account-resources:SpinePartyKey
+        SpineCAChainARN: !ImportValue account-resources:SpineCAChain
 
 Parameters:
   TargetSpineServer:
@@ -283,7 +283,7 @@ Resources:
                         5,
                         !Split [
                           ":",
-                          Fn::ImportValue: ci-resources:TrustStoreBucket,
+                          Fn::ImportValue: account-resources:TrustStoreBucket,
                         ],
                       ]
                     - "truststore.pem"
