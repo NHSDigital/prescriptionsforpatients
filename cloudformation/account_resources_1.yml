@@ -92,6 +92,7 @@ Resources:
   ArtifactsBucketKMSKey:
     Type: AWS::KMS::Key
     DeletionPolicy: "Retain"
+    UpdateReplacePolicy: "Retain"
     Properties:
       KeyPolicy:
         Version: 2012-10-17
@@ -111,6 +112,7 @@ Resources:
   ArtifactsBucketKMSKeyAlias:
     Type: AWS::KMS::Alias
     DeletionPolicy: "Retain"
+    UpdateReplacePolicy: "Retain"
     Properties:
       AliasName: alias/ArtifactsBucketKMSKeyAlias
       TargetKeyId: !Ref ArtifactsBucketKMSKey
@@ -118,6 +120,7 @@ Resources:
   ArtifactsBucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: "Retain"
+    UpdateReplacePolicy: "Retain"
     Properties:
       LoggingConfiguration:
         DestinationBucketName: !Ref AuditLoggingBucket
@@ -138,6 +141,7 @@ Resources:
   TrustStoreBucketKMSKey:
     Type: AWS::KMS::Key
     DeletionPolicy: "Retain"
+    UpdateReplacePolicy: "Retain"
     Properties:
       KeyPolicy:
         Version: 2012-10-17
@@ -157,6 +161,7 @@ Resources:
   TrustStoreBucketKMSKeyKMSKeyAlias:
     Type: AWS::KMS::Alias
     DeletionPolicy: "Retain"
+    UpdateReplacePolicy: "Retain"
     Properties:
       AliasName: alias/TrustStoreBucketKMSKeyAlias
       TargetKeyId: !Ref TrustStoreBucketKMSKey
@@ -164,6 +169,7 @@ Resources:
   TrustStoreBucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: "Retain"
+    UpdateReplacePolicy: "Retain"
     Properties:
       LoggingConfiguration:
         DestinationBucketName: !Ref AuditLoggingBucket
@@ -184,6 +190,7 @@ Resources:
   AuditLoggingBucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: "Retain"
+    UpdateReplacePolicy: "Retain"
     Properties:
       VersioningConfiguration:
         Status: Enabled
@@ -200,6 +207,7 @@ Resources:
   SplunkDeliveryStreamBackupKMSKey:
     Type: AWS::KMS::Key
     DeletionPolicy: "Retain"
+    UpdateReplacePolicy: "Retain"
     Properties:
       KeyPolicy:
         Version: 2012-10-17
@@ -219,6 +227,7 @@ Resources:
   SplunkDeliveryStreamBackupKMSKeyAlias:
     Type: AWS::KMS::Alias
     DeletionPolicy: "Retain"
+    UpdateReplacePolicy: "Retain"
     Properties:
       AliasName: alias/SplunkDeliveryStreamBackupKMSKeyAlias
       TargetKeyId: !Ref SplunkDeliveryStreamBackupKMSKey
@@ -226,6 +235,7 @@ Resources:
   SplunkDeliveryStreamBackupBucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: "Retain"
+    UpdateReplacePolicy: "Retain"
     Properties:
       VersioningConfiguration:
         Status: Enabled
@@ -247,6 +257,7 @@ Resources:
   SplunkDeliveryStreamBackupBucketRole:
     Type: "AWS::IAM::Role"
     DeletionPolicy: "Retain"
+    UpdateReplacePolicy: "Retain"
     Properties:
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
@@ -259,6 +270,7 @@ Resources:
   SecretsKMSKey:
     Type: AWS::KMS::Key
     DeletionPolicy: "Retain"
+    UpdateReplacePolicy: "Retain"
     Properties:
       KeyPolicy:
         Version: 2012-10-17
@@ -278,6 +290,7 @@ Resources:
   SecretsKMSKeyKMSKeyAlias:
     Type: AWS::KMS::Alias
     DeletionPolicy: "Retain"
+    UpdateReplacePolicy: "Retain"
     Properties:
       AliasName: alias/SecretsKMSKeyAlias
       TargetKeyId: !Ref SecretsKMSKey
