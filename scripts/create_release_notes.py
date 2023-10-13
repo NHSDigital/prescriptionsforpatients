@@ -1,4 +1,3 @@
-import git
 import os
 import argparse
 import re
@@ -6,10 +5,8 @@ from atlassian import Jira, Confluence
 from typing import Tuple
 import traceback
 import sys
+from github import Github
 
-SCRIPT_LOCATION = os.path.join(os.path.dirname(os.path.abspath(__file__)))
-REPO_ROOT = os.path.abspath(os.path.join(SCRIPT_LOCATION, ".."))
-REPO = git.Repo(REPO_ROOT)
 JIRA_TOKEN = os.getenv("JIRA_TOKEN")
 JIRA_URL = "https://nhsd-jira.digital.nhs.uk/"
 CONFLUENCE_TOKEN = os.getenv("CONFLUENCE_TOKEN")
@@ -20,6 +17,8 @@ GITHUB_REPO_NAME = "prescriptionsforpatients"
 PRODUCT_NAME = "Prescritpions for Patients AWS layer"
 INT_TITLE = "Current prescriptions for patients AWS layer release notes - INT"
 PROD_TITLE = "Current prescriptions for patients AWS layer release notes - PROD"
+gh = Github()
+repo = gh.get_repo(f"NHSDigital/{GITHUB_REPO_NAME}")
 
 
 def get_jira_details(jira, jira_ticket_number: str) -> Tuple[str, str, str, str, str]:
@@ -52,21 +51,18 @@ def append_output(current_output, text_to_add):
 
 
 def create_release_notes(jira, current_tag, target_tag, repo, target_env):
-    output = ""
+    output = "This page is auto generated. Any manual modifications will be lost"
 
     output = append_output(output, f"<h1 id='Currentreleasenotes{target_tag}-plannedreleasetotag{target_tag}'>{PRODUCT_NAME} planned release to {target_env} of tag {target_tag}</h1>")  # noqa: E501
     output = append_output(output, f"<h2 id='Currentreleasenotes{target_tag}-Changessincecurrentlyreleasedtag{current_tag}'>Changes since currently released tag {current_tag}</h2>")  # noqa: E501
 
-    tagged_commits = [repo.commit(tag) for tag in repo.tags]
-    commits_in_range = repo.iter_commits(f"{current_tag}..{target_tag}")
-    tagged_commits_in_range = [commit for commit in commits_in_range if commit in tagged_commits]
-    for commit in tagged_commits_in_range:
-        match = re.search(r'tags\/(.*)$', commit.name_rev)
-        if match:
-            release_tag = match.group(1)
-        else:
-            release_tag = 'can not find release tag'
-        first_commit_line = commit.message.splitlines()[0]
+    diff = repo.compare(base=current_tag, head=target_tag)
+    tags = repo.get_tags()
+    for commit in diff.commits:
+        release_tag = [tag.name for tag in tags if tag.commit == commit]
+        if len(release_tag) == 0:
+            release_tag = "can not find release tag"
+        first_commit_line = commit.commit.message.splitlines()[0]
         match = re.search(r'(AEA[- ]\d*)', first_commit_line, re.IGNORECASE)
         if match:
             ticket_number = match.group(1).replace(' ', '-').upper()
@@ -120,11 +116,6 @@ if __name__ == "__main__":
     )
 
     args = script.parse_args()
-
-    repo = git.Repo(REPO_ROOT)
-
-    origin = repo.remote("origin")
-    origin.fetch()
 
     current_tag = args.current_tag
     target_tag = args.target_tag
