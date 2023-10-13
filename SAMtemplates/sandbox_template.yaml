@@ -254,7 +254,7 @@ Resources:
                         5,
                         !Split [
                           ":",
-                          Fn::ImportValue: ci-resources:TrustStoreBucket,
+                          Fn::ImportValue: account-resources:TrustStoreBucket,
                         ],
                       ]
                     - "sandbox-truststore.pem"
