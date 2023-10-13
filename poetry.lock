@@ -63,23 +63,23 @@ tests-no-zope = ["cloudpickle", "hypothesis", "mypy (>=1.1.1)", "pympler", "pyte
 
 [[package]]
 name = "aws-sam-translator"
-version = "1.74.0"
+version = "1.77.0"
 description = "AWS SAM Translator is a library that transform SAM templates into AWS CloudFormation templates"
 optional = false
 python-versions = ">=3.7, <=4.0, !=4.0"
 files = [
-    {file = "aws-sam-translator-1.74.0.tar.gz", hash = "sha256:6975ddf0798f45952554d6ea2d5e95de8f321ecb7d3299bb127073d4ffb53c90"},
-    {file = "aws_sam_translator-1.74.0-py3-none-any.whl", hash = "sha256:74b386ed3780786a8b08d122c77c462f1872db4049617b63c497953b51008bf0"},
+    {file = "aws-sam-translator-1.77.0.tar.gz", hash = "sha256:fd6ddd8fef93f0120d8acf2239423bb72909e39e21c8afd70e6b908b07068612"},
+    {file = "aws_sam_translator-1.77.0-py3-none-any.whl", hash = "sha256:987513f653d3ca5cb8ce073653a1d66c80ca25a12d28600e763d22b8ebc82144"},
 ]
 
 [package.dependencies]
 boto3 = ">=1.19.5,<2.dev0"
 jsonschema = ">=3.2,<5"
-pydantic = ">=1.8,<2.0"
+pydantic = ">=1.8,<3"
 typing-extensions = ">=4.4,<5"
 
 [package.extras]
-dev = ["black (==23.1.0)", "boto3 (>=1.23,<2)", "boto3-stubs[appconfig,serverlessrepo] (>=1.19.5,<2.dev0)", "coverage (>=5.3,<8)", "dateparser (>=1.1,<2.0)", "importlib-metadata", "mypy (>=1.1.0,<1.2.0)", "parameterized (>=0.7,<1.0)", "pytest (>=6.2,<8)", "pytest-cov (>=2.10,<5)", "pytest-env (>=0.6,<1)", "pytest-rerunfailures (>=9.1,<12)", "pytest-xdist (>=2.5,<4)", "pyyaml (>=6.0,<7.0)", "requests (>=2.28,<3.0)", "ruamel.yaml (==0.17.21)", "ruff (==0.0.263)", "tenacity (>=8.0,<9.0)", "types-PyYAML (>=6.0,<7.0)", "types-jsonschema (>=3.2,<4.0)"]
+dev = ["black (==23.3.0)", "boto3 (>=1.23,<2)", "boto3-stubs[appconfig,serverlessrepo] (>=1.19.5,<2.dev0)", "coverage (>=5.3,<8)", "dateparser (>=1.1,<2.0)", "importlib-metadata", "mypy (>=1.3.0,<1.4.0)", "parameterized (>=0.7,<1.0)", "pytest (>=6.2,<8)", "pytest-cov (>=2.10,<5)", "pytest-env (>=0.6,<1)", "pytest-rerunfailures (>=9.1,<12)", "pytest-xdist (>=2.5,<4)", "pyyaml (>=6.0,<7.0)", "requests (>=2.28,<3.0)", "ruamel.yaml (==0.17.21)", "ruff (==0.0.284)", "tenacity (>=8.0,<9.0)", "types-PyYAML (>=6.0,<7.0)", "types-jsonschema (>=3.2,<4.0)"]
 
 [[package]]
 name = "black"
@@ -166,24 +166,24 @@ files = [
 
 [[package]]
 name = "cfn-lint"
-version = "0.77.10"
+version = "0.81.0"
 description = "Checks CloudFormation templates for practices and behaviour that could potentially be improved"
 optional = false
 python-versions = ">=3.7, <=4.0, !=4.0"
 files = [
-    {file = "cfn-lint-0.77.10.tar.gz", hash = "sha256:c3bd6f5ae12641b6f99e100a4654e12448a9e16a0e0579afec8369709e12c904"},
-    {file = "cfn_lint-0.77.10-py3-none-any.whl", hash = "sha256:88ecb273a1a1770f206b957374cf33cb0b0779d14da482e9800e879897af9fa0"},
+    {file = "cfn-lint-0.81.0.tar.gz", hash = "sha256:532cbfe076fa8b68e70ec67743e9086169ef6d15be3306cae8aa57b38994fd8f"},
+    {file = "cfn_lint-0.81.0-py3-none-any.whl", hash = "sha256:8f34392412ffe6213aa0897d469133123c2d8ad576a9cdafbc1f7b630f98d597"},
 ]
 
 [package.dependencies]
-aws-sam-translator = ">=1.68.0"
+aws-sam-translator = ">=1.75.0"
 jschema-to-python = ">=1.2.3,<1.3.0"
 jsonpatch = "*"
 jsonschema = ">=3.0,<5"
 junit-xml = ">=1.9,<2.0"
 networkx = ">=2.4,<4"
 pyyaml = ">5.4"
-regex = "*"
+regex = ">=2021.7.1"
 sarif-om = ">=1.0.4,<1.1.0"
 sympy = ">=1.0.0"
 
@@ -1665,4 +1665,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "c7bc7ea3c92499ae6b14015936ebc8247e8f7b2064087382026355883cd52e76"
+content-hash = "cb979cdd852cdff92d751ed40e45cb5e54c7327a1c78d25a026441bddfa5fade"
