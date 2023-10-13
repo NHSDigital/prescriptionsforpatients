@@ -1,0 +1,93 @@
+[
+  {
+    "ResourceType": "AWS::KMS::Key",
+    "LogicalResourceId": "ArtifactsBucketKMSKey",
+    "ResourceIdentifier": {
+      "KeyId": "d64a6c3c-08be-4a0b-919b-5714e3796f55"
+    }
+  },
+  {
+    "ResourceType": "AWS::KMS::Alias",
+    "LogicalResourceId": "ArtifactsBucketKMSKeyAlias",
+    "ResourceIdentifier": {
+      "AliasName": "alias/ArtifactsBucketKMSKeyAlias"
+    }
+  },
+  {
+    "ResourceType": "AWS::S3::Bucket",
+    "LogicalResourceId": "ArtifactsBucket",
+    "ResourceIdentifier": {
+      "BucketName": "ci-resources-artifactsbucket-1qldqrx1rpxbs"
+    }
+  },
+  {
+    "ResourceType": "AWS::KMS::Key",
+    "LogicalResourceId": "TrustStoreBucketKMSKey",
+    "ResourceIdentifier": {
+      "KeyId": "7ce43a79-1a08-4906-91c1-53fd007cb237"
+    }
+  },
+  {
+    "ResourceType": "AWS::KMS::Alias",
+    "LogicalResourceId": "TrustStoreBucketKMSKeyKMSKeyAlias",
+    "ResourceIdentifier": {
+      "AliasName": "alias/TrustStoreBucketKMSKeyAlias"
+    }
+  },
+  {
+    "ResourceType": "AWS::S3::Bucket",
+    "LogicalResourceId": "TrustStoreBucket",
+    "ResourceIdentifier": {
+      "BucketName": "ci-resources-truststorebucket-qcoogm3bx7q8"
+    }
+  },
+  {
+    "ResourceType": "AWS::S3::Bucket",
+    "LogicalResourceId": "AuditLoggingBucket",
+    "ResourceIdentifier": {
+      "BucketName": "ci-resources-auditloggingbucket-172cr1kpwj6qo"
+    }
+  },
+  {
+    "ResourceType": "AWS::KMS::Key",
+    "LogicalResourceId": "SplunkDeliveryStreamBackupKMSKey",
+    "ResourceIdentifier": {
+      "KeyId": "af6414de-0cdc-454a-83eb-c306e2a0e062"
+    }
+  },
+  {
+    "ResourceType": "AWS::KMS::Alias",
+    "LogicalResourceId": "SplunkDeliveryStreamBackupKMSKeyAlias",
+    "ResourceIdentifier": {
+      "AliasName": "alias/SplunkDeliveryStreamBackupKMSKeyAlias"
+    }
+  },
+  {
+    "ResourceType": "AWS::S3::Bucket",
+    "LogicalResourceId": "SplunkDeliveryStreamBackupBucket",
+    "ResourceIdentifier": {
+      "BucketName": "ci-resources-splunkdeliverystreambackupbucket-1dqjc0fc9d9k5"
+    }
+  },
+  {
+    "ResourceType": "AWS::IAM::Role",
+    "LogicalResourceId": "SplunkDeliveryStreamBackupBucketRole",
+    "ResourceIdentifier": {
+      "RoleName": "ci-resources-SplunkDeliveryStreamBackupBucketRole-QNK1EPLK4VM4"
+    }
+  },
+  {
+    "ResourceType": "AWS::KMS::Key",
+    "LogicalResourceId": "SecretsKMSKey",
+    "ResourceIdentifier": {
+      "KeyId": "c74d9e49-030b-4ed9-a882-9336dc54bbea"
+    }
+  },
+  {
+    "ResourceType": "AWS::KMS::Alias",
+    "LogicalResourceId": "SecretsKMSKeyKMSKeyAlias",
+    "ResourceIdentifier": {
+      "AliasName": "alias/SecretsKMSKeyAlias"
+    }
+  }
+]
