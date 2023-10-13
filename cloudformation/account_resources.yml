@@ -177,7 +177,7 @@ Resources:
               - "kms:Decrypt"
             Resource: !GetAtt ArtifactsBucketKMSKey.Arn
       Roles:
-        - !ImportValue ci-resources:CloudFormationDeployRole
+        - !ImportValue ci-resources:CloudFormationExecutionRoleName
 
   TrustStoreBucketKMSKey:
     Type: AWS::KMS::Key
@@ -267,7 +267,7 @@ Resources:
               - "kms:Decrypt"
             Resource: !GetAtt TrustStoreBucketKMSKey.Arn
       Roles:
-        - !ImportValue ci-resources:CloudFormationExecutionRole
+        - !ImportValue ci-resources:CloudFormationExecutionRoleName
 
   AuditLoggingBucket:
     Type: AWS::S3::Bucket

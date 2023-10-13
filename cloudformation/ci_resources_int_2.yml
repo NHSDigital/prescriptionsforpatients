@@ -353,7 +353,7 @@ Resources:
             Resource:
               - "arn:aws:kms:eu-west-2:399793560585:key/5750eeaa-de6d-47aa-aeb1-a8302c4fb198"
       Roles:
-        - "arn:aws:iam::399793560585:role/ci-resources-SplunkDeliveryStreamBackupBucketRole-B5P28150Z82I"
+        - "ci-resources-SplunkDeliveryStreamBackupBucketRole-B5P28150Z82I"
 
   SplunkDeliveryStreamBackupBucketIAMPolicy:
     Type: "AWS::IAM::Policy"
@@ -374,7 +374,7 @@ Resources:
               - "arn:aws:s3:::ci-resources-splunkdeliverystreambackupbucket-tktdzdskuzex"
               - "arn:aws:s3:::ci-resources-splunkdeliverystreambackupbucket-tktdzdskuzex/*"
       Roles:
-        - "arn:aws:iam::399793560585:role/ci-resources-SplunkDeliveryStreamBackupBucketRole-B5P28150Z82I"
+        - "ci-resources-SplunkDeliveryStreamBackupBucketRole-B5P28150Z82I"
 
   CAKeySecret:
     Type: AWS::SecretsManager::Secret
@@ -464,6 +464,12 @@ Outputs:
     Value: !GetAtt CloudFormationExecutionRole.Arn
     Export:
       Name: !Join [":", [!Ref "AWS::StackName", "CloudFormationExecutionRole"]]
+  CloudFormationExecutionRoleName:
+    Description: Name of the IAM Role(CloudFormationExecutionRole)
+    Value: !Ref CloudFormationExecutionRole
+    Export:
+      Name:
+        !Join [":", [!Ref "AWS::StackName", "CloudFormationExecutionRoleName"]]
 
   ArtifactsBucket:
     Description: ARN of the Artifacts bucket

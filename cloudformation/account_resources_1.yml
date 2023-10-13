@@ -1,0 +1,290 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:
+  ApiGwCloudWatchRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - apigateway.amazonaws.com
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: "AllowApiGwLogging"
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:DescribeLogGroups"
+                  - "logs:DescribeLogStreams"
+                  - "logs:PutLogEvents"
+                  - "logs:GetLogEvents"
+                  - "logs:FilterLogEvents"
+                  - "logs:CreateLogDelivery"
+                  - "logs:PutResourcePolicy"
+                  - "logs:UpdateLogDelivery"
+                  - "logs:DeleteLogDelivery"
+                  - "logs:DescribeResourcePolicies"
+                  - "logs:GetLogDelivery"
+                  - "logs:ListLogDeliveries"
+                Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/apigateway/*"
+
+  Account:
+    Type: "AWS::ApiGateway::Account"
+    Properties:
+      CloudWatchRoleArn: !GetAtt ApiGwCloudWatchRole.Arn
+
+  CloudwatchResourcePolicy:
+    Type: "AWS::Logs::ResourcePolicy"
+    Properties:
+      PolicyName: "AWSLogDeliveryWrite20150319"
+      PolicyDocument: '{ "Version": "2012-10-17", "Statement": [ { "Sid": "AWSLogDeliveryWrite", "Effect": "Allow", "Principal": { "Service": "delivery.logs.amazonaws.com" }, "Action": [ "logs:CreateLogStream", "logs:PutLogEvents" ], "Resource": [ "*" ] } ] }'
+
+  CloudwatchLogsKmsKey:
+    Type: "AWS::KMS::Key"
+    Properties:
+      KeyPolicy:
+        Version: 2012-10-17
+        Id: key-policy-id
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+            Action: "kms:*"
+            Resource: "*"
+          - Sid: Allow API Gateway Logging
+            Effect: Allow
+            Principal:
+              Service: !Sub "logs.${AWS::Region}.amazonaws.com"
+            Action:
+              - kms:Encrypt*
+              - kms:Decrypt*
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+              - kms:Describe*
+            Resource: "*"
+            Condition:
+              ArnEquals:
+                kms:EncryptionContext:aws:logs:arn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/apigateway/*"
+          - Sid: Allow API Gateway Role
+            Effect: Allow
+            Principal:
+              AWS: !GetAtt ApiGwCloudWatchRole.Arn
+            Action:
+              - kms:DescribeKey
+              - kms:GenerateDataKey*
+              - kms:Encrypt
+              - kms:ReEncrypt*
+            Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/apigateway/*"
+
+  CloudwatchLogsKmsKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/ApiGwCloudwatchLogsKmsKeyAlias
+      TargetKeyId: !Ref CloudwatchLogsKmsKey
+
+  ArtifactsBucketKMSKey:
+    Type: AWS::KMS::Key
+    DeletionPolicy: "Retain"
+    Properties:
+      KeyPolicy:
+        Version: 2012-10-17
+        Id: key-s3
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Join
+                - ""
+                - - "arn:aws:iam::"
+                  - !Ref "AWS::AccountId"
+                  - ":root"
+            Action: "kms:*"
+            Resource: "*"
+
+  ArtifactsBucketKMSKeyAlias:
+    Type: AWS::KMS::Alias
+    DeletionPolicy: "Retain"
+    Properties:
+      AliasName: alias/ArtifactsBucketKMSKeyAlias
+      TargetKeyId: !Ref ArtifactsBucketKMSKey
+
+  ArtifactsBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: "Retain"
+    Properties:
+      LoggingConfiguration:
+        DestinationBucketName: !Ref AuditLoggingBucket
+        LogFilePrefix: artifact/
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              KMSMasterKeyID: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:${ArtifactsBucketKMSKeyAlias}"
+              SSEAlgorithm: "aws:kms"
+
+  TrustStoreBucketKMSKey:
+    Type: AWS::KMS::Key
+    DeletionPolicy: "Retain"
+    Properties:
+      KeyPolicy:
+        Version: 2012-10-17
+        Id: key-s3
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Join
+                - ""
+                - - "arn:aws:iam::"
+                  - !Ref "AWS::AccountId"
+                  - ":root"
+            Action: "kms:*"
+            Resource: "*"
+
+  TrustStoreBucketKMSKeyKMSKeyAlias:
+    Type: AWS::KMS::Alias
+    DeletionPolicy: "Retain"
+    Properties:
+      AliasName: alias/TrustStoreBucketKMSKeyAlias
+      TargetKeyId: !Ref TrustStoreBucketKMSKey
+
+  TrustStoreBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: "Retain"
+    Properties:
+      LoggingConfiguration:
+        DestinationBucketName: !Ref AuditLoggingBucket
+        LogFilePrefix: truststore/
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              KMSMasterKeyID: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:${TrustStoreBucketKMSKeyKMSKeyAlias}"
+              SSEAlgorithm: "aws:kms"
+
+  AuditLoggingBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: "Retain"
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: "AES256"
+
+  SplunkDeliveryStreamBackupKMSKey:
+    Type: AWS::KMS::Key
+    DeletionPolicy: "Retain"
+    Properties:
+      KeyPolicy:
+        Version: 2012-10-17
+        Id: key-s3
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Join
+                - ""
+                - - "arn:aws:iam::"
+                  - !Ref "AWS::AccountId"
+                  - ":root"
+            Action: "kms:*"
+            Resource: "*"
+
+  SplunkDeliveryStreamBackupKMSKeyAlias:
+    Type: AWS::KMS::Alias
+    DeletionPolicy: "Retain"
+    Properties:
+      AliasName: alias/SplunkDeliveryStreamBackupKMSKeyAlias
+      TargetKeyId: !Ref SplunkDeliveryStreamBackupKMSKey
+
+  SplunkDeliveryStreamBackupBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: "Retain"
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+      LoggingConfiguration:
+        DestinationBucketName: !Ref AuditLoggingBucket
+        LogFilePrefix: splunkDeliveryStreamBackup/
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - BucketKeyEnabled: false
+            ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:${SplunkDeliveryStreamBackupKMSKeyAlias}"
+
+  SplunkDeliveryStreamBackupBucketRole:
+    Type: "AWS::IAM::Role"
+    DeletionPolicy: "Retain"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "firehose.amazonaws.com"
+            Action: "sts:AssumeRole"
+
+  SecretsKMSKey:
+    Type: AWS::KMS::Key
+    DeletionPolicy: "Retain"
+    Properties:
+      KeyPolicy:
+        Version: 2012-10-17
+        Id: key-s3
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Join
+                - ""
+                - - "arn:aws:iam::"
+                  - !Ref "AWS::AccountId"
+                  - ":root"
+            Action: "kms:*"
+            Resource: "*"
+
+  SecretsKMSKeyKMSKeyAlias:
+    Type: AWS::KMS::Alias
+    DeletionPolicy: "Retain"
+    Properties:
+      AliasName: alias/SecretsKMSKeyAlias
+      TargetKeyId: !Ref SecretsKMSKey
+
+Outputs:
+  CloudwatchLogsKmsKeyArn:
+    Description: "The Arn of the API GW cloudwatch logs KMS Key"
+    Value: !GetAtt CloudwatchLogsKmsKey.Arn
+    Export:
+      Name: !Join [":", [!Ref "AWS::StackName", "CloudwatchLogsKmsKeyArn"]]
