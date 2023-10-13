@@ -810,20 +810,20 @@ files = [
 
 [[package]]
 name = "pip-licenses"
-version = "3.5.5"
+version = "4.3.3"
 description = "Dump the software license list of Python packages installed with pip."
 optional = false
-python-versions = "~=3.7"
+python-versions = "~=3.8"
 files = [
-    {file = "pip-licenses-3.5.5.tar.gz", hash = "sha256:748cfd7aca6e05032f9fa85691301295f4d943e87955be6914ca49abe3c075a4"},
-    {file = "pip_licenses-3.5.5-py3-none-any.whl", hash = "sha256:6129c116bab2b202d90d6e3a96092df4ad84c0c4d57bb70192fc03f8bf06d181"},
+    {file = "pip-licenses-4.3.3.tar.gz", hash = "sha256:d14447094135eb5e43e4d9e1e3bcdb17a05751a9199df2d07f043a542c241c7a"},
+    {file = "pip_licenses-4.3.3-py3-none-any.whl", hash = "sha256:1b697cace3149d7d380307bb1f1e0505f0db98f25fada64d32b7e6240f37f72c"},
 ]
 
 [package.dependencies]
-PTable = "*"
+prettytable = ">=2.3.0"
 
 [package.extras]
-test = ["docutils", "pytest-cov", "pytest-pycodestyle", "pytest-runner"]
+test = ["docutils", "mypy", "pytest-cov", "pytest-pycodestyle", "pytest-runner"]
 
 [[package]]
 name = "pkgutil-resolve-name"
@@ -896,14 +896,21 @@ pyyaml = ">=5.1"
 virtualenv = ">=20.10.0"
 
 [[package]]
-name = "ptable"
-version = "0.9.2"
+name = "prettytable"
+version = "3.9.0"
 description = "A simple Python library for easily displaying tabular data in a visually appealing ASCII table format"
 optional = false
-python-versions = "*"
+python-versions = ">=3.8"
 files = [
-    {file = "PTable-0.9.2.tar.gz", hash = "sha256:aa7fc151cb40f2dabcd2275ba6f7fd0ff8577a86be3365cd3fb297cbe09cc292"},
+    {file = "prettytable-3.9.0-py3-none-any.whl", hash = "sha256:a71292ab7769a5de274b146b276ce938786f56c31cf7cea88b6f3775d82fe8c8"},
+    {file = "prettytable-3.9.0.tar.gz", hash = "sha256:f4ed94803c23073a90620b201965e5dc0bccf1760b7a7eaf3158cab8aaffdf34"},
 ]
+
+[package.dependencies]
+wcwidth = "*"
+
+[package.extras]
+tests = ["pytest", "pytest-cov", "pytest-lazy-fixture"]
 
 [[package]]
 name = "pycodestyle"
@@ -1525,6 +1532,17 @@ docs = ["furo (>=2023.7.26)", "proselint (>=0.13)", "sphinx (>=7.1.2)", "sphinx-
 test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess (>=1)", "flaky (>=3.7)", "packaging (>=23.1)", "pytest (>=7.4)", "pytest-env (>=0.8.2)", "pytest-freezer (>=0.4.8)", "pytest-mock (>=3.11.1)", "pytest-randomly (>=3.12)", "pytest-timeout (>=2.1)", "setuptools (>=68)", "time-machine (>=2.10)"]
 
 [[package]]
+name = "wcwidth"
+version = "0.2.8"
+description = "Measures the displayed width of unicode strings in a terminal"
+optional = false
+python-versions = "*"
+files = [
+    {file = "wcwidth-0.2.8-py2.py3-none-any.whl", hash = "sha256:77f719e01648ed600dfa5402c347481c0992263b81a027344f3e1ba25493a704"},
+    {file = "wcwidth-0.2.8.tar.gz", hash = "sha256:8705c569999ffbb4f6a87c6d1b80f324bd6db952f5eb0b95bc07517f4c1813d4"},
+]
+
+[[package]]
 name = "wrapt"
 version = "1.15.0"
 description = "Module for decorators, wrappers and monkey patching."
@@ -1626,4 +1644,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "7f758aa4e651a02823e645d006e6c341d77285d41cb275aec7be0a36c2ac74bc"
+content-hash = "544d102238a0217bdb896ca2f08c32a3ce3bb39178b497d9af5eec41481b07f2"
