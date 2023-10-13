@@ -31,7 +31,7 @@ jobs:
             ACTIVE_STACKS=$(aws cloudformation list-stacks |
             jq -r '.StackSummaries[] | 
             select ( .StackStatus != "DELETE_COMPLETE" ) |
-            select( .StackName | capture("^PR-(sandbox-)?(\\d+)$") ) 
+            select( .StackName | capture("^pr-(sandbox-)?(\\d+)$") ) 
             | .StackName ')
 
             ACTIVE_STACKS_ARRAY=( $ACTIVE_STACKS )
