@@ -37,7 +37,7 @@ pytest = "^7.3.1"
 cfn-lint = "^0.77.10"
 
 [tool.poetry.dev-dependencies]
-flake8 = "^3.7.9"
+flake8 = "^5.0.4"
 black = "^19.10b0"
 pip-licenses = "^4.3.3"
 jinja2 = "^2.11.1"
