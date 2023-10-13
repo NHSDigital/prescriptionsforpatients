@@ -148,25 +148,25 @@ generate_client_cert "apigee_client_cert"
 generate_client_cert "apigee_client_cert_sandbox"
 
 CA_KEY_ARN=$(aws cloudformation describe-stacks \
-    --stack-name ci-resources \
+    --stack-name account-resources \
     --query 'Stacks[0].Outputs[?OutputKey==`CAKeySecret`].OutputValue' --output text)
 CA_CERT_ARN=$(aws cloudformation describe-stacks \
-    --stack-name ci-resources \
+    --stack-name account-resources \
     --query 'Stacks[0].Outputs[?OutputKey==`CACertSecret`].OutputValue' --output text)
 CLIENT_KEY_ARN=$(aws cloudformation describe-stacks \
-    --stack-name ci-resources \
+    --stack-name account-resources \
     --query 'Stacks[0].Outputs[?OutputKey==`ClientKeySecret`].OutputValue' --output text)
 CLIENT_CERT_ARN=$(aws cloudformation describe-stacks \
-    --stack-name ci-resources \
+    --stack-name account-resources \
     --query 'Stacks[0].Outputs[?OutputKey==`ClientCertSecret`].OutputValue' --output text)
 CLIENT_SANDBOX_KEY_ARN=$(aws cloudformation describe-stacks \
-    --stack-name ci-resources \
+    --stack-name account-resources \
     --query 'Stacks[0].Outputs[?OutputKey==`ClientSandboxKeySecret`].OutputValue' --output text)
 CLIENT_SANDBOX_CERT_ARN=$(aws cloudformation describe-stacks \
-    --stack-name ci-resources \
+    --stack-name account-resources \
     --query 'Stacks[0].Outputs[?OutputKey==`ClientSandboxCertSecret`].OutputValue' --output text)
 TRUSTSTORE_BUCKET_ARN=$(aws cloudformation describe-stacks \
-    --stack-name ci-resources \
+    --stack-name account-resources \
     --query 'Stacks[0].Outputs[?OutputKey==`TrustStoreBucket`].OutputValue' --output text)
 TRUSTSTORE_BUCKET_NAME=$(echo ${TRUSTSTORE_BUCKET_ARN} | cut -d ":" -f 6)
 

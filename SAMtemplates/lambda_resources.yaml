@@ -118,7 +118,7 @@ Resources:
             Action:
               - kms:Decrypt
             Resource:
-              - !ImportValue ci-resources:SecretsKMSKey
+              - !ImportValue account-resources:SecretsKMSKey
       Roles:
         - !Ref LambdaRole
   LambdaSecretsPolicy:
@@ -133,11 +133,11 @@ Resources:
             Action:
               - secretsmanager:GetSecretValue
             Resource:
-              - !ImportValue ci-resources:SpinePrivateKey
-              - !ImportValue ci-resources:SpinePublicCertificate
-              - !ImportValue ci-resources:SpineASID
-              - !ImportValue ci-resources:SpinePartyKey
-              - !ImportValue ci-resources:SpineCAChain
+              - !ImportValue account-resources:SpinePrivateKey
+              - !ImportValue account-resources:SpinePublicCertificate
+              - !ImportValue account-resources:SpineASID
+              - !ImportValue account-resources:SpinePartyKey
+              - !ImportValue account-resources:SpineCAChain
       Roles:
         - !Ref LambdaRole
   LambdaLogGroup:
