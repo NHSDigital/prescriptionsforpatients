@@ -23,7 +23,7 @@ updates:
   ###################################
   # Poetry  #########################
   ###################################
-  - package-ecosystem: "python"
+  - package-ecosystem: "pip"
     directory: "/"
     schedule:
       interval: "daily"
