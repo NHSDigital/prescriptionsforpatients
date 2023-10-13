@@ -70,7 +70,7 @@ jobs:
         run: |
           echo ${{ inputs.COMMIT_ID }}
           export artifact_bucket=$(aws cloudformation list-exports --output json | \
-            jq -r '.Exports[] | select(.Name == "ci-resources:ArtifactsBucket") | .Value' |grep -o '[^:]*$')
+            jq -r '.Exports[] | select(.Name == "account-resources:ArtifactsBucket") | .Value' |grep -o '[^:]*$')
           export artifact_bucket_prefix=${{ inputs.ARTIFACT_BUCKET_PREFIX }}
           export template_file=template.yaml
           export stack_name=${{ inputs.STACK_NAME }}
@@ -82,7 +82,7 @@ jobs:
           export cloud_formation_execution_role=$(aws cloudformation list-exports --output json | \
               jq -r '.Exports[] | select(.Name == "ci-resources:CloudFormationExecutionRole") | .Value' )
           TRUSTSTORE_BUCKET_ARN=$(aws cloudformation describe-stacks \
-              --stack-name ci-resources \
+              --stack-name account-resources \
               --query 'Stacks[0].Outputs[?OutputKey==`TrustStoreBucket`].OutputValue' --output text)
           TRUSTSTORE_BUCKET_NAME=$(echo ${TRUSTSTORE_BUCKET_ARN} | cut -d ":" -f 6)
           export LATEST_TRUSTSTORE_VERSION=$(aws s3api list-object-versions \
