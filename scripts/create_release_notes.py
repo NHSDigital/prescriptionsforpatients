@@ -11,14 +11,12 @@ JIRA_TOKEN = os.getenv("JIRA_TOKEN")
 JIRA_URL = "https://nhsd-jira.digital.nhs.uk/"
 CONFLUENCE_TOKEN = os.getenv("CONFLUENCE_TOKEN")
 CONFLUENCE_URL = "https://nhsd-confluence.digital.nhs.uk/"
-PROD_RELEASE_NOTES_PAGE_ID = 693750029
-INT_RELEASE_NOTES_PAGE_ID = 693750027
-GITHUB_REPO_NAME = "prescriptionsforpatients"
-PRODUCT_NAME = "Prescritpions for Patients AWS layer"
-INT_TITLE = "Current prescriptions for patients AWS layer release notes - INT"
-PROD_TITLE = "Current prescriptions for patients AWS layer release notes - PROD"
-gh = Github()
-repo = gh.get_repo(f"NHSDigital/{GITHUB_REPO_NAME}")
+# PROD_RELEASE_NOTES_PAGE_ID = 693750029
+# INT_RELEASE_NOTES_PAGE_ID = 693750027
+# GITHUB_REPO_NAME = "prescriptionsforpatients"
+# PRODUCT_NAME = "Prescritpions for Patients AWS layer"
+# INT_TITLE = "Current prescriptions for patients AWS layer release notes - INT"
+# PROD_TITLE = "Current prescriptions for patients AWS layer release notes - PROD"
 
 
 def get_jira_details(jira, jira_ticket_number: str) -> Tuple[str, str, str, str, str]:
@@ -59,9 +57,11 @@ def create_release_notes(jira, current_tag, target_tag, repo, target_env):
     diff = repo.compare(base=current_tag, head=target_tag)
     tags = repo.get_tags()
     for commit in diff.commits:
-        release_tag = [tag.name for tag in tags if tag.commit == commit]
-        if len(release_tag) == 0:
+        release_tags = [tag.name for tag in tags if tag.commit == commit]
+        if len(release_tags) == 0:
             release_tag = "can not find release tag"
+        else:
+            release_tag = release_tags[0]
         first_commit_line = commit.commit.message.splitlines()[0]
         match = re.search(r'(AEA[- ]\d*)', first_commit_line, re.IGNORECASE)
         if match:
@@ -108,27 +108,46 @@ if __name__ == "__main__":
         required=True
     )
     script.add_argument(
+        "--release-notes-page-id",
+        help="Release notes page id",
+        required=True
+    )
+    script.add_argument(
+        "--release-notes-page-title",
+        help="Release notes page title",
+        required=True
+    )
+    script.add_argument(
+        "--repo-name",
+        help="Github repo name",
+        required=True
+    )
+    script.add_argument(
+        "--product-name",
+        help="Product name",
+        required=True
+    )
+    script.add_argument(
         "--target-env",
         help="Target environment",
-        required=True,
-        choices=['INT', 'PROD'],
-        default="INT"
+        required=True
     )
 
     args = script.parse_args()
 
     current_tag = args.current_tag
     target_tag = args.target_tag
+    target_confluence_page_id = args.release_notes_page_id
+    confluence_page_title = args.release_notes_page_title
+    GITHUB_REPO_NAME = args.repo_name
+    PRODUCT_NAME = args.product_name
     target_env = args.target_env
 
     jira = Jira(JIRA_URL, token=JIRA_TOKEN)
+    gh = Github()
+    repo = gh.get_repo(f"NHSDigital/{GITHUB_REPO_NAME}")
+
     output = create_release_notes(jira, current_tag, target_tag, repo, target_env)
     print(output)
     confluence = Confluence(CONFLUENCE_URL, token=CONFLUENCE_TOKEN)
-    if target_env == "INT":
-        target_confluence_page_id = INT_RELEASE_NOTES_PAGE_ID
-        confluence_page_title = INT_TITLE
-    else:
-        target_confluence_page_id = PROD_RELEASE_NOTES_PAGE_ID
-        confluence_page_title = PROD_TITLE
     confluence.update_page(page_id=target_confluence_page_id, body=output, title=confluence_page_title)
