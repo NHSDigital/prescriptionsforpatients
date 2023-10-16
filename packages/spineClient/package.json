@@ -15,7 +15,7 @@
   "license": "MIT",
   "dependencies": {
     "@aws-lambda-powertools/logger": "^1.11.0",
-    "axios": "^1.4.0"
+    "axios": "^1.5.1"
   },
   "devDependencies": {
     "axios-mock-adapter": "^1.21.5"
