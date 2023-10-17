@@ -14,10 +14,10 @@
   "author": "NHS Digital",
   "license": "MIT",
   "dependencies": {
-    "@aws-lambda-powertools/logger": "^1.11.0",
+    "@aws-lambda-powertools/logger": "^1.14.0",
     "axios": "^1.5.1"
   },
   "devDependencies": {
-    "axios-mock-adapter": "^1.21.5"
+    "axios-mock-adapter": "^1.22.0"
   }
 }
