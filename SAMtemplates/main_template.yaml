@@ -146,8 +146,6 @@ Resources:
             ApiId: !Ref HttpApiGateway
             Path: /Bundle
             Method: get
-            RouteSettings:
-              DetailedMetricsEnabled: true
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
       BuildProperties:
@@ -184,8 +182,6 @@ Resources:
             ApiId: !Ref HttpApiGateway
             Path: /metadata
             Method: get
-            RouteSettings:
-              DetailedMetricsEnabled: true
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
       BuildProperties:
@@ -230,8 +226,6 @@ Resources:
             ApiId: !Ref HttpApiGateway
             Path: /_status
             Method: get
-            RouteSettings:
-              DetailedMetricsEnabled: true
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
       BuildProperties:
@@ -266,6 +260,8 @@ Resources:
     Type: AWS::Serverless::HttpApi
     Properties:
       StageName: Prod
+      DefaultRouteSettings:
+        DetailedMetricsEnabled: true
       Domain:
         DomainName:
           Fn::Join:
