@@ -189,23 +189,3 @@ aws-configure:
 
 aws-login:
 	aws sso login --sso-session sso-session
-
-publish-release-notes-int: guard-dev_tag guard-int_tag guard-JIRA_TOKEN guard-CONFLUENCE_TOKEN
-	poetry run python scripts/create_release_notes.py \
-		--target-tag $$dev_tag \
-		--current-tag $$int_tag \
-		--target-env INT \
-		--release-notes-page-id 693750027 \
-		--release-notes-page-title "Current prescriptions for patients AWS layer release notes - INT" \
-		--repo-name prescriptionsforpatients \
-		--product-name "Prescritpions for Patients AWS layer"
-
-publish-release-notes-prod: guard-dev_tag guard-prod_tag guard-JIRA_TOKEN guard-CONFLUENCE_TOKEN
-	poetry run python scripts/create_release_notes.py \
-		--target-tag $$dev_tag \
-		--current-tag $$prod_tag \
-		--target-env PROD \
-		--release-notes-page-id 693750029 \
-		--release-notes-page-title "Current prescriptions for patients AWS layer release notes - PROD" \
-		--repo-name prescriptionsforpatients \
-		--product-name "Prescritpions for Patients AWS layer"

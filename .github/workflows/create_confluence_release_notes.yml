@@ -55,21 +55,6 @@ jobs:
           export PATH="/home/runner/.asdf/installs/poetry/1.3.1/bin:$PATH"
           make install
 
-      - name: Configure dev AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: eu-west-2
-          role-to-assume: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
-          role-session-name: github-actions
-
-      - shell: bash
-        name: get dev tag
-        run: |
-          dev_tag=$(aws cloudformation describe-stacks --stack-name dev-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
-          export dev_tag
-          echo "dev_tag=${dev_tag}" >> "$GITHUB_ENV"
-
-
       - name: Configure target AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -84,25 +69,61 @@ jobs:
           export target_tag
           echo "target_tag=${target_tag}" >> "$GITHUB_ENV"
 
+      - name: Configure dev AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: eu-west-2
+          role-to-assume: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+          role-session-name: github-actions
+
+      - shell: bash
+        name: get dev tag
+        run: |
+          dev_tag=$(aws cloudformation describe-stacks --stack-name dev-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
+          export dev_tag
+          echo "dev_tag=${dev_tag}" >> "$GITHUB_ENV"
+
       - shell: bash
         name: create int release notes
         if: inputs.TARGET_ENVIRONMENT == 'int'
-        env:
-          CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_TOKEN }}
-          JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}
         run: |
-          export CONFLUENCE_TOKEN
-          export JIRA_TOKEN
-          int_tag=${target_tag} make publish-release-notes-int
+          ENV_VAR=release-notes:CreateReleaseNotesLambdaName
+          RELEASE_NOTES_LAMBDA=$(aws cloudformation list-exports \
+            --query "Exports[?Name=='$ENV_VAR'].Value" \
+            --output text)
+            cat <<EOF > payload.json
+            { 
+              "currentTag": "$target_tag", 
+              "targetTag": "$dev_tag", 
+              "repoName": "prescriptionsforpatients", 
+              "targetEnvironment": "INT", 
+              "productName": "Prescritpions for Patients AWS layer", 
+              "releaseNotesPageId": "693750027", 
+              "releaseNotesPageTitle": "Current PfP AWS layer release notes - INT"
+            }
+            EOF
+          aws lambda invoke --function-name "${RELEASE_NOTES_LAMBDA}" \
+            --payload file://payload.json out.txt
 
       - shell: bash
         name: create prod release notes
         if: inputs.TARGET_ENVIRONMENT == 'prod'
-        env:
-          CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_TOKEN }}
-          JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}
         run: |
-          export CONFLUENCE_TOKEN
-          export JIRA_TOKEN
-          prod_tag=${target_tag} make publish-release-notes-prod
+          ENV_VAR=release-notes:CreateReleaseNotesLambdaName
+          RELEASE_NOTES_LAMBDA=$(aws cloudformation list-exports \
+            --query "Exports[?Name=='$ENV_VAR'].Value" \
+            --output text)
+            cat <<EOF > payload.json
+            { 
+              "currentTag": "$target_tag", 
+              "targetTag": "$dev_tag", 
+              "repoName": "prescriptionsforpatients", 
+              "targetEnvironment": "PROD", 
+              "productName": "Prescritpions for Patients AWS layer", 
+              "releaseNotesPageId": "693750029", 
+              "releaseNotesPageTitle": "Current PfP AWS layer release notes - PROD"
+            }
+            EOF
+          aws lambda invoke --function-name "${RELEASE_NOTES_LAMBDA}" \
+            --payload file://payload.json out.txt
           
