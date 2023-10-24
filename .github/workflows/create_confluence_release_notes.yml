@@ -11,10 +11,6 @@ on:
         required: true
       TARGET_CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
-      CONFLUENCE_TOKEN:
-        required: true
-      JIRA_TOKEN:
-        required: true
 
 jobs:
   create_confluence_release_notes:
