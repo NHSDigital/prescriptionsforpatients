@@ -260,6 +260,8 @@ Resources:
     Type: AWS::Serverless::HttpApi
     Properties:
       StageName: Prod
+      DefaultRouteSettings:
+        DetailedMetricsEnabled: true
       Domain:
         DomainName:
           Fn::Join:
