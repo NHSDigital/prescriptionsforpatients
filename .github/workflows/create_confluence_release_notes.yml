@@ -102,6 +102,7 @@ jobs:
               "releaseNotesPageTitle": "Current PfP AWS layer release notes - INT"
             }
             EOF
+          cat payload.json
           aws lambda invoke --function-name "${RELEASE_NOTES_LAMBDA}" \
             --payload file://payload.json out.txt
 
@@ -124,6 +125,7 @@ jobs:
               "releaseNotesPageTitle": "Current PfP AWS layer release notes - PROD"
             }
             EOF
+          cat payload.json
           aws lambda invoke --function-name "${RELEASE_NOTES_LAMBDA}" \
             --payload file://payload.json out.txt
           
