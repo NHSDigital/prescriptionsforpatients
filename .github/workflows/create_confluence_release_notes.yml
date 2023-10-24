@@ -104,7 +104,8 @@ jobs:
           EOF
           cat payload.json
           aws lambda invoke --function-name "${RELEASE_NOTES_LAMBDA}" \
-            --payload file://payload.json out.txt
+          --cli-binary-format raw-in-base64-out \
+          --payload file://payload.json out.txt
 
       - shell: bash
         name: create prod release notes
@@ -127,5 +128,6 @@ jobs:
           EOF
           cat payload.json
           aws lambda invoke --function-name "${RELEASE_NOTES_LAMBDA}" \
+            --cli-binary-format raw-in-base64-out \
             --payload file://payload.json out.txt
           
