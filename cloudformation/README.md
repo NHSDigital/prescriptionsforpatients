@@ -38,7 +38,7 @@ It creates the following resources
 
 The stack deployed in each environment must be called `ci-resources` as the deployment pipeline gets the bucket and cloudformation execution role from the stack as part of its processing.
 
-To deploy the stack, use the following
+To deploy the stack, use the following. Note the SubjectClaimFilters can be used to grant access to multiple repos. Before deploying you should check current values to ensure that they are retained.
 
 ```
 make aws-login
@@ -49,7 +49,8 @@ aws cloudformation deploy \
           --template-file cloudformation/ci_resources.yml \
           --stack-name ci-resources \
           --region eu-west-2 \
-          --capabilities CAPABILITY_IAM
+          --capabilities CAPABILITY_IAM \
+          --parameter-overrides SubjectClaimFilters="repo:NHSDigital/prescriptionsforpatients:*,repo:NHSDigital/electronic-prescription-service-release-notes:*"
 ```
 
 Once this is deployed, you should get the ARN for the role `ci-resources:CloudFormationDeployRole` using this command
