@@ -11,8 +11,8 @@
     "check-licenses": "license-checker --failOn GPL --failOn LGPL --start ../.."
   },
   "dependencies": {
-    "@aws-sdk/client-firehose": "^3.431.0",
-    "@aws-sdk/client-kinesis": "^3.430.0",
+    "@aws-sdk/client-firehose": "^3.435.0",
+    "@aws-sdk/client-kinesis": "^3.433.0",
     "aws-sdk": "^2.1479.0",
     "zlib": "^1.0.5"
   }
