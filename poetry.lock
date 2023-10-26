@@ -13,13 +13,13 @@ files = [
 
 [[package]]
 name = "atlassian-python-api"
-version = "3.41.2"
+version = "3.41.3"
 description = "Python Atlassian REST API Wrapper"
 optional = false
 python-versions = "*"
 files = [
-    {file = "atlassian-python-api-3.41.2.tar.gz", hash = "sha256:a2022977da5a395412ace8e29c2c541312f07d45fc750435dec036af53daceda"},
-    {file = "atlassian_python_api-3.41.2-py3-none-any.whl", hash = "sha256:27c2361a22ee8cc69988f67a591488cbfce09e5f284da000011af11944d2bc96"},
+    {file = "atlassian-python-api-3.41.3.tar.gz", hash = "sha256:a29aae8f456babe125e3371a0355018e9c1d37190333efc312bd81163bd96ffd"},
+    {file = "atlassian_python_api-3.41.3-py3-none-any.whl", hash = "sha256:7661d3ce3c80e887a7e5ec1c61c1e37d3eaacb4857e377b38ef4084d0f067757"},
 ]
 
 [package.dependencies]
@@ -1626,4 +1626,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "18dd55837e1d71cf6c61e42b8ccae454a081d47b111fda2c6b56eb81ffc73eb3"
+content-hash = "e292e21ba35286b95308708e106b9f8bdc4d5a7fb32f0fe62b484f69792ee8cc"
