@@ -1,0 +1,128 @@
+name: 'Create confluence release notes'
+
+on:
+  workflow_call:
+    inputs:
+      TARGET_ENVIRONMENT:
+        required: true
+        type: string
+    secrets:
+      DEV_CLOUD_FORMATION_DEPLOY_ROLE:
+        required: true
+      TARGET_CLOUD_FORMATION_DEPLOY_ROLE:
+        required: true
+
+jobs:
+  create_confluence_release_notes:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BRANCH_NAME }}
+
+      # using git commit sha for version of action to ensure we have stable version
+      - name: Install asdf
+        uses: asdf-vm/actions/setup@4f8f7939dd917fc656bb7c3575969a5988c28364
+        with:
+          asdf_branch: v0.11.3
+  
+      - name: Cache asdf
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.asdf
+          key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
+          restore-keys: |
+            ${{ runner.os }}-asdf-
+
+      - name: Install asdf dependencies in .tool-versions
+        uses: asdf-vm/actions/install@4f8f7939dd917fc656bb7c3575969a5988c28364
+        with:
+          asdf_branch: v0.11.3
+        env:
+          PYTHON_CONFIGURE_OPTS: --enable-shared 
+  
+      - name: make install
+        run: |
+          make install
+
+      - name: Configure target AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: eu-west-2
+          role-to-assume: ${{ secrets.TARGET_CLOUD_FORMATION_DEPLOY_ROLE }}
+          role-session-name: github-actions
+
+      - shell: bash
+        name: get target tag
+        run: |
+          target_tag=$(aws cloudformation describe-stacks --stack-name ${{ inputs.TARGET_ENVIRONMENT }}-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
+          export target_tag
+          echo "target_tag=${target_tag}" >> "$GITHUB_ENV"
+
+      - name: Configure dev AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: eu-west-2
+          role-to-assume: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+          role-session-name: github-actions
+
+      - shell: bash
+        name: get dev tag
+        run: |
+          dev_tag=$(aws cloudformation describe-stacks --stack-name dev-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
+          export dev_tag
+          echo "dev_tag=${dev_tag}" >> "$GITHUB_ENV"
+
+      - shell: bash
+        name: create int release notes
+        if: inputs.TARGET_ENVIRONMENT == 'int'
+        run: |
+          ENV_VAR=release-notes:CreateReleaseNotesLambdaName
+          RELEASE_NOTES_LAMBDA=$(aws cloudformation list-exports \
+            --query "Exports[?Name=='$ENV_VAR'].Value" \
+            --output text)
+          cat <<EOF > payload.json
+          { 
+              "currentTag": "$target_tag", 
+              "targetTag": "$dev_tag", 
+              "repoName": "prescriptionsforpatients", 
+              "targetEnvironment": "INT", 
+              "productName": "Prescritpions for Patients AWS layer", 
+              "releaseNotesPageId": "693750027", 
+              "releaseNotesPageTitle": "Current PfP AWS layer release notes - INT"
+          }
+          EOF
+          cat payload.json
+          aws lambda invoke --function-name "${RELEASE_NOTES_LAMBDA}" \
+          --cli-binary-format raw-in-base64-out \
+          --payload file://payload.json out.txt
+
+      - shell: bash
+        name: create prod release notes
+        if: inputs.TARGET_ENVIRONMENT == 'prod'
+        run: |
+          ENV_VAR=release-notes:CreateReleaseNotesLambdaName
+          RELEASE_NOTES_LAMBDA=$(aws cloudformation list-exports \
+            --query "Exports[?Name=='$ENV_VAR'].Value" \
+            --output text)
+          cat <<EOF > payload.json
+          { 
+              "currentTag": "$target_tag", 
+              "targetTag": "$dev_tag", 
+              "repoName": "prescriptionsforpatients", 
+              "targetEnvironment": "PROD", 
+              "productName": "Prescritpions for Patients AWS layer", 
+              "releaseNotesPageId": "693750029", 
+              "releaseNotesPageTitle": "Current PfP AWS layer release notes - PROD"
+          }
+          EOF
+          cat payload.json
+          aws lambda invoke --function-name "${RELEASE_NOTES_LAMBDA}" \
+            --cli-binary-format raw-in-base64-out \
+            --payload file://payload.json out.txt
+          

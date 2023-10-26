@@ -1,0 +1,21 @@
+name: Adhoc create confluence release notes
+
+on:
+  workflow_dispatch:
+
+jobs:
+  create_aws_int_release_notes:
+    uses: ./.github/workflows/create_confluence_release_notes.yml
+    with:
+      TARGET_ENVIRONMENT: int
+    secrets:
+      DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
+
+  create_aws_prod_release_notes:
+    uses: ./.github/workflows/create_confluence_release_notes.yml
+    with:
+      TARGET_ENVIRONMENT: prod
+    secrets:
+      DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}

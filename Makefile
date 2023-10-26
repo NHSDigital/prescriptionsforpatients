@@ -125,7 +125,13 @@ lint-cloudformation:
 lint-samtemplates:
 	poetry run cfn-lint -t SAMtemplates/*.yaml
 
-lint: lint-node lint-go lint-cloudformation lint-samtemplates
+lint-python:
+	poetry run flake8 scripts/*.py --config .flake8
+
+lint-githubactions:
+	actionlint
+
+lint: lint-node lint-go lint-cloudformation lint-samtemplates lint-python
 
 test: compile
 	npm run test --workspace packages/capabilityStatement

@@ -42,7 +42,8 @@ RUN asdf plugin add python; \
     asdf plugin-add java; \
     asdf plugin-add direnv; \
     asdf plugin-add golang https://github.com/kennyp/asdf-golang.git; \
-    asdf plugin add golangci-lint https://github.com/hypnoglow/asdf-golangci-lint.git;
+    asdf plugin add golangci-lint https://github.com/hypnoglow/asdf-golangci-lint.git; \
+    asdf plugin add actionlint;
 
 
 WORKDIR /workspaces/prescriptionsforpatients
