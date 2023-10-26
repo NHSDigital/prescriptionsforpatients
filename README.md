@@ -110,7 +110,7 @@ This can be obtained from [SonarCloud](https://sonarcloud.io/)
 as described [here](https://docs.sonarsource.com/sonarqube/latest/user-guide/user-account/generating-and-using-tokens/).
 You will need the "Execute Analysis" permission for the project (NHSDigital_prescriptionsforpatients) in order for the token to work.
 
-### Continuos deployment for testing
+### Continuous deployment for testing
 
 You can run the following command to deploy the code to AWS for testing
 

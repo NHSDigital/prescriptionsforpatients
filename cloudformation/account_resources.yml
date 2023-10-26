@@ -585,6 +585,24 @@ Resources:
       KmsKeyId: alias/SecretsKMSKeyAlias
       SecretString: ChangeMe
 
+  JiraToken:
+    DependsOn: SecretsKMSKeyKMSKeyAlias
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: Jira token for creating release notes
+      KmsKeyId: alias/SecretsKMSKeyAlias
+      SecretString: ChangeMe
+      Name: !Sub "${AWS::StackName}-jiraToken"
+
+  ConfluenceToken:
+    DependsOn: SecretsKMSKeyKMSKeyAlias
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: Confluence token for creating release notes
+      KmsKeyId: alias/SecretsKMSKeyAlias
+      SecretString: ChangeMe
+      Name: !Sub "${AWS::StackName}-confluenceToken"
+
 Outputs:
   CloudwatchLogsKmsKeyArn:
     Description: "The Arn of the API GW cloudwatch logs KMS Key"
@@ -663,6 +681,18 @@ Outputs:
     Value: !GetAtt SpineCAChain.Id
     Export:
       Name: !Join [":", [!Ref "AWS::StackName", "SpineCAChain"]]
+
+  JiraToken:
+    Description: JiraToken
+    Value: !GetAtt JiraToken.Id
+    Export:
+      Name: !Join [":", [!Ref "AWS::StackName", "JiraToken"]]
+
+  ConfluenceToken:
+    Description: ConfluenceToken
+    Value: !GetAtt ConfluenceToken.Id
+    Export:
+      Name: !Join [":", [!Ref "AWS::StackName", "ConfluenceToken"]]
 
   AuditLoggingBucket:
     Description: ARN of the audit logging bucket

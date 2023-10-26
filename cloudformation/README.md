@@ -44,7 +44,12 @@ To deploy the stack, use the following. Note the SubjectClaimFilters can be used
 make aws-login
 export AWS_PROFILE=<name of AWS profile defined in ~/.aws/config>
 
+# get current stack paramater
+aws cloudformation describe-stacks \
+    --stack-name ci-resources \
+    --query "Stacks[0].Parameters[?ParameterKey=='SubjectClaimFilters'].ParameterValue"
 
+# change param to output from above
 aws cloudformation deploy \
           --template-file cloudformation/ci_resources.yml \
           --stack-name ci-resources \

@@ -178,6 +178,11 @@ Outputs:
     Value: !GetAtt CloudFormationDeployRole.Arn
     Export:
       Name: !Join [":", [!Ref "AWS::StackName", "CloudFormationDeployRole"]]
+  CloudFormationDeployRoleName:
+    Description: Name of the IAM Role(CloudFormationDeployRole)
+    Value: !Ref CloudFormationDeployRole
+    Export:
+      Name: !Join [":", [!Ref "AWS::StackName", "CloudFormationDeployRoleName"]]
   CloudFormationExecutionRole:
     Description: ARN of the IAM Role(CloudFormationExecutionRole)
     Value: !GetAtt CloudFormationExecutionRole.Arn
