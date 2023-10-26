@@ -107,17 +107,17 @@ uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
 name = "boto3"
-version = "1.28.69"
+version = "1.28.71"
 description = "The AWS SDK for Python"
 optional = false
 python-versions = ">= 3.7"
 files = [
-    {file = "boto3-1.28.69-py3-none-any.whl", hash = "sha256:beefa8e8e1cf5f904dd95736f3516508f6a0cf396ff46aa166a136107cc2ff51"},
-    {file = "boto3-1.28.69.tar.gz", hash = "sha256:2dd93e5c530334fbc74a662f269fa8bfc4c3b7321f9dbe2d53f7c8e57fe5f6dd"},
+    {file = "boto3-1.28.71-py3-none-any.whl", hash = "sha256:cf54d6da6d348317da896235e9850c7e550dbc18bd5cb16cce1b035e90d0166f"},
+    {file = "boto3-1.28.71.tar.gz", hash = "sha256:8d1b50127b20b817fdcec3ce6a625c5057b5a722acf1cfa64cf3824ff40b1e75"},
 ]
 
 [package.dependencies]
-botocore = ">=1.31.69,<1.32.0"
+botocore = ">=1.31.71,<1.32.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.7.0,<0.8.0"
 
@@ -126,13 +126,13 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.31.69"
+version = "1.31.71"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">= 3.7"
 files = [
-    {file = "botocore-1.31.69-py3-none-any.whl", hash = "sha256:26b1d2f82cc24987d1c7cc783b2fee04908a8f7b293bf1663884eb0768b1eedf"},
-    {file = "botocore-1.31.69.tar.gz", hash = "sha256:412439a199ada10c6284df1f48395928676d81d51339b1a93217cfd4c4f1c9a6"},
+    {file = "botocore-1.31.71-py3-none-any.whl", hash = "sha256:505cae827536a7400c3faaca8aeefd2e7618134a8644df6b3077fa487fe2b783"},
+    {file = "botocore-1.31.71.tar.gz", hash = "sha256:223e95e8d44ffd85d6baa5c9fc67b029ff087484d304a4478c4dfe38bd433f3f"},
 ]
 
 [package.dependencies]
@@ -170,17 +170,17 @@ files = [
 
 [[package]]
 name = "cfn-lint"
-version = "0.82.2"
+version = "0.83.0"
 description = "Checks CloudFormation templates for practices and behaviour that could potentially be improved"
 optional = false
 python-versions = ">=3.7, <=4.0, !=4.0"
 files = [
-    {file = "cfn-lint-0.82.2.tar.gz", hash = "sha256:da15a401ecf930fbba3abc7d143c98b68383c99981c730177908a24c240eb143"},
-    {file = "cfn_lint-0.82.2-py3-none-any.whl", hash = "sha256:23177bd883d342c21f90030d27358c58e8fc5a05428cb2eb4d2287bc105d15e9"},
+    {file = "cfn-lint-0.83.0.tar.gz", hash = "sha256:212251e17322c630506ff02117ff53586037bec3a7161f7cb081c7afde9fd2ca"},
+    {file = "cfn_lint-0.83.0-py3-none-any.whl", hash = "sha256:e2f8d763d1cec9f9cbed58b0461b04c8c294199844d65a35e42ed3400314f181"},
 ]
 
 [package.dependencies]
-aws-sam-translator = ">=1.75.0"
+aws-sam-translator = ">=1.77.0"
 jschema-to-python = ">=1.2.3,<1.3.0"
 jsonpatch = "*"
 jsonschema = ">=3.0,<5"
@@ -1068,13 +1068,13 @@ files = [
 
 [[package]]
 name = "pytest"
-version = "7.4.2"
+version = "7.4.3"
 description = "pytest: simple powerful testing with Python"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pytest-7.4.2-py3-none-any.whl", hash = "sha256:1d881c6124e08ff0a1bb75ba3ec0bfd8b5354a01c194ddd5a0a870a48d99b002"},
-    {file = "pytest-7.4.2.tar.gz", hash = "sha256:a766259cfab564a2ad52cb1aae1b881a75c3eb7e34ca3779697c23ed47c47069"},
+    {file = "pytest-7.4.3-py3-none-any.whl", hash = "sha256:0d009c083ea859a71b76adf7c1d502e4bc170b80a8ef002da5806527b9591fac"},
+    {file = "pytest-7.4.3.tar.gz", hash = "sha256:d989d136982de4e3b29dabcc838ad581c64e8ed52c11fbe86ddebd9da0818cd5"},
 ]
 
 [package.dependencies]
@@ -1601,4 +1601,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "7741e9928c54047534768a1b8bc754ea46594fd3881e5da9a37498838e8d2275"
+content-hash = "43a4c3885eeb3fa545e7e67a7cd559cef1626d0f477110be746c5391062280b3"
