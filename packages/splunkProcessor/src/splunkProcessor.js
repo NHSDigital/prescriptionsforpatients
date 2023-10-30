@@ -51,7 +51,12 @@ The code below will:
 const zlib = require("zlib")
 const {Firehose} = require("@aws-sdk/client-firehose")
 const {Kinesis} = require("@aws-sdk/client-kinesis")
+const {Logger} = require("@aws-lambda-powertools/logger")
 const helpers = require("./helpers.js")
+
+const ENV = process.env.ENV
+const LOG_LEVEL = process.env.LOG_LEVEL
+const logger = new Logger({serviceName: "splunkProcessor", logLevel: LOG_LEVEL})
 
 /**
  * logEvent has this format:
@@ -203,42 +208,38 @@ function reingestRecordBatches(putRecordBatches, isSas, totalRecordsToBeReingest
     for (const recordBatch of putRecordBatches) {
       if (isSas) {
         const client = new Kinesis({region: region})
-        helpers.putRecordsToKinesisStream(streamName, recordBatch, client, resolve, reject, 0, 20)
+        helpers.putRecordsToKinesisStream(streamName, recordBatch, client, resolve, reject, 0, 20, logger)
       } else {
         const client = new Firehose({region: region})
-        helpers.putRecordsToFirehoseStream(streamName, recordBatch, client, resolve, reject, 0, 20)
+        helpers.putRecordsToFirehoseStream(streamName, recordBatch, client, resolve, reject, 0, 20, logger)
       }
       recordsReingestedSoFar += recordBatch.length
-      console.log(
-        "Reingested %s/%s records out of %s in to %s stream",
-        recordsReingestedSoFar,
-        totalRecordsToBeReingested,
-        event.records.length,
-        streamName
-      )
+      logger.info("Reingesting records...", {
+        totalRecordsReingested: recordsReingestedSoFar,
+        totalRecordsToBeReingested: totalRecordsToBeReingested,
+        totalRecords: event.records.length,
+        stream: streamName
+      })
     }
   }).then(
     () => {
-      console.log(
-        "Reingested all %s records out of %s in to %s stream",
-        totalRecordsToBeReingested,
-        event.records.length,
-        streamName
-      )
+      logger.info("Reingesting records complete.", {
+        totalRecordsToBeReingested: totalRecordsToBeReingested,
+        totalRecords: event.records.length,
+        stream: streamName
+      })
       callback(null, result)
     },
     (failed) => {
-      console.log("Failed to reingest records. %s", failed)
+      logger.info("Failed to reingest records", {failed})
       callback(failed, null)
     }
   )
 }
 
 exports.handler = (event, context, callback) => {
-  console.log(
-    `Processor given event\n${JSON.stringify(event, null, 2)}\n` +
-      `With environment\n${JSON.stringify(process.env, null, 2)}`
-  )
+  logger.addContext(context)
+  logger.info("Processor received event", {event: event, env: ENV})
   Promise.all(
     event.records.map((r) => {
       const buffer = Buffer.from(r.data, "base64")
@@ -247,7 +248,7 @@ exports.handler = (event, context, callback) => {
       try {
         decompressed = zlib.gunzipSync(buffer)
       } catch (e) {
-        console.warn(`Failed to decompress record ${r}\n` + `Encountered error ${e}`)
+        logger.warn("Failed to decompress record", {record: {r}, error: e})
         return Promise.resolve({
           recordId: r.recordId,
           result: "ProcessingFailed"
@@ -279,7 +280,7 @@ exports.handler = (event, context, callback) => {
             }
           })
         }
-        console.log("Data lacking logGroup or owner\n" + JSON.stringify(data))
+        logger.info("Data lacking logGroup or owner", {data})
       }
       return Promise.resolve({
         recordId: r.recordId,
@@ -305,12 +306,12 @@ exports.handler = (event, context, callback) => {
       if (putRecordBatches.length > 0) {
         reingestRecordBatches(putRecordBatches, isSas, totalRecordsToBeReingested, event, callback, result)
       } else {
-        console.log("No records needed to be reingested. Transformation result reads\n" + JSON.stringify(result))
+        logger.info("No records need to be reingested.", {transformation_result: result})
         callback(null, result)
       }
     })
     .catch((ex) => {
-      console.log("Error: ", ex)
+      logger.error("Error", {ex})
       callback(ex, null)
     })
 }

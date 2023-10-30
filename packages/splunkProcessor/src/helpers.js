@@ -1,4 +1,4 @@
-function putRecordsToFirehoseStream(streamName, records, client, resolve, reject, attemptsMade, maxAttempts) {
+function putRecordsToFirehoseStream(streamName, records, client, resolve, reject, attemptsMade, maxAttempts, logger) {
   client.putRecordBatch(
     {
       DeliveryStreamName: streamName,
@@ -24,7 +24,7 @@ function putRecordsToFirehoseStream(streamName, records, client, resolve, reject
 
       if (failed.length > 0) {
         if (attemptsMade + 1 < maxAttempts) {
-          console.log("Some records failed while calling PutRecordBatch, retrying. %s", errMsg)
+          logger.info("Some records failed while calling PutRecordBatch, retrying.", {error: errMsg})
           putRecordsToFirehoseStream(streamName, failed, client, resolve, reject, attemptsMade + 1, maxAttempts)
         } else {
           reject(`Could not put records after ${maxAttempts} attempts. ${errMsg}`)
@@ -36,7 +36,7 @@ function putRecordsToFirehoseStream(streamName, records, client, resolve, reject
   )
 }
 
-function putRecordsToKinesisStream(streamName, records, client, resolve, reject, attemptsMade, maxAttempts) {
+function putRecordsToKinesisStream(streamName, records, client, resolve, reject, attemptsMade, maxAttempts, logger) {
   client.putRecords(
     {
       StreamName: streamName,
@@ -62,7 +62,7 @@ function putRecordsToKinesisStream(streamName, records, client, resolve, reject,
 
       if (failed.length > 0) {
         if (attemptsMade + 1 < maxAttempts) {
-          console.log("Some records failed while calling PutRecords, retrying. %s", errMsg)
+          logger.info("Some records failed while calling PutRecords, retrying.", {error: errMsg})
           putRecordsToKinesisStream(streamName, failed, client, resolve, reject, attemptsMade + 1, maxAttempts)
         } else {
           reject(`Could not put records after ${maxAttempts} attempts. ${errMsg}`)
