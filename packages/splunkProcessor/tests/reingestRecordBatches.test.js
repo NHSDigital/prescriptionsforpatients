@@ -4,6 +4,7 @@ const helpers = require("../src/helpers.js")
 const {expect, describe, it} = require("@jest/globals")
 const {Firehose} = require("@aws-sdk/client-firehose")
 const {Kinesis} = require("@aws-sdk/client-kinesis")
+const {Logger} = require("@aws-lambda-powertools/logger")
 
 jest.mock("@aws-sdk/client-kinesis")
 jest.mock("@aws-sdk/client-firehose")
@@ -14,15 +15,16 @@ describe("reingestRecordBatches", () => {
     jest
       .spyOn(helpers, "putRecordsToKinesisStream")
       // eslint-disable-next-line no-unused-vars
-      .mockImplementation((streamName, records, client, resolve, reject, attemptsMade, maxAttempts) => {
+      .mockImplementation((streamName, records, client, resolve, reject, attemptsMade, maxAttempts, logger) => {
         resolve("")
       })
     jest
       .spyOn(helpers, "putRecordsToFirehoseStream")
       // eslint-disable-next-line no-unused-vars
-      .mockImplementation((streamName, records, client, resolve, reject, attemptsMade, maxAttempts) => {
+      .mockImplementation((streamName, records, client, resolve, reject, attemptsMade, maxAttempts, logger) => {
         resolve("")
       })
+    process.env.ENV = "test"
   })
   afterEach(() => {
     jest.clearAllMocks()
@@ -36,6 +38,7 @@ describe("reingestRecordBatches", () => {
       sourceKinesisStreamArn: "arn:aws:kinesis:us-east-1:123456789012:stream/my-kinesis-stream",
       records: putRecordBatches
     }
+
     const callback = (error, result) => {
       expect(error).toBe(null)
       expect(result).toBe("Success")
@@ -44,7 +47,6 @@ describe("reingestRecordBatches", () => {
     const result = "Success"
 
     splunkProcessor.reingestRecordBatches(putRecordBatches, isSas, totalRecordsToBeReingested, event, callback, result)
-
     expect(Kinesis).toHaveBeenCalledWith({region: "us-east-1"})
     expect(helpers.putRecordsToKinesisStream).toHaveBeenCalledWith(
       "my-kinesis-stream",
@@ -53,7 +55,8 @@ describe("reingestRecordBatches", () => {
       expect.any(Function),
       expect.any(Function),
       0,
-      20
+      20,
+      expect.any(Logger)
     )
   })
 
@@ -82,7 +85,8 @@ describe("reingestRecordBatches", () => {
       expect.any(Function),
       expect.any(Function),
       0,
-      20
+      20,
+      expect.any(Logger)
     )
   })
 
