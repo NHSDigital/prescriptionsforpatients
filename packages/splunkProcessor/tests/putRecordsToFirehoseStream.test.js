@@ -1,8 +1,11 @@
 const {putRecordsToFirehoseStream} = require("../src/helpers.js")
 const {expect, describe, it} = require("@jest/globals")
 const {Firehose} = require("@aws-sdk/client-firehose")
+const {Logger} = require("@aws-lambda-powertools/logger")
 
 jest.mock("@aws-sdk/client-firehose")
+
+const logger = new Logger({serviceName: "splunkProcessor", logLevel: "INFO"})
 
 describe("putRecordsToFirehoseStream", () => {
   it("should resolve when all records are successfully sent", async () => {
@@ -17,7 +20,7 @@ describe("putRecordsToFirehoseStream", () => {
       callback(null, {RequestResponses: [{}]}) // Simulate successful response
     })
 
-    putRecordsToFirehoseStream(streamName, records, client, resolve, reject, 0, 3)
+    putRecordsToFirehoseStream(streamName, records, client, resolve, reject, 0, 3, logger)
 
     expect(client.putRecordBatch).toHaveBeenCalledWith(
       {
@@ -42,7 +45,7 @@ describe("putRecordsToFirehoseStream", () => {
       callback(new Error("Simulated error"), null) // Simulate an error
     })
 
-    putRecordsToFirehoseStream(streamName, records, client, resolve, reject, 0, 3)
+    putRecordsToFirehoseStream(streamName, records, client, resolve, reject, 0, 3, logger)
 
     expect(client.putRecordBatch).toHaveBeenCalledTimes(3) // Max attempts reached
     expect(resolve).not.toHaveBeenCalled()
