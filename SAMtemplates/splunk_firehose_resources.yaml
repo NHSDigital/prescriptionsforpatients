@@ -46,6 +46,14 @@ Parameters:
         3288,
         3653,
       ]
+  LogLevel:
+    Type: String
+    Description: The log level to set in the lambda
+    Default: "INFO"
+  Env:
+    Type: String
+    Description: The environment the lambda is deployed to
+    Default: "dev"
 
 Conditions:
   ShouldUseSplunk: !Equals [true, !Ref EnableSplunk]
@@ -234,6 +242,8 @@ Resources:
       Environment:
         Variables:
           NODE_OPTIONS: --enable-source-maps
+          LOG_LEVEL: !Ref LogLevel
+          ENV: !Ref Env
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
       BuildProperties:
