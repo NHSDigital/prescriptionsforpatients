@@ -13,7 +13,7 @@
   "dependencies": {
     "@aws-sdk/client-firehose": "^3.436.0",
     "@aws-sdk/client-kinesis": "^3.436.0",
-    "aws-sdk": "^2.1482.0",
+    "aws-sdk": "^2.1486.0",
     "zlib": "^1.0.5"
   }
 }
