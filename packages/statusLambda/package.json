@@ -17,7 +17,7 @@
     "@aws-lambda-powertools/logger": "^1.15.0",
     "@aws-lambda-powertools/parameters": "^1.16.0",
     "@middy/core": "^4.7.0",
-    "@middy/input-output-logger": "^4.7.0",
+    "@middy/input-output-logger": "^5.0.1",
     "@prescriptionsforpatients/middleware": "^1.0.0",
     "@prescriptionsforpatients/spineClient": "^1.0.0"
   }
