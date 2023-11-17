@@ -16,7 +16,7 @@
   "dependencies": {
     "@aws-lambda-powertools/commons": "^1.15.0",
     "@aws-lambda-powertools/logger": "^1.15.0",
-    "@aws-lambda-powertools/parameters": "^1.15.0",
+    "@aws-lambda-powertools/parameters": "^1.16.0",
     "@aws-sdk/client-secrets-manager": "^3.451.0",
     "@middy/core": "^4.7.0",
     "@middy/input-output-logger": "^4.7.0",
