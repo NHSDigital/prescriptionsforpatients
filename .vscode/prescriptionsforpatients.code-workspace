@@ -109,7 +109,11 @@
 			"package-lock.json",
 			"node_modules",
 			".vscode"
-		]
+		],
+		"jest.jestCommandLine": "NODE_OPTIONS=--experimental-vm-modules node_modules/.bin/jest --no-cache",
+		"jest.nodeEnv": {
+			"POWERTOOLS_DEV": true
+		}
 	},
 	"extensions": {
 		"recommendations": [

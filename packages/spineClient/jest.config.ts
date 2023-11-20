@@ -5,8 +5,10 @@
 
 import type {JestConfigWithTsJest} from "ts-jest"
 
+const esModules = ["@middy"].join("|")
 const jestConfig: JestConfigWithTsJest = {
   preset: "ts-jest/presets/default-esm",
+  moduleFileExtensions: ["js", "json", "ts", "d.ts"],
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.js$": "$1"
   },
@@ -14,7 +16,8 @@ const jestConfig: JestConfigWithTsJest = {
     "^.+\\.ts?$": [
       "ts-jest",
       {
-        useESM: true
+        useESM: true,
+        tsconfig: "./tsconfig.json"
       }
     ]
   },
@@ -25,7 +28,8 @@ const jestConfig: JestConfigWithTsJest = {
   testMatch: ["**/tests/*.test.ts"],
   testEnvironment: "node",
   extensionsToTreatAsEsm: [".ts"],
-  verbose: true
+  verbose: true,
+  transformIgnorePatterns: [`node_modules/(?!${esModules})`]
 }
 
 export default jestConfig

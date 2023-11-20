@@ -3,10 +3,13 @@
   "env": {
     "node": true,
     "es6": true,
-    "jest": true
+    "jest": true,
   },
   "ignorePatterns": ["**/lib/*"],
-  "parserOptions": {"ecmaVersion": "latest"},
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
   "plugins": ["import-newlines"],
   "extends": ["eslint:recommended"],
   "rules": {

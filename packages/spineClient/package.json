@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "lib/src/index.js",
+  "type": "module",
   "scripts": {
     "unit": "jest",
     "build": "tsc --build --clean ./tsconfig.json",

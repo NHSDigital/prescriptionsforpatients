@@ -1,5 +1,6 @@
 import {APIGatewayProxyEvent, APIGatewayProxyResult, Context} from "aws-lambda"
 import {Logger} from "@aws-lambda-powertools/logger"
+import {expect, jest} from "@jest/globals"
 
 type HandlerType = (event: APIGatewayProxyEvent, context: Context) => Promise<APIGatewayProxyResult>
 type TestType = () => Promise<void>
