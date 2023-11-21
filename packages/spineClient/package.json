@@ -5,7 +5,7 @@
   "main": "lib/src/index.js",
   "type": "module",
   "scripts": {
-    "unit": "jest",
+    "unit": "POWERTOOLS_DEV=true jest",
     "build": "tsc --build --clean ./tsconfig.json",
     "lint": "eslint . --ext .ts --max-warnings 0 --fix",
     "test": "npm run compile && npm run unit",
