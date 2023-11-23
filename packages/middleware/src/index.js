@@ -1,4 +1,4 @@
-module.exports = ({logger = console, level = "error"} = {}) => ({
+export default ({logger = console, level = "error"} = {}) => ({
   onError: async (handler) => {
     const error = handler.error ?? {}
     const requestId = handler.event.requestContext?.requestId ?? null

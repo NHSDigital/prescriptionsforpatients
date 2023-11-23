@@ -6,7 +6,7 @@
   "author": "NHS Digital",
   "license": "MIT",
   "scripts": {
-    "test": "jest --coverage",
+    "test": "POWERTOOLS_DEV=true jest --coverage",
     "lint": "eslint . --ext .js --max-warnings 0 --fix",
     "check-licenses": "license-checker --failOn GPL --failOn LGPL --start ../.."
   },

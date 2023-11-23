@@ -6,12 +6,5 @@
   },
   "references": [{"path": "../spineClient"}, {"path": "../middleware"}, {"path": "../common/testing"}],
   "include": ["src/**/*", "tests/**/*"],
-  "exclude": ["node_modules"],
-  "ts-node": {
-    "esm": true,
-    "compilerOptions": {
-      "target": "es2020",
-      "module": "es2022"
-    }
-  }
+  "exclude": ["node_modules"]
 }

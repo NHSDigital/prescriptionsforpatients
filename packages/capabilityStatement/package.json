@@ -5,8 +5,9 @@
   "main": "capabilityStatement.js",
   "author": "NHS Digital",
   "license": "MIT",
+  "type": "module",
   "scripts": {
-    "unit": "jest --coverage",
+    "unit": "POWERTOOLS_DEV=true NODE_OPTIONS=--experimental-vm-modules jest --no-cache --coverage",
     "lint": "eslint . --ext .ts --max-warnings 0 --fix",
     "compile": "tsc",
     "test": "npm run compile && npm run unit",
@@ -15,8 +16,8 @@
   "dependencies": {
     "@aws-lambda-powertools/commons": "^1.15.0",
     "@aws-lambda-powertools/logger": "^1.16.0",
-    "@middy/core": "^4.7.0",
-    "@middy/input-output-logger": "^4.7.0",
+    "@middy/core": "^5.0.2",
+    "@middy/input-output-logger": "^5.0.2",
     "@prescriptionsforpatients/middleware": "^1.0.0"
   },
   "devDependencies": {

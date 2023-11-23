@@ -5,6 +5,7 @@
     "author": "NHS Digital",
     "license": "MIT",
     "main": "lib/src/index.js",
+    "type": "module",
     "scripts": {
         "unit": "jest",
         "lint": "eslint . --ext .ts --max-warnings 0 --fix",

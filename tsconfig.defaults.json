@@ -2,7 +2,7 @@
   "compilerOptions": {
     "incremental": true,
     "target": "es2020",
-    "module": "commonjs",
+    "module": "ES2020",
     "declaration": true,
     "sourceMap": true,
     "composite": true,
@@ -11,6 +11,8 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "preserveConstEnums": true
+    "preserveConstEnums": true,
+    "resolveJsonModule": true,
+    "allowJs": true
   }
 }

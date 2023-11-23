@@ -1,6 +1,11 @@
 import {APIGatewayProxyResult} from "aws-lambda"
 import {handler} from "../src/statusLambda"
-import {expect, describe, it} from "@jest/globals"
+import {
+  jest,
+  expect,
+  describe,
+  it
+} from "@jest/globals"
 import {ContextExamples} from "@aws-lambda-powertools/commons"
 import {Logger} from "@aws-lambda-powertools/logger"
 import MockAdapter from "axios-mock-adapter"
