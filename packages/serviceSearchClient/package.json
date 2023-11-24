@@ -1,0 +1,24 @@
+{
+  "name": "@prescriptionsforpatients/serviceSearchClient",
+  "version": "1.0.0",
+  "description": "",
+  "main": "lib/src/index.js",
+  "type": "module",
+  "scripts": {
+    "unit": "POWERTOOLS_DEV=true jest",
+    "build": "tsc --build --clean ./tsconfig.json",
+    "lint": "eslint . --ext .ts --max-warnings 0 --fix",
+    "test": "npm run compile && npm run unit",
+    "check-licenses": "license-checker --failOn GPL --failOn LGPL --start ../..",
+    "compile": "tsc"
+  },
+  "author": "NHS Digital",
+  "license": "MIT",
+  "dependencies": {
+    "@aws-lambda-powertools/logger": "^1.16.0",
+    "axios": "^1.6.2"
+  },
+  "devDependencies": {
+    "axios-mock-adapter": "^1.22.0"
+  }
+}

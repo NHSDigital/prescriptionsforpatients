@@ -115,6 +115,7 @@ lint-node: compile-node
 	npm run lint --workspace packages/splunkProcessor
 	npm run lint --workspace packages/statusLambda
 	npm run lint --workspace packages/spineClient
+	npm run lint --workspace packages/serviceSearchClient
 	npm run lint --workspace packages/common/testing
 
 lint-go:
@@ -141,6 +142,7 @@ test: compile
 	npm run test --workspace packages/sandbox
 	npm run test --workspace packages/statusLambda
 	npm run test --workspace packages/spineClient
+	npm run test --workspace packages/serviceSearchClient
 	npm run test --workspace packages/splunkProcessor
 
 clean:
@@ -149,6 +151,7 @@ clean:
 	rm -rf packages/middleware/coverage
 	rm -rf packages/sandbox/coverage
 	rm -rf packages/spineClient/coverage
+	rm -rf packages/serviceSearchClient/coverage
 	rm -rf packages/splunkProcessor/coverage
 	rm -rf packages/statusLambda/coverage
 	rm -rf packages/common/testing/coverage
@@ -157,6 +160,7 @@ clean:
 	rm -rf packages/middleware/lib
 	rm -rf packages/sandbox/lib
 	rm -rf packages/spineClient/lib
+	rm -rf packages/serviceSearchClient/lib
 	rm -rf packages/splunkProcessor/lib
 	rm -rf packages/statusLambda/lib
 	rm -rf packages/getSecretLayer/lib
@@ -178,6 +182,7 @@ check-licenses-node:
 	npm run check-licenses --workspace packages/splunkProcessor
 	npm run check-licenses --workspace packages/statusLambda
 	npm run check-licenses --workspace packages/spineClient
+	npm run check-licenses --workspace packages/serviceSearchClient
 
 check-licenses-python:
 	scripts/check_python_licenses.sh

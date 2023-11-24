@@ -21,6 +21,7 @@
     "packages/splunkProcessor",
     "packages/statusLambda",
     "packages/spineClient",
+    "packages/serviceSearchClient",
     "packages/common/testing"
   ],
   "devDependencies": {

@@ -13,6 +13,7 @@ It is called by an Apigee proxy that is defined at https://github.com/NHSDigital
 - `packages/capabilityStatement/` Returns a static capability statement
 - `packages/getSecretLayer/` golang code that is used as a lambda layer to inject secrets to environment variables used by lambdas
 - `packages/spineClient/` Module for connecting to spine
+- `packages/serviceSearchClient/` Module for connecting to service search
 - `packages/common/testing` Module that contains some test data used for tests in other modules
 - `postman/` Contains a postman collection for interacting with the API.
 - `scripts/` Utilities helpful to developers of this specification.
