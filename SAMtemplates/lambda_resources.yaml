@@ -138,6 +138,9 @@ Resources:
               - !ImportValue account-resources:SpineASID
               - !ImportValue account-resources:SpinePartyKey
               - !ImportValue account-resources:SpineCAChain
+              - !ImportValue account-resources:ServiceSearchPrivateKey
+              - !ImportValue account-resources:ServiceSearchPublicCertificate
+              - !ImportValue account-resources:ServiceSearchCAChain
       Roles:
         - !Ref LambdaRole
   LambdaLogGroup:

@@ -1,5 +1,5 @@
 This is used to create a lambda layer that can be called on lambda startup that injects secret values into environment variables.  
-It should be used by any lambda that uses spineClient to set spine connectivity variables
+It should be used by any lambda that uses  or serviceSearchClient, to set connectivity variables.
 
 To use it, in a SAM template the following should be set in the Properties section of the `AWS::Serverless::Function` definition
 

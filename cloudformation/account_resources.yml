@@ -585,6 +585,30 @@ Resources:
       KmsKeyId: alias/SecretsKMSKeyAlias
       SecretString: ChangeMe
 
+  ServiceSearchPrivateKey:
+    DependsOn: SecretsKMSKeyKMSKeyAlias
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: Private key for service search mutual TLS
+      KmsKeyId: alias/SecretsKMSKeyAlias
+      SecretString: ChangeMe
+
+  ServiceSearchPublicCertificate:
+    DependsOn: SecretsKMSKeyKMSKeyAlias
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: Public certificate for service search mutual TLS
+      KmsKeyId: alias/SecretsKMSKeyAlias
+      SecretString: ChangeMe
+
+  ServiceSearchCAChain:
+    DependsOn: SecretsKMSKeyKMSKeyAlias
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: CA chain for service search
+      KmsKeyId: alias/SecretsKMSKeyAlias
+      SecretString: ChangeMe
+
   JiraToken:
     DependsOn: SecretsKMSKeyKMSKeyAlias
     Type: AWS::SecretsManager::Secret
@@ -681,6 +705,25 @@ Outputs:
     Value: !GetAtt SpineCAChain.Id
     Export:
       Name: !Join [":", [!Ref "AWS::StackName", "SpineCAChain"]]
+
+  ServiceSearchPrivateKey:
+    Description: ARN of the private key for service search mutual TLS
+    Value: !GetAtt ServiceSearchPrivateKey.Id
+    Export:
+      Name: !Join [":", [!Ref "AWS::StackName", "ServiceSearchPrivateKey"]]
+
+  ServiceSearchPublicCertificate:
+    Description: ARN of the public certificate for service search mutual TLS
+    Value: !GetAtt ServiceSearchPublicCertificate.Id
+    Export:
+      Name:
+        !Join [":", [!Ref "AWS::StackName", "ServiceSearchPublicCertificate"]]
+
+  ServiceSearchCAChain:
+    Description: ARN of the CA chain for service search mutual TLS
+    Value: !GetAtt ServiceSearchCAChain.Id
+    Export:
+      Name: !Join [":", [!Ref "AWS::StackName", "ServiceSearchCAChain"]]
 
   JiraToken:
     Description: JiraToken
