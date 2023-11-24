@@ -21,7 +21,8 @@
     "@middy/core": "^5.0.3",
     "@middy/input-output-logger": "^5.0.3",
     "@prescriptionsforpatients/middleware": "^1.0.0",
-    "@prescriptionsforpatients/spineClient": "^1.0.0"
+    "@prescriptionsforpatients/spineClient": "^1.0.0",
+    "@prescriptionsforpatients/serviceSearchClient": "^1.0.0"
   },
   "devDependencies": {
     "axios-mock-adapter": "^1.22.0",
