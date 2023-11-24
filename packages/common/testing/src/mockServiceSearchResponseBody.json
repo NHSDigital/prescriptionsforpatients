@@ -1,0 +1,60 @@
+{
+    "@odata.context": "https://nhsuksearchproduks.search.windows.net/indexes('organisation-1-1-a-prod')/$metadata#docs(*)",
+    "@odata.count": 22573,
+    "value": [
+        {
+            "@search.score": 3.249795,
+            "OrganisationID": "10888009",
+            "OrganisationName": "London Speech Therapy",
+            "OrganisationAliases": [],
+            "OrganisationTypeID": "GDOS",
+            "OrganisationType": "Generic Directory of Services",
+            "OrganisationStatus": "Visible",
+            "IsPimsManaged": false,
+            "PIMSCode": null,
+            "NACSCode": null,
+            "LocalAuthorityCode": null,
+            "SummaryText": null,
+            "URL": "www.netmums.com/local/l/london-speech-therapy",
+            "Address1": "127 Harley Street",
+            "Address2": "London",
+            "Address3": null,
+            "City": "London",
+            "County": "London",
+            "Latitude": 51.5220832824707,
+            "Longitude": -0.14864355325698853,
+            "OrganisationSubType": "Generic Directory of Services",
+            "LastUpdatedDate": "2020-03-10T14:12:13.273Z",
+            "Postcode": "W1G 6AZ",
+            "Geocode": {
+                "type": "Point",
+                "coordinates": [
+                    -0.148644,
+                    51.5221
+                ],
+                "crs": {
+                    "type": "name",
+                    "properties": {
+                        "name": "EPSG:4326"
+                    }
+                }
+            },
+            "CCG": [],
+            "RelatedIAPTCCGs": [],
+            "Trusts": [],
+            "CCGLocalAuthority": [],
+            "ServicesOffered": [],
+            "ServicesProvided": [],
+            "ServiceCodesProvided": [],
+            "ServicesProvidedConditions": [],
+            "OrgTypeConditions": [],
+            "OpeningTimes": null,
+            "Contacts": "[{\"OrganisationContactType\":\"Primary\",\"OrganisationContactAvailabilityType\":\"Office hours\",\"OrganisationContactMethodType\":\"Telephone\",\"OrganisationContactValue\":\"020 3475 2189\"},{\"OrganisationContactType\":\"Primary\",\"OrganisationContactAvailabilityType\":\"Office hours\",\"OrganisationContactMethodType\":\"Website\",\"OrganisationContactValue\":\"www.netmums.com\\/local\\/l\\/london-speech-therapy\"}]",
+            "VenueType": null,
+            "Metrics": null,
+            "GSD": "[{\"ElementTitle\":\"About\",\"ElementText\":\"Netmums is an online community for parents providing information and support to make family life easier and happier for all.   \\nNetmums is completely FREE to use and it offers: \\n• Local boards where you can find childcare, buy and sell nearly new items and post notices for other parents who live near you\\n• Many thousand of listings from toddler groups to day nurseries and from indoor playcentres to what is on events, all in your local area and many with comments from other parents.\\n• Mnline support for parents from professionals and from other parents.\\n• Local meet a mum\\n• A friendly supportive national chat forum \\n• Information on anything relating to parenting and family life from part time work to recipe ideas for feeding the family \\nFor this and more go to www.netmums.com\"},{\"ElementTitle\":\"Further information\",\"ElementText\":\"This entry has been provided by Netmums. For further information regarding this service please contact netmum using the website link provided\"}]",
+            "OpeningTimesV2": []
+        }
+    ],
+    "tracking": "<img style='border: 0; width: 1px; height: 1px;' alt='' src='https://nhsdigital.d3.sc.omtrdc.net/b/ss/nhsuk-prod/1/JS-2.9.0-L8UK/654321?c27=56dda0792399060e5876b61c&c28=/indexes/organisation-1-1-a-prod/docs/?search=london&searchMode=any&queryType=simple&$skip=0&$top=1&$count=true&api-version=1&c29=ServiceSearch&c75=web&events=event23'/>"
+}
