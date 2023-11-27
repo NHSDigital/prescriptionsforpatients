@@ -1,5 +1,5 @@
 import {LiveSpineClient} from "../src/live-spine-client"
-import "jest"
+import {jest, expect, describe} from "@jest/globals"
 import MockAdapter from "axios-mock-adapter"
 import axios from "axios"
 import {Logger} from "@aws-lambda-powertools/logger"
@@ -24,16 +24,27 @@ describe("live spine client", () => {
 
   test("successful response when http response is status 200 and spine status does not exist", async () => {
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, {resourceType: "Bundle"})
-    const spineClient = new LiveSpineClient()
+    const spineClient = new LiveSpineClient(logger)
     const headers: APIGatewayProxyEventHeaders = {
       "nhsd-nhslogin-user": "P9:9912003071"
     }
-    const spineResponse = await spineClient.getPrescriptions(headers, logger)
+    const spineResponse = await spineClient.getPrescriptions(headers)
 
     expect(spineResponse.status).toBe(200)
     expect(spineResponse.data).toStrictEqual({resourceType: "Bundle"})
   })
 
+  test("successful log response time", async () => {
+    mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, {resourceType: "Bundle"})
+    const mockLoggerInfo = jest.spyOn(Logger.prototype, "info")
+    const spineClient = new LiveSpineClient(logger)
+    const headers: APIGatewayProxyEventHeaders = {
+      "nhsd-nhslogin-user": "P9:9912003071"
+    }
+    await spineClient.getPrescriptions(headers)
+
+    expect(mockLoggerInfo).toHaveBeenCalledWith("spine request duration", {"spine_duration": expect.any(Number)})
+  })
   test.each<spineFailureTestData>([
     {
       httpResponseCode: 200,
@@ -88,31 +99,31 @@ describe("live spine client", () => {
     "throw error when $scenarioDescription",
     async ({httpResponseCode, spineStatusCode, nhsdLoginUser, errorMessage}) => {
       mock.onGet("https://spine/mm/patientfacingprescriptions").reply(httpResponseCode, {statusCode: spineStatusCode})
-      const spineClient = new LiveSpineClient()
+      const spineClient = new LiveSpineClient(logger)
       const headers: APIGatewayProxyEventHeaders = {
         "nhsd-nhslogin-user": nhsdLoginUser
       }
-      await expect(spineClient.getPrescriptions(headers, logger)).rejects.toThrow(errorMessage)
+      await expect(spineClient.getPrescriptions(headers)).rejects.toThrow(errorMessage)
     }
   )
 
   test("should throw error when unsuccessful http request", async () => {
     mock.onGet("https://spine/mm/patientfacingprescriptions").networkError()
 
-    const spineClient = new LiveSpineClient()
+    const spineClient = new LiveSpineClient(logger)
     const headers: APIGatewayProxyEventHeaders = {
       "nhsd-nhslogin-user": "P9:9912003071"
     }
-    await expect(spineClient.getPrescriptions(headers, logger)).rejects.toThrow("Network Error")
+    await expect(spineClient.getPrescriptions(headers)).rejects.toThrow("Network Error")
   })
 
   test("should throw error when timout on http request", async () => {
     mock.onGet("https://spine/mm/patientfacingprescriptions").timeout()
 
-    const spineClient = new LiveSpineClient()
+    const spineClient = new LiveSpineClient(logger)
     const headers: APIGatewayProxyEventHeaders = {
       "nhsd-nhslogin-user": "P9:9912003071"
     }
-    await expect(spineClient.getPrescriptions(headers, logger)).rejects.toThrow("timeout of 45000ms exceeded")
+    await expect(spineClient.getPrescriptions(headers)).rejects.toThrow("timeout of 45000ms exceeded")
   })
 })
