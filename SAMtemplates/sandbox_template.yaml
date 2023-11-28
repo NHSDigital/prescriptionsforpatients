@@ -15,11 +15,16 @@ Globals:
       Variables:
         NODE_OPTIONS: --enable-source-maps
         TargetSpineServer: !Ref TargetSpineServer
+        TargetServiceSearchServer: !Ref TargetServiceSearchServer
 
 Parameters:
   TargetSpineServer:
     Type: String
     Description: TargetSpineServer
+    Default: none
+  TargetServiceSearchServer:
+    Type: String
+    Description: TargetServiceSearchServer
     Default: none
   SplunkHECToken:
     Type: String

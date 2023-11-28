@@ -33,7 +33,8 @@ sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name compile
 		--template-file SAMtemplates/main_template.yaml \
 		--parameter-overrides \
 			  EnableSplunk=false\
-			  TargetSpineServer=$$TARGET_SPINE_SERVER
+			  TargetSpineServer=$$TARGET_SPINE_SERVER \
+			  TargetServiceSearchServer=$$TARGET_SERVICESEARCH_SERVER
 
 sam-sync-sandbox: guard-stack_name compile
 	sam sync \
@@ -48,7 +49,8 @@ sam-deploy: guard-AWS_DEFAULT_PROFILE guard-stack_name
 		--stack-name $$stack_name \
 		--parameter-overrides \
 			  EnableSplunk=false \
-			  TargetSpineServer=$$TARGET_SPINE_SERVER
+			  TargetSpineServer=$$TARGET_SPINE_SERVER \
+			  TargetServiceSearchServer=$$TARGET_SERVICESEARCH_SERVER
 
 sam-delete: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam delete --stack-name $$stack_name
@@ -92,6 +94,7 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 			  TruststoreVersion=$$LATEST_TRUSTSTORE_VERSION \
 			  EnableMutualTLS=$$enable_mutual_tls \
 			  TargetSpineServer=$$target_spine_server \
+			  TargetServiceSearchServer=$$target_servicesearch_server \
 			  EnableSplunk=true \
 			  VersionNumber=$$VERSION_NUMBER \
 			  CommitId=$$COMMIT_ID \
