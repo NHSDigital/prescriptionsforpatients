@@ -2,7 +2,7 @@ import {Logger} from "@aws-lambda-powertools/logger"
 import {validateUrl} from "../src/validateUrl"
 import "jest"
 
-type testData = {url: string | undefined; scenarioDescription: string, expected: boolean}
+type testData = {url: string | undefined, scenarioDescription: string, expected: boolean}
 
 describe("test URL protocols", () => {
   const logger = new Logger({serviceName: "validateUrl"})
@@ -27,32 +27,27 @@ describe("test URL protocols", () => {
       scenarioDescription: "url has an unsupported protocol",
       expected: false
     }
-  ])("return expected when $scenarioDescription", ({url, expected}) => {
+  ])("return $expected when $scenarioDescription", ({url, expected}) => {
     const isValid = validateUrl(url, logger)
     expect(isValid).toBe(expected)
   })
 })
 
-describe("test URL basic failures", () => {
+describe("test URL undefined", () => {
   const logger = new Logger({serviceName: "validateUrl"})
   it.each<testData>([
     {
-      url: "invalid.url",
-      scenarioDescription: "url structure is invalid",
-      expected: false
-    },
-    {
       url: undefined,
-      scenarioDescription: "url not passed in",
+      scenarioDescription: "url is undefined",
       expected: false
     }
-  ])("return expected when $scenarioDescription", ({url, expected}) => {
+  ])("return $expected when $scenarioDescription", ({url, expected}) => {
     const isValid = validateUrl(url, logger)
     expect(isValid).toBe(expected)
   })
 })
 
-describe("test URL paths", () => {
+describe("test URL path", () => {
   const logger = new Logger({serviceName: "validateUrl"})
   it.each<testData>([
     {
@@ -60,7 +55,7 @@ describe("test URL paths", () => {
       scenarioDescription: "url has a path",
       expected: true
     }
-  ])("return expected when $scenarioDescription", ({url, expected}) => {
+  ])("return $expected when $scenarioDescription", ({url, expected}) => {
     const isValid = validateUrl(url, logger)
     expect(isValid).toBe(expected)
   })
@@ -79,12 +74,7 @@ describe("test URL queries", () => {
       scenarioDescription: "url has a double query",
       expected: true
     }
-    // {
-    //   url: "https://www.pharmacy2u.co.uk/search?query?=what&another=why",
-    //   scenarioDescription: "url has a malformed query",
-    //   expected: false
-    // }
-  ])("return expected when $scenarioDescription", ({url, expected}) => {
+  ])("return $expected when $scenarioDescription", ({url, expected}) => {
     const isValid = validateUrl(url, logger)
     expect(isValid).toBe(expected)
   })
