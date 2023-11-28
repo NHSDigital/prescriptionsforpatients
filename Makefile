@@ -34,7 +34,7 @@ sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name compile
 		--parameter-overrides \
 			  EnableSplunk=false\
 			  TargetSpineServer=$$TARGET_SPINE_SERVER \
-			  TargetServiceSearchServer=$$TARGET_SERVICESEARCH_SERVER
+			  TargetServiceSearchServer=$$TARGET_SERVICE_SEARCH_SERVER
 
 sam-sync-sandbox: guard-stack_name compile
 	sam sync \
@@ -50,7 +50,7 @@ sam-deploy: guard-AWS_DEFAULT_PROFILE guard-stack_name
 		--parameter-overrides \
 			  EnableSplunk=false \
 			  TargetSpineServer=$$TARGET_SPINE_SERVER \
-			  TargetServiceSearchServer=$$TARGET_SERVICESEARCH_SERVER
+			  TargetServiceSearchServer=$$TARGET_SERVICE_SEARCH_SERVER
 
 sam-delete: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam delete --stack-name $$stack_name
