@@ -6,7 +6,7 @@ export function validateUrl(url: string | undefined, logger: Logger): boolean {
     return false
   }
 
-  // Regex validation goes here
+  const urlRegex = /^(https?):\/\/[^\s/$.?#].[^\s]*\/?([^\s/?#]+\/?)?\??([^\s&]+=[^\s&]+(&[^\s&]+=[^\s&]+)*)?$/
 
-  return true
+  return urlRegex.test(url)
 }
