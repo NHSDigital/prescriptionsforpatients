@@ -1,4 +1,4 @@
-import {AxiosResponse} from "axios"
+import {ServiceSearchResponse} from "./live-serviceSearch-client"
 import {ServiceSearchClient} from "./serviceSearch-client"
 import {StatusCheckResponse} from "./status"
 
@@ -11,7 +11,7 @@ export class SandboxServiceSearchClient implements ServiceSearchClient {
     }
   }
 
-  async getPrescriptions(): Promise<AxiosResponse> {
+  async searchService(): Promise<ServiceSearchResponse> {
     // This is not implemented as sandbox lambda does not use this code
     throw new Error("INTERACTION_NOT_SUPPORTED_BY_SANDBOX")
   }
