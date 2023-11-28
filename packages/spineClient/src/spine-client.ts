@@ -6,15 +6,15 @@ import {APIGatewayProxyEventHeaders} from "aws-lambda"
 import {AxiosResponse} from "axios"
 
 export interface SpineClient {
-  getStatus(logger: Logger): Promise<StatusCheckResponse>
-  getPrescriptions(inboundHeaders: APIGatewayProxyEventHeaders, logger: Logger): Promise<AxiosResponse>
+  getStatus(): Promise<StatusCheckResponse>
+  getPrescriptions(inboundHeaders: APIGatewayProxyEventHeaders): Promise<AxiosResponse>
   isCertificateConfigured(): boolean
 }
 
-export function createSpineClient(): SpineClient {
+export function createSpineClient(logger: Logger): SpineClient {
   const liveMode = process.env.TargetSpineServer !== "sandbox"
   if (liveMode) {
-    return new LiveSpineClient()
+    return new LiveSpineClient(logger)
   } else {
     return new SandboxSpineClient()
   }

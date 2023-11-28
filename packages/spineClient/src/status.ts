@@ -1,5 +1,5 @@
 import {Logger} from "@aws-lambda-powertools/logger"
-import axios, {AxiosError} from "axios"
+import {Axios, AxiosError} from "axios"
 import {Agent} from "https"
 
 export interface StatusCheckResponse {
@@ -10,11 +10,14 @@ export interface StatusCheckResponse {
   links?: string
 }
 
-export async function serviceHealthCheck(url: string, logger: Logger, httpsAgent: Agent): Promise<StatusCheckResponse> {
+export async function serviceHealthCheck(url: string,
+  logger: Logger,
+  httpsAgent: Agent,
+  axiosInstnce: Axios): Promise<StatusCheckResponse> {
   try {
     logger.info(`making request to ${url}`)
 
-    const response = await axios.get<string>(url, {timeout: 20000, httpsAgent})
+    const response = await axiosInstnce.get<string>(url, {timeout: 20000, httpsAgent})
     return {
       status: response.status === 200 ? "pass" : "error",
       timeout: "false",

@@ -29,7 +29,7 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     "apigw-request-id": event.requestContext.requestId
   })
 
-  const spineClient = createSpineClient()
+  const spineClient = createSpineClient(logger)
 
   const commitId = process.env.COMMIT_ID
   const versionNumber = process.env.VERSION_NUMBER
@@ -52,7 +52,7 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     }
   }
 
-  const spineStatus = await spineClient.getStatus(logger)
+  const spineStatus = await spineClient.getStatus()
 
   return {
     statusCode: 200,
