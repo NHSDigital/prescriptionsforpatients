@@ -1,13 +1,11 @@
 import {Logger} from "@aws-lambda-powertools/logger"
 import {StatusCheckResponse} from "./status"
-import {LiveServiceSearchClient} from "./live-serviceSearch-client"
+import {LiveServiceSearchClient, ServiceSearchResponse} from "./live-serviceSearch-client"
 import {SandboxServiceSearchClient} from "./sandbox-serviceSearch-client"
-import {APIGatewayProxyEventHeaders} from "aws-lambda"
-import {AxiosResponse} from "axios"
 
 export interface ServiceSearchClient {
   getStatus(logger: Logger): Promise<StatusCheckResponse>
-  getPrescriptions(inboundHeaders: APIGatewayProxyEventHeaders, logger: Logger): Promise<AxiosResponse>
+  searchService(odsCode: string, logger: Logger): Promise<ServiceSearchResponse>
   isCertificateConfigured(): boolean
 }
 
