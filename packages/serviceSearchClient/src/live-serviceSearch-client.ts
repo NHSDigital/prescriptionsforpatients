@@ -40,13 +40,12 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
         timeout: SERVICE_SEARCH_TIMEOUT
       })
 
-      const isDistanceSelling = response.data["OrganisationSubType"] === DISTANCE_SELLING
-      const serviceUrl = response.data["URL"]
-      let urlValid = false
+      const isDistanceSelling = response.data["value"]["OrganisationSubType"] === DISTANCE_SELLING
+      const serviceUrl = response.data["value"]["URL"]
+      const urlValid = validateUrl(serviceUrl, logger)
 
       if (isDistanceSelling) {
         logger.info(`service with ods code ${odsCode} is of type ${DISTANCE_SELLING}`)
-        urlValid = validateUrl(serviceUrl, logger)
       }
 
       return {
