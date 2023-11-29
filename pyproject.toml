@@ -16,7 +16,8 @@ authors = [
     "Tom Smith <tom.smith24@nhs.net>",
     "Adam Brown <adam.brown41@nhs.net>",
     "Sean Steberis <sean.steberis2@nhs.net>",
-    "Kate.Bobyn <kate.bobyn2@nhs.net>"
+    "Kate Bobyn <kate.bobyn2@nhs.net>"
+    "Natasa Fragkou <natasa.fragkou@nhs.net>"
 ]
 readme = "README.md"
 repository = "https://github.com/NHSDigital/prescriptionsforpatients"
