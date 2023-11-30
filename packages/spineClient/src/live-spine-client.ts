@@ -2,7 +2,7 @@ import {Logger} from "@aws-lambda-powertools/logger"
 import {serviceHealthCheck, StatusCheckResponse} from "./status"
 import {SpineClient} from "./spine-client"
 import {Agent} from "https"
-import axios, {Axios, AxiosResponse} from "axios"
+import axios, {Axios, AxiosRequestConfig, AxiosResponse} from "axios"
 import {APIGatewayProxyEventHeaders} from "aws-lambda"
 import {extractNHSNumber} from "./extractNHSNumber"
 
@@ -127,10 +127,13 @@ export class LiveSpineClient implements SpineClient {
   }
 
   async getStatus(): Promise<StatusCheckResponse> {
+    const axiosConfig: AxiosRequestConfig = {timeout: 20000}
     if (process.env.healthCheckUrl === undefined) {
-      return serviceHealthCheck(this.getSpineEndpoint("healthcheck"), this.logger, this.httpsAgent, this.axiosInstance)
+      axiosConfig.httpsAgent = this.httpsAgent
+      return serviceHealthCheck(this.getSpineEndpoint("healthcheck"), this.logger, axiosConfig, this.axiosInstance)
     } else {
-      return serviceHealthCheck(process.env.healthCheckUrl, this.logger, new Agent(), this.axiosInstance)
+      axiosConfig.httpsAgent = new Agent()
+      return serviceHealthCheck(process.env.healthCheckUrl, this.logger, axiosConfig, this.axiosInstance)
     }
   }
 

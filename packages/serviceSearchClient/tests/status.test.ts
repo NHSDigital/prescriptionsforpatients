@@ -5,6 +5,7 @@ import axios from "axios"
 import {Logger} from "@aws-lambda-powertools/logger"
 
 const mock = new MockAdapter(axios)
+const axiosInstance = axios.create()
 
 describe("Health check", () => {
   const logger = new Logger({serviceName: "serviceSearchClient"})
@@ -16,7 +17,7 @@ describe("Health check", () => {
   test("Successful health check result returns success", async () => {
     mock.onGet("/healthcheck").reply(200, {})
 
-    const serviceSearchResponse = await serviceHealthCheck("healthcheck", logger)
+    const serviceSearchResponse = await serviceHealthCheck("healthcheck", logger, {}, axiosInstance)
 
     expect(serviceSearchResponse.status).toBe("pass")
     expect(serviceSearchResponse.responseCode).toBe(200)
@@ -27,7 +28,7 @@ describe("Health check", () => {
   test("Failure health check result returns failure", async () => {
     mock.onGet("/healthcheck").reply(500, {})
 
-    const serviceSearchResponse = await serviceHealthCheck("healthcheck", logger)
+    const serviceSearchResponse = await serviceHealthCheck("healthcheck", logger, {}, axiosInstance)
 
     expect(serviceSearchResponse.status).toBe("error")
     expect(serviceSearchResponse.responseCode).toBe(500)
@@ -38,7 +39,7 @@ describe("Health check", () => {
   test("health check network issues result returns failure", async () => {
     mock.onGet("/healthcheck").networkError()
 
-    const serviceSearchResponse = await serviceHealthCheck("healthcheck", logger)
+    const serviceSearchResponse = await serviceHealthCheck("healthcheck", logger, {}, axiosInstance)
 
     expect(serviceSearchResponse.status).toBe("error")
     expect(serviceSearchResponse.responseCode).toBe(500)

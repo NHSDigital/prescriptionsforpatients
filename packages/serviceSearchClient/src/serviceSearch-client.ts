@@ -9,10 +9,10 @@ export interface ServiceSearchClient {
   isKeyConfigured(): boolean
 }
 
-export function createServiceSearchClient(): ServiceSearchClient {
+export function createServiceSearchClient(logger: Logger): ServiceSearchClient {
   const liveMode = process.env.TargetServiceSearchServer !== "sandbox"
   if (liveMode) {
-    return new LiveServiceSearchClient()
+    return new LiveServiceSearchClient(logger)
   } else {
     return new SandboxServiceSearchClient()
   }

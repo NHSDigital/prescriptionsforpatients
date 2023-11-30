@@ -1,5 +1,5 @@
 import {Logger} from "@aws-lambda-powertools/logger"
-import axios, {AxiosError} from "axios"
+import {Axios, AxiosError, AxiosRequestConfig} from "axios"
 
 export interface StatusCheckResponse {
   status: "pass" | "warn" | "error"
@@ -9,17 +9,16 @@ export interface StatusCheckResponse {
   links?: string
 }
 
-export async function serviceHealthCheck(url: string, logger: Logger): Promise<StatusCheckResponse> {
+export async function serviceHealthCheck(
+  url: string,
+  logger: Logger,
+  axiosConfig: AxiosRequestConfig,
+  axiosInstance: Axios
+): Promise<StatusCheckResponse> {
   try {
     logger.info(`making request to ${url}`)
 
-    const outboundHeaders = {
-      Accept: "application/json",
-      "Subscription-Key": process.env.ServiceSearchApiKey
-    }
-    const queryParams = {"api-version": 2}
-
-    const response = await axios.get<string>(url, {timeout: 20000, headers: outboundHeaders, params: queryParams})
+    const response = await axiosInstance.get<string>(url, axiosConfig)
     return {
       status: response.status === 200 ? "pass" : "error",
       timeout: "false",

@@ -16,7 +16,7 @@ type serviceSearchTestData = {
 
 describe("live serviceSearch client", () => {
   const logger = new Logger({serviceName: "serviceSearchClient"})
-  const serviceSearchClient = new LiveServiceSearchClient()
+  const serviceSearchClient = new LiveServiceSearchClient(logger)
 
   afterEach(() => {
     mock.reset()
@@ -68,19 +68,19 @@ describe("live serviceSearch client", () => {
     }
   ])("$scenarioDescription", async ({serviceData, expected}) => {
     mock.onGet("https://serviceSearch/service-search").reply(200, serviceData)
-    const result = await serviceSearchClient.searchService("", logger)
+    const result = await serviceSearchClient.searchService("")
     expect(expected).toEqual(result)
   })
 
   test("should throw error when unsuccessful http request", async () => {
     mock.onGet("https://serviceSearch/service-search").networkError()
-    const serviceSearchClient = new LiveServiceSearchClient()
-    await expect(serviceSearchClient.searchService("", logger)).rejects.toThrow("Network Error")
+    const serviceSearchClient = new LiveServiceSearchClient(logger)
+    await expect(serviceSearchClient.searchService("")).rejects.toThrow("Network Error")
   })
 
   test("should throw error when timeout on http request", async () => {
     mock.onGet("https://serviceSearch/service-search").timeout()
-    const serviceSearchClient = new LiveServiceSearchClient()
-    await expect(serviceSearchClient.searchService("", logger)).rejects.toThrow("timeout of 45000ms exceeded")
+    const serviceSearchClient = new LiveServiceSearchClient(logger)
+    await expect(serviceSearchClient.searchService("")).rejects.toThrow("timeout of 45000ms exceeded")
   })
 })

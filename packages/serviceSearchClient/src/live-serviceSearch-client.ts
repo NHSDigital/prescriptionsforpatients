@@ -1,6 +1,6 @@
 import {Logger} from "@aws-lambda-powertools/logger"
 import {ServiceSearchClient} from "./serviceSearch-client"
-import axios from "axios"
+import axios, {Axios, AxiosRequestConfig} from "axios"
 import {validateUrl} from "./validateUrl"
 import {StatusCheckResponse, serviceHealthCheck} from "./status"
 
@@ -12,23 +12,32 @@ const DISTANCE_SELLING = "DistanceSelling"
 export class LiveServiceSearchClient implements ServiceSearchClient {
   private readonly SERVICE_SEARCH_URL_SCHEME = "https"
   private readonly SERVICE_SEARCH_ENDPOINT = process.env.TargetServiceSearchServer
+  private readonly axiosInstance: Axios
+  private readonly logger: Logger
+  private readonly outboundHeaders: {Accept: string, "Subscription-Key": string | undefined}
+  private readonly queryParams: {"api-version": number, odsCode?: string}
 
-  async searchService(odsCode: string, logger: Logger): Promise<ServiceSearchResponse> {
+  constructor(logger: Logger) {
+    this.logger = logger
+    this.axiosInstance = axios.create()
+    this.outboundHeaders = {
+      Accept: "application/json",
+      "Subscription-Key": process.env.ServiceSearchApiKey
+    }
+    this.queryParams = {
+      "api-version": 2
+    }
+  }
+
+  async searchService(odsCode: string): Promise<ServiceSearchResponse> {
     try {
       const address = this.getServiceSearchEndpoint("service-search")
-      const outboundHeaders = {
-        Accept: "application/json",
-        "Subscription-Key": process.env.ServiceSearchApiKey
-      }
-      const queryParams = {
-        "api-version": 2,
-        search: odsCode
-      }
+      this.queryParams.odsCode = odsCode
 
-      logger.info(`making request to ${address} with ods code ${odsCode}`)
+      this.logger.info(`making request to ${address} with ods code ${odsCode}`)
       const response = await axios.get(address, {
-        headers: outboundHeaders,
-        params: queryParams,
+        headers: this.outboundHeaders,
+        params: this.queryParams,
         timeout: SERVICE_SEARCH_TIMEOUT
       })
 
@@ -45,10 +54,10 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       const service = services[0]
       const isDistanceSelling = service["OrganisationSubType"] === DISTANCE_SELLING
       const serviceUrl = service["URL"]
-      const urlValid = validateUrl(serviceUrl, logger)
+      const urlValid = validateUrl(serviceUrl, this.logger)
 
       if (isDistanceSelling) {
-        logger.info(`service with ods code ${odsCode} is of type ${DISTANCE_SELLING}`)
+        this.logger.info(`service with ods code ${odsCode} is of type ${DISTANCE_SELLING}`)
       }
 
       return {
@@ -59,7 +68,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response) {
-          logger.error("error in response from serviceSearch", {
+          this.logger.error("error in response from serviceSearch", {
             response: {
               data: error.response.data,
               status: error.response.status,
@@ -73,7 +82,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
             }
           })
         } else if (error.request) {
-          logger.error("error in request to serviceSearch", {
+          this.logger.error("error in request to serviceSearch", {
             method: error.request.method,
             path: error.request.path,
             params: error.request.params,
@@ -81,10 +90,10 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
             host: error.request.host
           })
         } else {
-          logger.error("general error calling serviceSearch", {error})
+          this.logger.error("general error calling serviceSearch", {error})
         }
       } else {
-        logger.error("general error", {error})
+        this.logger.error("general error", {error})
       }
       throw error
     }
@@ -95,10 +104,11 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
   }
 
   async getStatus(logger: Logger): Promise<StatusCheckResponse> {
+    const axiosConfig: AxiosRequestConfig = {timeout: 20000, headers: this.outboundHeaders, params: this.queryParams}
     if (process.env.healthCheckUrl === undefined) {
-      return serviceHealthCheck(this.getServiceSearchEndpoint("healthcheck"), logger)
+      return serviceHealthCheck(this.getServiceSearchEndpoint("healthcheck"), logger, axiosConfig, this.axiosInstance)
     } else {
-      return serviceHealthCheck(process.env.healthCheckUrl, logger)
+      return serviceHealthCheck(process.env.healthCheckUrl, logger, axiosConfig, this.axiosInstance)
     }
   }
 
