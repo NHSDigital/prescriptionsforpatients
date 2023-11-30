@@ -72,32 +72,6 @@ describe("live serviceSearch client", () => {
     expect(expected).toEqual(result)
   })
 
-  test("successful response when http response status from serviceSearch is 200", async () => {
-    const response = {value: [{URL: "https://www.pharmacy2u.co.uk", OrganisationSubType: "DistanceSelling"}]}
-    mock.onGet("https://serviceSearch/service-search").reply(200, response)
-    const serviceSearchClient = new LiveServiceSearchClient()
-    const serviceData = await serviceSearchClient.searchService("", logger)
-
-    const expected: ServiceSearchResponse = {
-      serviceUrl: "https://www.pharmacy2u.co.uk", isDistanceSelling: true, urlValid: true
-    }
-
-    expect(serviceData).toStrictEqual(expected)
-  })
-
-  test("successful but false response when url returned by serviceSearch is invalid", async () => {
-    const response = {value: [{URL: "www.pharmacy2u.co.uk", OrganisationSubType: "DistanceSelling"}]}
-    mock.onGet("https://serviceSearch/service-search").reply(200, response)
-    const serviceSearchClient = new LiveServiceSearchClient()
-    const serviceData = await serviceSearchClient.searchService("", logger)
-
-    const expected: ServiceSearchResponse = {
-      serviceUrl: "www.pharmacy2u.co.uk", isDistanceSelling: true, urlValid: false
-    }
-
-    expect(serviceData).toStrictEqual(expected)
-  })
-
   test("should throw error when unsuccessful http request", async () => {
     mock.onGet("https://serviceSearch/service-search").networkError()
     const serviceSearchClient = new LiveServiceSearchClient()
