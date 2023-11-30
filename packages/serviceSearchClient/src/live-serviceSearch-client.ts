@@ -1,6 +1,5 @@
 import {Logger} from "@aws-lambda-powertools/logger"
 import {ServiceSearchClient} from "./serviceSearch-client"
-import {Agent} from "https"
 import axios from "axios"
 import {validateUrl} from "./validateUrl"
 import {StatusCheckResponse, serviceHealthCheck} from "./status"
@@ -13,20 +12,13 @@ const DISTANCE_SELLING = "DistanceSelling"
 export class LiveServiceSearchClient implements ServiceSearchClient {
   private readonly SERVICE_SEARCH_URL_SCHEME = "https"
   private readonly SERVICE_SEARCH_ENDPOINT = process.env.TargetServiceSearchServer
-  private readonly httpsAgent: Agent
 
-  constructor() {
-    this.httpsAgent = new Agent({
-      cert: process.env.ServiceSearchPublicCertificate,
-      key: process.env.ServiceSearchPrivateKey,
-      ca: process.env.ServiceSearchCAChain
-    })
-  }
   async searchService(odsCode: string, logger: Logger): Promise<ServiceSearchResponse> {
     try {
       const address = this.getServiceSearchEndpoint("service-search")
       const outboundHeaders = {
-        Accept: "application/json"
+        Accept: "application/json",
+        "Subscription-Key": process.env.ServiceSearchApiKey
       }
 
       const queryParams = {
@@ -36,7 +28,6 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       const response = await axios.get(address, {
         headers: outboundHeaders,
         params: queryParams,
-        httpsAgent: this.httpsAgent,
         timeout: SERVICE_SEARCH_TIMEOUT
       })
 
@@ -93,18 +84,16 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
 
   async getStatus(logger: Logger): Promise<StatusCheckResponse> {
     if (process.env.healthCheckUrl === undefined) {
-      return serviceHealthCheck(this.getServiceSearchEndpoint("healthcheck"), logger, this.httpsAgent)
+      return serviceHealthCheck(this.getServiceSearchEndpoint("healthcheck"), logger)
     } else {
-      return serviceHealthCheck(process.env.healthCheckUrl, logger, new Agent())
+      return serviceHealthCheck(process.env.healthCheckUrl, logger)
     }
   }
 
-  isCertificateConfigured(): boolean {
-    // Check if the required certificate-related environment variables are defined
+  isKeyConfigured(): boolean {
+    // Check if the required environment variables are defined
     return (
-      process.env.ServiceSearchPublicCertificate !== "ChangeMe" &&
-      process.env.ServiceSearchPrivateKey !== "ChangeMe" &&
-      process.env.ServiceSearchCAChain !== "ChangeMe"
+      process.env.ServiceSearchApiKey !== "ChangeMe"
     )
   }
 }

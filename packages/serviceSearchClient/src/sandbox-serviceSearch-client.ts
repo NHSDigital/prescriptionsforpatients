@@ -16,7 +16,7 @@ export class SandboxServiceSearchClient implements ServiceSearchClient {
     throw new Error("INTERACTION_NOT_SUPPORTED_BY_SANDBOX")
   }
 
-  isCertificateConfigured(): boolean {
+  isKeyConfigured(): boolean {
     // In the sandbox environment, assume the certificate is always configured
     return true
   }

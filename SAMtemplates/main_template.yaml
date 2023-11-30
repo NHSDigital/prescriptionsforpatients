@@ -21,9 +21,7 @@ Globals:
         SpineASIDARN: !ImportValue account-resources:SpineASID
         SpinePartyKeyARN: !ImportValue account-resources:SpinePartyKey
         SpineCAChainARN: !ImportValue account-resources:SpineCAChain
-        ServiceSearchPrivateKeyARN: !ImportValue account-resources:ServiceSearchPrivateKey
-        ServiceSearchPublicCertificateARN: !ImportValue account-resources:ServiceSearchPublicCertificate
-        ServiceSearchCAChainARN: !ImportValue account-resources:ServiceSearchCAChain
+        ServiceSearchPrivateKeyARN: !ImportValue account-resources:ServiceSearchApiKey
 
 Parameters:
   TargetSpineServer:

@@ -6,7 +6,7 @@ import {SandboxServiceSearchClient} from "./sandbox-serviceSearch-client"
 export interface ServiceSearchClient {
   getStatus(logger: Logger): Promise<StatusCheckResponse>
   searchService(odsCode: string, logger: Logger): Promise<ServiceSearchResponse>
-  isCertificateConfigured(): boolean
+  isKeyConfigured(): boolean
 }
 
 export function createServiceSearchClient(): ServiceSearchClient {
