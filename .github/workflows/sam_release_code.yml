@@ -43,6 +43,8 @@ on:
         required: true
       TARGET_SPINE_SERVER:
         required: true
+      TARGET_SERVICE_SEARCH_SERVER:
+        required: true
 
 jobs:
   sam_release_code:
@@ -77,6 +79,7 @@ jobs:
           export SPLUNK_HEC_ENDPOINT=${{ vars.SPLUNK_STRUCTURED_ENDPOINT }}
           export SPLUNK_HEC_TOKEN=${{ secrets.SPLUNK_HEC_TOKEN }}
           export target_spine_server=${{ secrets.TARGET_SPINE_SERVER }}
+          export target_service_search_server=${{ secrets.TARGET_SERVICE_SEARCH_SERVER }}
           export VERSION_NUMBER=${{ inputs.VERSION_NUMBER }}
           export COMMIT_ID=${{ inputs.COMMIT_ID }}
           export cloud_formation_execution_role=$(aws cloudformation list-exports --output json | \

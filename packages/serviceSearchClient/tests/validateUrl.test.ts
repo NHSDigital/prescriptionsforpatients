@@ -6,7 +6,7 @@ type testData = {url: string | undefined, scenarioDescription: string, expected:
 
 describe("test URL protocols", () => {
   const logger = new Logger({serviceName: "validateUrl"})
-  it.each<testData>([
+  test.each<testData>([
     {
       url: "http://www.pharmacy2u.co.uk",
       scenarioDescription: "url starts with http",
@@ -35,7 +35,7 @@ describe("test URL protocols", () => {
 
 describe("test URL undefined", () => {
   const logger = new Logger({serviceName: "validateUrl"})
-  it.each<testData>([
+  test.each<testData>([
     {
       url: undefined,
       scenarioDescription: "url is undefined",
@@ -49,7 +49,7 @@ describe("test URL undefined", () => {
 
 describe("test URL path", () => {
   const logger = new Logger({serviceName: "validateUrl"})
-  it.each<testData>([
+  test.each<testData>([
     {
       url: "https://www.pharmacy2u.co.uk/path/goes/here",
       scenarioDescription: "url has a path",
@@ -63,7 +63,7 @@ describe("test URL path", () => {
 
 describe("test URL queries", () => {
   const logger = new Logger({serviceName: "validateUrl"})
-  it.each<testData>([
+  test.each<testData>([
     {
       url: "https://www.pharmacy2u.co.uk/search?query=what",
       scenarioDescription: "url has a single query",
