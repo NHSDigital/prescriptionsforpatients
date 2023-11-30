@@ -20,10 +20,11 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
         Accept: "application/json",
         "Subscription-Key": process.env.ServiceSearchApiKey
       }
-
       const queryParams = {
+        "api-version": 2,
         search: odsCode
       }
+
       logger.info(`making request to ${address} with ods code ${odsCode}`)
       const response = await axios.get(address, {
         headers: outboundHeaders,
@@ -31,8 +32,19 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
         timeout: SERVICE_SEARCH_TIMEOUT
       })
 
-      const isDistanceSelling = response.data["value"]["OrganisationSubType"] === DISTANCE_SELLING
-      const serviceUrl = response.data["value"]["URL"]
+      const services = response.data["value"]
+      if (services.length === 0) {
+        return {
+          serviceUrl: "",
+          isDistanceSelling: false,
+          urlValid: false
+        }
+      }
+
+      // The first service in the response has the highest @search.score
+      const service = services[0]
+      const isDistanceSelling = service["OrganisationSubType"] === DISTANCE_SELLING
+      const serviceUrl = service["URL"]
       const urlValid = validateUrl(serviceUrl, logger)
 
       if (isDistanceSelling) {

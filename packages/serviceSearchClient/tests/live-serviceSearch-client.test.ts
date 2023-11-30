@@ -10,7 +10,7 @@ process.env.TargetServiceSearchServer = "serviceSearch"
 
 type serviceSearchTestData = {
   scenarioDescription: string
-  serviceData: {value: {URL: string, OrganisationSubType: string}}
+  serviceData: {value: [{URL: string, OrganisationSubType: string}] | []}
   expected: ServiceSearchResponse
 }
 
@@ -25,21 +25,21 @@ describe("live serviceSearch client", () => {
   test.each<serviceSearchTestData>([
     {
       scenarioDescription: "distance selling and valid url",
-      serviceData: {value: {URL: "https://www.pharmacy2u.co.uk", OrganisationSubType: "DistanceSelling"}},
+      serviceData: {value: [{URL: "https://www.pharmacy2u.co.uk", OrganisationSubType: "DistanceSelling"}]},
       expected: {serviceUrl: "https://www.pharmacy2u.co.uk", isDistanceSelling: true, urlValid: true}
     },
     {
       scenarioDescription: "distance selling and invalid url",
-      serviceData: {value: {URL: "www.pharmacy2u.co.uk", OrganisationSubType: "DistanceSelling"}},
+      serviceData: {value: [{URL: "www.pharmacy2u.co.uk", OrganisationSubType: "DistanceSelling"}]},
       expected: {serviceUrl: "www.pharmacy2u.co.uk", isDistanceSelling: true, urlValid: false}
     },
     {
       scenarioDescription: "not distance selling and valid url",
       serviceData: {
-        value: {
+        value: [{
           URL: "https://www.netmums.com/local/l/london-speech-therapy",
           OrganisationSubType: "Generic Directory of Services"
-        }
+        }]
       },
       expected: {
         serviceUrl: "https://www.netmums.com/local/l/london-speech-therapy",
@@ -50,16 +50,21 @@ describe("live serviceSearch client", () => {
     {
       scenarioDescription: "not distance selling and invalid url",
       serviceData: {
-        value: {
+        value: [{
           URL: "www.netmums.com/local/l/london-speech-therapy",
           OrganisationSubType: "Generic Directory of Services"
-        }
+        }]
       },
       expected: {
         serviceUrl: "www.netmums.com/local/l/london-speech-therapy",
         isDistanceSelling: false,
         urlValid: false
       }
+    },
+    {
+      scenarioDescription: "no results in response",
+      serviceData: {value: []},
+      expected: {serviceUrl: "", isDistanceSelling: false, urlValid: false}
     }
   ])("$scenarioDescription", async ({serviceData, expected}) => {
     mock.onGet("https://serviceSearch/service-search").reply(200, serviceData)
@@ -68,7 +73,7 @@ describe("live serviceSearch client", () => {
   })
 
   test("successful response when http response status from serviceSearch is 200", async () => {
-    const response = {value: {URL: "https://www.pharmacy2u.co.uk", OrganisationSubType: "DistanceSelling"}}
+    const response = {value: [{URL: "https://www.pharmacy2u.co.uk", OrganisationSubType: "DistanceSelling"}]}
     mock.onGet("https://serviceSearch/service-search").reply(200, response)
     const serviceSearchClient = new LiveServiceSearchClient()
     const serviceData = await serviceSearchClient.searchService("", logger)
@@ -81,7 +86,7 @@ describe("live serviceSearch client", () => {
   })
 
   test("successful but false response when url returned by serviceSearch is invalid", async () => {
-    const response = {value: {URL: "www.pharmacy2u.co.uk", OrganisationSubType: "DistanceSelling"}}
+    const response = {value: [{URL: "www.pharmacy2u.co.uk", OrganisationSubType: "DistanceSelling"}]}
     mock.onGet("https://serviceSearch/service-search").reply(200, response)
     const serviceSearchClient = new LiveServiceSearchClient()
     const serviceData = await serviceSearchClient.searchService("", logger)

@@ -17,8 +17,9 @@ export async function serviceHealthCheck(url: string, logger: Logger): Promise<S
       Accept: "application/json",
       "Subscription-Key": process.env.ServiceSearchApiKey
     }
+    const queryParams = {"api-version": 2}
 
-    const response = await axios.get<string>(url, {timeout: 20000, headers: outboundHeaders})
+    const response = await axios.get<string>(url, {timeout: 20000, headers: outboundHeaders, params: queryParams})
     return {
       status: response.status === 200 ? "pass" : "error",
       timeout: "false",
