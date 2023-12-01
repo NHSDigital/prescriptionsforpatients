@@ -8,6 +8,15 @@ import {extractNHSNumber} from "./extractNHSNumber"
 
 // timeout in ms to wait for response from spine to avoid lambda timeout
 const SPINE_TIMEOUT = 45000
+
+export interface SpineStatus {
+  status: string
+  message?: string
+  spineStatus?: StatusCheckResponse
+  commitId?: string
+  versionNumber?: string
+}
+
 export class LiveSpineClient implements SpineClient {
   private readonly SPINE_URL_SCHEME = "https"
   private readonly SPINE_ENDPOINT = process.env.TargetSpineServer
@@ -126,15 +135,23 @@ export class LiveSpineClient implements SpineClient {
     return `${this.SPINE_URL_SCHEME}://${this.SPINE_ENDPOINT}/${requestPath}`
   }
 
-  async getStatus(): Promise<StatusCheckResponse> {
+  async getStatus(): Promise<SpineStatus> {
+    if (!this.isCertificateConfigured()) {
+      return {status: "pass", message: "Spine certificate is not configured"}
+    }
+
     const axiosConfig: AxiosRequestConfig = {timeout: 20000}
+    let endpoint: string
+
     if (process.env.healthCheckUrl === undefined) {
       axiosConfig.httpsAgent = this.httpsAgent
-      return serviceHealthCheck(this.getSpineEndpoint("healthcheck"), this.logger, axiosConfig, this.axiosInstance)
+      endpoint = this.getSpineEndpoint("healthcheck")
     } else {
       axiosConfig.httpsAgent = new Agent()
-      return serviceHealthCheck(process.env.healthCheckUrl, this.logger, axiosConfig, this.axiosInstance)
+      endpoint = process.env.healthCheckUrl
     }
+    const spineStatus = await serviceHealthCheck(endpoint, this.logger, axiosConfig, this.axiosInstance)
+    return {status: spineStatus.status, spineStatus: spineStatus}
   }
 
   isCertificateConfigured(): boolean {
