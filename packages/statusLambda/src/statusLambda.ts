@@ -29,11 +29,10 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     "apigw-request-id": event.requestContext.requestId
   })
 
-  const spineClient = createSpineClient(logger)
-
   const commitId = process.env.COMMIT_ID
   const versionNumber = process.env.VERSION_NUMBER
 
+  const spineClient = createSpineClient(logger)
   const isCertificateConfigured = spineClient.isCertificateConfigured()
 
   if (!isCertificateConfigured) {

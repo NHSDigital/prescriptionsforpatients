@@ -4,7 +4,7 @@
     "rootDir": ".",
     "outDir": "lib"
   },
-  "references": [{"path": "../spineClient"}],
+  "references": [{"path": "../spineClient"}, {"path": "../serviceSearchClient"}],
   "include": ["src/**/*", "tests/**/*"],
   "exclude": ["node_modules"]
 }
