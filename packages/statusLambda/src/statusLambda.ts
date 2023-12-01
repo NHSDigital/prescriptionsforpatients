@@ -33,9 +33,9 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
   const versionNumber = process.env.VERSION_NUMBER
 
   const spineClient = createSpineClient(logger)
-  const statusBody = await spineClient.getStatus()
-  statusBody.commitId = commitId
-  statusBody.versionNumber = versionNumber
+  const spineStatus = await spineClient.getStatus()
+
+  const statusBody = {...spineStatus, commitId: commitId, versionNumber: versionNumber}
 
   return {
     statusCode: 200,

@@ -13,8 +13,6 @@ export interface SpineStatus {
   status: string
   message?: string
   spineStatus?: StatusCheckResponse
-  commitId?: string
-  versionNumber?: string
 }
 
 export class LiveSpineClient implements SpineClient {
