@@ -5,7 +5,6 @@ export interface StatusCheckResponse {
   status: "pass" | "warn" | "error"
   timeout: "true" | "false"
   responseCode: number
-  links?: string
 }
 
 export async function serviceHealthCheck(
@@ -21,8 +20,7 @@ export async function serviceHealthCheck(
     return {
       status: response.status === 200 ? "pass" : "error",
       timeout: "false",
-      responseCode: response.status,
-      links: url
+      responseCode: response.status
     }
   } catch (error) {
     let message
@@ -42,8 +40,7 @@ export async function serviceHealthCheck(
     return {
       status: "error",
       timeout: axiosError.code === "ECONNABORTED" ? "true" : "false",
-      responseCode: responseCode,
-      links: url
+      responseCode: responseCode
     }
   }
 }
