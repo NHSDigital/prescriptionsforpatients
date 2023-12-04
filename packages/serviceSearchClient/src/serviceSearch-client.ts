@@ -12,7 +12,7 @@ export interface ServiceSearchStatus {
 }
 
 export interface ServiceSearchClient {
-  getStatus(logger: Logger): Promise<ServiceSearchStatus>
+  getStatus(): Promise<ServiceSearchStatus>
   searchService(odsCode: string, logger: Logger): Promise<ServiceSearchResponse>
   isKeyConfigured(): boolean
 }
