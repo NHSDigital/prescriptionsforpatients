@@ -5,7 +5,7 @@ import {Logger} from "@aws-lambda-powertools/logger"
 type testData = {url: string, scenarioDescription: string, expected: URL | undefined}
 
 describe("test URL protocols", () => {
-  const logger = new Logger({serviceName: "validateUrl"})
+  const logger = new Logger({serviceName: "handleUrl"})
   test.each<testData>([
     {
       url: "http://www.pharmacy2u.co.uk",
@@ -34,7 +34,7 @@ describe("test URL protocols", () => {
 })
 
 describe("test URL path", () => {
-  const logger = new Logger({serviceName: "validateUrl"})
+  const logger = new Logger({serviceName: "handleUrl"})
   test.each<testData>([
     {
       url: "https://www.pharmacy2u.co.uk/path/goes/here",
@@ -53,7 +53,7 @@ describe("test URL path", () => {
 })
 
 describe("test URL queries", () => {
-  const logger = new Logger({serviceName: "validateUrl"})
+  const logger = new Logger({serviceName: "handleUrl"})
   test.each<testData>([
     {
       url: "https://www.pharmacy2u.co.uk/search?query=what",
