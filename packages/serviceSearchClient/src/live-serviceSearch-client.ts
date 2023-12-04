@@ -14,7 +14,14 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
   private readonly axiosInstance: Axios
   private readonly logger: Logger
   private readonly outboundHeaders: {Accept: string, "Subscription-Key": string | undefined}
-  private readonly queryParams: {"api-version": number, odsCode?: string}
+  private readonly queryParams: {
+    "api-version": number,
+    "odsCode"?: string,
+    "searchFields": string,
+    "$filter": string,
+    "$select": string,
+    "$top": number
+  }
 
   constructor(logger: Logger) {
     this.logger = logger
@@ -24,7 +31,11 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       "Subscription-Key": process.env.ServiceSearchApiKey
     }
     this.queryParams = {
-      "api-version": 2
+      "api-version": 2,
+      "searchFields": "ODSCode",
+      "$filter": "OrganisationTypeId eq 'PHA' and OrganisationSubType eq 'DistanceSelling'",
+      "$select": "URL,OrganisationSubType",
+      "$top": 1
     }
   }
 
