@@ -104,7 +104,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
 
   async getStatus(): Promise<ServiceSearchStatus> {
     if (!this.isKeyConfigured()) {
-      return {status: "pass", message: "Service search key is not configured"}
+      return {status: "pass", message: "Service Search key is not configured"}
     }
 
     const axiosConfig: AxiosRequestConfig = {
@@ -112,13 +112,16 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       headers: this.outboundHeaders,
       params: {...this.queryParams, odsCode: "X26"}
     }
+    let endpoint: string
+
     if (process.env.healthCheckUrl === undefined) {
-      return serviceHealthCheck(
-        this.getServiceSearchEndpoint("service-search"), this.logger, axiosConfig, this.axiosInstance
-      )
+      endpoint = this.getServiceSearchEndpoint("service-search")
     } else {
-      return serviceHealthCheck(process.env.healthCheckUrl, this.logger, axiosConfig, this.axiosInstance)
+      endpoint = process.env.healthCheckUrl
     }
+
+    const serviceSearchStatus = await serviceHealthCheck(endpoint, this.logger, axiosConfig, this.axiosInstance)
+    return {status: serviceSearchStatus.status, serviceSearchStatus: serviceSearchStatus}
   }
 
   isKeyConfigured(): boolean {

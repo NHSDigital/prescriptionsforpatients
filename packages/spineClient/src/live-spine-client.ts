@@ -142,6 +142,7 @@ export class LiveSpineClient implements SpineClient {
       axiosConfig.httpsAgent = new Agent()
       endpoint = process.env.healthCheckUrl
     }
+
     const spineStatus = await serviceHealthCheck(endpoint, this.logger, axiosConfig, this.axiosInstance)
     return {status: spineStatus.status, spineStatus: spineStatus}
   }

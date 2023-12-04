@@ -83,11 +83,22 @@ describe("Unit test for status check", function () {
     })
   })
 
-  it("checks if the certificate is always configured for the sandbox", async () => {
+  it("checks if the certificate is always configured for the Spine sandbox", async () => {
     process.env.TargetSpineServer = "sandbox"
     process.env.SpinePublicCertificate = "ChangeMe"
     process.env.SpinePrivateKey = "ChangeMe"
     process.env.SpineCAChain = "ChangeMe"
+
+    const result: APIGatewayProxyResult = await handler(mockAPIGatewayProxyEvent, dummyContext)
+
+    expect(result.statusCode).toEqual(200)
+    const result_body = JSON.parse(result.body)
+    expect(result_body).not.toHaveProperty("message")
+  })
+
+  it("checks if the key is always configured for the Service Search sandbox", async () => {
+    process.env.TargetServiceSearchServer = "sandbox"
+    process.env.ServiceSearchApiKey = "ChangeMe"
 
     const result: APIGatewayProxyResult = await handler(mockAPIGatewayProxyEvent, dummyContext)
 
@@ -107,10 +118,10 @@ describe("Unit test for status check", function () {
 
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
-    expect(result_body.status).toEqual("pass")
-    expect(result_body.spineStatus.status).toEqual("pass")
-    expect(result_body.spineStatus.timeout).toEqual("false")
-    expect(result_body.spineStatus.responseCode).toEqual(200)
+    expect(result_body.spine.status).toEqual("pass")
+    expect(result_body.spine.spineStatus.status).toEqual("pass")
+    expect(result_body.spine.spineStatus.timeout).toEqual("false")
+    expect(result_body.spine.spineStatus.responseCode).toEqual(200)
   })
 
   it("returns failure when spine check fails", async () => {
@@ -124,10 +135,10 @@ describe("Unit test for status check", function () {
 
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
-    expect(result_body.status).toEqual("error")
-    expect(result_body.spineStatus.status).toEqual("error")
-    expect(result_body.spineStatus.timeout).toEqual("false")
-    expect(result_body.spineStatus.responseCode).toEqual(500)
+    expect(result_body.spine.status).toEqual("error")
+    expect(result_body.spine.spineStatus.status).toEqual("error")
+    expect(result_body.spine.spineStatus.timeout).toEqual("false")
+    expect(result_body.spine.spineStatus.responseCode).toEqual(500)
   })
 
   it("returns failure when spine check has network error", async () => {
@@ -141,10 +152,10 @@ describe("Unit test for status check", function () {
 
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
-    expect(result_body.status).toEqual("error")
-    expect(result_body.spineStatus.status).toEqual("error")
-    expect(result_body.spineStatus.timeout).toEqual("false")
-    expect(result_body.spineStatus.responseCode).toEqual(500)
+    expect(result_body.spine.status).toEqual("error")
+    expect(result_body.spine.spineStatus.status).toEqual("error")
+    expect(result_body.spine.spineStatus.timeout).toEqual("false")
+    expect(result_body.spine.spineStatus.responseCode).toEqual(500)
   })
 
   it("returns failure when spine check has timeout", async () => {
@@ -158,10 +169,10 @@ describe("Unit test for status check", function () {
 
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
-    expect(result_body.status).toEqual("error")
-    expect(result_body.spineStatus.status).toEqual("error")
-    expect(result_body.spineStatus.timeout).toEqual("true")
-    expect(result_body.spineStatus.responseCode).toEqual(500)
+    expect(result_body.spine.status).toEqual("error")
+    expect(result_body.spine.spineStatus.status).toEqual("error")
+    expect(result_body.spine.spineStatus.timeout).toEqual("true")
+    expect(result_body.spine.spineStatus.responseCode).toEqual(500)
   })
 
   it("returns success when Spine check succeeds and the certificate is not configured", async () => {
@@ -175,8 +186,8 @@ describe("Unit test for status check", function () {
 
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
-    expect(result_body.status).toEqual("pass")
-    expect(result_body.message).toEqual("Spine certificate is not configured")
+    expect(result_body.spine.status).toEqual("pass")
+    expect(result_body.spine.message).toEqual("Spine certificate is not configured")
   })
 
   it("returns success when Spine check succeeds without SpinePublicCertificate", async () => {
@@ -188,8 +199,8 @@ describe("Unit test for status check", function () {
 
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
-    expect(result_body.status).toEqual("pass")
-    expect(result_body.message).toEqual("Spine certificate is not configured")
+    expect(result_body.spine.status).toEqual("pass")
+    expect(result_body.spine.message).toEqual("Spine certificate is not configured")
   })
 
   it("returns success when Spine check succeeds without SpinePrivateKey", async () => {
@@ -201,8 +212,8 @@ describe("Unit test for status check", function () {
 
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
-    expect(result_body.status).toEqual("pass")
-    expect(result_body.message).toEqual("Spine certificate is not configured")
+    expect(result_body.spine.status).toEqual("pass")
+    expect(result_body.spine.message).toEqual("Spine certificate is not configured")
   })
 
   it("returns success when Spine check succeeds without SpineCAChain", async () => {
@@ -214,8 +225,8 @@ describe("Unit test for status check", function () {
 
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
-    expect(result_body.status).toEqual("pass")
-    expect(result_body.message).toEqual("Spine certificate is not configured")
+    expect(result_body.spine.status).toEqual("pass")
+    expect(result_body.spine.message).toEqual("Spine certificate is not configured")
   })
 
   it("returns failure when Spine check fails and the certificate is configured", async () => {
@@ -227,9 +238,90 @@ describe("Unit test for status check", function () {
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
     expect(result_body).not.toHaveProperty("message")
-    expect(result_body.status).toEqual("error")
-    expect(result_body.spineStatus.status).toEqual("error")
-    expect(result_body.spineStatus.timeout).toEqual("false")
-    expect(result_body.spineStatus.responseCode).toEqual(500)
+    expect(result_body.spine.status).toEqual("error")
+    expect(result_body.spine.spineStatus.status).toEqual("error")
+    expect(result_body.spine.spineStatus.timeout).toEqual("false")
+    expect(result_body.spine.spineStatus.responseCode).toEqual(500)
+  })
+
+  it("returns success when service search check succeeds", async () => {
+    mock.onGet("https://live/service-search").reply(200, {})
+    process.env.TargetServiceSearchServer = "live"
+
+    const result: APIGatewayProxyResult = (await handler(
+      mockAPIGatewayProxyEvent,
+      dummyContext
+    )) as APIGatewayProxyResult
+
+    expect(result.statusCode).toEqual(200)
+    const result_body = JSON.parse(result.body)
+    expect(result_body.serviceSearch.status).toEqual("pass")
+    expect(result_body.serviceSearch.serviceSearchStatus.status).toEqual("pass")
+    expect(result_body.serviceSearch.serviceSearchStatus.timeout).toEqual("false")
+    expect(result_body.serviceSearch.serviceSearchStatus.responseCode).toEqual(200)
+  })
+
+  it("returns failure when service search check fails", async () => {
+    mock.onGet("https://live/service-search").reply(500, {})
+    process.env.TargetServiceSearchServer = "live"
+
+    const result: APIGatewayProxyResult = (await handler(
+      mockAPIGatewayProxyEvent,
+      dummyContext
+    )) as APIGatewayProxyResult
+
+    expect(result.statusCode).toEqual(200)
+    const result_body = JSON.parse(result.body)
+    expect(result_body.serviceSearch.status).toEqual("error")
+    expect(result_body.serviceSearch.serviceSearchStatus.status).toEqual("error")
+    expect(result_body.serviceSearch.serviceSearchStatus.timeout).toEqual("false")
+    expect(result_body.serviceSearch.serviceSearchStatus.responseCode).toEqual(500)
+  })
+
+  it("returns failure when service search check has network error", async () => {
+    mock.onGet("https://live/service-search").networkError()
+    process.env.TargetServiceSearchServer = "live"
+
+    const result: APIGatewayProxyResult = (await handler(
+      mockAPIGatewayProxyEvent,
+      dummyContext
+    )) as APIGatewayProxyResult
+
+    expect(result.statusCode).toEqual(200)
+    const result_body = JSON.parse(result.body)
+    expect(result_body.serviceSearch.status).toEqual("error")
+    expect(result_body.serviceSearch.serviceSearchStatus.status).toEqual("error")
+    expect(result_body.serviceSearch.serviceSearchStatus.timeout).toEqual("false")
+    expect(result_body.serviceSearch.serviceSearchStatus.responseCode).toEqual(500)
+  })
+
+  it("returns failure when service search check has timeout", async () => {
+    mock.onGet("https://live/service-search").timeout()
+    process.env.TargetServiceSearchServer = "live"
+
+    const result: APIGatewayProxyResult = (await handler(
+      mockAPIGatewayProxyEvent,
+      dummyContext
+    )) as APIGatewayProxyResult
+
+    expect(result.statusCode).toEqual(200)
+    const result_body = JSON.parse(result.body)
+    expect(result_body.serviceSearch.status).toEqual("error")
+    expect(result_body.serviceSearch.serviceSearchStatus.status).toEqual("error")
+    expect(result_body.serviceSearch.serviceSearchStatus.timeout).toEqual("true")
+    expect(result_body.serviceSearch.serviceSearchStatus.responseCode).toEqual(500)
+  })
+
+  it("returns success when service search check succeeds and the key is not configured", async () => {
+    mock.onGet("https://live/service-search").reply(200, {})
+    process.env.TargetServiceSearchServer = "live"
+    process.env.ServiceSearchApiKey = "ChangeMe"
+
+    const result: APIGatewayProxyResult = await handler(mockAPIGatewayProxyEvent, dummyContext)
+
+    expect(result.statusCode).toEqual(200)
+    const result_body = JSON.parse(result.body)
+    expect(result_body.serviceSearch.status).toEqual("pass")
+    expect(result_body.serviceSearch.message).toEqual("Service Search key is not configured")
   })
 })

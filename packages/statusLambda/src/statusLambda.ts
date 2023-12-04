@@ -4,6 +4,7 @@ import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
 import errorHandler from "@prescriptionsforpatients/middleware"
 import {createSpineClient} from "@prescriptionsforpatients/spineClient"
+import {createServiceSearchClient} from "@prescriptionsforpatients/serviceSearchClient"
 
 const logger = new Logger({serviceName: "status"})
 
@@ -35,7 +36,15 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
   const spineClient = createSpineClient(logger)
   const spineStatus = await spineClient.getStatus()
 
-  const statusBody = {...spineStatus, commitId: commitId, versionNumber: versionNumber}
+  const serviceSearchClient = createServiceSearchClient(logger)
+  const serviceSearchStatus = await serviceSearchClient.getStatus()
+
+  const statusBody = {
+    commitId: commitId,
+    versionNumber: versionNumber,
+    spine: spineStatus,
+    serviceSearch: serviceSearchStatus
+  }
 
   return {
     statusCode: 200,
