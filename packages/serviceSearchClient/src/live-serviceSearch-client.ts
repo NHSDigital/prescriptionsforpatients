@@ -103,9 +103,19 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
   }
 
   async getStatus(logger: Logger): Promise<ServiceSearchStatus> {
-    const axiosConfig: AxiosRequestConfig = {timeout: 20000, headers: this.outboundHeaders, params: this.queryParams}
+    if (!this.isKeyConfigured()) {
+      return {status: "pass", message: "Service search key is not configured"}
+    }
+
+    const axiosConfig: AxiosRequestConfig = {
+      timeout: 20000,
+      headers: this.outboundHeaders,
+      params: {...this.queryParams, odsCode: "X26"}
+    }
     if (process.env.healthCheckUrl === undefined) {
-      return serviceHealthCheck(this.getServiceSearchEndpoint("healthcheck"), logger, axiosConfig, this.axiosInstance)
+      return serviceHealthCheck(
+        this.getServiceSearchEndpoint("service-search"), logger, axiosConfig, this.axiosInstance
+      )
     } else {
       return serviceHealthCheck(process.env.healthCheckUrl, logger, axiosConfig, this.axiosInstance)
     }
