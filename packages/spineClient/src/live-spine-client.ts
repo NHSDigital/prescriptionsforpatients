@@ -1,6 +1,6 @@
 import {Logger} from "@aws-lambda-powertools/logger"
-import {serviceHealthCheck, StatusCheckResponse} from "./status"
-import {SpineClient} from "./spine-client"
+import {serviceHealthCheck} from "./status"
+import {SpineClient, SpineStatus} from "./spine-client"
 import {Agent} from "https"
 import axios, {Axios, AxiosRequestConfig, AxiosResponse} from "axios"
 import {APIGatewayProxyEventHeaders} from "aws-lambda"
@@ -8,12 +8,6 @@ import {extractNHSNumber} from "./extractNHSNumber"
 
 // timeout in ms to wait for response from spine to avoid lambda timeout
 const SPINE_TIMEOUT = 45000
-
-export interface SpineStatus {
-  status: string
-  message?: string
-  spineStatus?: StatusCheckResponse
-}
 
 export class LiveSpineClient implements SpineClient {
   private readonly SPINE_URL_SCHEME = "https"

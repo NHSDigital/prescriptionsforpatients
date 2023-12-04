@@ -1,14 +1,13 @@
 import {Logger} from "@aws-lambda-powertools/logger"
-import {ServiceSearchClient} from "./serviceSearch-client"
+import {ServiceSearchClient, ServiceSearchResponse, ServiceSearchStatus} from "./serviceSearch-client"
 import axios, {Axios, AxiosRequestConfig} from "axios"
 import {validateUrl} from "./validateUrl"
-import {StatusCheckResponse, serviceHealthCheck} from "./status"
-
-type ServiceSearchResponse = {serviceUrl: string, isDistanceSelling: boolean, urlValid: boolean}
+import {serviceHealthCheck} from "./status"
 
 // timeout in ms to wait for response from serviceSearch to avoid lambda timeout
 const SERVICE_SEARCH_TIMEOUT = 45000
 const DISTANCE_SELLING = "DistanceSelling"
+
 export class LiveServiceSearchClient implements ServiceSearchClient {
   private readonly SERVICE_SEARCH_URL_SCHEME = "https"
   private readonly SERVICE_SEARCH_ENDPOINT = process.env.TargetServiceSearchServer
@@ -103,7 +102,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
     return `${this.SERVICE_SEARCH_URL_SCHEME}://${this.SERVICE_SEARCH_ENDPOINT}/${requestPath}`
   }
 
-  async getStatus(logger: Logger): Promise<StatusCheckResponse> {
+  async getStatus(logger: Logger): Promise<ServiceSearchStatus> {
     const axiosConfig: AxiosRequestConfig = {timeout: 20000, headers: this.outboundHeaders, params: this.queryParams}
     if (process.env.healthCheckUrl === undefined) {
       return serviceHealthCheck(this.getServiceSearchEndpoint("healthcheck"), logger, axiosConfig, this.axiosInstance)
