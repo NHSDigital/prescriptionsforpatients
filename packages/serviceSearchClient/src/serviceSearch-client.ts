@@ -3,8 +3,6 @@ import {LiveServiceSearchClient} from "./live-serviceSearch-client"
 import {SandboxServiceSearchClient} from "./sandbox-serviceSearch-client"
 import {StatusCheckResponse} from "./status"
 
-export type ServiceSearchResponse = {serviceUrl: string, isDistanceSelling: boolean, urlValid: boolean}
-
 export interface ServiceSearchStatus {
   status: string
   message?: string
@@ -13,7 +11,7 @@ export interface ServiceSearchStatus {
 
 export interface ServiceSearchClient {
   getStatus(): Promise<ServiceSearchStatus>
-  searchService(odsCode: string, logger: Logger): Promise<ServiceSearchResponse>
+  searchService(odsCode: string, logger: Logger): Promise<URL | undefined>
   isKeyConfigured(): boolean
 }
 

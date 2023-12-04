@@ -1,7 +1,7 @@
 import {Logger} from "@aws-lambda-powertools/logger"
-import {ServiceSearchClient, ServiceSearchResponse, ServiceSearchStatus} from "./serviceSearch-client"
+import {ServiceSearchClient, ServiceSearchStatus} from "./serviceSearch-client"
 import axios, {Axios, AxiosRequestConfig} from "axios"
-import {validateUrl} from "./validateUrl"
+import {handleUrl} from "./handleUrl"
 import {serviceHealthCheck} from "./status"
 
 // timeout in ms to wait for response from serviceSearch to avoid lambda timeout
@@ -39,7 +39,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
     }
   }
 
-  async searchService(odsCode: string): Promise<ServiceSearchResponse> {
+  async searchService(odsCode: string): Promise<URL | undefined> {
     try {
       const address = this.getServiceSearchEndpoint("service-search")
       this.queryParams.odsCode = odsCode
@@ -53,28 +53,15 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
 
       const services = response.data["value"]
       if (services.length === 0) {
-        return {
-          serviceUrl: "",
-          isDistanceSelling: false,
-          urlValid: false
-        }
+        return undefined
       }
 
-      // The first service in the response has the highest @search.score
+      this.logger.info(`service with ods code ${odsCode} is of type ${DISTANCE_SELLING}`)
       const service = services[0]
-      const isDistanceSelling = service["OrganisationSubType"] === DISTANCE_SELLING
-      const serviceUrl = service["URL"]
-      const urlValid = validateUrl(serviceUrl, this.logger)
+      const urlString = service["URL"]
 
-      if (isDistanceSelling) {
-        this.logger.info(`service with ods code ${odsCode} is of type ${DISTANCE_SELLING}`)
-      }
-
-      return {
-        serviceUrl: serviceUrl,
-        isDistanceSelling: isDistanceSelling,
-        urlValid: urlValid
-      }
+      const serviceUrl = handleUrl(urlString, odsCode, this.logger)
+      return serviceUrl
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response) {
@@ -142,5 +129,3 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
     )
   }
 }
-
-export {ServiceSearchResponse}

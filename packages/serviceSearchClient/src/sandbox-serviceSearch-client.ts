@@ -1,4 +1,3 @@
-import {ServiceSearchResponse} from "./live-serviceSearch-client"
 import {ServiceSearchClient} from "./serviceSearch-client"
 import {StatusCheckResponse} from "./status"
 
@@ -11,7 +10,7 @@ export class SandboxServiceSearchClient implements ServiceSearchClient {
     }
   }
 
-  async searchService(): Promise<ServiceSearchResponse> {
+  async searchService(): Promise<URL | undefined> {
     // This is not implemented as sandbox lambda does not use this code
     throw new Error("INTERACTION_NOT_SUPPORTED_BY_SANDBOX")
   }

@@ -1,4 +1,4 @@
-import {LiveServiceSearchClient, ServiceSearchResponse} from "../src/live-serviceSearch-client"
+import {LiveServiceSearchClient} from "../src/live-serviceSearch-client"
 import "jest"
 import MockAdapter from "axios-mock-adapter"
 import axios from "axios"
@@ -11,7 +11,7 @@ process.env.TargetServiceSearchServer = "serviceSearch"
 type serviceSearchTestData = {
   scenarioDescription: string
   serviceData: {value: [{URL: string, OrganisationSubType: string}] | []}
-  expected: ServiceSearchResponse
+  expected: URL | undefined
 }
 
 describe("live serviceSearch client", () => {
@@ -26,12 +26,12 @@ describe("live serviceSearch client", () => {
     {
       scenarioDescription: "distance selling and valid url",
       serviceData: {value: [{URL: "https://www.pharmacy2u.co.uk", OrganisationSubType: "DistanceSelling"}]},
-      expected: {serviceUrl: "https://www.pharmacy2u.co.uk", isDistanceSelling: true, urlValid: true}
+      expected: new URL("https://www.pharmacy2u.co.uk")
     },
     {
       scenarioDescription: "distance selling and invalid url",
       serviceData: {value: [{URL: "www.pharmacy2u.co.uk", OrganisationSubType: "DistanceSelling"}]},
-      expected: {serviceUrl: "www.pharmacy2u.co.uk", isDistanceSelling: true, urlValid: false}
+      expected: undefined
     },
     {
       scenarioDescription: "not distance selling and valid url",
@@ -41,11 +41,7 @@ describe("live serviceSearch client", () => {
           OrganisationSubType: "Generic Directory of Services"
         }]
       },
-      expected: {
-        serviceUrl: "https://www.netmums.com/local/l/london-speech-therapy",
-        isDistanceSelling: false,
-        urlValid: true
-      }
+      expected: new URL("https://www.netmums.com/local/l/london-speech-therapy")
     },
     {
       scenarioDescription: "not distance selling and invalid url",
@@ -55,16 +51,12 @@ describe("live serviceSearch client", () => {
           OrganisationSubType: "Generic Directory of Services"
         }]
       },
-      expected: {
-        serviceUrl: "www.netmums.com/local/l/london-speech-therapy",
-        isDistanceSelling: false,
-        urlValid: false
-      }
+      expected: undefined
     },
     {
       scenarioDescription: "no results in response",
       serviceData: {value: []},
-      expected: {serviceUrl: "", isDistanceSelling: false, urlValid: false}
+      expected: undefined
     }
   ])("$scenarioDescription", async ({serviceData, expected}) => {
     mock.onGet("https://serviceSearch/service-search").reply(200, serviceData)
