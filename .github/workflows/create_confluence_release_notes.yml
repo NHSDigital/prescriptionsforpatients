@@ -6,6 +6,18 @@ on:
       TARGET_ENVIRONMENT:
         required: true
         type: string
+      TARGET_TAG:
+        required: false
+        type: string
+      MARK_JIRA_RELEASED:
+        required: true
+        type: boolean
+      CONFLUENCE_PAGE_ID:
+        required: true
+        type: string
+      CREATE_RELEASE_NOTES:
+        required: true
+        type: boolean
     secrets:
       DEV_CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
@@ -57,12 +69,23 @@ jobs:
           role-to-assume: ${{ secrets.TARGET_CLOUD_FORMATION_DEPLOY_ROLE }}
           role-session-name: github-actions
 
-      - shell: bash
-        name: get target tag
+      - name: Get target tag
         run: |
-          target_tag=$(aws cloudformation describe-stacks --stack-name ${{ inputs.TARGET_ENVIRONMENT }}-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
+          if [ -n "${{ inputs.TARGET_TAG }}" ]; then
+            target_tag="${{ inputs.TARGET_TAG }}"
+          else
+            target_tag=$(aws cloudformation describe-stacks --stack-name ${{ inputs.TARGET_ENVIRONMENT }}-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
+          fi
           export target_tag
           echo "target_tag=${target_tag}" >> "$GITHUB_ENV"
+                    
+      - name: Call to markJiraReleased lambda
+          run: |
+            if [ "${{ inputs.MARK_JIRA_RELEASED }}" == "true" ]; then
+              release_version="PfP-AWS-${{ inputs.TARGET_TAG }}"
+              aws lambda invoke --function-name MarkJiraReleased --payload "{\"releaseVersion\": \"$release_version\"}" out.txt
+            fi
+
 
       - name: Configure dev AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -80,7 +103,7 @@ jobs:
 
       - shell: bash
         name: create int release notes
-        if: inputs.TARGET_ENVIRONMENT == 'int'
+        if: inputs.TARGET_ENVIRONMENT == 'int' && inputs.CREATE_RELEASE_NOTES == false
         run: |
           ENV_VAR=release-notes:CreateReleaseNotesLambdaName
           RELEASE_NOTES_LAMBDA=$(aws cloudformation list-exports \
@@ -95,6 +118,32 @@ jobs:
               "productName": "Prescritpions for Patients AWS layer", 
               "releaseNotesPageId": "693750027", 
               "releaseNotesPageTitle": "Current PfP AWS layer release notes - INT"
+          }
+          EOF
+          cat payload.json
+          aws lambda invoke --function-name "${RELEASE_NOTES_LAMBDA}" \
+          --cli-binary-format raw-in-base64-out \
+          --payload file://payload.json out.txt
+
+      - shell: bash
+        name: create int release notes
+        if: inputs.TARGET_ENVIRONMENT == 'int' && inputs.CREATE_RELEASE_NOTES == true
+        run: |
+          ENV_VAR=release-notes:CreateReleaseNotesLambdaName
+          RELEASE_NOTES_LAMBDA=$(aws cloudformation list-exports \
+            --query "Exports[?Name=='$ENV_VAR'].Value" \
+            --output text)
+          cat <<EOF > payload.json
+          { 
+              "currentTag": "$target_tag", 
+              "targetTag": "$dev_tag", 
+              "repoName": "prescriptionsforpatients", 
+              "targetEnvironment": "INT", 
+              "productName": "Prescritpions for Patients AWS layer", 
+              "releaseNotesPageId": "710051481", 
+              "releaseNotesPageTitle": "PfP-AWS-$dev_tag - Deployed to [INT] on $(date +'%d-%m-%y')",
+              "createReleasedCandidate": "true",
+              "releasePrefix": "PfP-AWS-"
           }
           EOF
           cat payload.json
