@@ -5,6 +5,8 @@ import inputOutputLogger from "@middy/input-output-logger"
 import errorHandler from "@prescriptionsforpatients/middleware"
 import {createSpineClient, NHSNumberValidationError} from "@prescriptionsforpatients/spineClient"
 import {LogLevel} from "@aws-lambda-powertools/logger/lib/types"
+import type {Bundle} from "fhir/r4"
+import {serviceSearch} from "./serviceSearch"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
@@ -64,7 +66,8 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       }
     }
     const returnData = await spineClient.getPrescriptions(event.headers)
-    const resBody = returnData.data
+    const resBody: Bundle = returnData.data
+    serviceSearch(resBody)
     resBody.id = xRequestId
     return {
       statusCode: 200,
