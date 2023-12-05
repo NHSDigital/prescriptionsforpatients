@@ -1,18 +1,9 @@
 import {Logger} from "@aws-lambda-powertools/logger"
 import {LiveServiceSearchClient} from "./live-serviceSearch-client"
 import {SandboxServiceSearchClient} from "./sandbox-serviceSearch-client"
-import {StatusCheckResponse} from "./status"
-
-export interface ServiceSearchStatus {
-  status: string
-  message?: string
-  serviceSearchStatus?: StatusCheckResponse
-}
 
 export interface ServiceSearchClient {
-  getStatus(): Promise<ServiceSearchStatus>
   searchService(odsCode: string, logger: Logger): Promise<URL | undefined>
-  isKeyConfigured(): boolean
 }
 
 export function createServiceSearchClient(logger: Logger): ServiceSearchClient {

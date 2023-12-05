@@ -1,8 +1,7 @@
 import {Logger} from "@aws-lambda-powertools/logger"
-import {ServiceSearchClient, ServiceSearchStatus} from "./serviceSearch-client"
-import axios, {Axios, AxiosRequestConfig} from "axios"
+import {ServiceSearchClient} from "./serviceSearch-client"
+import axios, {Axios} from "axios"
 import {handleUrl} from "./handleUrl"
-import {serviceHealthCheck} from "./status"
 
 // timeout in ms to wait for response from serviceSearch to avoid lambda timeout
 const SERVICE_SEARCH_TIMEOUT = 45000
@@ -98,34 +97,5 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
 
   private getServiceSearchEndpoint(requestPath?: string) {
     return `${this.SERVICE_SEARCH_URL_SCHEME}://${this.SERVICE_SEARCH_ENDPOINT}/${requestPath}`
-  }
-
-  async getStatus(): Promise<ServiceSearchStatus> {
-    if (!this.isKeyConfigured()) {
-      return {status: "pass", message: "Service Search key is not configured"}
-    }
-
-    const axiosConfig: AxiosRequestConfig = {
-      timeout: 20000,
-      headers: this.outboundHeaders,
-      params: {...this.queryParams, odsCode: "X26"}
-    }
-    let endpoint: string
-
-    if (process.env.healthCheckUrl === undefined) {
-      endpoint = this.getServiceSearchEndpoint("service-search")
-    } else {
-      endpoint = process.env.healthCheckUrl
-    }
-
-    const serviceSearchStatus = await serviceHealthCheck(endpoint, this.logger, axiosConfig, this.axiosInstance)
-    return {status: serviceSearchStatus.status, serviceSearchStatus: serviceSearchStatus}
-  }
-
-  isKeyConfigured(): boolean {
-    // Check if the required environment variables are defined
-    return (
-      process.env.ServiceSearchApiKey !== "ChangeMe"
-    )
   }
 }
