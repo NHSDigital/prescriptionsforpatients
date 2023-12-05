@@ -45,7 +45,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       this.queryParams.odsCode = odsCode
 
       this.logger.info(`making request to ${address} with ods code ${odsCode}`)
-      const response = await axios.get(address, {
+      const response = await this.axiosInstance.get(address, {
         headers: this.outboundHeaders,
         params: this.queryParams,
         timeout: SERVICE_SEARCH_TIMEOUT
