@@ -14,7 +14,9 @@
                 "--testNamePattern",
                 "${jest.testNamePattern}",
                 "--runTestsByPath",
-                "${jest.testFile}"
+                "${jest.testFile}",
+                "--config",
+                "${workspaceFolder}/jest.debug.config.ts"
             ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
