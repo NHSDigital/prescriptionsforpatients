@@ -1,3 +1,3 @@
-import {createServiceSearchClient} from "./serviceSearch-client"
+import {createServiceSearchClient, ServiceSearchClient} from "./serviceSearch-client"
 
-export {createServiceSearchClient}
+export {createServiceSearchClient, ServiceSearchClient}
