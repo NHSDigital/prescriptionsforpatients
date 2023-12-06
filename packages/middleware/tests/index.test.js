@@ -1,5 +1,6 @@
-const middy = require("@middy/core")
-const middleware = require("../src/index")
+import middy from "@middy/core"
+import middleware from "../src/index"
+import {expect, jest} from "@jest/globals"
 
 const mockEvent = {
   httpMethod: "get",

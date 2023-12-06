@@ -6,14 +6,14 @@
   "author": "NHS Digital",
   "license": "MIT",
   "scripts": {
-    "test": "jest --coverage",
+    "test": "POWERTOOLS_DEV=true jest --coverage",
     "lint": "eslint . --ext .js --max-warnings 0 --fix",
     "check-licenses": "license-checker --failOn GPL --failOn LGPL --start ../.."
   },
   "dependencies": {
-    "@aws-sdk/client-firehose": "^3.436.0",
-    "@aws-sdk/client-kinesis": "^3.436.0",
-    "aws-sdk": "^2.1481.0",
+    "@aws-sdk/client-firehose": "^3.465.0",
+    "@aws-sdk/client-kinesis": "^3.465.0",
+    "aws-sdk": "^2.1512.0",
     "zlib": "^1.0.5"
   }
 }

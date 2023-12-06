@@ -2,7 +2,7 @@ import {Logger} from "@aws-lambda-powertools/logger"
 import {serviceHealthCheck, StatusCheckResponse} from "./status"
 import {SpineClient} from "./spine-client"
 import {Agent} from "https"
-import axios, {AxiosResponse} from "axios"
+import axios, {Axios, AxiosResponse} from "axios"
 import {APIGatewayProxyEventHeaders} from "aws-lambda"
 import {extractNHSNumber} from "./extractNHSNumber"
 
@@ -14,8 +14,10 @@ export class LiveSpineClient implements SpineClient {
   private readonly spineASID: string | undefined
   private readonly httpsAgent: Agent
   private readonly spinePartyKey: string | undefined
+  private readonly axiosInstance: Axios
+  private readonly logger: Logger
 
-  constructor() {
+  constructor(logger: Logger) {
     this.spineASID = process.env.SpineASID
     this.spinePartyKey = process.env.SpinePartyKey
 
@@ -24,13 +26,28 @@ export class LiveSpineClient implements SpineClient {
       key: process.env.SpinePrivateKey,
       ca: process.env.SpineCAChain
     })
+    this.logger = logger
+    this.axiosInstance = axios.create()
+    this.axiosInstance.interceptors.request.use((config) => {
+      config.headers["request-startTime"] = new Date().getTime()
+      return config
+    })
+
+    this.axiosInstance.interceptors.response.use((response) => {
+      const currentTime = new Date().getTime()
+      const startTime = response.config.headers["request-startTime"]
+      this.logger.info("spine request duration", {spine_duration: currentTime - startTime})
+
+      return response
+    })
+
   }
-  async getPrescriptions(inboundHeaders: APIGatewayProxyEventHeaders, logger: Logger): Promise<AxiosResponse> {
+  async getPrescriptions(inboundHeaders: APIGatewayProxyEventHeaders): Promise<AxiosResponse> {
     try {
       const address = this.getSpineEndpoint("mm/patientfacingprescriptions")
       // nhsd-nhslogin-user looks like P9:9912003071
       const nhsNumber = extractNHSNumber(inboundHeaders["nhsd-nhslogin-user"])
-      logger.info(`nhsNumber: ${nhsNumber}`)
+      this.logger.info(`nhsNumber: ${nhsNumber}`)
 
       const outboundHeaders = {
         Accept: "application/json",
@@ -47,8 +64,8 @@ export class LiveSpineClient implements SpineClient {
       const queryParams = {
         format: "trace-summary"
       }
-      logger.info(`making request to ${address}`)
-      const response = await axios.get(address, {
+      this.logger.info(`making request to ${address}`)
+      const response = await this.axiosInstance.get(address, {
         headers: outboundHeaders,
         params: queryParams,
         httpsAgent: this.httpsAgent,
@@ -61,7 +78,7 @@ export class LiveSpineClient implements SpineClient {
         response.data["statusCode"] !== "1" &&
         response.data["statusCode"] !== "0"
       ) {
-        logger.error("Unsuccessful status code response from spine", {
+        this.logger.error("Unsuccessful status code response from spine", {
           response: {
             data: response.data,
             status: response.status,
@@ -74,7 +91,7 @@ export class LiveSpineClient implements SpineClient {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response) {
-          logger.error("error in response from spine", {
+          this.logger.error("error in response from spine", {
             response: {
               data: error.response.data,
               status: error.response.status,
@@ -88,7 +105,7 @@ export class LiveSpineClient implements SpineClient {
             }
           })
         } else if (error.request) {
-          logger.error("error in request to spine", {
+          this.logger.error("error in request to spine", {
             method: error.request.method,
             path: error.request.path,
             params: error.request.params,
@@ -96,10 +113,10 @@ export class LiveSpineClient implements SpineClient {
             host: error.request.host
           })
         } else {
-          logger.error("general error calling spine", {error})
+          this.logger.error("general error calling spine", {error})
         }
       } else {
-        logger.error("general error", {error})
+        this.logger.error("general error", {error})
       }
       throw error
     }
@@ -109,11 +126,11 @@ export class LiveSpineClient implements SpineClient {
     return `${this.SPINE_URL_SCHEME}://${this.SPINE_ENDPOINT}/${requestPath}`
   }
 
-  async getStatus(logger: Logger): Promise<StatusCheckResponse> {
+  async getStatus(): Promise<StatusCheckResponse> {
     if (process.env.healthCheckUrl === undefined) {
-      return serviceHealthCheck(this.getSpineEndpoint("healthcheck"), logger, this.httpsAgent)
+      return serviceHealthCheck(this.getSpineEndpoint("healthcheck"), this.logger, this.httpsAgent, this.axiosInstance)
     } else {
-      return serviceHealthCheck(process.env.healthCheckUrl, logger, new Agent())
+      return serviceHealthCheck(process.env.healthCheckUrl, this.logger, new Agent(), this.axiosInstance)
     }
   }
 

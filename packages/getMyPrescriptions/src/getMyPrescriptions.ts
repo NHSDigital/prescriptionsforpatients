@@ -30,7 +30,7 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     "x-correlation-id": event.headers["x-correlation-id"],
     "apigw-request-id": event.requestContext.requestId
   })
-  const spineClient = createSpineClient()
+  const spineClient = createSpineClient(logger)
 
   try {
     const isCertificateConfigured = spineClient.isCertificateConfigured()
@@ -63,7 +63,7 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
         }
       }
     }
-    const returnData = await spineClient.getPrescriptions(event.headers, logger)
+    const returnData = await spineClient.getPrescriptions(event.headers)
     const resBody = returnData.data
     resBody.id = xRequestId
     return {

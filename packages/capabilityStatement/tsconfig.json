@@ -2,8 +2,7 @@
   "extends": "../../tsconfig.defaults.json",
   "compilerOptions": {
     "rootDir": ".",
-    "outDir": "lib",
-    "resolveJsonModule": true
+    "outDir": "lib"
   },
   "references": [{"path": "../middleware"}, {"path": "../common/testing"}],
   "include": ["src/**/*", "tests/**/*", "examples/CapabilityStatement/apim-medicines-prescriptionsforpatients.json"],
