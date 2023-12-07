@@ -8,6 +8,8 @@ import {
   Organization
 } from "fhir/r4"
 
+type Entry = BundleEntry<FhirResource>
+
 export class ServiceSearch {
   private readonly logger: Logger
   private readonly client: ServiceSearchClient
@@ -26,14 +28,13 @@ export class ServiceSearch {
   }
 
   isolatePrescriptions(searchsetBundle: Bundle): Array<Bundle> {
-    return searchsetBundle.entry!.filter((entry: BundleEntry<FhirResource>) =>
-      entry.resource!.resourceType === "Bundle"
-    ).map((p) => p.resource) as Array<Bundle>
+    const filter = (entry: Entry) => entry.resource!.resourceType === "Bundle"
+    return this.filterEntries<Bundle>(searchsetBundle.entry!, filter)
   }
 
   getPerformerReferences(prescriptions: Array<Bundle>): Set<string> {
     const medicationRequests = prescriptions.flatMap((prescription: Bundle) =>
-      prescription.entry!.filter((entry: BundleEntry<FhirResource>) =>
+      prescription.entry!.filter((entry: Entry) =>
         entry.resource!.resourceType === "MedicationRequest"
       ).map((entry) => entry.resource)
     ) as Array<MedicationRequest>
@@ -50,7 +51,7 @@ export class ServiceSearch {
 
   getOdsCodes(performerReferences: Set<string>, prescriptions: Array<Bundle>): Set<string> {
     const organisations = prescriptions.flatMap((prescription: Bundle) =>
-      prescription.entry!.filter((entry: BundleEntry<FhirResource>) =>
+      prescription.entry!.filter((entry: Entry) =>
         performerReferences.has(entry.fullUrl!)
       ).map((entry) => entry.resource)
     ) as Array<Organization>
@@ -63,5 +64,9 @@ export class ServiceSearch {
       }
     })
     return odsCodes
+  }
+
+  filterEntries<T>(entries: Array<Entry>, filter: (entry: Entry) => boolean): Array<T> {
+    return entries.filter((entry) => filter(entry)).map((entry) => entry.resource) as Array<T>
   }
 }
