@@ -3,6 +3,7 @@ import {ServiceSearchClient, createServiceSearchClient} from "@prescriptionsforp
 import {
   Bundle,
   BundleEntry,
+  ContactPoint,
   FhirResource,
   MedicationRequest,
   Organization
@@ -21,10 +22,13 @@ export class ServiceSearch {
     this.localServicesCache = {}
   }
 
-  search(searchsetBundle: Bundle) {
+  async search(searchsetBundle: Bundle) {
     const prescriptions: Array<Bundle> = this.isolatePrescriptions(searchsetBundle)
     const performerReferences: Set<string> = this.getPerformerReferences(prescriptions)
-    const odsCodes: Set<string> = this.getOdsCodes(performerReferences, prescriptions)
+    const performerOrganisations: Array<Organization> = this.getPerformerOrganisations(
+      performerReferences, prescriptions
+    )
+    await this.processOdsCodes(performerOrganisations)
   }
 
   isolatePrescriptions(searchsetBundle: Bundle): Array<Bundle> {
@@ -48,20 +52,36 @@ export class ServiceSearch {
     return performerReferences
   }
 
-  getOdsCodes(performerReferences: Set<string>, prescriptions: Array<Bundle>): Set<string> {
+  getPerformerOrganisations(performerReferences: Set<string>, prescriptions: Array<Bundle>): Array<Organization> {
     const filter = (entry: Entry) => performerReferences.has(entry.fullUrl!)
-    const organisations = prescriptions.flatMap((prescription: Bundle) =>
+    return prescriptions.flatMap((prescription: Bundle) =>
       this.filterAndTypeBundleEntries<Organization>(prescription, filter)
     )
+  }
 
-    const odsCodes: Set<string> = new Set<string>()
-    organisations.forEach((organisation: Organization) => {
+  async processOdsCodes(organisations: Array<Organization>) {
+    organisations.forEach(async (organisation: Organization) => {
       const odsCode = organisation.identifier![0].value
       if (odsCode) {
-        odsCodes.add(odsCode)
+        let urlString: string
+        if (odsCode in this.localServicesCache) {
+          urlString = this.localServicesCache[odsCode]
+          this.replaceAddressWithTelecom(urlString, organisation)
+        }
+        const url = await this.client.searchService(odsCode, this.logger)
+        if (url) {
+          urlString = url.toString().toLowerCase()
+          this.localServicesCache[odsCode.toLowerCase()] = urlString
+          this.replaceAddressWithTelecom(urlString, organisation)
+        }
       }
     })
-    return odsCodes
+  }
+
+  replaceAddressWithTelecom(url: string, organisation: Organization) {
+    const telecom: ContactPoint = {system: "url", use: "work", value: url}
+    organisation.telecom?.push(telecom)
+    delete organisation.address
   }
 
   filterAndTypeBundleEntries<T>(bundle: Bundle, filter: (entry: Entry) => boolean): Array<T> {

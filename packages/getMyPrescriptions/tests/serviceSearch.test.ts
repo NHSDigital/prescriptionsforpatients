@@ -1,5 +1,5 @@
 import {expect, describe, it} from "@jest/globals"
-import {Bundle} from "fhir/r4"
+import {Bundle, ContactPoint, Organization} from "fhir/r4"
 import {ServiceSearch} from "../src/serviceSearch"
 import {mockInteractionResponseBody} from "@prescriptionsforpatients_common/testing"
 
@@ -20,6 +20,7 @@ describe("ServiceSearch tests", function () {
   it("getPerformerReferences returns performer references from prescription resources", async () => {
     const serviceSearch = new ServiceSearch()
     const searchsetBundle = mockInteractionResponseBody as Bundle
+
     const prescriptions = serviceSearch.isolatePrescriptions(searchsetBundle)
     const result = serviceSearch.getPerformerReferences(prescriptions)
 
@@ -29,16 +30,64 @@ describe("ServiceSearch tests", function () {
     expect(result).toEqual(expectedPerformers)
   })
 
-  it("getOdsCodes returns relevant ODS codes", async () => {
+  it("getPerformerOrganisations returns relevant organisations", async () => {
     const serviceSearch = new ServiceSearch()
     const searchsetBundle = mockInteractionResponseBody as Bundle
+
     const prescriptions = serviceSearch.isolatePrescriptions(searchsetBundle)
     const performerReferences = serviceSearch.getPerformerReferences(prescriptions)
-    const result = serviceSearch.getOdsCodes(performerReferences, prescriptions)
+    const result = serviceSearch.getPerformerOrganisations(performerReferences, prescriptions)
 
-    const expectedOdsCodes = new Set<string>()
-    expectedOdsCodes.add("VNE51")
+    const expectedOrganisations: Array<Organization> = [
+      {
+        resourceType: "Organization",
+        id: "afb07f8b-e8d7-4cad-895d-494e6b35b2a1",
+        identifier: [
+          {
+            system: "https://fhir.nhs.uk/Id/ods-organization-code",
+            value: "VNE51"
+          }
+        ],
+        name: "Social Care Site - HEALTH AND CARE AT HOME",
+        telecom: [
+          {
+            system: "phone",
+            use: "work",
+            value: "0115 9999999"
+          }
+        ],
+        address: [
+          {
+            use: "work",
+            type: "both",
+            line: [
+              "THE HEALTH AND WELLBEING INNOVATION C",
+              "TRELISKE"
+            ],
+            city: "TRURO",
+            district: "CORNWALL",
+            postalCode: "TR1 3FF"
+          }
+        ]
+      }
+    ]
+    expect(result).toEqual(expectedOrganisations)
+  })
 
-    expect(result).toEqual(expectedOdsCodes)
+  it("replaceAddressWithTelecom does exactly that", async () => {
+    const serviceSearch = new ServiceSearch()
+    const searchsetBundle = mockInteractionResponseBody as Bundle
+
+    const prescriptions = serviceSearch.isolatePrescriptions(searchsetBundle)
+    const performerReferences = serviceSearch.getPerformerReferences(prescriptions)
+    const organisation = serviceSearch.getPerformerOrganisations(performerReferences, prescriptions)[0]
+
+    const expectedTelecom: ContactPoint = {use: "work", system: "url", value: "https://url.com"}
+
+    serviceSearch.replaceAddressWithTelecom("https://url.com", organisation)
+
+    expect(organisation.telecom!.length).toEqual(2)
+    expect(organisation.telecom![1]).toEqual(expectedTelecom)
+    expect(organisation.address).toBeUndefined()
   })
 })
