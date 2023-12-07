@@ -67,12 +67,13 @@ export class ServiceSearch {
         if (odsCode in this.localServicesCache) {
           urlString = this.localServicesCache[odsCode]
           this.replaceAddressWithTelecom(urlString, organisation)
-        }
-        const url = await this.client.searchService(odsCode, this.logger)
-        if (url) {
-          urlString = url.toString().toLowerCase()
-          this.localServicesCache[odsCode.toLowerCase()] = urlString
-          this.replaceAddressWithTelecom(urlString, organisation)
+        } else {
+          const url = await this.client.searchService(odsCode, this.logger)
+          if (url) {
+            urlString = url.toString().toLowerCase()
+            this.localServicesCache[odsCode.toLowerCase()] = urlString
+            this.replaceAddressWithTelecom(urlString, organisation)
+          }
         }
       }
     })
