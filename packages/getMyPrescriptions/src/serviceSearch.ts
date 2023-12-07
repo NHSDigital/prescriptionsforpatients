@@ -27,24 +27,22 @@ export class ServiceSearch {
   }
 
   isolatePrescriptions(searchsetBundle: Bundle): Array<Bundle> {
-    const fhirResources: Array<BundleEntry<FhirResource>> = searchsetBundle.entry ?? []
-    const prescriptions = fhirResources.filter((resource: BundleEntry<FhirResource>) =>
-      resource.resource!.resourceType === "Bundle"
+    const entry: Array<BundleEntry<FhirResource>> = searchsetBundle.entry!
+    const prescriptions = entry.filter((entry: BundleEntry<FhirResource>) =>
+      entry.resource!.resourceType === "Bundle"
     )
     return prescriptions.map((p) => p.resource) as Array<Bundle>
   }
 
   getPerformerReferences(prescriptions: Array<Bundle>): Set<string> {
     const performerReferences: Set<string> = new Set<string>()
-
-    const medicationRequestEntries = prescriptions.flatMap((prescription: Bundle) => {
-      return prescription.entry!.filter((entry: BundleEntry<FhirResource>) =>
+    const medicationRequests = prescriptions.flatMap((prescription: Bundle) =>
+      prescription.entry!.filter((entry: BundleEntry<FhirResource>) =>
         entry.resource!.resourceType === "MedicationRequest"
-      )
-    }) as Array<BundleEntry<MedicationRequest>>
+      ).map((entry) => entry.resource)
+    ) as Array<MedicationRequest>
 
-    medicationRequestEntries.forEach((medicationRequestEntry) => {
-      const medicationRequest = medicationRequestEntry.resource as MedicationRequest
+    medicationRequests.forEach((medicationRequest) => {
       const reference = medicationRequest.dispenseRequest?.performer?.reference
       if (reference) {
         performerReferences.add(reference)
@@ -56,9 +54,9 @@ export class ServiceSearch {
   getOdsCodes(performerReferences: Set<string>, prescriptions: Array<Bundle>): Set<string> {
     const odsCodes: Set<string> = new Set<string>()
     prescriptions.forEach((prescription) =>
-      prescription.entry!.filter((entry) =>
-        performerReferences.has(entry.fullUrl ?? "")
-      ).forEach((entry) => {
+      prescription.entry!.filter((entry: BundleEntry<FhirResource>) =>
+        performerReferences.has(entry.fullUrl!)
+      ).forEach((entry: BundleEntry<FhirResource>) => {
         const organisation = entry.resource as Organization
         const odsCode = organisation.identifier![0].value!
         odsCodes.add(odsCode)
