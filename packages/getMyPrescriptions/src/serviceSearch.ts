@@ -23,26 +23,23 @@ export class ServiceSearch {
     const prescriptions: Array<Bundle> = this.isolatePrescriptions(searchsetBundle)
     const performerReferences: Set<string> = this.getPerformerReferences(prescriptions)
     const odsCodes: Set<string> = this.getOdsCodes(performerReferences, prescriptions)
-    return
   }
 
   isolatePrescriptions(searchsetBundle: Bundle): Array<Bundle> {
-    const entry: Array<BundleEntry<FhirResource>> = searchsetBundle.entry!
-    const prescriptions = entry.filter((entry: BundleEntry<FhirResource>) =>
+    return searchsetBundle.entry!.filter((entry: BundleEntry<FhirResource>) =>
       entry.resource!.resourceType === "Bundle"
-    )
-    return prescriptions.map((p) => p.resource) as Array<Bundle>
+    ).map((p) => p.resource) as Array<Bundle>
   }
 
   getPerformerReferences(prescriptions: Array<Bundle>): Set<string> {
-    const performerReferences: Set<string> = new Set<string>()
     const medicationRequests = prescriptions.flatMap((prescription: Bundle) =>
       prescription.entry!.filter((entry: BundleEntry<FhirResource>) =>
         entry.resource!.resourceType === "MedicationRequest"
       ).map((entry) => entry.resource)
     ) as Array<MedicationRequest>
 
-    medicationRequests.forEach((medicationRequest) => {
+    const performerReferences: Set<string> = new Set<string>()
+    medicationRequests.forEach((medicationRequest: MedicationRequest) => {
       const reference = medicationRequest.dispenseRequest?.performer?.reference
       if (reference) {
         performerReferences.add(reference)
@@ -52,16 +49,19 @@ export class ServiceSearch {
   }
 
   getOdsCodes(performerReferences: Set<string>, prescriptions: Array<Bundle>): Set<string> {
-    const odsCodes: Set<string> = new Set<string>()
-    prescriptions.forEach((prescription) =>
+    const organisations = prescriptions.flatMap((prescription: Bundle) =>
       prescription.entry!.filter((entry: BundleEntry<FhirResource>) =>
         performerReferences.has(entry.fullUrl!)
-      ).forEach((entry: BundleEntry<FhirResource>) => {
-        const organisation = entry.resource as Organization
-        const odsCode = organisation.identifier![0].value!
+      ).map((entry) => entry.resource)
+    ) as Array<Organization>
+
+    const odsCodes: Set<string> = new Set<string>()
+    organisations.forEach((organisation: Organization) => {
+      const odsCode = organisation.identifier![0].value
+      if (odsCode) {
         odsCodes.add(odsCode)
-      })
-    )
+      }
+    })
     return odsCodes
   }
 }
