@@ -29,15 +29,14 @@ export class ServiceSearch {
 
   isolatePrescriptions(searchsetBundle: Bundle): Array<Bundle> {
     const filter = (entry: Entry) => entry.resource!.resourceType === "Bundle"
-    return this.filterEntries<Bundle>(searchsetBundle.entry!, filter)
+    return this.filterAndTypeBundleEntries<Bundle>(searchsetBundle, filter)
   }
 
   getPerformerReferences(prescriptions: Array<Bundle>): Set<string> {
+    const filter = (entry: Entry) => entry.resource!.resourceType === "MedicationRequest"
     const medicationRequests = prescriptions.flatMap((prescription: Bundle) =>
-      prescription.entry!.filter((entry: Entry) =>
-        entry.resource!.resourceType === "MedicationRequest"
-      ).map((entry) => entry.resource)
-    ) as Array<MedicationRequest>
+      this.filterAndTypeBundleEntries<MedicationRequest>(prescription, filter)
+    )
 
     const performerReferences: Set<string> = new Set<string>()
     medicationRequests.forEach((medicationRequest: MedicationRequest) => {
@@ -50,11 +49,10 @@ export class ServiceSearch {
   }
 
   getOdsCodes(performerReferences: Set<string>, prescriptions: Array<Bundle>): Set<string> {
+    const filter = (entry: Entry) => performerReferences.has(entry.fullUrl!)
     const organisations = prescriptions.flatMap((prescription: Bundle) =>
-      prescription.entry!.filter((entry: Entry) =>
-        performerReferences.has(entry.fullUrl!)
-      ).map((entry) => entry.resource)
-    ) as Array<Organization>
+      this.filterAndTypeBundleEntries<Organization>(prescription, filter)
+    )
 
     const odsCodes: Set<string> = new Set<string>()
     organisations.forEach((organisation: Organization) => {
@@ -66,7 +64,12 @@ export class ServiceSearch {
     return odsCodes
   }
 
-  filterEntries<T>(entries: Array<Entry>, filter: (entry: Entry) => boolean): Array<T> {
-    return entries.filter((entry) => filter(entry)).map((entry) => entry.resource) as Array<T>
+  filterAndTypeBundleEntries<T>(bundle: Bundle, filter: (entry: Entry) => boolean): Array<T> {
+    const entries = bundle.entry
+    if (entries) {
+      return entries.filter((entry) => filter(entry)).map((entry) => entry.resource) as Array<T>
+    } else {
+      return []
+    }
   }
 }
