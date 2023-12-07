@@ -36,16 +36,19 @@ export class ServiceSearch {
 
   getPerformerReferences(prescriptions: Array<Bundle>): Set<string> {
     const performerReferences: Set<string> = new Set<string>()
-    prescriptions.forEach((prescription: Bundle) => {
-      prescription.entry!.filter((entry) =>
+
+    const medicationRequestEntries = prescriptions.flatMap((prescription: Bundle) => {
+      return prescription.entry!.filter((entry: BundleEntry<FhirResource>) =>
         entry.resource!.resourceType === "MedicationRequest"
-      ).forEach((resource) => {
-        const medicationRequest = resource as BundleEntry<MedicationRequest>
-        const reference = medicationRequest.resource!.dispenseRequest?.performer?.reference
-        if (reference) {
-          performerReferences.add(reference)
-        }
-      })
+      )
+    }) as Array<BundleEntry<MedicationRequest>>
+
+    medicationRequestEntries.forEach((medicationRequestEntry) => {
+      const medicationRequest = medicationRequestEntry.resource as MedicationRequest
+      const reference = medicationRequest.dispenseRequest?.performer?.reference
+      if (reference) {
+        performerReferences.add(reference)
+      }
     })
     return performerReferences
   }
