@@ -28,4 +28,17 @@ describe("ServiceSearch tests", function () {
 
     expect(result).toEqual(expectedPerformers)
   })
+
+  it("getOdsCodes returns relevant ODS codes", async () => {
+    const serviceSearch = new ServiceSearch()
+    const searchsetBundle = mockInteractionResponseBody as Bundle
+    const prescriptions = serviceSearch.isolatePrescriptions(searchsetBundle)
+    const performerReferences = serviceSearch.getPerformerReferences(prescriptions)
+    const result = serviceSearch.getOdsCodes(performerReferences, prescriptions)
+
+    const expectedOdsCodes = new Set<string>()
+    expectedOdsCodes.add("VNE51")
+
+    expect(result).toEqual(expectedOdsCodes)
+  })
 })
