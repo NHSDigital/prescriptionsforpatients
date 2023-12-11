@@ -79,6 +79,7 @@ Ensure you have the following lines in the file .envrc
 export AWS_DEFAULT_PROFILE=prescription-dev
 export stack_name=<UNIQUE_NAME_FOR_YOU>
 export TARGET_SPINE_SERVER=<NAME OF DEV TARGET SPINE SERVER>
+export TARGET_SERVICE_SEARCH_SERVER=<NAME OF DEV TARGET SERVICE SEARCH SERVER>
 ```
 
 UNIQUE_NAME_FOR_YOU should be a unique name for you with no underscores in it - eg anthony-brown-1
