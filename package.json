@@ -22,7 +22,8 @@
     "packages/statusLambda",
     "packages/spineClient",
     "packages/serviceSearchClient",
-    "packages/common/testing"
+    "packages/common/testing",
+    "packages/distanceSelling"
   ],
   "devDependencies": {
     "@types/aws-lambda": "^8.10.129",

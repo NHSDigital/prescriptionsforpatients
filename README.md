@@ -7,22 +7,23 @@ It is called by an Apigee proxy that is defined at https://github.com/NHSDigital
 
 - `packages/getMyPrescriptions/` Get prescription details for /Bundle endpoint.
 - `packages/splunkProcessor/` Processes CloudWatch logs for Splunk.
-- `packages/sandbox/` Returns [static data](./packages/sandbox/examples/GetMyPrescriptions/Bundle/success.json) from the Sandbox
-- `packages/middleware/` A modified [middy-error-handler](https://github.com/schibsted/middy-error-handler) to return FHIR responses
-- `packages/statusLambda/` Returns the status of the getMyPrescriptions endpoint
-- `packages/capabilityStatement/` Returns a static capability statement
-- `packages/getSecretLayer/` golang code that is used as a lambda layer to inject secrets to environment variables used by lambdas
-- `packages/spineClient/` Module for connecting to spine
-- `packages/serviceSearchClient/` Module for connecting to service search
-- `packages/common/testing` Module that contains some test data used for tests in other modules
+- `packages/sandbox/` Returns [static data](./packages/sandbox/examples/GetMyPrescriptions/Bundle/success.json) from the Sandbox.
+- `packages/middleware/` A modified [middy-error-handler](https://github.com/schibsted/middy-error-handler) to return FHIR responses.
+- `packages/statusLambda/` Returns the status of the getMyPrescriptions endpoint.
+- `packages/capabilityStatement/` Returns a static capability statement.
+- `packages/getSecretLayer/` golang code that is used as a lambda layer to inject secrets to environment variables used by lambdas.
+- `packages/spineClient/` Module for connecting to spine.
+- `packages/serviceSearchClient/` Module for connecting to service search.
+- `packages/distanceSelling/` Module for using Service Search client and enriching the data being returned.
+- `packages/common/testing` Module that contains some test data used for tests in other modules.
 - `postman/` Contains a postman collection for interacting with the API.
 - `scripts/` Utilities helpful to developers of this specification.
-- `cloudformation/` Contains cloudformation files used to create resources for CI builds and deployments
-- `SAMtemplates/` Contains the SAM templates used to define the stacks
-- `privateCA/` Contains script to create self signed CA certificate and a client certificate used for mutual TLS
-- `.github` Contains github workflows that are used for building and deploying from pull requests and releases
-- `.devcontainer` Contains a dockerfile and vscode devcontainer definition
-- `.vscode` Contains vscode workspace file
+- `cloudformation/` Contains cloudformation files used to create resources for CI builds and deployments.
+- `SAMtemplates/` Contains the SAM templates used to define the stacks.
+- `privateCA/` Contains script to create self signed CA certificate and a client certificate used for mutual TLS.
+- `.github` Contains github workflows that are used for building and deploying from pull requests and releases.
+- `.devcontainer` Contains a dockerfile and vscode devcontainer definition.
+- `.vscode` Contains vscode workspace file.
 
 Consumers of the API will find developer documentation on the [NHS Digital Developer Hub](https://digital.nhs.uk/developer/api-catalogue).
 

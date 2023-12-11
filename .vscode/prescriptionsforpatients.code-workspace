@@ -9,6 +9,10 @@
 			"path": "../packages/capabilityStatement"
 		},
 		{
+			"name": "packages/distanceSelling",
+			"path": "../packages/distanceSelling"
+		},
+		{
 			"name": "packages/getMyPrescriptions",
 			"path": "../packages/getMyPrescriptions"
 		},

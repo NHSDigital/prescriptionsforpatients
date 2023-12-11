@@ -1,0 +1,25 @@
+{
+  "name": "distanceSelling",
+  "version": "1.0.0",
+  "description": "Distance selling",
+  "main": "distanceSelling.js",
+  "author": "NHS Digital",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "unit": "POWERTOOLS_DEV=true NODE_OPTIONS=--experimental-vm-modules jest --no-cache --coverage",
+    "lint": "eslint . --ext .ts --max-warnings 0 --fix",
+    "compile": "tsc",
+    "test": "npm run compile && npm run unit",
+    "check-licenses": "license-checker --failOn GPL --failOn LGPL --start ../.."
+  },
+  "dependencies": {
+    "@aws-lambda-powertools/logger": "^1.17.0",
+    "@prescriptionsforpatients/serviceSearchClient": "^1.0.0",
+    "@types/fhir": "^0.0.40"
+  },
+  "devDependencies": {
+    "@prescriptionsforpatients_common/testing": "^1.0.0",
+    "axios-mock-adapter": "^1.22.0"
+  }
+}

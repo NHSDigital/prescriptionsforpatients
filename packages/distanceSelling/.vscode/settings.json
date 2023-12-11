@@ -1,0 +1,7 @@
+{
+  "jest.jestCommandLine": "/workspaces/prescriptionsforpatients/node_modules/.bin/jest --no-cache",
+  "jest.nodeEnv": {
+    "POWERTOOLS_DEV": true,
+    "NODE_OPTIONS": "--experimental-vm-modules"
+  }
+}

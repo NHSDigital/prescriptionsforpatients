@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.defaults.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "lib"
+  },
+  "references": [{"path": "../spineClient"}, {"path": "../common/testing"}],
+  "include": ["src/**/*", "tests/**/*"],
+  "exclude": ["node_modules"]
+}
