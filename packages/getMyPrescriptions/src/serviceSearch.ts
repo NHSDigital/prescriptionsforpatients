@@ -60,7 +60,7 @@ export class ServiceSearch {
   }
 
   async processOdsCodes(organisations: Array<Organization>) {
-    organisations.forEach(async (organisation: Organization) => {
+    for (const organisation of organisations) {
       const odsCode = organisation.identifier![0].value
       if (odsCode) {
         let urlString: string
@@ -76,7 +76,7 @@ export class ServiceSearch {
           }
         }
       }
-    })
+    }
   }
 
   replaceAddressWithTelecom(url: string, organisation: Organization) {

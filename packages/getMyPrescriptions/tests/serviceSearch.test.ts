@@ -8,6 +8,7 @@ import axios from "axios"
 const mock = new MockAdapter(axios)
 
 describe("ServiceSearch tests", function () {
+  const mockBundleString = JSON.stringify(mockInteractionResponseBody)
   beforeEach(() => {
     process.env.TargetServiceSearchServer = "live"
     mock.reset()
@@ -16,7 +17,7 @@ describe("ServiceSearch tests", function () {
   it("isolatePrescriptions returns prescription resources", async () => {
     expect(mockInteractionResponseBody.entry.length).toEqual(4)
     const serviceSearch = new ServiceSearch()
-    const searchsetBundle = mockInteractionResponseBody as Bundle
+    const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
     const result = serviceSearch.isolatePrescriptions(searchsetBundle)
 
@@ -28,7 +29,7 @@ describe("ServiceSearch tests", function () {
 
   it("getPerformerReferences returns performer references from prescription resources", async () => {
     const serviceSearch = new ServiceSearch()
-    const searchsetBundle = mockInteractionResponseBody as Bundle
+    const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
     const prescriptions = serviceSearch.isolatePrescriptions(searchsetBundle)
     const result = serviceSearch.getPerformerReferences(prescriptions)
@@ -41,7 +42,7 @@ describe("ServiceSearch tests", function () {
 
   it("getPerformerOrganisations returns relevant organisations", async () => {
     const serviceSearch = new ServiceSearch()
-    const searchsetBundle = mockInteractionResponseBody as Bundle
+    const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
     const prescriptions = serviceSearch.isolatePrescriptions(searchsetBundle)
     const performerReferences = serviceSearch.getPerformerReferences(prescriptions)
@@ -54,7 +55,7 @@ describe("ServiceSearch tests", function () {
         identifier: [
           {
             system: "https://fhir.nhs.uk/Id/ods-organization-code",
-            value: "VNE51"
+            value: "FLM49"
           }
         ],
         name: "Social Care Site - HEALTH AND CARE AT HOME",
@@ -85,7 +86,7 @@ describe("ServiceSearch tests", function () {
 
   it("replaceAddressWithTelecom does exactly that", async () => {
     const serviceSearch = new ServiceSearch()
-    const searchsetBundle = mockInteractionResponseBody as Bundle
+    const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
     const prescriptions = serviceSearch.isolatePrescriptions(searchsetBundle)
     const performerReferences = serviceSearch.getPerformerReferences(prescriptions)
@@ -100,16 +101,16 @@ describe("ServiceSearch tests", function () {
     expect(organisation.address).toBeUndefined()
   })
 
-  it("processOdsCodes uses local cache when value exists", async () => {
+  it("processOdsCodes uses returned value in telecom", async () => {
     mock.onGet("https://live/service-search").reply(200, mockServiceSearchResponseBody)
     const serviceSearch = new ServiceSearch()
-    const searchsetBundle = mockInteractionResponseBody as Bundle
+    const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
     const prescriptions = serviceSearch.isolatePrescriptions(searchsetBundle)
     const performerReferences = serviceSearch.getPerformerReferences(prescriptions)
     const organisations = serviceSearch.getPerformerOrganisations(performerReferences, prescriptions)
 
-    const expectedTelecom: ContactPoint = {use: "work", system: "url", value: "https://www.pharmacy2u.co.uk"}
+    const expectedTelecom: ContactPoint = {use: "work", system: "url", value: "https://www.pharmacy2u.co.uk/"}
 
     await serviceSearch.processOdsCodes(organisations)
 
