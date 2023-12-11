@@ -1,9 +1,18 @@
 import {expect, describe, it} from "@jest/globals"
 import {Bundle, ContactPoint, Organization} from "fhir/r4"
 import {ServiceSearch} from "../src/serviceSearch"
-import {mockInteractionResponseBody} from "@prescriptionsforpatients_common/testing"
+import {mockInteractionResponseBody, mockServiceSearchResponseBody} from "@prescriptionsforpatients_common/testing"
+import MockAdapter from "axios-mock-adapter"
+import axios from "axios"
+
+const mock = new MockAdapter(axios)
 
 describe("ServiceSearch tests", function () {
+  beforeEach(() => {
+    process.env.TargetServiceSearchServer = "live"
+    mock.reset()
+  })
+
   it("isolatePrescriptions returns prescription resources", async () => {
     expect(mockInteractionResponseBody.entry.length).toEqual(4)
     const serviceSearch = new ServiceSearch()
@@ -89,5 +98,23 @@ describe("ServiceSearch tests", function () {
     expect(organisation.telecom!.length).toEqual(2)
     expect(organisation.telecom![1]).toEqual(expectedTelecom)
     expect(organisation.address).toBeUndefined()
+  })
+
+  it("processOdsCodes uses local cache when value exists", async () => {
+    mock.onGet("https://live/service-search").reply(200, mockServiceSearchResponseBody)
+    const serviceSearch = new ServiceSearch()
+    const searchsetBundle = mockInteractionResponseBody as Bundle
+
+    const prescriptions = serviceSearch.isolatePrescriptions(searchsetBundle)
+    const performerReferences = serviceSearch.getPerformerReferences(prescriptions)
+    const organisations = serviceSearch.getPerformerOrganisations(performerReferences, prescriptions)
+
+    const expectedTelecom: ContactPoint = {use: "work", system: "url", value: "https://www.pharmacy2u.co.uk"}
+
+    await serviceSearch.processOdsCodes(organisations)
+
+    const organisation: Organization = organisations[0]
+    expect(organisation.address).toBeUndefined()
+    expect(organisation.telecom![1]).toEqual(expectedTelecom)
   })
 })
