@@ -52,13 +52,13 @@ jobs:
           cp Makefile .aws-sam/build/
           cp samconfig_package_and_deploy.toml .aws-sam/build/
 
-      # - uses: actions/upload-artifact@v3
-      #   name: upload build artifact
-      #   with:
-      #     name: packaged_code
-      #     path: |
-      #       .aws-sam/build
-      #       packages/getSecretLayer/lib/get-secrets-layer.zip 
+      - uses: actions/upload-artifact@v3
+        name: upload build artifact
+        with:
+          name: packaged_code
+          path: |
+            .aws-sam/build
+            packages/getSecretLayer/lib/get-secrets-layer.zip 
 
       - shell: bash
         name: package sandbox code
@@ -71,11 +71,11 @@ jobs:
           cp Makefile .aws-sam/build/
           cp samconfig_package_and_deploy.toml .aws-sam/build/
 
-      # - uses: actions/upload-artifact@v3
-      #   name: upload sandbox build artifact
-      #   with:
-      #     name: packaged_sandbox_code
-      #     path: |
-      #       .aws-sam/build
-      #       packages/getSecretLayer/lib/get-secrets-layer.zip 
+      - uses: actions/upload-artifact@v3
+        name: upload sandbox build artifact
+        with:
+          name: packaged_sandbox_code
+          path: |
+            .aws-sam/build
+            packages/getSecretLayer/lib/get-secrets-layer.zip 
           
