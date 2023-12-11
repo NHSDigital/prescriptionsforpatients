@@ -1,11 +1,11 @@
 {
-  "name": "distanceSelling",
+  "name": "@prescriptionsforpatients/distanceSelling",
   "version": "1.0.0",
-  "description": "Distance selling",
-  "main": "distanceSelling.js",
+  "description": "",
+  "main": "lib/src/index.js",
+  "type": "module",
   "author": "NHS Digital",
   "license": "MIT",
-  "type": "module",
   "scripts": {
     "unit": "POWERTOOLS_DEV=true NODE_OPTIONS=--experimental-vm-modules jest --no-cache --coverage",
     "lint": "eslint . --ext .ts --max-warnings 0 --fix",
