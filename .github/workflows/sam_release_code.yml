@@ -59,13 +59,15 @@ jobs:
           role-to-assume: ${{ secrets.CLOUD_FORMATION_DEPLOY_ROLE }}
           role-session-name: github-actions
 
-      - name: Download get-secrets-layer.zip and Upload to Artifact
+      - name: Create necessary directories
+        run: |
+          mkdir -p .aws-sam/build
+          mkdir -p packages/getSecretLayer/lib
+
+      - name: Download get-secrets-layer.zip
         run: |
           curl -LJO https://github.com/NHSDigital/electronic-prescription-service-get-secrets/releases/download/v1.0.27-alpha/get-secrets-layer.zip
-          unzip -o get-secrets-layer.zip -d .aws-sam/build
-      
-          mkdir -p packages/getSecretLayer/lib
-          mv .aws-sam/build/* packages/getSecretLayer/lib/          
+          unzip -o get-secrets-layer.zip -d .aws-sam/build      
 
       - shell: bash
         name: release code
