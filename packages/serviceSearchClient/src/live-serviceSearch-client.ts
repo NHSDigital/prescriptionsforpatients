@@ -7,15 +7,23 @@ import {handleUrl} from "./handleUrl"
 const SERVICE_SEARCH_TIMEOUT = 45000
 const DISTANCE_SELLING = "DistanceSelling"
 
+type Service = {
+  "URL": string
+  "OrganisationSubType": string
+}
+
+export type ServiceSearchData = {
+  "value": Array<Service>
+}
+
 export class LiveServiceSearchClient implements ServiceSearchClient {
   private readonly SERVICE_SEARCH_URL_SCHEME = "https"
   private readonly SERVICE_SEARCH_ENDPOINT = process.env.TargetServiceSearchServer
   private readonly axiosInstance: Axios
   private readonly logger: Logger
-  private readonly outboundHeaders: {Accept: string, "Subscription-Key": string | undefined}
-  private readonly queryParams: {
+  private readonly outboundHeaders: {"Subscription-Key": string | undefined}
+  private readonly baseQueryParams: {
     "api-version": number,
-    "odsCode"?: string,
     "searchFields": string,
     "$filter": string,
     "$select": string,
@@ -26,10 +34,9 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
     this.logger = logger
     this.axiosInstance = axios.create()
     this.outboundHeaders = {
-      Accept: "application/json",
       "Subscription-Key": process.env.ServiceSearchApiKey
     }
-    this.queryParams = {
+    this.baseQueryParams = {
       "api-version": 2,
       "searchFields": "ODSCode",
       "$filter": "OrganisationTypeId eq 'PHA' and OrganisationSubType eq 'DistanceSelling'",
@@ -40,22 +47,23 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
 
   async searchService(odsCode: string): Promise<URL | undefined> {
     try {
-      const address = this.getServiceSearchEndpoint("service-search")
-      this.queryParams.odsCode = odsCode
+      const address = this.getServiceSearchEndpoint()
+      const queryParams = {...this.baseQueryParams, odsCode: odsCode}
 
       this.logger.info(`making request to ${address} with ods code ${odsCode}`)
       const response = await this.axiosInstance.get(address, {
         headers: this.outboundHeaders,
-        params: this.queryParams,
+        params: queryParams,
         timeout: SERVICE_SEARCH_TIMEOUT
       })
 
-      const services = response.data["value"]
+      const serviceSearchResponse: ServiceSearchData = response.data
+      const services = serviceSearchResponse.value
       if (services.length === 0) {
         return undefined
       }
 
-      this.logger.info(`service with ods code ${odsCode} is of type ${DISTANCE_SELLING}`)
+      this.logger.info(`pharmacy with ods code ${odsCode} is of type ${DISTANCE_SELLING}`)
       const service = services[0]
       const urlString = service["URL"]
 
@@ -95,7 +103,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
     }
   }
 
-  private getServiceSearchEndpoint(requestPath?: string) {
-    return `${this.SERVICE_SEARCH_URL_SCHEME}://${this.SERVICE_SEARCH_ENDPOINT}/${requestPath}`
+  private getServiceSearchEndpoint() {
+    return `${this.SERVICE_SEARCH_URL_SCHEME}://${this.SERVICE_SEARCH_ENDPOINT}/service-search`
   }
 }
