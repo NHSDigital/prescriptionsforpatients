@@ -1,5 +1,10 @@
 import {expect, describe, it} from "@jest/globals"
-import {Bundle, ContactPoint, Organization} from "fhir/r4"
+import {
+  Address,
+  Bundle,
+  ContactPoint,
+  Organization
+} from "fhir/r4"
 import {DistanceSelling} from "../src/distanceSelling"
 import {mockInteractionResponseBody, mockServiceSearchResponseBody} from "@prescriptionsforpatients_common/testing"
 import MockAdapter from "axios-mock-adapter"
@@ -84,7 +89,7 @@ describe("ServiceSearch tests", function () {
     expect(result).toEqual(expectedOrganisations)
   })
 
-  it("replaceAddressWithTelecom does exactly that", async () => {
+  it("addToTelecom does exactly that", async () => {
     const distanceSelling = new DistanceSelling()
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
@@ -93,12 +98,25 @@ describe("ServiceSearch tests", function () {
     const organisation = distanceSelling.getPerformerOrganisations(performerReferences, prescriptions)[0]
 
     const expectedTelecom: ContactPoint = {use: "work", system: "url", value: "https://url.com"}
+    const expectedAddress: Address = {
+      city: "TRURO",
+      district: "CORNWALL",
+      line: [
+        "THE HEALTH AND WELLBEING INNOVATION C",
+        "TRELISKE"
+      ],
+      postalCode: "TR1 3FF",
+      type: "both",
+      use: "work"
+    }
 
-    distanceSelling.replaceAddressWithTelecom("https://url.com", organisation)
+    distanceSelling.addToTelecom("https://url.com", organisation)
 
     expect(organisation.telecom!.length).toEqual(2)
     expect(organisation.telecom![1]).toEqual(expectedTelecom)
-    expect(organisation.address).toBeUndefined()
+
+    expect(organisation.address!.length).toEqual(1)
+    expect(organisation.address![0]).toEqual(expectedAddress)
   })
 
   it("processOdsCodes uses returned value in telecom", async () => {
@@ -115,7 +133,7 @@ describe("ServiceSearch tests", function () {
     await distanceSelling.processOdsCodes(organisations)
 
     const organisation: Organization = organisations[0]
-    expect(organisation.address).toBeUndefined()
+    expect(organisation.address).toBeDefined()
     expect(organisation.telecom![1]).toEqual(expectedTelecom)
   })
 })

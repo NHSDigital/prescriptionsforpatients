@@ -66,23 +66,22 @@ export class DistanceSelling {
         let urlString: string
         if (odsCode in this.localServicesCache) {
           urlString = this.localServicesCache[odsCode]
-          this.replaceAddressWithTelecom(urlString, organisation)
+          this.addToTelecom(urlString, organisation)
         } else {
           const url = await this.client.searchService(odsCode, this.logger)
           if (url) {
             urlString = url.toString().toLowerCase()
             this.localServicesCache[odsCode.toLowerCase()] = urlString
-            this.replaceAddressWithTelecom(urlString, organisation)
+            this.addToTelecom(urlString, organisation)
           }
         }
       }
     }
   }
 
-  replaceAddressWithTelecom(url: string, organisation: Organization) {
+  addToTelecom(url: string, organisation: Organization) {
     const telecom: ContactPoint = {system: "url", use: "work", value: url}
     organisation.telecom?.push(telecom)
-    delete organisation.address
   }
 
   filterAndTypeBundleEntries<T>(bundle: Bundle, filter: (entry: Entry) => boolean): Array<T> {
