@@ -5,7 +5,7 @@
   "main": "lib/src/index.js",
   "type": "module",
   "scripts": {
-    "unit": "POWERTOOLS_DEV=true jest",
+    "unit": "POWERTOOLS_DEV=true NODE_OPTIONS=--experimental-vm-modules jest --no-cache --coverage",
     "build": "tsc --build --clean ./tsconfig.json",
     "lint": "eslint . --ext .ts --max-warnings 0 --fix",
     "test": "npm run compile && npm run unit",
@@ -19,6 +19,7 @@
     "axios": "^1.6.2"
   },
   "devDependencies": {
-    "axios-mock-adapter": "^1.22.0"
+    "axios-mock-adapter": "^1.22.0",
+    "@prescriptionsforpatients_common/testing": "^1.0.0"
   }
 }

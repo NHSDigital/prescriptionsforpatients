@@ -3,6 +3,7 @@ import "jest"
 import MockAdapter from "axios-mock-adapter"
 import axios from "axios"
 import {Logger} from "@aws-lambda-powertools/logger"
+import {mockServiceSearchResponseBody} from "@prescriptionsforpatients_common/testing"
 
 const mock = new MockAdapter(axios)
 
@@ -57,6 +58,11 @@ describe("live serviceSearch client", () => {
       scenarioDescription: "no results in response",
       serviceSearchData: {value: []},
       expected: undefined
+    },
+    {
+      scenarioDescription: "canned service search response",
+      serviceSearchData: mockServiceSearchResponseBody,
+      expected: new URL("https://www.pharmacy2u.co.uk")
     }
   ])("$scenarioDescription", async ({serviceSearchData: serviceData, expected}) => {
     mock.onGet("https://live/service-search").reply(200, serviceData)
