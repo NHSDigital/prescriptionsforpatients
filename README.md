@@ -205,7 +205,6 @@ These are used to do common commands
 
 - `compile` compiles all code
 - `compile-node` runs tsc to compile typescript code
-- `compile-go` compiles golang binary
 
 #### Check licenses
 
