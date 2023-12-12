@@ -50,12 +50,6 @@ jobs:
           make sam-build
           cp Makefile .aws-sam/build/
           cp samconfig_package_and_deploy.toml .aws-sam/build/
-          
-      - name: download get-secrets-layer
-        run: |
-          export GETSECRETSLAYER_TAG=v1.0.31-alpha
-          curl -LJO https://github.com/NHSDigital/electronic-prescription-service-get-secrets/releases/download/${GETSECRETSLAYER_TAG}/get-secrets-layer.zip
-          unzip -o get-secrets-layer.zip -d .aws-sam/build
 
       - uses: actions/upload-artifact@v3
         name: upload build artifact

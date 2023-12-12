@@ -17,16 +17,16 @@ install-python:
 install-hooks: install-python
 	poetry run pre-commit install --install-hooks --overwrite
 
-sam-build: sam-validate compile
+sam-build: sam-validate compile download-get-secrets-layer
 	sam build --template-file SAMtemplates/main_template.yaml --region eu-west-2
 
-sam-build-sandbox: sam-validate-sandbox compile
+sam-build-sandbox: sam-validate-sandbox compile download-get-secrets-layer
 	sam build --template-file SAMtemplates/sandbox_template.yaml --region eu-west-2
 
 sam-run-local: sam-build
 	sam local start-api
 
-sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name compile
+sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name compile download-get-secrets-layer
 	sam sync \
 		--stack-name $$stack_name \
 		--watch \
@@ -35,7 +35,7 @@ sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name compile
 			  EnableSplunk=false\
 			  TargetSpineServer=$$TARGET_SPINE_SERVER
 
-sam-sync-sandbox: guard-stack_name compile
+sam-sync-sandbox: guard-stack_name compile download-get-secrets-layer
 	sam sync \
 		--stack-name $$stack_name-sandbox \
 		--watch \
@@ -102,10 +102,10 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 compile-node:
 	npx tsc --build tsconfig.build.json
 
-compile-go:
-	cd packages/getSecretLayer && ./build.sh
+compile: compile-node
 
-compile: compile-node compile-go
+download-get-secrets-layer:
+	curl -LJO https://github.com/NHSDigital/electronic-prescription-service-get-secrets/releases/download/v1.0.31-alpha/get-secrets-layer.zip -o .aws-sam/build/get-secrets-layer.zip
 
 lint-node: compile-node
 	npm run lint --workspace packages/capabilityStatement
