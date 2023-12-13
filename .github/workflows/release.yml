@@ -291,7 +291,7 @@ jobs:
     uses: ./.github/workflows/create_confluence_release_notes.yml
     with:
       TARGET_ENVIRONMENT: prod
-      MARK_JIRA_RELASED: true
+      MARK_JIRA_RELEASED: true
       CREATE_RC_RELEASE_NOTES: false
       CONFLUENCE_PAGE_ID:  "693750029"
       RELEASE_VERSION: ${{needs.tag_release.outputs.spec_version}}
