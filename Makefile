@@ -168,7 +168,7 @@ deep-clean: clean
 	rm -rf .venv
 	find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +
 
-check-licenses: check-licenses-node check-licenses-python check-licenses-go
+check-licenses: check-licenses-node check-licenses-python
 
 check-licenses-node:
 	npm run check-licenses
@@ -182,9 +182,6 @@ check-licenses-node:
 
 check-licenses-python:
 	scripts/check_python_licenses.sh
-
-check-licenses-go:
-	cd packages/getSecretLayer && ./check_licence.sh
 
 aws-configure:
 	aws configure sso --region eu-west-2
