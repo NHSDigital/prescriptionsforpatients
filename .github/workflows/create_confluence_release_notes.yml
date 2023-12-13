@@ -111,7 +111,7 @@ jobs:
           echo "dev_tag=${dev_tag}" >> "$GITHUB_ENV"
 
       - shell: bash
-        name: create int rc release notes
+        name: create int release notes
         if: inputs.TARGET_ENVIRONMENT == 'int' && inputs.CREATE_RC_RELEASE_NOTES == false
         run: |
           ENV_VAR=release-notes:CreateReleaseNotesLambdaName
@@ -120,8 +120,8 @@ jobs:
             --output text)
           cat <<EOF > payload.json
           { 
-              "currentTag": "$current_tag", 
-              "targetTag": "$target_tag", 
+              "currentTag": "$target_tag", 
+              "targetTag": "$dev", 
               "repoName": "prescriptionsforpatients", 
               "targetEnvironment": "INT", 
               "productName": "Prescritpions for Patients AWS layer", 
