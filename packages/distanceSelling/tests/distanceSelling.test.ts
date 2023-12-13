@@ -11,9 +11,9 @@ import MockAdapter from "axios-mock-adapter"
 import axios from "axios"
 
 const mock = new MockAdapter(axios)
+const mockBundleString = JSON.stringify(mockInteractionResponseBody)
 
 describe("ServiceSearch tests", function () {
-  const mockBundleString = JSON.stringify(mockInteractionResponseBody)
   beforeEach(() => {
     process.env.TargetServiceSearchServer = "live"
     mock.reset()

@@ -12,9 +12,14 @@ const mockServiceSearchResponseBody = _mockServiceSearchResponseBody
 import _mockInteractionResponseBody from "./mockInteractionResponseBody.json"
 const mockInteractionResponseBody = _mockInteractionResponseBody
 
-export {mockAPIGatewayProxyEvent}
-export {mockServiceSearchResponseBody}
-export {mockInteractionResponseBody}
+import _mockAPIResponseBody from "./mockAPIResponseBody.json"
+const mockAPIResponseBody = _mockAPIResponseBody
 
-export {test_mime_type}
-export {test_append_trace_ids}
+export {
+  mockAPIGatewayProxyEvent,
+  mockServiceSearchResponseBody,
+  mockInteractionResponseBody,
+  mockAPIResponseBody,
+  test_mime_type,
+  test_append_trace_ids
+}

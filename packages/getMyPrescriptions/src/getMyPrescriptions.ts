@@ -70,7 +70,7 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     searchsetBundle.id = xRequestId
 
     const distanceSelling = new DistanceSelling()
-    distanceSelling.search(searchsetBundle)
+    await distanceSelling.search(searchsetBundle)
 
     return {
       statusCode: 200,

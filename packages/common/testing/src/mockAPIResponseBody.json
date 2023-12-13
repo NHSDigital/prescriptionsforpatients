@@ -1,0 +1,540 @@
+{
+  "resourceType": "Bundle",
+  "id": "test-request-id",
+  "meta": {
+    "lastUpdated": "2022-11-21T14:00:00+00:00"
+  },
+  "type": "searchset",
+  "total": 2,
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:0cb82cfa-76c8-4fb2-a08e-bf0e326e5487",
+      "search": {
+        "mode": "match"
+      },
+      "resource": {
+        "resourceType": "Bundle",
+        "id": "0cb82cfa-76c8-4fb2-a08e-bf0e326e5487",
+        "type": "collection",
+        "entry": [
+          {
+            "fullUrl": "urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6",
+            "resource": {
+              "resourceType": "MedicationRequest",
+              "status": "active",
+              "intent": "order",
+              "medicationCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "https://snomed.info/sct",
+                    "code": "39732311000001104",
+                    "display": "Amoxicillin 250mg capsules"
+                  }
+                ]
+              },
+              "subject": {
+                "identifier": {
+                  "system": "https://fhir.nhs.uk/Id/nhs-number",
+                  "value": "9449304130"
+                }
+              },
+              "requester": {
+                "reference": "urn:uuid:56166769-c1c4-4d07-afa8-132b5dfca666"
+              },
+              "groupIdentifier": {
+                "system": "https://fhir.nhs.uk/Id/prescription-order-number",
+                "value": "24F5DA-A83008-7EFE6Z"
+              },
+              "courseOfTherapyType": {
+                "coding": [
+                  {
+                    "system": "https://terminology.hl7.org/CodeSystem/medicationrequest-course-of-therapy",
+                    "code": "acute",
+                    "display": "Short course (acute) therapy"
+                  }
+                ]
+              },
+              "dispenseRequest": {
+                "validityPeriod": {
+                  "start": "2022-10-21"
+                },
+                "quantity": {
+                  "value": 20,
+                  "unit": "tablet",
+                  "system": "https://snomed.info/sct",
+                  "code": "428673006"
+                },
+                "performer": {
+                  "reference": "urn:uuid:afb07f8b-e8d7-4cad-895d-494e6b35b2a1"
+                }
+              },
+              "substitution": {
+                "allowedBoolean": false
+              }
+            }
+          },
+          {
+            "fullUrl": "urn:uuid:6989b7bd-8db6-428c-a593-4022e3044c00",
+            "resource": {
+              "resourceType": "MedicationRequest",
+              "status": "active",
+              "intent": "order",
+              "medicationCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "https://snomed.info/sct",
+                    "code": "322341003",
+                    "display": "Co-codamol 30mg/500mg tablets"
+                  }
+                ]
+              },
+              "subject": {
+                "identifier": {
+                  "system": "https://fhir.nhs.uk/Id/nhs-number",
+                  "value": "9449304130"
+                }
+              },
+              "requester": {
+                "reference": "urn:uuid:56166769-c1c4-4d07-afa8-132b5dfca666"
+              },
+              "groupIdentifier": {
+                "system": "https://fhir.nhs.uk/Id/prescription-order-number",
+                "value": "24F5DA-A83008-7EFE6Z"
+              },
+              "courseOfTherapyType": {
+                "coding": [
+                  {
+                    "system": "https://terminology.hl7.org/CodeSystem/medicationrequest-course-of-therapy",
+                    "code": "acute",
+                    "display": "Short course (acute) therapy"
+                  }
+                ]
+              },
+              "dispenseRequest": {
+                "validityPeriod": {
+                  "start": "2022-10-21"
+                },
+                "quantity": {
+                  "value": 20,
+                  "unit": "tablet",
+                  "system": "https://snomed.info/sct",
+                  "code": "428673006"
+                },
+                "performer": {
+                  "reference": "urn:uuid:afb07f8b-e8d7-4cad-895d-494e6b35b2a1"
+                }
+              },
+              "substitution": {
+                "allowedBoolean": false
+              }
+            }
+          },
+          {
+            "fullUrl": "urn:uuid:2868554c-5565-4d31-b92a-c5b8dab8b90a",
+            "resource": {
+              "resourceType": "MedicationRequest",
+              "status": "active",
+              "intent": "order",
+              "medicationCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "https://snomed.info/sct",
+                    "code": "321080004",
+                    "display": "Pseudoephedrine hydrochloride 60mg tablets"
+                  }
+                ]
+              },
+              "subject": {
+                "identifier": {
+                  "system": "https://fhir.nhs.uk/Id/nhs-number",
+                  "value": "9449304130"
+                }
+              },
+              "requester": {
+                "reference": "urn:uuid:56166769-c1c4-4d07-afa8-132b5dfca666"
+              },
+              "groupIdentifier": {
+                "system": "https://fhir.nhs.uk/Id/prescription-order-number",
+                "value": "24F5DA-A83008-7EFE6Z"
+              },
+              "courseOfTherapyType": {
+                "coding": [
+                  {
+                    "system": "https://terminology.hl7.org/CodeSystem/medicationrequest-course-of-therapy",
+                    "code": "acute",
+                    "display": "Short course (acute) therapy"
+                  }
+                ]
+              },
+              "dispenseRequest": {
+                "validityPeriod": {
+                  "start": "2022-10-21"
+                },
+                "quantity": {
+                  "value": 30,
+                  "unit": "tablet",
+                  "system": "https://snomed.info/sct",
+                  "code": "428673006"
+                },
+                "performer": {
+                  "reference": "urn:uuid:afb07f8b-e8d7-4cad-895d-494e6b35b2a1"
+                }
+              },
+              "substitution": {
+                "allowedBoolean": false
+              }
+            }
+          },
+          {
+            "fullUrl": "urn:uuid:5cb17f5a-11ac-4e18-825f-6470467238b3",
+            "resource": {
+              "resourceType": "MedicationRequest",
+              "status": "cancelled",
+              "intent": "order",
+              "medicationCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "https://snomed.info/sct",
+                    "code": "324252006",
+                    "display": "Azithromycin 250mg capsules"
+                  }
+                ]
+              },
+              "subject": {
+                "identifier": {
+                  "system": "https://fhir.nhs.uk/Id/nhs-number",
+                  "value": "9449304130"
+                }
+              },
+              "requester": {
+                "reference": "urn:uuid:56166769-c1c4-4d07-afa8-132b5dfca666"
+              },
+              "groupIdentifier": {
+                "system": "https://fhir.nhs.uk/Id/prescription-order-number",
+                "value": "24F5DA-A83008-7EFE6Z"
+              },
+              "courseOfTherapyType": {
+                "coding": [
+                  {
+                    "system": "https://terminology.hl7.org/CodeSystem/medicationrequest-course-of-therapy",
+                    "code": "acute",
+                    "display": "Short course (acute) therapy"
+                  }
+                ]
+              },
+              "dispenseRequest": {
+                "validityPeriod": {
+                  "start": "2022-10-21"
+                },
+                "quantity": {
+                  "value": 30,
+                  "unit": "tablet",
+                  "system": "https://snomed.info/sct",
+                  "code": "428673006"
+                },
+                "performer": {
+                  "reference": "urn:uuid:afb07f8b-e8d7-4cad-895d-494e6b35b2a1"
+                }
+              },
+              "substitution": {
+                "allowedBoolean": false
+              }
+            }
+          },
+          {
+            "fullUrl": "urn:uuid:56166769-c1c4-4d07-afa8-132b5dfca666",
+            "resource": {
+              "resourceType": "PractitionerRole",
+              "id": "56166769-c1c4-4d07-afa8-132b5dfca666",
+              "practitioner": {
+                "reference": "urn:uuid:a8c85454-f8cb-498d-9629-78e2cb5fa47a"
+              },
+              "organization": {
+                "reference": "urn:uuid:3b4b03a5-52ba-4ba6-9b82-70350aa109d8"
+              }
+            }
+          },
+          {
+            "fullUrl": "urn:uuid:a8c85454-f8cb-498d-9629-78e2cb5fa47a",
+            "resource": {
+              "resourceType": "Practitioner",
+              "id": "a8c85454-f8cb-498d-9629-78e2cb5fa47a",
+              "name": [
+                {
+                  "family": "BOIN",
+                  "given": [
+                    "C"
+                  ],
+                  "prefix": [
+                    "DR"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "fullUrl": "urn:uuid:3b4b03a5-52ba-4ba6-9b82-70350aa109d8",
+            "resource": {
+              "resourceType": "Organization",
+              "id": "3b4b03a5-52ba-4ba6-9b82-70350aa109d8",
+              "identifier": [
+                {
+                  "system": "https://fhir.nhs.uk/Id/ods-organization-code",
+                  "value": "A83008"
+                }
+              ],
+              "name": "HALLGARTH SURGERY",
+              "telecom": [
+                {
+                  "system": "phone",
+                  "use": "work",
+                  "value": "0115 9737320"
+                }
+              ],
+              "address": [
+                {
+                  "use": "work",
+                  "type": "both",
+                  "line": [
+                    "HALLGARTH SURGERY",
+                    "CHEAPSIDE"
+                  ],
+                  "city": "SHILDON",
+                  "district": "COUNTY DURHAM",
+                  "postalCode": "DL4 2HP"
+                }
+              ]
+            }
+          },
+          {
+            "fullUrl": "urn:uuid:afb07f8b-e8d7-4cad-895d-494e6b35b2a1",
+            "resource": {
+              "resourceType": "Organization",
+              "id": "afb07f8b-e8d7-4cad-895d-494e6b35b2a1",
+              "identifier": [
+                {
+                  "system": "https://fhir.nhs.uk/Id/ods-organization-code",
+                  "value": "FLM49"
+                }
+              ],
+              "name": "Social Care Site - HEALTH AND CARE AT HOME",
+              "telecom": [
+                {
+                  "system": "phone",
+                  "use": "work",
+                  "value": "0115 9999999"
+                },
+                {
+                  "system": "url",
+                  "use": "work",
+                  "value": "https://www.pharmacy2u.co.uk/"
+                }
+              ],
+              "address": [
+                {
+                  "use": "work",
+                  "type": "both",
+                  "line": [
+                    "THE HEALTH AND WELLBEING INNOVATION C",
+                    "TRELISKE"
+                  ],
+                  "city": "TRURO",
+                  "district": "CORNWALL",
+                  "postalCode": "TR1 3FF"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:0cb82cfa-76c8-4fb2-a08e-bf0e326e5487",
+      "search": {
+        "mode": "match"
+      },
+      "resource": {
+        "resourceType": "Bundle",
+        "id": "0cb82cfa-76c8-4fb2-a08e-bf0e326e5487",
+        "type": "collection",
+        "entry": [
+          {
+            "fullUrl": "urn:uuid:ee035711-7aac-48c4-951a-62c07891d37d",
+            "resource": {
+              "resourceType": "MedicationRequest",
+              "status": "cancelled",
+              "intent": "order",
+              "medicationCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "https://snomed.info/sct",
+                    "code": "324252006",
+                    "display": "Azithromycin 250mg capsules"
+                  }
+                ]
+              },
+              "subject": {
+                "identifier": {
+                  "system": "https://fhir.nhs.uk/Id/nhs-number",
+                  "value": "9449304130"
+                }
+              },
+              "requester": {
+                "reference": "urn:uuid:815c6eb3-41f8-4f48-9e0d-2983624d4f90"
+              },
+              "groupIdentifier": {
+                "system": "https://fhir.nhs.uk/Id/prescription-order-number",
+                "value": "566946-B86044-FEFEFN"
+              },
+              "courseOfTherapyType": {
+                "coding": [
+                  {
+                    "system": "https://terminology.hl7.org/CodeSystem/medicationrequest-course-of-therapy",
+                    "code": "acute",
+                    "display": "Short course (acute) therapy"
+                  }
+                ]
+              },
+              "dispenseRequest": {
+                "validityPeriod": {
+                  "start": "2023-03-14"
+                },
+                "quantity": {
+                  "value": 30,
+                  "unit": "tablet",
+                  "system": "https://snomed.info/sct",
+                  "code": "428673006"
+                }
+              },
+              "substitution": {
+                "allowedBoolean": false
+              }
+            }
+          },
+          {
+            "fullUrl": "urn:uuid:815c6eb3-41f8-4f48-9e0d-2983624d4f90",
+            "resource": {
+              "resourceType": "PractitionerRole",
+              "id": "815c6eb3-41f8-4f48-9e0d-2983624d4f90",
+              "practitioner": {
+                "reference": "urn:uuid:acd5b009-c78f-40f2-a48b-b38ac72de992"
+              },
+              "organization": {
+                "reference": "urn:uuid:9683c147-ddad-41d9-9858-6e585c3f04df"
+              }
+            }
+          },
+          {
+            "fullUrl": "urn:uuid:acd5b009-c78f-40f2-a48b-b38ac72de992",
+            "resource": {
+              "resourceType": "Practitioner",
+              "id": "acd5b009-c78f-40f2-a48b-b38ac72de992",
+              "name": [
+                {
+                  "family": "ROBINSON",
+                  "given": [
+                    "C"
+                  ],
+                  "prefix": [
+                    "DR"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "fullUrl": "urn:uuid:9683c147-ddad-41d9-9858-6e585c3f04df",
+            "resource": {
+              "resourceType": "Organization",
+              "id": "9683c147-ddad-41d9-9858-6e585c3f04df",
+              "identifier": [
+                {
+                  "system": "https://fhir.nhs.uk/Id/ods-organization-code",
+                  "value": "B86044"
+                }
+              ],
+              "name": "IRELAND WOOD SURGERY",
+              "telecom": [
+                {
+                  "system": "phone",
+                  "value": "0113 2303470"
+                }
+              ],
+              "address": [
+                {
+                  "use": "work",
+                  "type": "both",
+                  "line": [
+                    "IVESON APPROACH"
+                  ],
+                  "city": "LEEDS",
+                  "district": "WEST YORKSHIRE",
+                  "postalCode": "LS16 6FR",
+                  "country": "ENGLAND"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:1a388581-dbbe-43e3-9054-f5976c0245e5",
+      "search": {
+        "mode": "outcome"
+      },
+      "resource": {
+        "resourceType": "OperationOutcome",
+        "id": "1a388581-dbbe-43e3-9054-f5976c0245e5",
+        "meta": {
+          "lastUpdated": "2023-09-29T10:52:00+00:00"
+        },
+        "issue": [
+          {
+            "code": "business-rule",
+            "severity": "warning",
+            "details": {
+              "coding": [
+                {
+                  "system": "https://fhir.nhs.uk/CodeSystem/Spine-ErrorOrWarningCode",
+                  "code": "INVALIDATED_RESOURCE",
+                  "display": "Invalidated resource"
+                }
+              ]
+            },
+            "diagnostics": "Prescription with short form ID D7AC09-A99968-4BA59C has been invalidated so could not be returned."
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:fedef61e-bc62-452e-91c0-6f44ad2d5c0c",
+      "search": {
+        "mode": "outcome"
+      },
+      "resource": {
+        "resourceType": "OperationOutcome",
+        "id": "fedef61e-bc62-452e-91c0-6f44ad2d5c0c",
+        "meta": {
+          "lastUpdated": "2023-09-29T10:52:00+00:00"
+        },
+        "issue": [
+          {
+            "code": "business-rule",
+            "severity": "warning",
+            "details": {
+              "coding": [
+                {
+                  "system": "https://fhir.nhs.uk/CodeSystem/Spine-ErrorOrWarningCode",
+                  "code": "INVALIDATED_RESOURCE",
+                  "display": "Invalidated resource"
+                }
+              ]
+            },
+            "diagnostics": "Prescription with short form ID CDF34E-A99968-4FF3BQ has been invalidated so could not be returned."
+          }
+        ]
+      }
+    }
+  ]
+}
