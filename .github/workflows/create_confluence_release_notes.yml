@@ -145,7 +145,7 @@ jobs:
               "productName": "Prescritpions for Patients AWS layer", 
               "releaseNotesPageId": "710051481", 
               "releaseNotesPageTitle": "PfP-AWS-$dev_tag - Deployed to [INT] on $(date +'%d-%m-%y')",
-              "createReleasedCandidate": "true",
+              "createReleaseCandidate": "true",
               "releasePrefix": "PfP-AWS-"
           }
           EOF
