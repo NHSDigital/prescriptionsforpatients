@@ -33,7 +33,7 @@ describe("test URL protocols", () => {
   })
 })
 
-describe("test URL path", () => {
+describe("test URL paths", () => {
   const logger = new Logger({serviceName: "handleUrl"})
   test.each<testData>([
     {
@@ -43,7 +43,7 @@ describe("test URL path", () => {
     },
     {
       url: "https://www.pharmacy2u.co.uk/path/with-hyphen",
-      scenarioDescription: "url has a path",
+      scenarioDescription: "url has a path with a hyphen",
       expected: new URL("https://www.pharmacy2u.co.uk/path/with-hyphen")
     }
   ])("return $expected when $scenarioDescription", ({url, expected}) => {
