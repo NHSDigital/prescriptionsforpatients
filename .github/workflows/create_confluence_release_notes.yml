@@ -15,14 +15,18 @@ on:
       CONFLUENCE_PAGE_ID:
         required: true
         type: string
-      CREATE_RELEASE_NOTES:
+      CREATE_RC_RELEASE_NOTES:
         required: true
         type: boolean
+      RELEASE_VERSION:
+        required: false
+        type: string 
     secrets:
       DEV_CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
       TARGET_CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
+    
 
 jobs:
   create_confluence_release_notes:
@@ -78,14 +82,6 @@ jobs:
           fi
           export target_tag
           echo "target_tag=${target_tag}" >> "$GITHUB_ENV"
-                    
-      - name: Call to markJiraReleased lambda
-          run: |
-            if [ "${{ inputs.MARK_JIRA_RELEASED }}" == "true" ]; then
-              release_version="PfP-AWS-${{ inputs.TARGET_TAG }}"
-              aws lambda invoke --function-name MarkJiraReleased --payload "{\"releaseVersion\": \"$release_version\"}" out.txt
-            fi
-
 
       - name: Configure dev AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -93,6 +89,13 @@ jobs:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
           role-session-name: github-actions
+                    
+      - name: Call to markJiraReleased lambda
+        run: |
+          if [ -n "${{ inputs.RELEASE_VERSION }}" ]; then
+            release_version="PfP-AWS-${{ inputs.RELEASE_VERSION }}"
+            aws lambda invoke --function-name MarkJiraReleased --payload "{\"releaseVersion\": \"$release_version\"}" out.txt
+          fi
 
       - shell: bash
         name: get dev tag
@@ -102,8 +105,8 @@ jobs:
           echo "dev_tag=${dev_tag}" >> "$GITHUB_ENV"
 
       - shell: bash
-        name: create int release notes
-        if: inputs.TARGET_ENVIRONMENT == 'int' && inputs.CREATE_RELEASE_NOTES == false
+        name: create int rc release notes
+        if: inputs.TARGET_ENVIRONMENT == 'int' && inputs.CREATE_RC_RELEASE_NOTES == false
         run: |
           ENV_VAR=release-notes:CreateReleaseNotesLambdaName
           RELEASE_NOTES_LAMBDA=$(aws cloudformation list-exports \
@@ -126,8 +129,8 @@ jobs:
           --payload file://payload.json out.txt
 
       - shell: bash
-        name: create int release notes
-        if: inputs.TARGET_ENVIRONMENT == 'int' && inputs.CREATE_RELEASE_NOTES == true
+        name: create int rc release notes
+        if: inputs.TARGET_ENVIRONMENT == 'int' && inputs.CREATE_RC_RELEASE_NOTES == true
         run: |
           ENV_VAR=release-notes:CreateReleaseNotesLambdaName
           RELEASE_NOTES_LAMBDA=$(aws cloudformation list-exports \

@@ -122,7 +122,7 @@ jobs:
     uses: ./.github/workflows/create_confluence_release_notes.yml
     with:
       TARGET_ENVIRONMENT: int
-      MARK_JIRA_RELEASED: true
+      MARK_JIRA_RELEASED: false
       CONFLUENCE_PAGE_ID: "693750027"
       CREATE_RELEASE_NOTES: false
     secrets:
@@ -134,7 +134,7 @@ jobs:
     uses: ./.github/workflows/create_confluence_release_notes.yml
     with:
       TARGET_ENVIRONMENT: prod
-      MARK_JIRA_RELEASED: true
+      MARK_JIRA_RELEASED: false
       CONFLUENCE_PAGE_ID: "693750029"
       CREATE_RELEASE_NOTES: false
     secrets:
@@ -239,7 +239,7 @@ jobs:
     uses: ./.github/workflows/create_confluence_release_notes.yml
     with:
       TARGET_ENVIRONMENT: int
-      MARK_JIRA_RELEASED: true
+      MARK_JIRA_RELEASED: false
       CREATE_RELEASE_NOTES: false
       CONFLUENCE_PAGE_ID: "693750029"
     secrets:
@@ -294,6 +294,7 @@ jobs:
       MARK_JIRA_RELASED: true
       CREATE_RELEASE_NOTES: false
       CONFLUENCE_PAGE_ID:  "693750029"
+      RELEASE_VERSION: ${{needs.tag_release.outputs.spec_version}}
     secrets:
       DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
