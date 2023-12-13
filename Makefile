@@ -17,16 +17,16 @@ install-python:
 install-hooks: install-python
 	poetry run pre-commit install --install-hooks --overwrite
 
-sam-build: sam-validate compile
+sam-build: sam-validate compile download-get-secrets-layer
 	sam build --template-file SAMtemplates/main_template.yaml --region eu-west-2
 
-sam-build-sandbox: sam-validate-sandbox compile
+sam-build-sandbox: sam-validate-sandbox compile download-get-secrets-layer
 	sam build --template-file SAMtemplates/sandbox_template.yaml --region eu-west-2
 
 sam-run-local: sam-build
 	sam local start-api
 
-sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name compile
+sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name compile download-get-secrets-layer
 	sam sync \
 		--stack-name $$stack_name \
 		--watch \
@@ -35,7 +35,7 @@ sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name compile
 			  EnableSplunk=false\
 			  TargetSpineServer=$$TARGET_SPINE_SERVER
 
-sam-sync-sandbox: guard-stack_name compile
+sam-sync-sandbox: guard-stack_name compile download-get-secrets-layer
 	sam sync \
 		--stack-name $$stack_name-sandbox \
 		--watch \
@@ -102,10 +102,11 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 compile-node:
 	npx tsc --build tsconfig.build.json
 
-compile-go:
-	cd packages/getSecretLayer && ./build.sh
+compile: compile-node
 
-compile: compile-node compile-go
+download-get-secrets-layer:
+	mkdir -p packages/getSecretLayer/lib
+	curl -LJ https://github.com/NHSDigital/electronic-prescription-service-get-secrets/releases/download/v1.0.31-alpha/get-secrets-layer.zip -o packages/getSecretLayer/lib/get-secrets-layer.zip
 
 lint-node: compile-node
 	npm run lint --workspace packages/capabilityStatement
@@ -116,9 +117,6 @@ lint-node: compile-node
 	npm run lint --workspace packages/statusLambda
 	npm run lint --workspace packages/spineClient
 	npm run lint --workspace packages/common/testing
-
-lint-go:
-	cd packages/getSecretLayer/src && golangci-lint run
 
 lint-cloudformation:
 	poetry run cfn-lint -t cloudformation/*.yml
@@ -132,7 +130,7 @@ lint-python:
 lint-githubactions:
 	actionlint
 
-lint: lint-node lint-go lint-cloudformation lint-samtemplates lint-python
+lint: lint-node lint-cloudformation lint-samtemplates lint-python
 
 test: compile
 	npm run test --workspace packages/capabilityStatement
@@ -167,7 +165,7 @@ deep-clean: clean
 	rm -rf .venv
 	find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +
 
-check-licenses: check-licenses-node check-licenses-python check-licenses-go
+check-licenses: check-licenses-node check-licenses-python
 
 check-licenses-node:
 	npm run check-licenses
@@ -181,9 +179,6 @@ check-licenses-node:
 
 check-licenses-python:
 	scripts/check_python_licenses.sh
-
-check-licenses-go:
-	cd packages/getSecretLayer && ./check_licence.sh
 
 aws-configure:
 	aws configure sso --region eu-west-2

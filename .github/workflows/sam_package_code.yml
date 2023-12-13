@@ -48,7 +48,6 @@ jobs:
           rm -rf .aws-sam
           export PATH=$PATH:$PWD/node_modules/.bin
           make sam-build
-          make compile-go
           cp Makefile .aws-sam/build/
           cp samconfig_package_and_deploy.toml .aws-sam/build/
 
@@ -67,7 +66,6 @@ jobs:
           rm -rf .aws-sam
           export PATH=$PATH:$PWD/node_modules/.bin
           make sam-build-sandbox
-          make compile-go
           cp Makefile .aws-sam/build/
           cp samconfig_package_and_deploy.toml .aws-sam/build/
 
