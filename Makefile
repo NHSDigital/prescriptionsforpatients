@@ -118,9 +118,6 @@ lint-node: compile-node
 	npm run lint --workspace packages/spineClient
 	npm run lint --workspace packages/common/testing
 
-lint-go:
-	cd packages/getSecretLayer/src && golangci-lint run
-
 lint-cloudformation:
 	poetry run cfn-lint -t cloudformation/*.yml
 
@@ -133,7 +130,7 @@ lint-python:
 lint-githubactions:
 	actionlint
 
-lint: lint-node lint-go lint-cloudformation lint-samtemplates lint-python
+lint: lint-node lint-cloudformation lint-samtemplates lint-python
 
 test: compile
 	npm run test --workspace packages/capabilityStatement
