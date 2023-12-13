@@ -121,7 +121,7 @@ jobs:
           cat <<EOF > payload.json
           { 
               "currentTag": "$target_tag", 
-              "targetTag": "$dev", 
+              "targetTag": "$dev_tag", 
               "repoName": "prescriptionsforpatients", 
               "targetEnvironment": "INT", 
               "productName": "Prescritpions for Patients AWS layer", 
