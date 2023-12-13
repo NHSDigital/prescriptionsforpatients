@@ -120,8 +120,8 @@ jobs:
             --output text)
           cat <<EOF > payload.json
           { 
-              "currentTag": "$target_tag", 
-              "targetTag": "$dev_tag", 
+              "currentTag": "$current_tag", 
+              "targetTag": "$target_tag", 
               "repoName": "prescriptionsforpatients", 
               "targetEnvironment": "INT", 
               "productName": "Prescritpions for Patients AWS layer", 
