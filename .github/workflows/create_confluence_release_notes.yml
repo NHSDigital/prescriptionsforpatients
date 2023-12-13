@@ -21,6 +21,9 @@ on:
       RELEASE_VERSION:
         required: false
         type: string 
+      PAUSE_PIPELINE:
+        required: true
+        type: string 
     secrets:
       DEV_CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
@@ -31,6 +34,7 @@ on:
 jobs:
   create_confluence_release_notes:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.PAUSE_PIPELINE }}
     permissions:
       id-token: write
       contents: read
@@ -77,6 +81,8 @@ jobs:
         run: |
           if [ -n "${{ inputs.TARGET_TAG }}" ]; then
             target_tag="${{ inputs.TARGET_TAG }}"
+            current_tag=$(aws cloudformation describe-stacks --stack-name ${{ inputs.TARGET_ENVIRONMENT }}-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
+            echo "current_tag=${current_tag}" >> "$GITHUB_ENV"
           else
             target_tag=$(aws cloudformation describe-stacks --stack-name ${{ inputs.TARGET_ENVIRONMENT }}-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
           fi
@@ -114,8 +120,8 @@ jobs:
             --output text)
           cat <<EOF > payload.json
           { 
-              "currentTag": "$target_tag", 
-              "targetTag": "$dev_tag", 
+              "currentTag": "$current_tag", 
+              "targetTag": "$target_tag", 
               "repoName": "prescriptionsforpatients", 
               "targetEnvironment": "INT", 
               "productName": "Prescritpions for Patients AWS layer", 
