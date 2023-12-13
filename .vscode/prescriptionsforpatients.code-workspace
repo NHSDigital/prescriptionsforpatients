@@ -33,10 +33,6 @@
 			"path": "../packages/spineClient"
 		},
 		{
-			"name": "packages/getSecretLayer",
-			"path": "../packages/getSecretLayer"
-		},
-		{
 			"name": "packages/common",
 			"path": "../packages/common"
 		}
