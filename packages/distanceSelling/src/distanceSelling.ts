@@ -14,12 +14,12 @@ type Entry = BundleEntry<FhirResource>
 export class DistanceSelling {
   private readonly logger: Logger
   private readonly client: ServiceSearchClient
-  private localServicesCache: Record<string, string>
+  private servicesCache: Record<string, string>
 
-  constructor() {
+  constructor(servicesCache: Record<string, string>) {
     this.logger = new Logger()
     this.client = createServiceSearchClient(this.logger)
-    this.localServicesCache = {}
+    this.servicesCache = servicesCache
   }
 
   async search(searchsetBundle: Bundle) {
@@ -61,17 +61,17 @@ export class DistanceSelling {
 
   async processOdsCodes(organisations: Array<Organization>) {
     for (const organisation of organisations) {
-      const odsCode = organisation.identifier![0].value
+      const odsCode = organisation.identifier![0].value?.toLowerCase()
       if (odsCode) {
         let urlString: string
-        if (odsCode in this.localServicesCache) {
-          urlString = this.localServicesCache[odsCode]
+        if (odsCode in this.servicesCache) {
+          urlString = this.servicesCache[odsCode]
           this.addToTelecom(urlString, organisation)
         } else {
           const url = await this.client.searchService(odsCode, this.logger)
           if (url) {
             urlString = url.toString().toLowerCase()
-            this.localServicesCache[odsCode.toLowerCase()] = urlString
+            this.servicesCache[odsCode] = urlString
             this.addToTelecom(urlString, organisation)
           }
         }

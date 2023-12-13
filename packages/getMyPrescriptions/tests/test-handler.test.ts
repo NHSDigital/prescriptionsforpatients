@@ -261,9 +261,10 @@ describe("Unit test for app handler", function () {
   })
 })
 
-describe("Unit test for app handler including service search", function () {
+describe("Unit tests for app handler including service search", function () {
   beforeEach(() => {
     mock.reset()
+    mock.resetHistory()
     process.env.TargetSpineServer = "spine"
     process.env.TargetServiceSearchServer = "service-search"
     process.env.SpinePublicCertificate = "public-certificate"
@@ -271,7 +272,32 @@ describe("Unit test for app handler including service search", function () {
     process.env.SpineCAChain = "ca-chain"
   })
 
-  it("verifies successful response", async () => {
+  it("local cache is used to reduce calls to service search", async () => {
+    const serviceSearchResponse = JSON.parse(exampleServiceSearchResponse)
+    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+    mock.onGet("https://service-search/service-search").reply(200, serviceSearchResponse)
+
+    mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, JSON.parse(exampleInteractionResponse))
+    const resultA: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
+
+    mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, JSON.parse(exampleInteractionResponse))
+    const resultB: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
+
+    for (const result of [resultA, resultB]) {
+      expect(result.statusCode).toEqual(200)
+      expect(result.body).toEqual(
+        JSON.stringify(mockAPIResponseBody)
+      )
+      expect(result.headers).toEqual({
+        "Content-Type": "application/fhir+json",
+        "Cache-Control": "no-cache"
+      })
+    }
+
+    expect(mock.history.get.length).toEqual(3)
+  })
+
+  it("integration test adding url to performer organisation", async () => {
     const interactionResponse = JSON.parse(exampleInteractionResponse)
     const serviceSearchResponse = JSON.parse(exampleServiceSearchResponse)
 

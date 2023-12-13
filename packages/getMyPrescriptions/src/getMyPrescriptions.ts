@@ -10,6 +10,7 @@ import {DistanceSelling} from "@prescriptionsforpatients/distanceSelling"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
+const servicesCache: Record<string, string> = {}
 
 /* eslint-disable  max-len */
 
@@ -69,7 +70,7 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     const searchsetBundle: Bundle = returnData.data
     searchsetBundle.id = xRequestId
 
-    const distanceSelling = new DistanceSelling()
+    const distanceSelling = new DistanceSelling(servicesCache)
     await distanceSelling.search(searchsetBundle)
 
     return {

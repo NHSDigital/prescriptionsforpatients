@@ -21,7 +21,7 @@ describe("ServiceSearch tests", function () {
 
   it("isolatePrescriptions returns prescription resources", async () => {
     expect(mockInteractionResponseBody.entry.length).toEqual(4)
-    const distanceSelling = new DistanceSelling()
+    const distanceSelling = new DistanceSelling({})
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
     const result = distanceSelling.isolatePrescriptions(searchsetBundle)
@@ -33,7 +33,7 @@ describe("ServiceSearch tests", function () {
   })
 
   it("getPerformerReferences returns performer references from prescription resources", async () => {
-    const distanceSelling = new DistanceSelling()
+    const distanceSelling = new DistanceSelling({})
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
     const prescriptions = distanceSelling.isolatePrescriptions(searchsetBundle)
@@ -46,7 +46,7 @@ describe("ServiceSearch tests", function () {
   })
 
   it("getPerformerOrganisations returns relevant organisations", async () => {
-    const distanceSelling = new DistanceSelling()
+    const distanceSelling = new DistanceSelling({})
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
     const prescriptions = distanceSelling.isolatePrescriptions(searchsetBundle)
@@ -89,8 +89,8 @@ describe("ServiceSearch tests", function () {
     expect(result).toEqual(expectedOrganisations)
   })
 
-  it("addToTelecom does exactly that", async () => {
-    const distanceSelling = new DistanceSelling()
+  it("addToTelecom does exactly that while maintaining the address", async () => {
+    const distanceSelling = new DistanceSelling({})
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
     const prescriptions = distanceSelling.isolatePrescriptions(searchsetBundle)
@@ -121,7 +121,7 @@ describe("ServiceSearch tests", function () {
 
   it("processOdsCodes uses returned value in telecom", async () => {
     mock.onGet("https://live/service-search").reply(200, mockServiceSearchResponseBody)
-    const distanceSelling = new DistanceSelling()
+    const distanceSelling = new DistanceSelling({})
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
     const prescriptions = distanceSelling.isolatePrescriptions(searchsetBundle)
@@ -135,5 +135,16 @@ describe("ServiceSearch tests", function () {
     const organisation: Organization = organisations[0]
     expect(organisation.address).toBeDefined()
     expect(organisation.telecom![1]).toEqual(expectedTelecom)
+  })
+
+  it("processOdsCodes doesn't call service search when cache entry exists for ODS code", async () => {
+    const distanceSelling = new DistanceSelling({"flm49": "https://www.pharmacy2u.co.uk/"})
+    const searchsetBundle = JSON.parse(mockBundleString) as Bundle
+
+    const startMockCallCount: number = mock.history.get.length
+    await distanceSelling.search(searchsetBundle)
+    const endMockCallCount: number = mock.history.get.length
+
+    expect(startMockCallCount).toEqual(endMockCallCount)
   })
 })
