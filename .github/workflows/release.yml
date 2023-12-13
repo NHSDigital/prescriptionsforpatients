@@ -292,7 +292,7 @@ jobs:
     with:
       TARGET_ENVIRONMENT: prod
       MARK_JIRA_RELASED: true
-      CREATE_RELEASE_NOTES: false
+      CREATE_RC_RELEASE_NOTES: false
       CONFLUENCE_PAGE_ID:  "693750029"
       RELEASE_VERSION: ${{needs.tag_release.outputs.spec_version}}
     secrets:
