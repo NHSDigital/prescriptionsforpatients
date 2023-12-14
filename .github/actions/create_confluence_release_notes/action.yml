@@ -6,55 +6,66 @@ inputs:
     description: "Target Environment"
   RELEASE_TAG:
     required: false
-    description: "Target tag"
+    description: "The tag we are releasing - only used for create_rc_release_notes and mark_jira_released"
   MARK_JIRA_RELEASED:
     required: true
-    description: "whether to mark tag released in jira"
+    description: "whether to mark fix version released in jira."
   CONFLUENCE_PAGE_ID:
     required: true
     description: "The id of confluence page to update or create under"
   CREATE_RC_RELEASE_NOTES:
     required: true
-    description: "whether to create rc release notes page"
+    description: "whether to create rc release notes page instead of normal release notes"
     default: "false"
-  RELEASE_VERSION:
-    required: false
-    description: "what release version to use for RC release notes and marking released in jira" 
   DEV_CLOUD_FORMATION_DEPLOY_ROLE:
     required: true
     description: "The dev cloud formation deploy role"
   TARGET_CLOUD_FORMATION_DEPLOY_ROLE:
     required: true
     description: "The target cloud formation deploy role"
+  DRY_RUN:
+    required: false
+    description: "whether to use a dry run and do not connect to anything"
+    default: "false"
 
 runs:
   using: "composite"
   steps:
     - name: connect to target account
+      if: inputs.DRY_RUN != 'true'
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-region: eu-west-2
-        role-to-assume: ${{ secrets.TARGET_CLOUD_FORMATION_DEPLOY_ROLE }}
+        role-to-assume: ${{ inputs.TARGET_CLOUD_FORMATION_DEPLOY_ROLE }}
         role-session-name: github-actions
     - name: Get deployed tag on target
       shell: bash
       run: |
         # get current deployed tag on target
-        export current_deployed_tag=$(aws cloudformation describe-stacks --stack-name ${{ inputs.TARGET_ENVIRONMENT }}-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
+        if [ "${{ inputs.DRY_RUN}}" != "true" ]; then
+          export current_deployed_tag=$(aws cloudformation describe-stacks --stack-name ${{ inputs.TARGET_ENVIRONMENT }}-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
+        else
+          export current_deployed_tag="current_deployed_tag"
+        fi
         echo "current_deployed_tag=${current_deployed_tag}" >> "$GITHUB_ENV"
     - name: connect to dev account
+      if: inputs.DRY_RUN != 'true'
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-region: eu-west-2
-        role-to-assume: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+        role-to-assume: ${{ inputs.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
         role-session-name: github-actions
     - name: get current dev tag
       shell: bash
       run: |
         # get current dev tag
-        export dev_tag=$(aws cloudformation describe-stacks --stack-name dev-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
+        if [ "${{ inputs.DRY_RUN}}" != "true" ]; then
+          export dev_tag=$(aws cloudformation describe-stacks --stack-name dev-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
+        else
+          export dev_tag="dev_tag"
+        fi
         echo "dev_tag=${dev_tag}" >> "$GITHUB_ENV"
-    - name: Call to markJiraReleased lambda
+    - name: create markJiraReleased payload
       shell: bash
       if: inputs.MARK_JIRA_RELEASED == 'true'
       run: |
@@ -62,13 +73,15 @@ runs:
         echo "calling mark jira released"
         cat <<EOF > payload.json
         { 
-            "releaseVersion": "PfP-AWS-${{ inputs.RELEASE_VERSION }}"
+            "releaseVersion": "PfP-AWS-${{ inputs.RELEASE_TAG }}"
         }
         EOF
         cat payload.json
-        aws lambda invoke --function-name MarkJiraReleased \
-         --cli-binary-format raw-in-base64-out \
-         --payload file://payload.json out.txt
+        if [ "${{ inputs.DRY_RUN}}" != "true" ]; then
+          aws lambda invoke --function-name MarkJiraReleased \
+          --cli-binary-format raw-in-base64-out \
+          --payload file://payload.json out.txt
+        fi
     - name: create int release notes
       shell: bash
       if: inputs.TARGET_ENVIRONMENT == 'int' && inputs.CREATE_RC_RELEASE_NOTES == 'false'
@@ -86,9 +99,11 @@ runs:
         }
         EOF
         cat payload.json
-        aws lambda invoke --function-name release-notes-createReleaseNotes \
-         --cli-binary-format raw-in-base64-out \
-         --payload file://payload.json out.txt
+        if [ "${{ inputs.DRY_RUN}}" != "true" ]; then
+          aws lambda invoke --function-name release-notes-createReleaseNotes \
+          --cli-binary-format raw-in-base64-out \
+          --payload file://payload.json out.txt
+        fi
     - name: create int rc release notes
       shell: bash
       if: inputs.TARGET_ENVIRONMENT == 'int' && inputs.CREATE_RC_RELEASE_NOTES == 'true'
@@ -109,9 +124,11 @@ runs:
         }
         EOF
         cat payload.json
-        aws lambda invoke --function-name release-notes-createReleaseNotes \
-         --cli-binary-format raw-in-base64-out \
-         --payload file://payload.json out.txt
+        if [ "${{ inputs.DRY_RUN}}" != "true" ]; then
+          aws lambda invoke --function-name release-notes-createReleaseNotes \
+          --cli-binary-format raw-in-base64-out \
+          --payload file://payload.json out.txt
+        fi
     - name: create prod release notes
       shell: bash
       if: inputs.TARGET_ENVIRONMENT == 'prod'
@@ -129,6 +146,8 @@ runs:
         }
         EOF
         cat payload.json
-        aws lambda invoke --function-name release-notes-createReleaseNotes \
-          --cli-binary-format raw-in-base64-out \
-          --payload file://payload.json out.txt
+        if [ "${{ inputs.DRY_RUN}}" != "true" ]; then
+          aws lambda invoke --function-name release-notes-createReleaseNotes \
+            --cli-binary-format raw-in-base64-out \
+            --payload file://payload.json out.txt
+        fi
