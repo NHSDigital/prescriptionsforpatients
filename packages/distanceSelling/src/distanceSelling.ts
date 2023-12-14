@@ -65,13 +65,16 @@ export class DistanceSelling {
       if (odsCode) {
         let urlString: string
         if (odsCode in this.servicesCache) {
+          this.logger.info(`ods code ${odsCode} found in cache. not calling service search.`)
           urlString = this.servicesCache[odsCode]
           this.addToTelecom(urlString, organisation)
         } else {
+          this.logger.info(`ods code ${odsCode} not found in cache. calling service search.`)
           const url = await this.client.searchService(odsCode, this.logger)
           if (url) {
             urlString = url.toString().toLowerCase()
             this.servicesCache[odsCode] = urlString
+            this.logger.info(`url ${urlString} added to cache for ods code ${odsCode}.`)
             this.addToTelecom(urlString, organisation)
           }
         }
