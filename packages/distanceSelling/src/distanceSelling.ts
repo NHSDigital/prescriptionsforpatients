@@ -84,6 +84,9 @@ export class DistanceSelling {
 
   addToTelecom(url: string, organisation: Organization) {
     const telecom: ContactPoint = {system: "url", use: "work", value: url}
+    if (!organisation.telecom) {
+      organisation.telecom = []
+    }
     organisation.telecom?.push(telecom)
   }
 

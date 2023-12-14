@@ -6,7 +6,7 @@ export function handleUrl(urlString: string, odsCode: string, logger: Logger): U
     url = new URL(urlString)
   } catch (error) {
     if (error instanceof TypeError) {
-      logger.info(`url ${urlString} for service with ODS code ${odsCode} is invalid`)
+      logger.info(`url ${urlString} for service with ODS code ${odsCode} is invalid - ${error}`)
     } else {
       logger.error(`error parsing url ${urlString} for service with ODS code ${odsCode} - ${error}`)
     }

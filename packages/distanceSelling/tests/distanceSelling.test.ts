@@ -119,6 +119,37 @@ describe("ServiceSearch tests", function () {
     expect(organisation.address![0]).toEqual(expectedAddress)
   })
 
+  it("addToTelecom handles absence of existing telecom", async () => {
+    const distanceSelling = new DistanceSelling({})
+    const organisation: Organization = {
+      "resourceType": "Organization",
+      "id": "afb07f8b-e8d7-4cad-895d-494e6b35b2a1",
+      "identifier": [{
+        "system": "https://fhir.nhs.uk/Id/ods-organization-code",
+        "value": "FLM49"
+      }],
+      "name": "Social Care Site - HEALTH AND CARE AT HOME",
+      "address": [{
+        "use": "work",
+        "type": "both",
+        "line": [
+          "THE HEALTH AND WELLBEING INNOVATION C",
+          "TRELISKE"
+        ],
+        "city": "TRURO",
+        "district": "CORNWALL",
+        "postalCode": "TR1 3FF"
+      }]
+    }
+
+    const expectedTelecom: ContactPoint = {use: "work", system: "url", value: "https://url.com"}
+
+    distanceSelling.addToTelecom("https://url.com", organisation)
+
+    expect(organisation.telecom).toBeDefined()
+    expect(organisation.telecom![0]).toEqual(expectedTelecom)
+  })
+
   it("processOdsCodes uses returned value in telecom", async () => {
     mock.onGet("https://live/service-search").reply(200, mockServiceSearchResponseBody)
     const distanceSelling = new DistanceSelling({})
