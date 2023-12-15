@@ -1,15 +1,12 @@
 name: 'Create confluence release notes'
-description: 'Do things with confluence release notes'
+description: 'Do release note actions in confluence and jira'
 inputs:
   TARGET_ENVIRONMENT:
     required: true
     description: "Target Environment"
   RELEASE_TAG:
     required: false
-    description: "The tag we are releasing - only used for create_rc_release_notes and mark_jira_released"
-  MARK_JIRA_RELEASED:
-    required: true
-    description: "whether to mark fix version released in jira."
+    description: "The tag we are releasing - only used for create_rc_release_notes"
   CONFLUENCE_PAGE_ID:
     required: true
     description: "The id of confluence page to update or create under"
@@ -65,23 +62,6 @@ runs:
           export dev_tag="dev_tag"
         fi
         echo "dev_tag=${dev_tag}" >> "$GITHUB_ENV"
-    - name: create markJiraReleased payload
-      shell: bash
-      if: inputs.MARK_JIRA_RELEASED == 'true'
-      run: |
-        # call mark jira released
-        echo "calling mark jira released"
-        cat <<EOF > payload.json
-        { 
-            "releaseVersion": "PfP-AWS-${{ inputs.RELEASE_TAG }}"
-        }
-        EOF
-        cat payload.json
-        if [ "${{ inputs.DRY_RUN}}" != "true" ]; then
-          aws lambda invoke --function-name MarkJiraReleased \
-          --cli-binary-format raw-in-base64-out \
-          --payload file://payload.json out.txt
-        fi
     - name: create int release notes
       shell: bash
       if: inputs.TARGET_ENVIRONMENT == 'int' && inputs.CREATE_RC_RELEASE_NOTES == 'false'
