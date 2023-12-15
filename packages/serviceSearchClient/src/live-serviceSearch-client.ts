@@ -32,7 +32,20 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
 
   constructor(logger: Logger) {
     this.logger = logger
+
     this.axiosInstance = axios.create()
+    this.axiosInstance.interceptors.request.use((config) => {
+      config.headers["request-startTime"] = new Date().getTime()
+      return config
+    })
+    this.axiosInstance.interceptors.response.use((response) => {
+      const currentTime = new Date().getTime()
+      const startTime = response.config.headers["request-startTime"]
+      this.logger.info("serviceSearch request duration", {serviceSearch_duration: currentTime - startTime})
+
+      return response
+    })
+
     this.outboundHeaders = {
       "Subscription-Key": process.env.ServiceSearchApiKey
     }

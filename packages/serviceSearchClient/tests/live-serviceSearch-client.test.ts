@@ -1,5 +1,5 @@
 import {LiveServiceSearchClient, ServiceSearchData} from "../src/live-serviceSearch-client"
-import "jest"
+import {jest} from "@jest/globals"
 import MockAdapter from "axios-mock-adapter"
 import axios from "axios"
 import {Logger} from "@aws-lambda-powertools/logger"
@@ -68,5 +68,17 @@ describe("live serviceSearch client", () => {
     mock.onGet("https://live/service-search").timeout()
     const serviceSearchClient = new LiveServiceSearchClient(logger)
     await expect(serviceSearchClient.searchService("")).rejects.toThrow("timeout of 45000ms exceeded")
+  })
+
+  test("successful log response time", async () => {
+    mock.onGet("https://live/service-search").reply(200, {value: []})
+    const mockLoggerInfo = jest.spyOn(Logger.prototype, "info")
+    const serviceSearchClient = new LiveServiceSearchClient(logger)
+
+    await serviceSearchClient.searchService("")
+
+    expect(mockLoggerInfo).toHaveBeenCalledWith(
+      "serviceSearch request duration", {"serviceSearch_duration": expect.any(Number)}
+    )
   })
 })
