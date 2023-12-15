@@ -71,7 +71,7 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     const searchsetBundle: Bundle = returnData.data
     searchsetBundle.id = xRequestId
 
-    const distanceSelling = new DistanceSelling(servicesCache)
+    const distanceSelling = new DistanceSelling(servicesCache, logger)
     await distanceSelling.search(searchsetBundle)
 
     return {

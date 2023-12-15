@@ -9,11 +9,13 @@ import {DistanceSelling, ServicesCache} from "../src/distanceSelling"
 import {mockInteractionResponseBody, mockServiceSearchResponseBody} from "@prescriptionsforpatients_common/testing"
 import MockAdapter from "axios-mock-adapter"
 import axios from "axios"
+import {Logger} from "@aws-lambda-powertools/logger"
 
 const mock = new MockAdapter(axios)
 const mockBundleString = JSON.stringify(mockInteractionResponseBody)
 
 describe("ServiceSearch tests", function () {
+  const logger = new Logger({serviceName: "distanceSelling"})
   beforeEach(() => {
     process.env.TargetServiceSearchServer = "live"
     mock.reset()
@@ -21,7 +23,7 @@ describe("ServiceSearch tests", function () {
 
   it("isolatePrescriptions returns prescription resources", async () => {
     expect(mockInteractionResponseBody.entry.length).toEqual(4)
-    const distanceSelling = new DistanceSelling({})
+    const distanceSelling = new DistanceSelling({}, logger)
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
     const result = distanceSelling.isolatePrescriptions(searchsetBundle)
@@ -33,7 +35,7 @@ describe("ServiceSearch tests", function () {
   })
 
   it("getPerformerReferences returns performer references from prescription resources", async () => {
-    const distanceSelling = new DistanceSelling({})
+    const distanceSelling = new DistanceSelling({}, logger)
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
     const prescriptions = distanceSelling.isolatePrescriptions(searchsetBundle)
@@ -46,7 +48,7 @@ describe("ServiceSearch tests", function () {
   })
 
   it("getPerformerOrganisations returns relevant organisations", async () => {
-    const distanceSelling = new DistanceSelling({})
+    const distanceSelling = new DistanceSelling({}, logger)
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
     const prescriptions = distanceSelling.isolatePrescriptions(searchsetBundle)
@@ -90,7 +92,7 @@ describe("ServiceSearch tests", function () {
   })
 
   it("addToTelecom does exactly that while maintaining the address", async () => {
-    const distanceSelling = new DistanceSelling({})
+    const distanceSelling = new DistanceSelling({}, logger)
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
     const prescriptions = distanceSelling.isolatePrescriptions(searchsetBundle)
@@ -120,7 +122,7 @@ describe("ServiceSearch tests", function () {
   })
 
   it("addToTelecom handles absence of existing telecom", async () => {
-    const distanceSelling = new DistanceSelling({})
+    const distanceSelling = new DistanceSelling({}, logger)
     const organisation: Organization = {
       "resourceType": "Organization",
       "id": "afb07f8b-e8d7-4cad-895d-494e6b35b2a1",
@@ -152,7 +154,7 @@ describe("ServiceSearch tests", function () {
 
   it("processOdsCodes uses returned value in telecom", async () => {
     mock.onGet("https://live/service-search").reply(200, mockServiceSearchResponseBody)
-    const distanceSelling = new DistanceSelling({})
+    const distanceSelling = new DistanceSelling({}, logger)
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
     const prescriptions = distanceSelling.isolatePrescriptions(searchsetBundle)
@@ -169,7 +171,7 @@ describe("ServiceSearch tests", function () {
   })
 
   it("processOdsCode doesn't call service search when cache entry exists for ODS code", async () => {
-    const distanceSellingWithCache = new DistanceSelling({"flm49": "https://www.pharmacy2u.co.uk/"})
+    const distanceSellingWithCache = new DistanceSelling({"flm49": "https://www.pharmacy2u.co.uk/"}, logger)
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
     const prescriptions = distanceSellingWithCache.isolatePrescriptions(searchsetBundle)
@@ -185,7 +187,7 @@ describe("ServiceSearch tests", function () {
     mock.onGet("https://live/service-search").reply(200, {value: []})
     const servicesCache: ServicesCache = {}
     const odsCode = "flm49"
-    const distanceSelling = new DistanceSelling(servicesCache)
+    const distanceSelling = new DistanceSelling(servicesCache, logger)
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
     const prescriptions = distanceSelling.isolatePrescriptions(searchsetBundle)

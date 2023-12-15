@@ -17,8 +17,8 @@ export class DistanceSelling {
   private readonly client: ServiceSearchClient
   private servicesCache: ServicesCache
 
-  constructor(servicesCache: ServicesCache) {
-    this.logger = new Logger()
+  constructor(servicesCache: ServicesCache, logger: Logger) {
+    this.logger = logger
     this.client = createServiceSearchClient(this.logger)
     this.servicesCache = servicesCache
   }
