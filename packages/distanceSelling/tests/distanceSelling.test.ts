@@ -159,7 +159,7 @@ describe("ServiceSearch tests", function () {
     const performerReferences = distanceSelling.getPerformerReferences(prescriptions)
     const organisations = distanceSelling.getPerformerOrganisations(performerReferences, prescriptions)
 
-    const expectedTelecom: ContactPoint = {use: "work", system: "url", value: "https://www.pharmacy2u.co.uk/"}
+    const expectedTelecom: ContactPoint = {use: "work", system: "url", value: "www.pharmacy2u.co.uk/"}
 
     await distanceSelling.processOdsCodes(organisations)
 

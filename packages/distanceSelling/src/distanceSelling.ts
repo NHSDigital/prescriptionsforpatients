@@ -10,13 +10,14 @@ import {
 } from "fhir/r4"
 
 type Entry = BundleEntry<FhirResource>
+export type ServicesCache = Record<string, string | undefined>
 
 export class DistanceSelling {
   private readonly logger: Logger
   private readonly client: ServiceSearchClient
-  private servicesCache: Record<string, string>
+  private servicesCache: ServicesCache
 
-  constructor(servicesCache: Record<string, string>) {
+  constructor(servicesCache: ServicesCache) {
     this.logger = new Logger()
     this.client = createServiceSearchClient(this.logger)
     this.servicesCache = servicesCache
@@ -63,22 +64,30 @@ export class DistanceSelling {
     for (const organisation of organisations) {
       const odsCode = organisation.identifier![0].value?.toLowerCase()
       if (odsCode) {
-        let urlString: string
+        let urlString: string | undefined
         if (odsCode in this.servicesCache) {
           this.logger.info(`ods code ${odsCode} found in cache. not calling service search.`)
           urlString = this.servicesCache[odsCode]
-          this.addToTelecom(urlString, organisation)
-        } else {
-          this.logger.info(`ods code ${odsCode} not found in cache. calling service search.`)
-          const url = await this.client.searchService(odsCode, this.logger)
-          if (url) {
-            urlString = url.toString().toLowerCase()
-            this.servicesCache[odsCode] = urlString
-            this.logger.info(`url ${urlString} added to cache for ods code ${odsCode}.`)
+          if (urlString) {
             this.addToTelecom(urlString, organisation)
           }
+        } else {
+          this.logger.info(`ods code ${odsCode} not found in cache. calling service search.`)
+          await this.searchOdsCode(odsCode, organisation)
         }
       }
+    }
+  }
+
+  async searchOdsCode(odsCode: string, organisation: Organization) {
+    const url = await this.client.searchService(odsCode, this.logger)
+    if (url) {
+      const urlString = url.toString().split("://")[1].toLowerCase()
+      this.servicesCache[odsCode] = urlString
+      this.logger.info(`url ${urlString} added to cache for ods code ${odsCode}.`)
+      this.addToTelecom(urlString, organisation)
+    } else {
+      this.servicesCache[odsCode] = undefined
     }
   }
 
