@@ -63,7 +63,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       const address = this.getServiceSearchEndpoint()
       const queryParams = {...this.baseQueryParams, odsCode: odsCode}
 
-      this.logger.info(`making request to ${address} with ods code ${odsCode}`)
+      this.logger.info(`making request to ${address} with ods code ${odsCode}`, {odsCode: odsCode})
       const response = await this.axiosInstance.get(address, {
         headers: this.outboundHeaders,
         params: queryParams,
@@ -76,7 +76,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
         return undefined
       }
 
-      this.logger.info(`pharmacy with ods code ${odsCode} is of type ${DISTANCE_SELLING}`)
+      this.logger.info(`pharmacy with ods code ${odsCode} is of type ${DISTANCE_SELLING}`, {odsCode: odsCode})
       const service = services[0]
       const urlString = service["URL"]
 

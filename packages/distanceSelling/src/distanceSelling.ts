@@ -66,13 +66,17 @@ export class DistanceSelling {
       if (odsCode) {
         let urlString: string | undefined
         if (odsCode in this.servicesCache) {
-          this.logger.info(`ods code ${odsCode} found in cache. not calling service search.`)
+          this.logger.info(
+            `ods code ${odsCode} found in cache. not calling service search.`, {odsCode: odsCode, cacheHit: true}
+          )
           urlString = this.servicesCache[odsCode]
           if (urlString) {
             this.addToTelecom(urlString, organisation)
           }
         } else {
-          this.logger.info(`ods code ${odsCode} not found in cache. calling service search.`)
+          this.logger.info(
+            `ods code ${odsCode} not found in cache. calling service search.`, {odsCode: odsCode, cacheHit: false}
+          )
           await this.searchOdsCode(odsCode, organisation)
         }
       }
@@ -84,7 +88,7 @@ export class DistanceSelling {
     if (url) {
       const urlString = url.toString().split("://")[1].toLowerCase()
       this.servicesCache[odsCode] = urlString
-      this.logger.info(`url ${urlString} added to cache for ods code ${odsCode}.`)
+      this.logger.info(`url ${urlString} added to cache for ods code ${odsCode}.`, {odsCode: odsCode})
       this.addToTelecom(urlString, organisation)
     } else {
       this.servicesCache[odsCode] = undefined
