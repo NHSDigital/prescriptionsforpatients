@@ -20,7 +20,7 @@ describe("test URL protocols", () => {
     {
       url: "www.pharmacy2u.co.uk",
       scenarioDescription: "url has no protocol",
-      expected: undefined
+      expected: new URL("https://www.pharmacy2u.co.uk")
     },
     {
       url: "invalid://www.pharmacy2u.co.uk",

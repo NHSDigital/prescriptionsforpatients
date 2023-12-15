@@ -1,6 +1,11 @@
 import {Logger} from "@aws-lambda-powertools/logger"
 
 export function handleUrl(urlString: string, odsCode: string, logger: Logger): URL | undefined {
+  const protocolPresent: boolean = urlString.includes("://")
+  if (!protocolPresent) {
+    urlString = "https://" + urlString
+  }
+
   let url: URL
   try {
     url = new URL(urlString)

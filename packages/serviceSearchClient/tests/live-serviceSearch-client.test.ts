@@ -23,36 +23,18 @@ describe("live serviceSearch client", () => {
     mock.reset()
   })
 
+  const validUrl: ServiceSearchTestData = {
+    scenarioDescription: "valid url",
+    serviceSearchData: {value: [{URL: "https://www.pharmacy2u.co.uk", OrganisationSubType: "DistanceSelling"}]},
+    expected: new URL("https://www.pharmacy2u.co.uk")
+  }
+
   test.each<ServiceSearchTestData>([
+    validUrl,
     {
-      scenarioDescription: "distance selling and valid url",
-      serviceSearchData: {value: [{URL: "https://www.pharmacy2u.co.uk", OrganisationSubType: "DistanceSelling"}]},
-      expected: new URL("https://www.pharmacy2u.co.uk")
-    },
-    {
-      scenarioDescription: "distance selling and invalid url",
+      scenarioDescription: "valid url with missing protocol",
       serviceSearchData: {value: [{URL: "www.pharmacy2u.co.uk", OrganisationSubType: "DistanceSelling"}]},
-      expected: undefined
-    },
-    {
-      scenarioDescription: "not distance selling and valid url",
-      serviceSearchData: {
-        value: [{
-          URL: "https://www.netmums.com/local/l/london-speech-therapy",
-          OrganisationSubType: "Generic Directory of Services"
-        }]
-      },
-      expected: new URL("https://www.netmums.com/local/l/london-speech-therapy")
-    },
-    {
-      scenarioDescription: "not distance selling and invalid url",
-      serviceSearchData: {
-        value: [{
-          URL: "www.netmums.com/local/l/london-speech-therapy",
-          OrganisationSubType: "Generic Directory of Services"
-        }]
-      },
-      expected: undefined
+      expected: new URL("https://www.pharmacy2u.co.uk")
     },
     {
       scenarioDescription: "no results in response",
@@ -68,6 +50,12 @@ describe("live serviceSearch client", () => {
     mock.onGet("https://live/service-search").reply(200, serviceData)
     const result = await serviceSearchClient.searchService("")
     expect(expected).toEqual(result)
+  })
+
+  test("gzip header doesn't affect non-gzipped response (staging)", async () => {
+    mock.onGet("https://live/service-search").reply(200, validUrl.serviceSearchData, {"Content-Encoding": "gzip"})
+    const result = await serviceSearchClient.searchService("")
+    expect(validUrl.expected).toEqual(result)
   })
 
   test("should throw error when unsuccessful http request", async () => {
