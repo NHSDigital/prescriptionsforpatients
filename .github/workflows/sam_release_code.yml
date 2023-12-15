@@ -59,7 +59,7 @@ jobs:
           role-to-assume: ${{ secrets.CLOUD_FORMATION_DEPLOY_ROLE }}
           role-session-name: github-actions
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         name: download build artifact
         with:
           name: ${{ inputs.BUILD_ARTIFACT }}
