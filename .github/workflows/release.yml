@@ -123,6 +123,10 @@ jobs:
     uses: ./.github/workflows/create_confluence_release_notes.yml
     with:
       TARGET_ENVIRONMENT: int
+      MARK_JIRA_RELEASED: false
+      CONFLUENCE_PAGE_ID: "693750027"
+      CREATE_RC_RELEASE_NOTES: false
+      PAUSE_PIPELINE: no_pause
     secrets:
       DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
@@ -132,6 +136,10 @@ jobs:
     uses: ./.github/workflows/create_confluence_release_notes.yml
     with:
       TARGET_ENVIRONMENT: prod
+      MARK_JIRA_RELEASED: false
+      CONFLUENCE_PAGE_ID: "693750029"
+      CREATE_RC_RELEASE_NOTES: false
+      PAUSE_PIPELINE: no_pause
     secrets:
       DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
@@ -199,8 +207,22 @@ jobs:
       TARGET_SPINE_SERVER: ${{ secrets.QA_TARGET_SPINE_SERVER }}
       TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.QA_TARGET_SERVICE_SEARCH_SERVER }}
 
-  release_int:
+  create_int_release_notes_pre_int:
     needs: [tag_release, release_qa, package_code, get_commit_id]
+    uses: ./.github/workflows/create_confluence_release_notes.yml
+    with:
+      TARGET_ENVIRONMENT: int
+      TARGET_TAG: ${{needs.tag_release.outputs.spec_version}}
+      MARK_JIRA_RELEASED: false
+      CONFLUENCE_PAGE_ID: "710051481"
+      CREATE_RC_RELEASE_NOTES: true
+      PAUSE_PIPELINE: pause
+    secrets:
+      DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
+
+  release_int:
+    needs: [create_int_release_notes_pre_int, tag_release, release_qa, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
@@ -225,6 +247,10 @@ jobs:
     uses: ./.github/workflows/create_confluence_release_notes.yml
     with:
       TARGET_ENVIRONMENT: int
+      MARK_JIRA_RELEASED: false
+      CREATE_RC_RELEASE_NOTES: false
+      CONFLUENCE_PAGE_ID: "693750029"
+      PAUSE_PIPELINE: no_pause
     secrets:
       DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
@@ -276,6 +302,11 @@ jobs:
     uses: ./.github/workflows/create_confluence_release_notes.yml
     with:
       TARGET_ENVIRONMENT: prod
+      MARK_JIRA_RELEASED: true
+      CREATE_RC_RELEASE_NOTES: false
+      CONFLUENCE_PAGE_ID:  "693750029"
+      RELEASE_VERSION: ${{needs.tag_release.outputs.spec_version}}
+      PAUSE_PIPELINE: no_pause
     secrets:
       DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
