@@ -288,10 +288,6 @@ describe("Unit tests for app handler including service search", function () {
       200, JSON.parse(pharmicaResponse)
     )
 
-    mock.onGet(
-      new RegExp("https://service-search/service-search*few08*")
-    ).reply(200, JSON.parse(pharmicaResponse))
-
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, JSON.parse(exampleInteractionResponse))
     const resultA: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
