@@ -1,8 +1,8 @@
 import type {JestConfigWithTsJest} from "ts-jest"
-import sharedConfig from "../../jest.default.config"
+import defaultConfig from "../../jest.default.config"
 
 const jestConfig: JestConfigWithTsJest = {
-  ...sharedConfig,
+  ...defaultConfig,
   "rootDir": "./"
 }
 
