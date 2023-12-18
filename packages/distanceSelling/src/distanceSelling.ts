@@ -9,7 +9,7 @@ import {
   Organization
 } from "fhir/r4"
 
-type Entry = BundleEntry<FhirResource>
+export type Entry = BundleEntry<FhirResource>
 export type ServicesCache = Record<string, string | undefined>
 
 export class DistanceSelling {

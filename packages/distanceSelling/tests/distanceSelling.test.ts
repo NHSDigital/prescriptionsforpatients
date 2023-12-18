@@ -5,7 +5,7 @@ import {
   ContactPoint,
   Organization
 } from "fhir/r4"
-import {DistanceSelling, ServicesCache} from "../src/distanceSelling"
+import {DistanceSelling, Entry, ServicesCache} from "../src/distanceSelling"
 import {mockInteractionResponseBody, mockPharmacy2uResponse} from "@prescriptionsforpatients_common/testing"
 import MockAdapter from "axios-mock-adapter"
 import axios from "axios"
@@ -206,11 +206,7 @@ describe("ServiceSearch tests", function () {
     const distanceSellingWithCache = new DistanceSelling(cache, logger)
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
-    const prescriptions = distanceSellingWithCache.isolatePrescriptions(searchsetBundle)
-    const performerReferences = distanceSellingWithCache.getPerformerReferences(prescriptions)
-    const organisations = distanceSellingWithCache.getPerformerOrganisations(performerReferences, prescriptions)
-
-    await distanceSellingWithCache.processOdsCodes(organisations)
+    await distanceSellingWithCache.search(searchsetBundle)
 
     expect(mock.history.get.length).toEqual(0)
   })
@@ -230,5 +226,15 @@ describe("ServiceSearch tests", function () {
 
     expect(odsCode in servicesCache).toBeTruthy()
     expect(servicesCache[odsCode]).toEqual(undefined)
+  })
+
+  it("filterAndTypeBundleEntries will return empty array when no entries present", async () => {
+    const distanceSelling = new DistanceSelling({}, logger)
+    const bundle: Bundle = {type: "collection", resourceType: "Bundle"}
+
+    const filter = (entry: Entry) => entry.resource!.resourceType === "Organization"
+    const result = distanceSelling.filterAndTypeBundleEntries<Organization>(bundle, filter)
+
+    expect(result).toEqual([])
   })
 })
