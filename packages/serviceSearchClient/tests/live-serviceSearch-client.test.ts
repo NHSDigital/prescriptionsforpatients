@@ -1,7 +1,7 @@
 import {LiveServiceSearchClient, ServiceSearchData} from "../src/live-serviceSearch-client"
 import {jest} from "@jest/globals"
 import MockAdapter from "axios-mock-adapter"
-import axios from "axios"
+import axios, {AxiosHeaders} from "axios"
 import {Logger} from "@aws-lambda-powertools/logger"
 import {mockPharmacy2uResponse} from "@prescriptionsforpatients_common/testing"
 
@@ -68,6 +68,30 @@ describe("live serviceSearch client", () => {
     mock.onGet("https://live/service-search").timeout()
     const serviceSearchClient = new LiveServiceSearchClient(logger)
     await expect(serviceSearchClient.searchService("")).rejects.toThrow("timeout of 45000ms exceeded")
+  })
+
+  test("should not log api key when error response", async () => {
+    const mockLoggerError = jest.spyOn(Logger.prototype, "error")
+    mock.onGet("https://live/service-search").reply(
+      500, {message: "error data"}, {"subscription-key": "api-key", "other": "other"}
+    )
+    const serviceSearchClient = new LiveServiceSearchClient(logger)
+    await expect(serviceSearchClient.searchService("")).rejects.toThrow("Request failed with status code 500")
+
+    const expectedHeaders: AxiosHeaders = new AxiosHeaders({other: "other"})
+    expect(mockLoggerError).toHaveBeenCalledWith(
+      "error in response from serviceSearch",
+      {
+        request: expect.any(Object),
+        response: {
+          Headers: expectedHeaders,
+          data: {
+            message: "error data"
+          },
+          status: 500
+        }
+      }
+    )
   })
 
   test("successful log response time", async () => {

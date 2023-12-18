@@ -1,6 +1,6 @@
 import {Logger} from "@aws-lambda-powertools/logger"
 import {ServiceSearchClient} from "./serviceSearch-client"
-import axios, {Axios} from "axios"
+import axios, {Axios, AxiosError} from "axios"
 import {handleUrl} from "./handleUrl"
 
 // timeout in ms to wait for response from serviceSearch to avoid lambda timeout
@@ -84,6 +84,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       return serviceUrl
     } catch (error) {
       if (axios.isAxiosError(error)) {
+        this.stripApiKeyFromHeaders(error)
         if (error.response) {
           this.logger.error("error in response from serviceSearch", {
             response: {
@@ -113,6 +114,16 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
         this.logger.error("general error", {error})
       }
       throw error
+    }
+  }
+
+  stripApiKeyFromHeaders(error: AxiosError) {
+    const headerKey = "subscription-key"
+    if (error.response?.headers) {
+      delete error.response.headers[headerKey]
+    }
+    if (error.request?.headers) {
+      delete error.request.headers[headerKey]
     }
   }
 
