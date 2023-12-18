@@ -14,7 +14,8 @@ import {
   mockAPIGatewayProxyEvent,
   mockAPIResponseBody,
   mockInteractionResponseBody,
-  mockServiceSearchResponseBody
+  mockPharmacy2uResponse,
+  mockPharmicaResponse
 } from "@prescriptionsforpatients_common/testing"
 
 const dummyContext = ContextExamples.helloworldContext
@@ -22,7 +23,9 @@ const mock = new MockAdapter(axios)
 
 const exampleEvent = JSON.stringify(mockAPIGatewayProxyEvent)
 const exampleInteractionResponse = JSON.stringify(mockInteractionResponseBody)
-const exampleServiceSearchResponse = JSON.stringify(mockServiceSearchResponseBody)
+
+const pharmacy2uResponse = JSON.stringify(mockPharmacy2uResponse)
+const pharmicaResponse = JSON.stringify(mockPharmicaResponse)
 
 const responseStatus400 = {
   resourceType: "OperationOutcome",
@@ -273,9 +276,21 @@ describe("Unit tests for app handler including service search", function () {
   })
 
   it("local cache is used to reduce calls to service search", async () => {
-    const serviceSearchResponse = JSON.parse(exampleServiceSearchResponse)
     const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
-    mock.onGet("https://service-search/service-search").reply(200, serviceSearchResponse)
+
+    mock.onGet(
+      "https://service-search/service-search"
+    ).replyOnce(
+      200, JSON.parse(pharmacy2uResponse)
+    ).onGet(
+      "https://service-search/service-search"
+    ).replyOnce(
+      200, JSON.parse(pharmicaResponse)
+    )
+
+    mock.onGet(
+      new RegExp("https://service-search/service-search*few08*")
+    ).reply(200, JSON.parse(pharmicaResponse))
 
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, JSON.parse(exampleInteractionResponse))
     const resultA: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
@@ -294,12 +309,12 @@ describe("Unit tests for app handler including service search", function () {
       })
     }
 
-    expect(mock.history.get.length).toEqual(3)
+    expect(mock.history.get.length).toEqual(4)
   })
 
   it("integration test adding url to performer organisation", async () => {
     const interactionResponse = JSON.parse(exampleInteractionResponse)
-    const serviceSearchResponse = JSON.parse(exampleServiceSearchResponse)
+    const serviceSearchResponse = JSON.parse(pharmacy2uResponse)
 
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, interactionResponse)
     mock.onGet("https://service-search/service-search").reply(200, serviceSearchResponse)

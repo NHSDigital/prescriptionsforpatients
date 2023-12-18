@@ -61,7 +61,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
   async searchService(odsCode: string): Promise<URL | undefined> {
     try {
       const address = this.getServiceSearchEndpoint()
-      const queryParams = {...this.baseQueryParams, odsCode: odsCode}
+      const queryParams = {...this.baseQueryParams, search: odsCode}
 
       this.logger.info(`making request to ${address} with ods code ${odsCode}`, {odsCode: odsCode})
       const response = await this.axiosInstance.get(address, {

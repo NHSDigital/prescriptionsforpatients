@@ -3,7 +3,7 @@ import {jest} from "@jest/globals"
 import MockAdapter from "axios-mock-adapter"
 import axios from "axios"
 import {Logger} from "@aws-lambda-powertools/logger"
-import {mockServiceSearchResponseBody} from "@prescriptionsforpatients_common/testing"
+import {mockPharmacy2uResponse} from "@prescriptionsforpatients_common/testing"
 
 const mock = new MockAdapter(axios)
 
@@ -43,7 +43,7 @@ describe("live serviceSearch client", () => {
     },
     {
       scenarioDescription: "canned service search response",
-      serviceSearchData: mockServiceSearchResponseBody,
+      serviceSearchData: mockPharmacy2uResponse,
       expected: new URL("https://www.pharmacy2u.co.uk")
     }
   ])("$scenarioDescription", async ({serviceSearchData: serviceData, expected}) => {

@@ -6,7 +6,7 @@ import {
   Organization
 } from "fhir/r4"
 import {DistanceSelling, ServicesCache} from "../src/distanceSelling"
-import {mockInteractionResponseBody, mockServiceSearchResponseBody} from "@prescriptionsforpatients_common/testing"
+import {mockInteractionResponseBody, mockPharmacy2uResponse} from "@prescriptionsforpatients_common/testing"
 import MockAdapter from "axios-mock-adapter"
 import axios from "axios"
 import {Logger} from "@aws-lambda-powertools/logger"
@@ -22,16 +22,16 @@ describe("ServiceSearch tests", function () {
   })
 
   it("isolatePrescriptions returns prescription resources", async () => {
-    expect(mockInteractionResponseBody.entry.length).toEqual(4)
+    expect(mockInteractionResponseBody.entry.length).toEqual(5)
     const distanceSelling = new DistanceSelling({}, logger)
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
     const result = distanceSelling.isolatePrescriptions(searchsetBundle)
 
-    expect(result.length).toEqual(2)
+    expect(result.length).toEqual(3)
     expect(result.filter((r) =>
       r.resourceType === "Bundle"
-    ).length).toEqual(2)
+    ).length).toEqual(3)
   })
 
   it("getPerformerReferences returns performer references from prescription resources", async () => {
@@ -43,6 +43,7 @@ describe("ServiceSearch tests", function () {
 
     const expectedPerformers = new Set<string>()
     expectedPerformers.add("urn:uuid:afb07f8b-e8d7-4cad-895d-494e6b35b2a1")
+    expectedPerformers.add("urn:uuid:154dcc4a-0006-4272-9758-9dcb8d95ce8b")
 
     expect(result).toEqual(expectedPerformers)
   })
@@ -65,12 +66,12 @@ describe("ServiceSearch tests", function () {
             value: "FLM49"
           }
         ],
-        name: "Social Care Site - HEALTH AND CARE AT HOME",
+        name: "Pharmacy2u",
         telecom: [
           {
             system: "phone",
             use: "work",
-            value: "0115 9999999"
+            value: "0113 2650222"
           }
         ],
         address: [
@@ -78,12 +79,42 @@ describe("ServiceSearch tests", function () {
             use: "work",
             type: "both",
             line: [
-              "THE HEALTH AND WELLBEING INNOVATION C",
-              "TRELISKE"
+              "Unit 4B",
+              "Victoria Road"
             ],
-            city: "TRURO",
-            district: "CORNWALL",
-            postalCode: "TR1 3FF"
+            city: "LEEDS",
+            district: "WEST YORKSHIRE",
+            postalCode: "LS14 2LA"
+          }
+        ]
+      },
+      {
+        resourceType: "Organization",
+        id: "154dcc4a-0006-4272-9758-9dcb8d95ce8b",
+        identifier: [
+          {
+            system: "https://fhir.nhs.uk/Id/ods-organization-code",
+            value: "FEW08"
+          }
+        ],
+        name: "Pharmica",
+        telecom: [
+          {
+            system: "phone",
+            use: "work",
+            value: "020 71129014"
+          }
+        ],
+        address: [
+          {
+            use: "work",
+            type: "both",
+            line: [
+              "1-5 Clerkenwell Road"
+            ],
+            city: "LONDON",
+            district: "GREATER LONDON",
+            postalCode: "EC1M 5PA"
           }
         ]
       }
@@ -99,20 +130,20 @@ describe("ServiceSearch tests", function () {
     const performerReferences = distanceSelling.getPerformerReferences(prescriptions)
     const organisation = distanceSelling.getPerformerOrganisations(performerReferences, prescriptions)[0]
 
-    const expectedTelecom: ContactPoint = {use: "work", system: "url", value: "https://url.com"}
+    const expectedTelecom: ContactPoint = {use: "work", system: "url", value: "www.pharmacy2u.co.uk"}
     const expectedAddress: Address = {
-      city: "TRURO",
-      district: "CORNWALL",
-      line: [
-        "THE HEALTH AND WELLBEING INNOVATION C",
-        "TRELISKE"
-      ],
-      postalCode: "TR1 3FF",
+      use: "work",
       type: "both",
-      use: "work"
+      line: [
+        "Unit 4B",
+        "Victoria Road"
+      ],
+      city: "LEEDS",
+      district: "WEST YORKSHIRE",
+      postalCode: "LS14 2LA"
     }
 
-    distanceSelling.addToTelecom("https://url.com", organisation)
+    distanceSelling.addToTelecom("www.pharmacy2u.co.uk", organisation)
 
     expect(organisation.telecom!.length).toEqual(2)
     expect(organisation.telecom![1]).toEqual(expectedTelecom)
@@ -153,7 +184,7 @@ describe("ServiceSearch tests", function () {
   })
 
   it("processOdsCodes uses returned value in telecom", async () => {
-    mock.onGet("https://live/service-search").reply(200, mockServiceSearchResponseBody)
+    mock.onGet("https://live/service-search").reply(200, mockPharmacy2uResponse)
     const distanceSelling = new DistanceSelling({}, logger)
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
@@ -171,7 +202,8 @@ describe("ServiceSearch tests", function () {
   })
 
   it("processOdsCode doesn't call service search when cache entry exists for ODS code", async () => {
-    const distanceSellingWithCache = new DistanceSelling({"flm49": "https://www.pharmacy2u.co.uk/"}, logger)
+    const cache: Record<string, string> = {"flm49": "www.pharmacy2u.co.uk/", "few08": "www.pharmica.co.uk/"}
+    const distanceSellingWithCache = new DistanceSelling(cache, logger)
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
     const prescriptions = distanceSellingWithCache.isolatePrescriptions(searchsetBundle)
