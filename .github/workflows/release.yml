@@ -112,36 +112,15 @@ jobs:
       COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
+      CREATE_INT_RELEASE_NOTES: true
+      CREATE_PROD_RELEASE_NOTES: true
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       SPLUNK_HEC_TOKEN: ${{ secrets.DEV_SPLUNK_HEC_TOKEN }}
       TARGET_SPINE_SERVER: ${{ secrets.DEV_TARGET_SPINE_SERVER }}
-
-  create_int_release_notes_post_dev:
-    needs: [release_dev]
-    uses: ./.github/workflows/create_confluence_release_notes.yml
-    with:
-      TARGET_ENVIRONMENT: int
-      MARK_JIRA_RELEASED: false
-      CONFLUENCE_PAGE_ID: "693750027"
-      CREATE_RC_RELEASE_NOTES: false
-      PAUSE_PIPELINE: no_pause
-    secrets:
       DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
-      TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
-
-  create_prod_release_notes_post_dev:
-    needs: [release_dev]
-    uses: ./.github/workflows/create_confluence_release_notes.yml
-    with:
-      TARGET_ENVIRONMENT: prod
-      MARK_JIRA_RELEASED: false
-      CONFLUENCE_PAGE_ID: "693750029"
-      CREATE_RC_RELEASE_NOTES: false
-      PAUSE_PIPELINE: no_pause
-    secrets:
-      DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
-      TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
+      INT_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
+      PROD_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
 
   release_dev_sandbox:
     needs: [tag_release, package_code, get_commit_id]
@@ -203,22 +182,8 @@ jobs:
       SPLUNK_HEC_TOKEN: ${{ secrets.QA_SPLUNK_HEC_TOKEN }}
       TARGET_SPINE_SERVER: ${{ secrets.QA_TARGET_SPINE_SERVER }}
 
-  create_int_release_notes_pre_int:
-    needs: [tag_release, release_qa, package_code, get_commit_id]
-    uses: ./.github/workflows/create_confluence_release_notes.yml
-    with:
-      TARGET_ENVIRONMENT: int
-      TARGET_TAG: ${{needs.tag_release.outputs.spec_version}}
-      MARK_JIRA_RELEASED: false
-      CONFLUENCE_PAGE_ID: "710051481"
-      CREATE_RC_RELEASE_NOTES: true
-      PAUSE_PIPELINE: pause
-    secrets:
-      DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
-      TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
-
   release_int:
-    needs: [create_int_release_notes_pre_int, tag_release, release_qa, package_code, get_commit_id]
+    needs: [tag_release, release_qa, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
@@ -232,23 +197,15 @@ jobs:
       COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
+      CREATE_INT_RELEASE_NOTES: true
+      CREATE_INT_RC_RELEASE_NOTES: true
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
       SPLUNK_HEC_TOKEN: ${{ secrets.INT_SPLUNK_HEC_TOKEN }}
       TARGET_SPINE_SERVER: ${{ secrets.INT_TARGET_SPINE_SERVER }}
-
-  create_int_release_notes_post_int:
-    needs: [release_int]
-    uses: ./.github/workflows/create_confluence_release_notes.yml
-    with:
-      TARGET_ENVIRONMENT: int
-      MARK_JIRA_RELEASED: false
-      CREATE_RC_RELEASE_NOTES: false
-      CONFLUENCE_PAGE_ID: "693750029"
-      PAUSE_PIPELINE: no_pause
-    secrets:
       DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
-      TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
+      INT_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
+      PROD_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
 
   release_sandbox:
     needs: [tag_release, release_qa, package_code, get_commit_id]
@@ -285,21 +242,12 @@ jobs:
       COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
       LOG_LEVEL: INFO
       LOG_RETENTION_DAYS: 731
+      MARK_JIRA_RELEASED: true
+      CREATE_PROD_RELEASE_NOTES: true
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
       SPLUNK_HEC_TOKEN: ${{ secrets.PROD_SPLUNK_HEC_TOKEN }}
       TARGET_SPINE_SERVER: ${{ secrets.PROD_TARGET_SPINE_SERVER }}
-
-  create_prod_release_notes_post_prod:
-    needs: [release_prod]
-    uses: ./.github/workflows/create_confluence_release_notes.yml
-    with:
-      TARGET_ENVIRONMENT: prod
-      MARK_JIRA_RELEASED: true
-      CREATE_RC_RELEASE_NOTES: false
-      CONFLUENCE_PAGE_ID:  "693750029"
-      RELEASE_VERSION: ${{needs.tag_release.outputs.spec_version}}
-      PAUSE_PIPELINE: no_pause
-    secrets:
       DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
-      TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
+      INT_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
+      PROD_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
