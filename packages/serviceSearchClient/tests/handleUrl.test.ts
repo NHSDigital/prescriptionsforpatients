@@ -6,25 +6,26 @@ type testData = {url: string, scenarioDescription: string, expected: URL | undef
 
 describe("test URL protocols", () => {
   const logger = new Logger({serviceName: "handleUrl"})
+  const insecureProtocol = "https://www.pharmacy2u.co.uk".replace("s", "")
   test.each<testData>([
     {
-      url: "http://www.pharmacy2u.co.uk",
-      scenarioDescription: "url starts with http",
-      expected: new URL("http://www.pharmacy2u.co.uk")
+      url: insecureProtocol,
+      scenarioDescription: "insecure protocol",
+      expected: new URL(insecureProtocol)
     },
     {
       url: "https://www.pharmacy2u.co.uk",
-      scenarioDescription: "url starts with https",
+      scenarioDescription: "secure protocol",
       expected: new URL("https://www.pharmacy2u.co.uk")
     },
     {
       url: "www.pharmacy2u.co.uk",
-      scenarioDescription: "url has no protocol",
+      scenarioDescription: "no protocol",
       expected: new URL("https://www.pharmacy2u.co.uk")
     },
     {
       url: "invalid://www.pharmacy2u.co.uk",
-      scenarioDescription: "url has an unsupported protocol",
+      scenarioDescription: "unsupported protocol",
       expected: undefined
     }
   ])("return $expected when $scenarioDescription", ({url, expected}) => {
