@@ -314,7 +314,7 @@ describe("Unit tests for app handler including service search", function () {
     expect(mock.history.get.length).toEqual(4)
   })
 
-  it("integration test adding url to performer organisation", async () => {
+  it("integration test adding urls to performer organisations", async () => {
     const interactionResponse = JSON.parse(exampleInteractionResponse)
     const serviceSearchResponse = JSON.parse(pharmacy2uResponse)
 
