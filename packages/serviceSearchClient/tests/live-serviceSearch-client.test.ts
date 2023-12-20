@@ -52,13 +52,13 @@ describe("live serviceSearch client", () => {
   ])("$scenarioDescription", async ({serviceSearchData: serviceData, expected}) => {
     mock.onGet(serviceSearchUrl).reply(200, serviceData)
     const result = await serviceSearchClient.searchService("")
-    expect(expected).toEqual(result)
+    expect(result).toEqual(expected)
   })
 
   test("gzip header doesn't affect non-gzipped response (staging)", async () => {
     mock.onGet(serviceSearchUrl).reply(200, validUrl.serviceSearchData, {"Content-Encoding": "gzip"})
     const result = await serviceSearchClient.searchService("")
-    expect(validUrl.expected).toEqual(result)
+    expect(result).toEqual(validUrl.expected)
   })
 
   test("should throw error when unsuccessful http request", async () => {
@@ -77,7 +77,7 @@ describe("live serviceSearch client", () => {
       .onGet(serviceSearchUrl).replyOnce(500, {})
       .onGet(serviceSearchUrl).reply(200, validUrl.serviceSearchData)
     const result = await serviceSearchClient.searchService("")
-    expect(validUrl.expected).toEqual(result)
+    expect(result).toEqual(validUrl.expected)
   })
 
   test("should throw when unsuccessful http requests exceeds configured retries", async () => {
