@@ -1,6 +1,7 @@
 import {Logger} from "@aws-lambda-powertools/logger"
 import {ServiceSearchClient} from "./serviceSearch-client"
-import axios, {Axios, AxiosError} from "axios"
+import axios, {AxiosError, AxiosInstance} from "axios"
+import axiosRetry from "axios-retry"
 import {handleUrl} from "./handleUrl"
 
 // timeout in ms to wait for response from serviceSearch to avoid lambda timeout
@@ -19,7 +20,7 @@ export type ServiceSearchData = {
 export class LiveServiceSearchClient implements ServiceSearchClient {
   private readonly SERVICE_SEARCH_URL_SCHEME = "https"
   private readonly SERVICE_SEARCH_ENDPOINT = process.env.TargetServiceSearchServer
-  private readonly axiosInstance: Axios
+  private readonly axiosInstance: AxiosInstance
   private readonly logger: Logger
   private readonly outboundHeaders: {"Subscription-Key": string | undefined}
   private readonly baseQueryParams: {
@@ -34,6 +35,8 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
     this.logger = logger
 
     this.axiosInstance = axios.create()
+    axiosRetry(this.axiosInstance, {retries: 3})
+
     this.axiosInstance.interceptors.request.use((config) => {
       config.headers["request-startTime"] = new Date().getTime()
       return config

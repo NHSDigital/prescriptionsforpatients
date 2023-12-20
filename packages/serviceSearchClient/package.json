@@ -16,10 +16,11 @@
   "license": "MIT",
   "dependencies": {
     "@aws-lambda-powertools/logger": "^1.16.0",
-    "axios": "^1.6.2"
+    "axios": "^1.6.2",
+    "axios-retry": "^4.0.0"
   },
   "devDependencies": {
-    "axios-mock-adapter": "^1.22.0",
-    "@prescriptionsforpatients_common/testing": "^1.0.0"
+    "@prescriptionsforpatients_common/testing": "^1.0.0",
+    "axios-mock-adapter": "^1.22.0"
   }
 }

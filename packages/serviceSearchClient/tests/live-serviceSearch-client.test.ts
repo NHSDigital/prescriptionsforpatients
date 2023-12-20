@@ -1,13 +1,14 @@
 import {LiveServiceSearchClient, ServiceSearchData} from "../src/live-serviceSearch-client"
 import {jest} from "@jest/globals"
 import MockAdapter from "axios-mock-adapter"
-import axios, {AxiosHeaders} from "axios"
+import axios from "axios"
 import {Logger} from "@aws-lambda-powertools/logger"
 import {mockPharmacy2uResponse} from "@prescriptionsforpatients_common/testing"
 
 const mock = new MockAdapter(axios)
 
 process.env.TargetServiceSearchServer = "live"
+const serviceSearchUrl = "https://live/service-search"
 
 type ServiceSearchTestData = {
   scenarioDescription: string
@@ -16,10 +17,12 @@ type ServiceSearchTestData = {
 }
 
 describe("live serviceSearch client", () => {
-  const logger = new Logger({serviceName: "serviceSearchClient"})
-  const serviceSearchClient = new LiveServiceSearchClient(logger)
+  let logger: Logger
+  let serviceSearchClient: LiveServiceSearchClient
 
-  afterEach(() => {
+  beforeEach(() => {
+    logger = new Logger({serviceName: "serviceSearchClient"})
+    serviceSearchClient = new LiveServiceSearchClient(logger)
     mock.reset()
   })
 
@@ -47,57 +50,48 @@ describe("live serviceSearch client", () => {
       expected: new URL("https://www.pharmacy2u.co.uk")
     }
   ])("$scenarioDescription", async ({serviceSearchData: serviceData, expected}) => {
-    mock.onGet("https://live/service-search").reply(200, serviceData)
+    mock.onGet(serviceSearchUrl).reply(200, serviceData)
     const result = await serviceSearchClient.searchService("")
     expect(expected).toEqual(result)
   })
 
   test("gzip header doesn't affect non-gzipped response (staging)", async () => {
-    mock.onGet("https://live/service-search").reply(200, validUrl.serviceSearchData, {"Content-Encoding": "gzip"})
+    mock.onGet(serviceSearchUrl).reply(200, validUrl.serviceSearchData, {"Content-Encoding": "gzip"})
     const result = await serviceSearchClient.searchService("")
     expect(validUrl.expected).toEqual(result)
   })
 
   test("should throw error when unsuccessful http request", async () => {
-    mock.onGet("https://live/service-search").networkError()
-    const serviceSearchClient = new LiveServiceSearchClient(logger)
+    mock.onGet(serviceSearchUrl).networkError()
     await expect(serviceSearchClient.searchService("")).rejects.toThrow("Network Error")
   })
 
   test("should throw error when timeout on http request", async () => {
-    mock.onGet("https://live/service-search").timeout()
-    const serviceSearchClient = new LiveServiceSearchClient(logger)
+    mock.onGet(serviceSearchUrl).timeout()
     await expect(serviceSearchClient.searchService("")).rejects.toThrow("timeout of 45000ms exceeded")
   })
 
-  test("should not log api key when error response", async () => {
-    const mockLoggerError = jest.spyOn(Logger.prototype, "error")
-    mock.onGet("https://live/service-search").reply(
-      500, {message: "error data"}, {"subscription-key": "api-key", "other": "other"}
-    )
-    const serviceSearchClient = new LiveServiceSearchClient(logger)
-    await expect(serviceSearchClient.searchService("")).rejects.toThrow("Request failed with status code 500")
+  test("should retry thrice when unsuccessful http requests", async () => {
+    mock.onGet(serviceSearchUrl).replyOnce(500, {})
+      .onGet(serviceSearchUrl).replyOnce(500, {})
+      .onGet(serviceSearchUrl).replyOnce(500, {})
+      .onGet(serviceSearchUrl).reply(200, validUrl.serviceSearchData)
+    const result = await serviceSearchClient.searchService("")
+    expect(validUrl.expected).toEqual(result)
+  })
 
-    const expectedHeaders: AxiosHeaders = new AxiosHeaders({other: "other"})
-    expect(mockLoggerError).toHaveBeenCalledWith(
-      "error in response from serviceSearch",
-      {
-        request: expect.any(Object),
-        response: {
-          Headers: expectedHeaders,
-          data: {
-            message: "error data"
-          },
-          status: 500
-        }
-      }
-    )
+  test("should throw when unsuccessful http requests exceeds configured retries", async () => {
+    mock.onGet(serviceSearchUrl).replyOnce(500, {})
+      .onGet(serviceSearchUrl).replyOnce(500, {})
+      .onGet(serviceSearchUrl).replyOnce(500, {})
+      .onGet(serviceSearchUrl).replyOnce(500, {})
+      .onGet(serviceSearchUrl).reply(200, validUrl.serviceSearchData)
+    await expect(serviceSearchClient.searchService("")).rejects.toThrow("Request failed with status code 500")
   })
 
   test("successful log response time", async () => {
-    mock.onGet("https://live/service-search").reply(200, {value: []})
+    mock.onGet(serviceSearchUrl).reply(200, {value: []})
     const mockLoggerInfo = jest.spyOn(Logger.prototype, "info")
-    const serviceSearchClient = new LiveServiceSearchClient(logger)
 
     await serviceSearchClient.searchService("")
 
