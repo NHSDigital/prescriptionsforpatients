@@ -84,7 +84,13 @@ export class DistanceSelling {
   }
 
   async searchOdsCode(odsCode: string, organisation: Organization) {
-    const url = await this.client.searchService(odsCode, this.logger)
+    let url: URL | undefined
+    try {
+      url = await this.client.searchService(odsCode, this.logger)
+    } catch {
+      this.logger.warn(`call to service search unsuccessful for odsCode ${odsCode}`, {odsCode: odsCode})
+      return
+    }
     if (url) {
       const urlString = url.toString().split("://")[1].toLowerCase()
       this.servicesCache[odsCode] = urlString

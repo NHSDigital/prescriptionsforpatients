@@ -228,6 +228,22 @@ describe("ServiceSearch tests", function () {
     expect(servicesCache[odsCode]).toEqual(undefined)
   })
 
+  it("searchOdsCode does not add to cache when service search error", async () => {
+    mock.onGet("https://live/service-search").networkError()
+    const servicesCache: ServicesCache = {}
+    const odsCode = "flm49"
+    const distanceSelling = new DistanceSelling(servicesCache, logger)
+    const searchsetBundle = JSON.parse(mockBundleString) as Bundle
+
+    const prescriptions = distanceSelling.isolatePrescriptions(searchsetBundle)
+    const performerReferences = distanceSelling.getPerformerReferences(prescriptions)
+    const organisation = distanceSelling.getPerformerOrganisations(performerReferences, prescriptions)[0]
+
+    await distanceSelling.searchOdsCode(odsCode, organisation)
+
+    expect(odsCode in servicesCache).toBeFalsy()
+  })
+
   it("filterAndTypeBundleEntries will return empty array when no entries present", async () => {
     const distanceSelling = new DistanceSelling({}, logger)
     const bundle: Bundle = {type: "collection", resourceType: "Bundle"}
