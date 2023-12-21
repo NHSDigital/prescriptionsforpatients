@@ -1,0 +1,10 @@
+{
+    "@odata.context": "https://nhsuksearchproduks.search.windows.net/indexes('syndicationprofiles-2-4-c-prod')/$metadata#docs(*)",
+    "value": [
+        {
+            "@search.score": 12.937448,
+            "URL": "https://www.pharmacy2u.co.uk",
+            "OrganisationSubType": "DistanceSelling"
+        }
+    ]
+}

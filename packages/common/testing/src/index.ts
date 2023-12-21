@@ -6,6 +6,24 @@ import {test_append_trace_ids} from "./test_append_trace_id"
 import _mockAPIGatewayProxyEvent from "./mockAPIGatewayProxyEvent.json"
 const mockAPIGatewayProxyEvent: APIGatewayProxyEvent = _mockAPIGatewayProxyEvent
 
-export {mockAPIGatewayProxyEvent}
-export {test_mime_type}
-export {test_append_trace_ids}
+import _mockServiceSearchResponseBodyPharmacy2u from "./mockServiceSearchResponseBodyPharmacy2u.json"
+const mockPharmacy2uResponse = _mockServiceSearchResponseBodyPharmacy2u
+
+import _mockServiceSearchResponseBodyPharmica from "./mockServiceSearchResponseBodyPharmica.json"
+const mockPharmicaResponse = _mockServiceSearchResponseBodyPharmica
+
+import _mockInteractionResponseBody from "./mockInteractionResponseBody.json"
+const mockInteractionResponseBody = _mockInteractionResponseBody
+
+import _mockAPIResponseBody from "./mockAPIResponseBody.json"
+const mockAPIResponseBody = _mockAPIResponseBody
+
+export {
+  mockAPIGatewayProxyEvent,
+  mockPharmacy2uResponse,
+  mockPharmicaResponse,
+  mockInteractionResponseBody,
+  mockAPIResponseBody,
+  test_mime_type,
+  test_append_trace_ids
+}

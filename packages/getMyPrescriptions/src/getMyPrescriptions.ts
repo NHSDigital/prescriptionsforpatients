@@ -5,9 +5,13 @@ import inputOutputLogger from "@middy/input-output-logger"
 import errorHandler from "@prescriptionsforpatients/middleware"
 import {createSpineClient, NHSNumberValidationError} from "@prescriptionsforpatients/spineClient"
 import {LogLevel} from "@aws-lambda-powertools/logger/lib/types"
+import type {Bundle} from "fhir/r4"
+import {DistanceSelling} from "@prescriptionsforpatients/distanceSelling"
+import {ServicesCache} from "@prescriptionsforpatients/distanceSelling"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
+const servicesCache: ServicesCache = {}
 
 /* eslint-disable  max-len */
 
@@ -64,11 +68,15 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       }
     }
     const returnData = await spineClient.getPrescriptions(event.headers)
-    const resBody = returnData.data
-    resBody.id = xRequestId
+    const searchsetBundle: Bundle = returnData.data
+    searchsetBundle.id = xRequestId
+
+    const distanceSelling = new DistanceSelling(servicesCache, logger)
+    await distanceSelling.search(searchsetBundle)
+
     return {
       statusCode: 200,
-      body: JSON.stringify(resBody),
+      body: JSON.stringify(searchsetBundle),
       headers: {
         "Content-Type": "application/fhir+json",
         "Cache-Control": "no-cache"

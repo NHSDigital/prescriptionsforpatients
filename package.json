@@ -21,7 +21,9 @@
     "packages/splunkProcessor",
     "packages/statusLambda",
     "packages/spineClient",
-    "packages/common/testing"
+    "packages/serviceSearchClient",
+    "packages/common/testing",
+    "packages/distanceSelling"
   ],
   "devDependencies": {
     "@types/aws-lambda": "^8.10.130",

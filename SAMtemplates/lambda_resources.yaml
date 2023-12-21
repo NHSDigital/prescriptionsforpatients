@@ -74,6 +74,8 @@ Resources:
             Principal:
               Service: "lambda.amazonaws.com"
             Action: "sts:AssumeRole"
+      # ManagedPolicyArns:
+      #   - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
   LambdaPolicy:
     Type: "AWS::IAM::Policy"
     Properties:
@@ -138,6 +140,7 @@ Resources:
               - !ImportValue account-resources:SpineASID
               - !ImportValue account-resources:SpinePartyKey
               - !ImportValue account-resources:SpineCAChain
+              - !ImportValue account-resources:ServiceSearchApiKey
       Roles:
         - !Ref LambdaRole
   LambdaLogGroup:

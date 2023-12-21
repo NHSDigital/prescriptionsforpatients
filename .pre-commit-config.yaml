@@ -86,6 +86,24 @@ repos:
         types_or: [ts, tsx, javascript, jsx, json]
         pass_filenames: false
 
+      - id: lint-serviceSearchClient
+        name: Lint serviceSearchClient
+        entry: npm
+        args: ["run", "--prefix=packages/serviceSearchClient", "lint"]
+        language: system
+        files: ^packages\/serviceSearchClient
+        types_or: [ts, tsx, javascript, jsx, json]
+        pass_filenames: false
+
+      - id: lint-distanceSelling
+        name: Lint distanceSelling
+        entry: npm
+        args: ["run", "--prefix=packages/distanceSelling", "lint"]
+        language: system
+        files: ^packages\/distanceSelling
+        types_or: [ts, tsx, javascript, jsx, json]
+        pass_filenames: false
+
       - id: lint-common-testing
         name: Lint common testing
         entry: npm

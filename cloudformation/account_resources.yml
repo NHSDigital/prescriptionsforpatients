@@ -585,6 +585,14 @@ Resources:
       KmsKeyId: alias/SecretsKMSKeyAlias
       SecretString: ChangeMe
 
+  ServiceSearchApiKey:
+    DependsOn: SecretsKMSKeyKMSKeyAlias
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: API key for service search
+      KmsKeyId: alias/SecretsKMSKeyAlias
+      SecretString: ChangeMe
+
   JiraToken:
     DependsOn: SecretsKMSKeyKMSKeyAlias
     Type: AWS::SecretsManager::Secret
@@ -681,6 +689,12 @@ Outputs:
     Value: !GetAtt SpineCAChain.Id
     Export:
       Name: !Join [":", [!Ref "AWS::StackName", "SpineCAChain"]]
+
+  ServiceSearchApiKey:
+    Description: ARN of the API key for service search
+    Value: !GetAtt ServiceSearchApiKey.Id
+    Export:
+      Name: !Join [":", [!Ref "AWS::StackName", "ServiceSearchApiKey"]]
 
   JiraToken:
     Description: JiraToken

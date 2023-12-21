@@ -117,7 +117,7 @@ describe("live spine client", () => {
     await expect(spineClient.getPrescriptions(headers)).rejects.toThrow("Network Error")
   })
 
-  test("should throw error when timout on http request", async () => {
+  test("should throw error when timeout on http request", async () => {
     mock.onGet("https://spine/mm/patientfacingprescriptions").timeout()
 
     const spineClient = new LiveSpineClient(logger)

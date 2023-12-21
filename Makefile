@@ -33,7 +33,8 @@ sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name compile download-get-secret
 		--template-file SAMtemplates/main_template.yaml \
 		--parameter-overrides \
 			  EnableSplunk=false\
-			  TargetSpineServer=$$TARGET_SPINE_SERVER
+			  TargetSpineServer=$$TARGET_SPINE_SERVER \
+			  TargetServiceSearchServer=$$TARGET_SERVICE_SEARCH_SERVER
 
 sam-sync-sandbox: guard-stack_name compile download-get-secrets-layer
 	sam sync \
@@ -48,7 +49,8 @@ sam-deploy: guard-AWS_DEFAULT_PROFILE guard-stack_name
 		--stack-name $$stack_name \
 		--parameter-overrides \
 			  EnableSplunk=false \
-			  TargetSpineServer=$$TARGET_SPINE_SERVER
+			  TargetSpineServer=$$TARGET_SPINE_SERVER \
+			  TargetServiceSearchServer=$$TARGET_SERVICE_SEARCH_SERVER
 
 sam-delete: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam delete --stack-name $$stack_name
@@ -72,7 +74,7 @@ sam-validate-sandbox:
 	sam validate --template-file SAMtemplates/splunk_firehose_resources.yaml --region eu-west-2
 	sam validate --template-file SAMtemplates/lambda_resources.yaml --region eu-west-2
 
-sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role guard-LATEST_TRUSTSTORE_VERSION guard-enable_mutual_tls guard-SPLUNK_HEC_TOKEN guard-SPLUNK_HEC_ENDPOINT guard-VERSION_NUMBER guard-COMMIT_ID guard-LOG_LEVEL guard-LOG_RETENTION_DAYS guard-TARGET_ENVIRONMENT
+sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role guard-LATEST_TRUSTSTORE_VERSION guard-enable_mutual_tls guard-SPLUNK_HEC_TOKEN guard-SPLUNK_HEC_ENDPOINT guard-VERSION_NUMBER guard-COMMIT_ID guard-LOG_LEVEL guard-LOG_RETENTION_DAYS guard-TARGET_ENVIRONMENT guard-target_spine_server guard-target_service_search_server
 	sam deploy \
 		--template-file $$template_file \
 		--stack-name $$stack_name \
@@ -92,6 +94,7 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 			  TruststoreVersion=$$LATEST_TRUSTSTORE_VERSION \
 			  EnableMutualTLS=$$enable_mutual_tls \
 			  TargetSpineServer=$$target_spine_server \
+			  TargetServiceSearchServer=$$target_service_search_server \
 			  EnableSplunk=true \
 			  VersionNumber=$$VERSION_NUMBER \
 			  CommitId=$$COMMIT_ID \
@@ -106,7 +109,7 @@ compile: compile-node
 
 download-get-secrets-layer:
 	mkdir -p packages/getSecretLayer/lib
-	curl -LJ https://github.com/NHSDigital/electronic-prescription-service-get-secrets/releases/download/v1.0.31-alpha/get-secrets-layer.zip -o packages/getSecretLayer/lib/get-secrets-layer.zip
+	curl -LJ https://github.com/NHSDigital/electronic-prescription-service-get-secrets/releases/download/v1.0.40-alpha/get-secrets-layer.zip -o packages/getSecretLayer/lib/get-secrets-layer.zip
 
 lint-node: compile-node
 	npm run lint --workspace packages/capabilityStatement
@@ -116,7 +119,9 @@ lint-node: compile-node
 	npm run lint --workspace packages/splunkProcessor
 	npm run lint --workspace packages/statusLambda
 	npm run lint --workspace packages/spineClient
+	npm run lint --workspace packages/serviceSearchClient
 	npm run lint --workspace packages/common/testing
+	npm run lint --workspace packages/distanceSelling
 
 lint-cloudformation:
 	poetry run cfn-lint -t cloudformation/*.yml
@@ -139,7 +144,9 @@ test: compile
 	npm run test --workspace packages/sandbox
 	npm run test --workspace packages/statusLambda
 	npm run test --workspace packages/spineClient
+	npm run test --workspace packages/serviceSearchClient
 	npm run test --workspace packages/splunkProcessor
+	npm run test --workspace packages/distanceSelling
 
 clean:
 	rm -rf packages/capabilityStatement/coverage
@@ -147,6 +154,8 @@ clean:
 	rm -rf packages/middleware/coverage
 	rm -rf packages/sandbox/coverage
 	rm -rf packages/spineClient/coverage
+	rm -rf packages/serviceSearchClient/coverage
+	rm -rf packages/distanceSelling/coverage
 	rm -rf packages/splunkProcessor/coverage
 	rm -rf packages/statusLambda/coverage
 	rm -rf packages/common/testing/coverage
@@ -155,6 +164,8 @@ clean:
 	rm -rf packages/middleware/lib
 	rm -rf packages/sandbox/lib
 	rm -rf packages/spineClient/lib
+	rm -rf packages/serviceSearchClient/lib
+	rm -rf packages/distanceSelling/lib
 	rm -rf packages/splunkProcessor/lib
 	rm -rf packages/statusLambda/lib
 	rm -rf packages/getSecretLayer/lib
@@ -176,6 +187,8 @@ check-licenses-node:
 	npm run check-licenses --workspace packages/splunkProcessor
 	npm run check-licenses --workspace packages/statusLambda
 	npm run check-licenses --workspace packages/spineClient
+	npm run check-licenses --workspace packages/serviceSearchClient
+	npm run check-licenses --workspace packages/distanceSelling
 
 check-licenses-python:
 	scripts/check_python_licenses.sh

@@ -10,12 +10,23 @@ import {ContextExamples} from "@aws-lambda-powertools/commons"
 import {Logger} from "@aws-lambda-powertools/logger"
 import MockAdapter from "axios-mock-adapter"
 import axios from "axios"
-import {mockAPIGatewayProxyEvent} from "@prescriptionsforpatients_common/testing"
+import {
+  mockAPIGatewayProxyEvent,
+  mockAPIResponseBody,
+  mockInteractionResponseBody,
+  mockPharmacy2uResponse,
+  mockPharmicaResponse
+} from "@prescriptionsforpatients_common/testing"
 
 const dummyContext = ContextExamples.helloworldContext
 const mock = new MockAdapter(axios)
 
 const exampleEvent = JSON.stringify(mockAPIGatewayProxyEvent)
+const exampleInteractionResponse = JSON.stringify(mockInteractionResponseBody)
+
+const pharmacy2uResponse = JSON.stringify(mockPharmacy2uResponse)
+const pharmicaResponse = JSON.stringify(mockPharmicaResponse)
+
 const responseStatus400 = {
   resourceType: "OperationOutcome",
   issue: [
@@ -179,7 +190,7 @@ describe("Unit test for app handler", function () {
   ])(
     "return error when $scenarioDescription",
     async ({httpResponseCode, spineStatusCode, nhsdLoginUser, errorResponse, expectedHttpResponse}) => {
-      mock.onGet("https://spine/mm/patientfacingprescriptions").reply(httpResponseCode, {statusCode: spineStatusCode})
+      mock.onGet("https://live/mm/patientfacingprescriptions").reply(httpResponseCode, {statusCode: spineStatusCode})
       const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
       event.headers = {"nhsd-nhslogin-user": nhsdLoginUser}
       const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
@@ -250,6 +261,77 @@ describe("Unit test for app handler", function () {
       "Cache-Control": "no-cache"
     })
     expect(JSON.parse(result.body)).toEqual(responseNotConfCertStatus500)
+  })
+})
+
+describe("Unit tests for app handler including service search", function () {
+  beforeEach(() => {
+    mock.reset()
+    mock.resetHistory()
+    process.env.TargetSpineServer = "spine"
+    process.env.TargetServiceSearchServer = "service-search"
+    process.env.SpinePublicCertificate = "public-certificate"
+    process.env.SpinePrivateKey = "private-key"
+    process.env.SpineCAChain = "ca-chain"
+  })
+
+  it("local cache is used to reduce calls to service search", async () => {
+    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+
+    const queryParams = {
+      "api-version": 2,
+      "searchFields": "ODSCode",
+      "$filter": "OrganisationTypeId eq 'PHA' and OrganisationSubType eq 'DistanceSelling'",
+      "$select": "URL,OrganisationSubType",
+      "$top": 1
+    }
+
+    mock.onGet(
+      "https://service-search/service-search", {params: {...queryParams, search: "flm49"}}
+    ).reply(200, JSON.parse(pharmacy2uResponse))
+
+    mock.onGet(
+      "https://service-search/service-search", {params: {...queryParams, search: "few08"}}
+    ).replyOnce(200, JSON.parse(pharmicaResponse))
+
+    mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, JSON.parse(exampleInteractionResponse))
+    const resultA: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
+
+    mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, JSON.parse(exampleInteractionResponse))
+    const resultB: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
+
+    for (const result of [resultA, resultB]) {
+      expect(result.statusCode).toEqual(200)
+      expect(result.body).toEqual(
+        JSON.stringify(mockAPIResponseBody)
+      )
+      expect(result.headers).toEqual({
+        "Content-Type": "application/fhir+json",
+        "Cache-Control": "no-cache"
+      })
+    }
+
+    expect(mock.history.get.length).toEqual(4)
+  })
+
+  it("integration test adding urls to performer organisations", async () => {
+    const interactionResponse = JSON.parse(exampleInteractionResponse)
+    const serviceSearchResponse = JSON.parse(pharmacy2uResponse)
+
+    mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, interactionResponse)
+    mock.onGet("https://service-search/service-search").reply(200, serviceSearchResponse)
+
+    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+    const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
+
+    expect(result.statusCode).toEqual(200)
+    expect(result.body).toEqual(
+      JSON.stringify(mockAPIResponseBody)
+    )
+    expect(result.headers).toEqual({
+      "Content-Type": "application/fhir+json",
+      "Cache-Control": "no-cache"
+    })
   })
 })
 

@@ -20,11 +20,13 @@
     "@aws-sdk/client-secrets-manager": "^3.478.0",
     "@middy/core": "^5.1.0",
     "@middy/input-output-logger": "^5.1.0",
+    "@prescriptionsforpatients/distanceSelling": "^1.0.0",
     "@prescriptionsforpatients/middleware": "^1.0.0",
-    "@prescriptionsforpatients/spineClient": "^1.0.0"
+    "@prescriptionsforpatients/spineClient": "^1.0.0",
+    "@types/fhir": "^0.0.40"
   },
   "devDependencies": {
-    "axios-mock-adapter": "^1.22.0",
-    "@prescriptionsforpatients_common/testing": "^1.0.0"
+    "@prescriptionsforpatients_common/testing": "^1.0.0",
+    "axios-mock-adapter": "^1.22.0"
   }
 }

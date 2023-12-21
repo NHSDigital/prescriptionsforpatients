@@ -9,6 +9,10 @@
 			"path": "../packages/capabilityStatement"
 		},
 		{
+			"name": "packages/distanceSelling",
+			"path": "../packages/distanceSelling"
+		},
+		{
 			"name": "packages/getMyPrescriptions",
 			"path": "../packages/getMyPrescriptions"
 		},
@@ -33,6 +37,10 @@
 			"path": "../packages/spineClient"
 		},
 		{
+			"name": "packages/serviceSearchClient",
+			"path": "../packages/serviceSearchClient"
+		},
+		{
 			"name": "packages/common",
 			"path": "../packages/common"
 		}
@@ -55,6 +63,7 @@
 			"Canonicaliser",
 			"canonicalization",
 			"Canonicalized",
+			"Clerkenwell",
 			"Codeable",
 			"codeinline",
 			"codesystem",
@@ -70,13 +79,17 @@
 			"HSCN",
 			"liter",
 			"milliliter",
+			"netmums",
 			"NHSD",
 			"nhsdlogin",
 			"nhslogin",
 			"NOSONAR",
 			"OIDC",
+			"Organisation",
+			"organisations",
 			"Orthoptist",
 			"Payor",
+			"pharmica",
 			"pino",
 			"pollable",
 			"powertools",
@@ -86,6 +99,7 @@
 			"reingest",
 			"reingested",
 			"Reingestion",
+			"searchset",
 			"serialisation",
 			"smartcard",
 			"smartcards",
