@@ -91,9 +91,9 @@ Resources:
     Properties:
       Location: lambda_resources.yaml
       Parameters:
-        CloudWatchKMSKey: !ImportValue lambda-resources-pr-51:CloudWatchKMSKey
-        SplunkSubscriptionFilterRole: !ImportValue lambda-resources-pr-51:SplunkSubscriptionFilterRole
-        SplunkDeliveryStream: !ImportValue lambda-resources-pr-51:SplunkDeliveryStream
+        CloudWatchKMSKey: !ImportValue lambda-resources:CloudWatchKMSKey
+        SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
+        SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
         LambdaName: !Sub "${AWS::StackName}-Sandbox"
         LogRetentionDays: !Ref LogRetentionDays
@@ -127,9 +127,9 @@ Resources:
     Properties:
       Location: lambda_resources.yaml
       Parameters:
-        CloudWatchKMSKey: !ImportValue lambda-resources-pr-51:CloudWatchKMSKey
-        SplunkSubscriptionFilterRole: !ImportValue lambda-resources-pr-51:SplunkSubscriptionFilterRole
-        SplunkDeliveryStream: !ImportValue lambda-resources-pr-51:SplunkDeliveryStream
+        CloudWatchKMSKey: !ImportValue lambda-resources:CloudWatchKMSKey
+        SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
+        SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
         LambdaName: !Sub "${AWS::StackName}-CapabilityStatement"
         LogRetentionDays: !Ref LogRetentionDays
@@ -163,9 +163,9 @@ Resources:
     Properties:
       Location: lambda_resources.yaml
       Parameters:
-        CloudWatchKMSKey: !ImportValue lambda-resources-pr-51:CloudWatchKMSKey
-        SplunkSubscriptionFilterRole: !ImportValue lambda-resources-pr-51:SplunkSubscriptionFilterRole
-        SplunkDeliveryStream: !ImportValue lambda-resources-pr-51:SplunkDeliveryStream
+        CloudWatchKMSKey: !ImportValue lambda-resources:CloudWatchKMSKey
+        SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
+        SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
         LambdaName: !Sub "${AWS::StackName}-statusLambda"
         LogRetentionDays: !Ref LogRetentionDays
@@ -309,7 +309,7 @@ Resources:
     Condition: ShouldUseSplunk
     Type: AWS::Logs::SubscriptionFilter
     Properties:
-      RoleArn: !ImportValue lambda-resources-pr-51:SplunkSubscriptionFilterRole
+      RoleArn: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
       LogGroupName: !Ref ApiGwAccessLogs
       FilterPattern: "" # All logs
-      DestinationArn: !ImportValue lambda-resources-pr-51:SplunkDeliveryStream
+      DestinationArn: !ImportValue lambda-resources:SplunkDeliveryStream
