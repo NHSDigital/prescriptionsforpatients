@@ -92,13 +92,18 @@ export class DistanceSelling {
       return
     }
     if (url) {
-      const urlString = url.toString().split("://")[1].toLowerCase()
+      const urlString = this.getUrlString(url)
       this.servicesCache[odsCode] = urlString
       this.logger.info(`url ${urlString} added to cache for ods code ${odsCode}.`, {odsCode: odsCode})
       this.addToTelecom(urlString, organisation)
     } else {
       this.servicesCache[odsCode] = undefined
     }
+  }
+
+  getUrlString(url: URL): string {
+    const urlString = url.toString().split("://")[1].toLowerCase()
+    return urlString.endsWith("/") ? urlString.slice(0, -1) : urlString
   }
 
   addToTelecom(url: string, organisation: Organization) {

@@ -192,7 +192,7 @@ describe("ServiceSearch tests", function () {
     const performerReferences = distanceSelling.getPerformerReferences(prescriptions)
     const organisations = distanceSelling.getPerformerOrganisations(performerReferences, prescriptions)
 
-    const expectedTelecom: ContactPoint = {use: "work", system: "url", value: "www.pharmacy2u.co.uk/"}
+    const expectedTelecom: ContactPoint = {use: "work", system: "url", value: "www.pharmacy2u.co.uk"}
 
     await distanceSelling.processOdsCodes(organisations)
 
@@ -202,7 +202,7 @@ describe("ServiceSearch tests", function () {
   })
 
   it("processOdsCode doesn't call service search when cache entry exists for ODS code", async () => {
-    const cache: Record<string, string> = {"flm49": "www.pharmacy2u.co.uk/", "few08": "www.pharmica.co.uk/"}
+    const cache: Record<string, string> = {"flm49": "www.pharmacy2u.co.uk", "few08": "www.pharmica.co.uk"}
     const distanceSellingWithCache = new DistanceSelling(cache, logger)
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
@@ -211,10 +211,26 @@ describe("ServiceSearch tests", function () {
     expect(mock.history.get.length).toEqual(0)
   })
 
-  it("searchOdsCode adds empty item to cache when no url returned by service search", async () => {
-    mock.onGet("https://live/service-search").reply(200, {value: []})
+  it.each<{urlString: string}>([
+    {
+      urlString: "https://www.pharmacy2u.co.uk/"
+    },
+    {
+      urlString: "http://www.pharmacy2u.co.uk/"
+    },
+    {
+      urlString: "http://www.pharmacy2u.co.uk"
+    }
+  ])("getUrlString removes protocol and trailing slash before adding to cache", async ({urlString}) => {
+    const distanceSelling = new DistanceSelling({}, logger)
+    const result = distanceSelling.getUrlString(new URL(urlString))
+
+    expect(result).toEqual("www.pharmacy2u.co.uk")
+  })
+
+  it("searchOdsCode adds item to cache when url returned by service search", async () => {
+    mock.onGet("https://live/service-search").reply(200, mockPharmacy2uResponse)
     const servicesCache: ServicesCache = {}
-    const odsCode = "flm49"
     const distanceSelling = new DistanceSelling(servicesCache, logger)
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
@@ -222,6 +238,24 @@ describe("ServiceSearch tests", function () {
     const performerReferences = distanceSelling.getPerformerReferences(prescriptions)
     const organisation = distanceSelling.getPerformerOrganisations(performerReferences, prescriptions)[0]
 
+    const odsCode = "flm49"
+    await distanceSelling.searchOdsCode(odsCode, organisation)
+
+    expect(odsCode in servicesCache).toBeTruthy()
+    expect(servicesCache[odsCode]).toEqual("www.pharmacy2u.co.uk")
+  })
+
+  it("searchOdsCode adds empty item to cache when no url returned by service search", async () => {
+    mock.onGet("https://live/service-search").reply(200, {value: []})
+    const servicesCache: ServicesCache = {}
+    const distanceSelling = new DistanceSelling(servicesCache, logger)
+    const searchsetBundle = JSON.parse(mockBundleString) as Bundle
+
+    const prescriptions = distanceSelling.isolatePrescriptions(searchsetBundle)
+    const performerReferences = distanceSelling.getPerformerReferences(prescriptions)
+    const organisation = distanceSelling.getPerformerOrganisations(performerReferences, prescriptions)[0]
+
+    const odsCode = "flm49"
     await distanceSelling.searchOdsCode(odsCode, organisation)
 
     expect(odsCode in servicesCache).toBeTruthy()
@@ -231,7 +265,6 @@ describe("ServiceSearch tests", function () {
   it("searchOdsCode does not add to cache when service search error", async () => {
     mock.onGet("https://live/service-search").networkError()
     const servicesCache: ServicesCache = {}
-    const odsCode = "flm49"
     const distanceSelling = new DistanceSelling(servicesCache, logger)
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
@@ -239,6 +272,7 @@ describe("ServiceSearch tests", function () {
     const performerReferences = distanceSelling.getPerformerReferences(prescriptions)
     const organisation = distanceSelling.getPerformerOrganisations(performerReferences, prescriptions)[0]
 
+    const odsCode = "flm49"
     await distanceSelling.searchOdsCode(odsCode, organisation)
 
     expect(odsCode in servicesCache).toBeFalsy()

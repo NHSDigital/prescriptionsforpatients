@@ -265,6 +265,14 @@ describe("Unit test for app handler", function () {
 })
 
 describe("Unit tests for app handler including service search", function () {
+  const queryParams = {
+    "api-version": 2,
+    "searchFields": "ODSCode",
+    "$filter": "OrganisationTypeId eq 'PHA' and OrganisationSubType eq 'DistanceSelling'",
+    "$select": "URL,OrganisationSubType",
+    "$top": 1
+  }
+
   beforeEach(() => {
     mock.reset()
     mock.resetHistory()
@@ -278,21 +286,13 @@ describe("Unit tests for app handler including service search", function () {
   it("local cache is used to reduce calls to service search", async () => {
     const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
 
-    const queryParams = {
-      "api-version": 2,
-      "searchFields": "ODSCode",
-      "$filter": "OrganisationTypeId eq 'PHA' and OrganisationSubType eq 'DistanceSelling'",
-      "$select": "URL,OrganisationSubType",
-      "$top": 1
-    }
-
     mock.onGet(
       "https://service-search/service-search", {params: {...queryParams, search: "flm49"}}
     ).reply(200, JSON.parse(pharmacy2uResponse))
 
     mock.onGet(
       "https://service-search/service-search", {params: {...queryParams, search: "few08"}}
-    ).replyOnce(200, JSON.parse(pharmicaResponse))
+    ).reply(200, JSON.parse(pharmicaResponse))
 
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, JSON.parse(exampleInteractionResponse))
     const resultA: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
@@ -316,10 +316,16 @@ describe("Unit tests for app handler including service search", function () {
 
   it("integration test adding urls to performer organisations", async () => {
     const interactionResponse = JSON.parse(exampleInteractionResponse)
-    const serviceSearchResponse = JSON.parse(pharmacy2uResponse)
 
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, interactionResponse)
-    mock.onGet("https://service-search/service-search").reply(200, serviceSearchResponse)
+
+    mock.onGet(
+      "https://service-search/service-search", {params: {...queryParams, search: "flm49"}}
+    ).reply(200, JSON.parse(pharmacy2uResponse))
+
+    mock.onGet(
+      "https://service-search/service-search", {params: {...queryParams, search: "few08"}}
+    ).reply(200, JSON.parse(pharmicaResponse))
 
     const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
