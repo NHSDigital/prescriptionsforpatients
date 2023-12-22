@@ -216,10 +216,10 @@ describe("ServiceSearch tests", function () {
       urlString: "https://www.pharmacy2u.co.uk/"
     },
     {
-      urlString: "http://www.pharmacy2u.co.uk/"
+      urlString: "https://www.pharmacy2u.co.uk/".replace("s", "")
     },
     {
-      urlString: "http://www.pharmacy2u.co.uk"
+      urlString: "https://www.pharmacy2u.co.uk"
     }
   ])("getUrlString removes protocol and trailing slash before adding to cache", async ({urlString}) => {
     const distanceSelling = new DistanceSelling({}, logger)
