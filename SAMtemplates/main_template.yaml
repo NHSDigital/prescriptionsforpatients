@@ -34,14 +34,6 @@ Parameters:
     Type: String
     Description: TargetServiceSearchServer
     Default: none
-  SplunkHECToken:
-    Type: String
-    Description: HEC Token for Cloudformation to Splunk Firehose
-    Default: none
-  SplunkHECEndpoint:
-    Type: String
-    Description: HEC Endpoint for Cloudformation to Splunk Firehose
-    Default: none
   TruststoreVersion:
     Type: String
     Description: TruststoreVersion
@@ -103,16 +95,6 @@ Conditions:
   ShouldUseSplunk: !Equals [true, !Ref EnableSplunk]
 
 Resources:
-  SplunkFirehose:
-    Type: AWS::Serverless::Application
-    Properties:
-      Location: splunk_firehose_resources.yaml
-      Parameters:
-        SplunkHECToken: !Ref SplunkHECToken
-        SplunkHECEndpoint: !Ref SplunkHECEndpoint
-        EnableSplunk: !Ref EnableSplunk
-        LogRetentionDays: !Ref LogRetentionDays
-
   GetSecretsLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
@@ -127,9 +109,9 @@ Resources:
     Properties:
       Location: lambda_resources.yaml
       Parameters:
-        CloudWatchKMSKey: !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
-        SplunkSubscriptionFilterRole: !GetAtt SplunkFirehose.Outputs.SplunkSubscriptionFilterRole
-        SplunkDeliveryStream: !GetAtt SplunkFirehose.Outputs.SplunkDeliveryStream
+        CloudWatchKMSKey: !ImportValue lambda-resources-pr-51:CloudWatchKMSKey
+        SplunkSubscriptionFilterRole: !ImportValue lambda-resources-pr-51:SplunkSubscriptionFilterRole
+        SplunkDeliveryStream: !ImportValue lambda-resources-pr-51:SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
         LambdaName: !Sub "${AWS::StackName}-GetMyPrescriptions"
         AccessToSpine: "true"
@@ -170,9 +152,9 @@ Resources:
     Properties:
       Location: lambda_resources.yaml
       Parameters:
-        CloudWatchKMSKey: !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
-        SplunkSubscriptionFilterRole: !GetAtt SplunkFirehose.Outputs.SplunkSubscriptionFilterRole
-        SplunkDeliveryStream: !GetAtt SplunkFirehose.Outputs.SplunkDeliveryStream
+        CloudWatchKMSKey: !ImportValue lambda-resources-pr-51:CloudWatchKMSKey
+        SplunkSubscriptionFilterRole: !ImportValue lambda-resources-pr-51:SplunkSubscriptionFilterRole
+        SplunkDeliveryStream: !ImportValue lambda-resources-pr-51:SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
         LambdaName: !Sub "${AWS::StackName}-CapabilityStatement"
         LogRetentionDays: !Ref LogRetentionDays
@@ -206,9 +188,9 @@ Resources:
     Properties:
       Location: lambda_resources.yaml
       Parameters:
-        CloudWatchKMSKey: !GetAtt SplunkFirehose.Outputs.CloudWatchKMSKey
-        SplunkSubscriptionFilterRole: !GetAtt SplunkFirehose.Outputs.SplunkSubscriptionFilterRole
-        SplunkDeliveryStream: !GetAtt SplunkFirehose.Outputs.SplunkDeliveryStream
+        CloudWatchKMSKey: !ImportValue lambda-resources-pr-51:CloudWatchKMSKey
+        SplunkSubscriptionFilterRole: !ImportValue lambda-resources-pr-51:SplunkSubscriptionFilterRole
+        SplunkDeliveryStream: !ImportValue lambda-resources-pr-51:SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
         LambdaName: !Sub "${AWS::StackName}-statusLambda"
         AccessToSpine: "true"
@@ -358,7 +340,7 @@ Resources:
     Condition: ShouldUseSplunk
     Type: AWS::Logs::SubscriptionFilter
     Properties:
-      RoleArn: !GetAtt SplunkFirehose.Outputs.SplunkSubscriptionFilterRole
+      RoleArn: !ImportValue lambda-resources-pr-51:SplunkSubscriptionFilterRole
       LogGroupName: !Ref ApiGwAccessLogs
       FilterPattern: "" # All logs
-      DestinationArn: !GetAtt SplunkFirehose.Outputs.SplunkDeliveryStream
+      DestinationArn: !ImportValue lambda-resources-pr-51:SplunkDeliveryStream
