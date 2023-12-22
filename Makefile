@@ -114,7 +114,6 @@ lint-node: compile-node
 	npm run lint --workspace packages/getMyPrescriptions
 	npm run lint --workspace packages/middleware
 	npm run lint --workspace packages/sandbox
-	npm run lint --workspace packages/splunkProcessor
 	npm run lint --workspace packages/statusLambda
 	npm run lint --workspace packages/spineClient
 	npm run lint --workspace packages/serviceSearchClient
@@ -143,7 +142,6 @@ test: compile
 	npm run test --workspace packages/statusLambda
 	npm run test --workspace packages/spineClient
 	npm run test --workspace packages/serviceSearchClient
-	npm run test --workspace packages/splunkProcessor
 	npm run test --workspace packages/distanceSelling
 
 clean:
@@ -154,7 +152,6 @@ clean:
 	rm -rf packages/spineClient/coverage
 	rm -rf packages/serviceSearchClient/coverage
 	rm -rf packages/distanceSelling/coverage
-	rm -rf packages/splunkProcessor/coverage
 	rm -rf packages/statusLambda/coverage
 	rm -rf packages/common/testing/coverage
 	rm -rf packages/capabilityStatement/lib
@@ -164,7 +161,6 @@ clean:
 	rm -rf packages/spineClient/lib
 	rm -rf packages/serviceSearchClient/lib
 	rm -rf packages/distanceSelling/lib
-	rm -rf packages/splunkProcessor/lib
 	rm -rf packages/statusLambda/lib
 	rm -rf packages/getSecretLayer/lib
 	rm -rf packages/common/testing/lib
@@ -182,7 +178,6 @@ check-licenses-node:
 	npm run check-licenses --workspace packages/capabilityStatement
 	npm run check-licenses --workspace packages/sandbox
 	npm run check-licenses --workspace packages/middleware
-	npm run check-licenses --workspace packages/splunkProcessor
 	npm run check-licenses --workspace packages/statusLambda
 	npm run check-licenses --workspace packages/spineClient
 	npm run check-licenses --workspace packages/serviceSearchClient
