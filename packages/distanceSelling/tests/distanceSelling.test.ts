@@ -152,6 +152,25 @@ describe("ServiceSearch tests", function () {
     expect(organisation.address![0]).toEqual(expectedAddress)
   })
 
+  it("addToTelecom does does not add multiple url entries", async () => {
+    const distanceSelling = new DistanceSelling({}, logger)
+    const searchsetBundle = JSON.parse(mockBundleString) as Bundle
+
+    const prescriptions = distanceSelling.isolatePrescriptions(searchsetBundle)
+    const performerReferences = distanceSelling.getPerformerReferences(prescriptions)
+    const organisation = distanceSelling.getPerformerOrganisations(performerReferences, prescriptions)[0]
+
+    const expectedUrl: ContactPoint = {use: "work", system: "url", value: "www.pharmacy2u.co.uk"}
+    const expectedTelephone: ContactPoint = {use: "work", system: "phone", value: "0113 2650222"}
+
+    distanceSelling.addToTelecom("www.pharmacy2u.co.uk", organisation)
+    distanceSelling.addToTelecom("www.pharmacy2u.co.uk", organisation)
+
+    expect(organisation.telecom!.length).toEqual(2)
+    expect(organisation.telecom![0]).toEqual(expectedTelephone)
+    expect(organisation.telecom![1]).toEqual(expectedUrl)
+  })
+
   it("addToTelecom handles absence of existing telecom", async () => {
     const distanceSelling = new DistanceSelling({}, logger)
     const organisation: Organization = {
