@@ -113,7 +113,7 @@ export class DistanceSelling {
     const urlEntryAbsent: boolean = organisation.telecom.filter(entry => entry.system === "url").length === 0
     if (urlEntryAbsent) {
       const telecom: ContactPoint = {system: "url", use: "work", value: url}
-      organisation.telecom?.push(telecom)
+      organisation.telecom.push(telecom)
     }
   }
 
