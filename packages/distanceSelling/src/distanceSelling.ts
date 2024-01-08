@@ -92,7 +92,7 @@ export class DistanceSelling {
       return
     }
     if (url) {
-      const urlString = url.toString().split("://")[1].toLowerCase()
+      const urlString = this.getUrlString(url)
       this.servicesCache[odsCode] = urlString
       this.logger.info(`url ${urlString} added to cache for ods code ${odsCode}.`, {odsCode: odsCode})
       this.addToTelecom(urlString, organisation)
@@ -101,12 +101,20 @@ export class DistanceSelling {
     }
   }
 
+  getUrlString(url: URL): string {
+    const urlString = url.toString().split("://")[1].toLowerCase()
+    return urlString.endsWith("/") ? urlString.slice(0, -1) : urlString
+  }
+
   addToTelecom(url: string, organisation: Organization) {
-    const telecom: ContactPoint = {system: "url", use: "work", value: url}
     if (!organisation.telecom) {
       organisation.telecom = []
     }
-    organisation.telecom?.push(telecom)
+    const urlEntryAbsent: boolean = organisation.telecom.filter(entry => entry.system === "url").length === 0
+    if (urlEntryAbsent) {
+      const telecom: ContactPoint = {system: "url", use: "work", value: url}
+      organisation.telecom.push(telecom)
+    }
   }
 
   filterAndTypeBundleEntries<T>(bundle: Bundle, filter: (entry: Entry) => boolean): Array<T> {
