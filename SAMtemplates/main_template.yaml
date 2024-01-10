@@ -22,8 +22,8 @@ Globals:
         SpinePartyKeyARN: !ImportValue account-resources:SpinePartyKey
         SpineCAChainARN: !ImportValue account-resources:SpineCAChain
         ServiceSearchApiKeyARN: !ImportValue account-resources:ServiceSearchApiKey
-    # Layers:
-    #   - !Sub "arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:38"
+    Layers:
+      - !Sub "arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:38"
 
 Parameters:
   TargetSpineServer:

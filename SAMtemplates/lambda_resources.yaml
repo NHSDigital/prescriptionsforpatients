@@ -74,8 +74,9 @@ Resources:
             Principal:
               Service: "lambda.amazonaws.com"
             Action: "sts:AssumeRole"
-      # ManagedPolicyArns:
-      #   - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
+      ManagedPolicyArns:
+        - !ImportValue lambda-resources:LambdaInsightsLogGroupPolicy
+        - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
   LambdaPolicy:
     Type: "AWS::IAM::Policy"
     Properties:
