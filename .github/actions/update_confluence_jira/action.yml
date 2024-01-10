@@ -14,6 +14,9 @@ inputs:
     required: true
     description: "whether to create rc release notes page instead of normal release notes"
     default: "false"
+  DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE:
+    required: true
+    description: "The role to assume to execute the release notes lambda"
   DEV_CLOUD_FORMATION_DEPLOY_ROLE:
     required: true
     description: "The dev cloud formation deploy role"
@@ -34,7 +37,7 @@ runs:
       with:
         aws-region: eu-west-2
         role-to-assume: ${{ inputs.TARGET_CLOUD_FORMATION_DEPLOY_ROLE }}
-        role-session-name: github-actions
+        role-session-name: account-resources-release-notes-target
     - name: Get deployed tag on target
       shell: bash
       run: |
@@ -51,7 +54,7 @@ runs:
       with:
         aws-region: eu-west-2
         role-to-assume: ${{ inputs.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
-        role-session-name: github-actions
+        role-session-name: account-resources-release-notes-dev
     - name: get current dev tag
       shell: bash
       run: |
@@ -62,6 +65,14 @@ runs:
           export dev_tag="dev_tag"
         fi
         echo "dev_tag=${dev_tag}" >> "$GITHUB_ENV"
+    - name: connect to dev account to run release notes lambda
+      if: inputs.DRY_RUN != 'true'
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: eu-west-2
+        role-to-assume: ${{ inputs.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
+        role-session-name: account-resources-release-notes-run-lambda
+        unset-current-credentials: true
     - name: create int release notes
       shell: bash
       if: inputs.TARGET_ENVIRONMENT == 'int' && inputs.CREATE_RC_RELEASE_NOTES == 'false'
@@ -80,7 +91,8 @@ runs:
         EOF
         cat payload.json
         if [ "${{ inputs.DRY_RUN}}" != "true" ]; then
-          aws lambda invoke --function-name release-notes-createReleaseNotes \
+          function_arn=$(aws cloudformation list-exports --query "Exports[?Name=='release-notes:CreateReleaseNotesLambdaArn'].Value" --output text)
+          aws lambda invoke --function-name "${function_arn}" \
           --cli-binary-format raw-in-base64-out \
           --payload file://payload.json out.txt
         fi
@@ -105,7 +117,8 @@ runs:
         EOF
         cat payload.json
         if [ "${{ inputs.DRY_RUN}}" != "true" ]; then
-          aws lambda invoke --function-name release-notes-createReleaseNotes \
+          function_arn=$(aws cloudformation list-exports --query "Exports[?Name=='release-notes:CreateReleaseNotesLambdaArn'].Value" --output text)
+          aws lambda invoke --function-name "${function_arn}" \
           --cli-binary-format raw-in-base64-out \
           --payload file://payload.json out.txt
         fi
@@ -127,7 +140,8 @@ runs:
         EOF
         cat payload.json
         if [ "${{ inputs.DRY_RUN}}" != "true" ]; then
-          aws lambda invoke --function-name release-notes-createReleaseNotes \
+          function_arn=$(aws cloudformation list-exports --query "Exports[?Name=='release-notes:CreateReleaseNotesLambdaArn'].Value" --output text)
+          aws lambda invoke --function-name "${function_arn}" \
             --cli-binary-format raw-in-base64-out \
             --payload file://payload.json out.txt
         fi
