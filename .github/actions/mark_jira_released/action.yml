@@ -4,7 +4,7 @@ inputs:
   RELEASE_TAG:
     required: false
     description: "The tag we are marking as released in jira"
-  DEV_CLOUD_FORMATION_DEPLOY_ROLE:
+  DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE:
     required: true
     description: "The dev cloud formation deploy role"
   DRY_RUN:
@@ -20,8 +20,8 @@ runs:
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-region: eu-west-2
-        role-to-assume: ${{ inputs.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
-        role-session-name: github-actions
+        role-to-assume: ${{ inputs.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
+        role-session-name: account-resources-release-notes-run-lambda
     - name: create markJiraReleased payload
       shell: bash
       run: |
@@ -34,7 +34,8 @@ runs:
         EOF
         cat payload.json
         if [ "${{ inputs.DRY_RUN}}" != "true" ]; then
-          aws lambda invoke --function-name MarkJiraReleased \
+          function_arn=$(aws cloudformation list-exports --query "Exports[?Name=='release-notes:MarkJiraReleasedLambdaArn'].Value" --output text)
+          aws lambda invoke --function-name "${function_arn}" \
           --cli-binary-format raw-in-base64-out \
           --payload file://payload.json out.txt
         fi
