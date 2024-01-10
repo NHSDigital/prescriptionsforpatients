@@ -6,7 +6,6 @@ This is the AWS layer that provides an API for accessing prescription informatio
 It is called by an Apigee proxy that is defined at https://github.com/NHSDigital/prescriptions-for-patients
 
 - `packages/getMyPrescriptions/` Get prescription details for /Bundle endpoint.
-- `packages/splunkProcessor/` Processes CloudWatch logs for Splunk.
 - `packages/sandbox/` Returns [static data](./packages/sandbox/examples/GetMyPrescriptions/Bundle/success.json) from the Sandbox.
 - `packages/middleware/` A modified [middy-error-handler](https://github.com/schibsted/middy-error-handler) to return FHIR responses.
 - `packages/statusLambda/` Returns the status of the getMyPrescriptions endpoint.
