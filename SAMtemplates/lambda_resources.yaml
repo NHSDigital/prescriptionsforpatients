@@ -75,7 +75,7 @@ Resources:
               Service: "lambda.amazonaws.com"
             Action: "sts:AssumeRole"
       ManagedPolicyArns:
-        - !ImportValue account-resources:LambdaInsightsLogGroupPolicy
+        - !ImportValue lambda-resources:LambdaInsightsLogGroupPolicy
   LambdaPolicy:
     Type: "AWS::IAM::Policy"
     Properties:
