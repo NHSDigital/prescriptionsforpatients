@@ -18,7 +18,6 @@
     "packages/getMyPrescriptions",
     "packages/middleware",
     "packages/sandbox",
-    "packages/splunkProcessor",
     "packages/statusLambda",
     "packages/spineClient",
     "packages/serviceSearchClient",

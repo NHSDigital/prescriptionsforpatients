@@ -66,12 +66,10 @@ sam-list-outputs: guard-AWS_DEFAULT_PROFILE guard-stack_name
 
 sam-validate: 
 	sam validate --template-file SAMtemplates/main_template.yaml --region eu-west-2
-	sam validate --template-file SAMtemplates/splunk_firehose_resources.yaml --region eu-west-2
 	sam validate --template-file SAMtemplates/lambda_resources.yaml --region eu-west-2
 
 sam-validate-sandbox: 
 	sam validate --template-file SAMtemplates/sandbox_template.yaml --region eu-west-2
-	sam validate --template-file SAMtemplates/splunk_firehose_resources.yaml --region eu-west-2
 	sam validate --template-file SAMtemplates/lambda_resources.yaml --region eu-west-2
 
 sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role guard-LATEST_TRUSTSTORE_VERSION guard-enable_mutual_tls guard-SPLUNK_HEC_TOKEN guard-SPLUNK_HEC_ENDPOINT guard-VERSION_NUMBER guard-COMMIT_ID guard-LOG_LEVEL guard-LOG_RETENTION_DAYS guard-TARGET_ENVIRONMENT guard-target_spine_server guard-target_service_search_server
@@ -116,15 +114,11 @@ lint-node: compile-node
 	npm run lint --workspace packages/getMyPrescriptions
 	npm run lint --workspace packages/middleware
 	npm run lint --workspace packages/sandbox
-	npm run lint --workspace packages/splunkProcessor
 	npm run lint --workspace packages/statusLambda
 	npm run lint --workspace packages/spineClient
 	npm run lint --workspace packages/serviceSearchClient
 	npm run lint --workspace packages/common/testing
 	npm run lint --workspace packages/distanceSelling
-
-lint-cloudformation:
-	poetry run cfn-lint -t cloudformation/*.yml
 
 lint-samtemplates:
 	poetry run cfn-lint -t SAMtemplates/*.yaml
@@ -135,7 +129,7 @@ lint-python:
 lint-githubactions:
 	actionlint
 
-lint: lint-node lint-cloudformation lint-samtemplates lint-python
+lint: lint-node lint-samtemplates lint-python
 
 test: compile
 	npm run test --workspace packages/capabilityStatement
@@ -145,7 +139,6 @@ test: compile
 	npm run test --workspace packages/statusLambda
 	npm run test --workspace packages/spineClient
 	npm run test --workspace packages/serviceSearchClient
-	npm run test --workspace packages/splunkProcessor
 	npm run test --workspace packages/distanceSelling
 
 clean:
@@ -156,7 +149,6 @@ clean:
 	rm -rf packages/spineClient/coverage
 	rm -rf packages/serviceSearchClient/coverage
 	rm -rf packages/distanceSelling/coverage
-	rm -rf packages/splunkProcessor/coverage
 	rm -rf packages/statusLambda/coverage
 	rm -rf packages/common/testing/coverage
 	rm -rf packages/capabilityStatement/lib
@@ -166,7 +158,6 @@ clean:
 	rm -rf packages/spineClient/lib
 	rm -rf packages/serviceSearchClient/lib
 	rm -rf packages/distanceSelling/lib
-	rm -rf packages/splunkProcessor/lib
 	rm -rf packages/statusLambda/lib
 	rm -rf packages/getSecretLayer/lib
 	rm -rf packages/common/testing/lib
@@ -184,7 +175,6 @@ check-licenses-node:
 	npm run check-licenses --workspace packages/capabilityStatement
 	npm run check-licenses --workspace packages/sandbox
 	npm run check-licenses --workspace packages/middleware
-	npm run check-licenses --workspace packages/splunkProcessor
 	npm run check-licenses --workspace packages/statusLambda
 	npm run check-licenses --workspace packages/spineClient
 	npm run check-licenses --workspace packages/serviceSearchClient
