@@ -120,9 +120,6 @@ lint-node: compile-node
 	npm run lint --workspace packages/common/testing
 	npm run lint --workspace packages/distanceSelling
 
-lint-cloudformation:
-	poetry run cfn-lint -t cloudformation/*.yml
-
 lint-samtemplates:
 	poetry run cfn-lint -t SAMtemplates/*.yaml
 
@@ -132,7 +129,7 @@ lint-python:
 lint-githubactions:
 	actionlint
 
-lint: lint-node lint-cloudformation lint-samtemplates lint-python
+lint: lint-node lint-samtemplates lint-python
 
 test: compile
 	npm run test --workspace packages/capabilityStatement
