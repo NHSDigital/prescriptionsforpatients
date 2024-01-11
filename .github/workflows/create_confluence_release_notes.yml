@@ -9,21 +9,6 @@ on:
       TARGET_TAG:
         required: false
         type: string
-      MARK_JIRA_RELEASED:
-        required: true
-        type: boolean
-      CONFLUENCE_PAGE_ID:
-        required: true
-        type: string
-      CREATE_RC_RELEASE_NOTES:
-        required: true
-        type: boolean
-      RELEASE_VERSION:
-        required: false
-        type: string 
-      PAUSE_PIPELINE:
-        required: true
-        type: string 
     secrets:
       DEV_CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
@@ -34,7 +19,6 @@ on:
 jobs:
   create_confluence_release_notes:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.PAUSE_PIPELINE }}
     permissions:
       id-token: write
       contents: read
@@ -96,13 +80,6 @@ jobs:
           role-to-assume: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
           role-session-name: github-actions
                     
-      - name: Call to markJiraReleased lambda
-        run: |
-          if [ -n "${{ inputs.RELEASE_VERSION }}" ]; then
-            release_version="PfP-AWS-${{ inputs.RELEASE_VERSION }}"
-            aws lambda invoke --function-name MarkJiraReleased --payload "{\"releaseVersion\": \"$release_version\"}" out.txt
-          fi
-
       - shell: bash
         name: get dev tag
         run: |
@@ -112,7 +89,7 @@ jobs:
 
       - shell: bash
         name: create int release notes
-        if: inputs.TARGET_ENVIRONMENT == 'int' && inputs.CREATE_RC_RELEASE_NOTES == false
+        if: inputs.TARGET_ENVIRONMENT == 'int'
         run: |
           ENV_VAR=release-notes:CreateReleaseNotesLambdaName
           RELEASE_NOTES_LAMBDA=$(aws cloudformation list-exports \
@@ -127,32 +104,6 @@ jobs:
               "productName": "Prescritpions for Patients AWS layer", 
               "releaseNotesPageId": "693750027", 
               "releaseNotesPageTitle": "Current PfP AWS layer release notes - INT"
-          }
-          EOF
-          cat payload.json
-          aws lambda invoke --function-name "${RELEASE_NOTES_LAMBDA}" \
-          --cli-binary-format raw-in-base64-out \
-          --payload file://payload.json out.txt
-
-      - shell: bash
-        name: create int rc release notes
-        if: inputs.TARGET_ENVIRONMENT == 'int' && inputs.CREATE_RC_RELEASE_NOTES == true
-        run: |
-          ENV_VAR=release-notes:CreateReleaseNotesLambdaName
-          RELEASE_NOTES_LAMBDA=$(aws cloudformation list-exports \
-            --query "Exports[?Name=='$ENV_VAR'].Value" \
-            --output text)
-          cat <<EOF > payload.json
-          { 
-              "currentTag": "$current_tag", 
-              "targetTag": "$target_tag", 
-              "repoName": "prescriptionsforpatients", 
-              "targetEnvironment": "INT", 
-              "productName": "Prescritpions for Patients AWS layer", 
-              "releaseNotesPageId": "710051481", 
-              "releaseNotesPageTitle": "PfP-AWS-$dev_tag - Deployed to [INT] on $(date +'%d-%m-%y')",
-              "createReleaseCandidate": "true",
-              "releasePrefix": "PfP-AWS-"
           }
           EOF
           cat payload.json
