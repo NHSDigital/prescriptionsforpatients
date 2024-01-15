@@ -71,6 +71,22 @@ jobs:
     permissions:
       id-token: write
       contents: read
+    env:
+      artifact_bucket_prefix: prescriptions_for_patients/${{ inputs.ARTIFACT_BUCKET_PREFIX }}
+      COMMIT_ID: ${{ inputs.COMMIT_ID }}
+      deploy_sandbox: ${{ inputs.DEPLOY_SANDBOX }}
+      enable_mutual_tls: ${{ inputs.ENABLE_MUTUAL_TLS }}
+      LOG_LEVEL: ${{ inputs.LOG_LEVEL }}
+      LOG_RETENTION_DAYS: ${{ inputs.LOG_RETENTION_DAYS }}
+      SPLUNK_HEC_ENDPOINT: ${{ vars.SPLUNK_STRUCTURED_ENDPOINT }}
+      SPLUNK_HEC_TOKEN: ${{ secrets.SPLUNK_HEC_TOKEN }}
+      stack_name: ${{ inputs.STACK_NAME }}
+      TARGET_ENVIRONMENT: ${{ inputs.TARGET_ENVIRONMENT }}
+      target_service_search_server: ${{ secrets.TARGET_SERVICE_SEARCH_SERVER }}
+      target_spine_server: ${{ secrets.TARGET_SPINE_SERVER }}
+      template_file: template.yaml
+      TRUSTSTORE_FILE: ${{ inputs.TRUSTSTORE_FILE }}
+      VERSION_NUMBER: ${{ inputs.VERSION_NUMBER }}
     steps:
       - name: Checkout local github actions
         uses: actions/checkout@v4
@@ -105,19 +121,10 @@ jobs:
       - shell: bash
         name: release code
         run: |
-          echo ${{ inputs.COMMIT_ID }}
+          echo "$COMMIT_ID"
           artifact_bucket=$(aws cloudformation list-exports --output json | \
             jq -r '.Exports[] | select(.Name == "account-resources:ArtifactsBucket") | .Value' |grep -o '[^:]*$')
           export artifact_bucket
-          export artifact_bucket_prefix=prescriptions_for_patients/${{ inputs.ARTIFACT_BUCKET_PREFIX }}
-          export template_file=template.yaml
-          export stack_name=${{ inputs.STACK_NAME }}
-          export SPLUNK_HEC_ENDPOINT=${{ vars.SPLUNK_STRUCTURED_ENDPOINT }}
-          export SPLUNK_HEC_TOKEN=${{ secrets.SPLUNK_HEC_TOKEN }}
-          export target_spine_server=${{ secrets.TARGET_SPINE_SERVER }}
-          export target_service_search_server=${{ secrets.TARGET_SERVICE_SEARCH_SERVER }}
-          export VERSION_NUMBER=${{ inputs.VERSION_NUMBER }}
-          export COMMIT_ID=${{ inputs.COMMIT_ID }}
           cloud_formation_execution_role=$(aws cloudformation list-exports --output json | \
               jq -r '.Exports[] | select(.Name == "ci-resources:CloudFormationExecutionRole") | .Value' )
           export cloud_formation_execution_role
@@ -127,15 +134,10 @@ jobs:
           TRUSTSTORE_BUCKET_NAME=$(echo "${TRUSTSTORE_BUCKET_ARN}" | cut -d ":" -f 6)
           LATEST_TRUSTSTORE_VERSION=$(aws s3api list-object-versions \
             --bucket "${TRUSTSTORE_BUCKET_NAME}" \
-            --prefix ${{ inputs.TRUSTSTORE_FILE }} \
+            --prefix "${TRUSTSTORE_FILE}" \
             --query 'Versions[?IsLatest].[VersionId]' --output text)
           export LATEST_TRUSTSTORE_VERSION
-          export enable_mutual_tls=${{ inputs.ENABLE_MUTUAL_TLS }}
-          export LOG_LEVEL=${{ inputs.LOG_LEVEL }}
-          export deploy_sandbox=${{ inputs.DEPLOY_SANDBOX }}
-          export LOG_RETENTION_DAYS=${{ inputs.LOG_RETENTION_DAYS }}
-          export TARGET_ENVIRONMENT=${{ inputs.TARGET_ENVIRONMENT }}
-          cd .aws-sam/build
+          cd .aws-sam/build || exit
           make sam-deploy-package
       - name: create_int_release_notes
         uses: ./.github/actions/update_confluence_jira
