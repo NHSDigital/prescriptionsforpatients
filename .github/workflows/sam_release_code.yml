@@ -87,6 +87,10 @@ jobs:
       template_file: template.yaml
       TRUSTSTORE_FILE: ${{ inputs.TRUSTSTORE_FILE }}
       VERSION_NUMBER: ${{ inputs.VERSION_NUMBER }}
+    defaults:
+      run:
+        working-directory: ./.github/scripts
+
     steps:
       - name: Checkout local github actions
         uses: actions/checkout@v4
@@ -95,6 +99,7 @@ jobs:
           fetch-depth: 0
           sparse-checkout: |
             .github/actions
+      
       - name: create_int_rc_release_notes
         uses: ./.github/actions/update_confluence_jira
         if: ${{ inputs.CREATE_INT_RC_RELEASE_NOTES == true }}
@@ -105,6 +110,7 @@ jobs:
           CREATE_RC_RELEASE_NOTES: true
           DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
           TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -112,33 +118,16 @@ jobs:
           role-to-assume: ${{ secrets.CLOUD_FORMATION_DEPLOY_ROLE }}
           role-session-name: github-actions
 
-      - uses: actions/download-artifact@v4
-        name: download build artifact
+      - name: download build artifact
+        uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.BUILD_ARTIFACT }}
           path: .
 
-      - shell: bash
-        name: release code
-        run: |
-          echo "$COMMIT_ID"
-          artifact_bucket=$(aws cloudformation list-exports --output json | \
-            jq -r '.Exports[] | select(.Name == "account-resources:ArtifactsBucket") | .Value' |grep -o '[^:]*$')
-          export artifact_bucket
-          cloud_formation_execution_role=$(aws cloudformation list-exports --output json | \
-              jq -r '.Exports[] | select(.Name == "ci-resources:CloudFormationExecutionRole") | .Value' )
-          export cloud_formation_execution_role
-          TRUSTSTORE_BUCKET_ARN=$(aws cloudformation describe-stacks \
-            --stack-name account-resources \
-            --query 'Stacks[0].Outputs[?OutputKey==`TrustStoreBucket`].OutputValue' --output text)
-          TRUSTSTORE_BUCKET_NAME=$(echo "${TRUSTSTORE_BUCKET_ARN}" | cut -d ":" -f 6)
-          LATEST_TRUSTSTORE_VERSION=$(aws s3api list-object-versions \
-            --bucket "${TRUSTSTORE_BUCKET_NAME}" \
-            --prefix "${TRUSTSTORE_FILE}" \
-            --query 'Versions[?IsLatest].[VersionId]' --output text)
-          export LATEST_TRUSTSTORE_VERSION
-          cd .aws-sam/build || exit
-          make sam-deploy-package
+      - name: release code
+        shell: bash
+        run: ./release_code.sh
+
       - name: create_int_release_notes
         uses: ./.github/actions/update_confluence_jira
         if: ${{ inputs.CREATE_INT_RELEASE_NOTES == true && always() && !failure() && !cancelled() }}
@@ -148,6 +137,7 @@ jobs:
           CREATE_RC_RELEASE_NOTES: false
           DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
           TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
+
       - name: create_prod_release_notes
         uses: ./.github/actions/update_confluence_jira
         if: ${{ inputs.CREATE_PROD_RELEASE_NOTES == true && always() && !failure() && !cancelled() }}
@@ -157,6 +147,7 @@ jobs:
           CREATE_RC_RELEASE_NOTES: false
           DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
           TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
+
       - name: mark_released_in_jira
         uses: ./.github/actions/mark_jira_released
         if: ${{ inputs.MARK_JIRA_RELEASED == true && always() && !failure() && !cancelled() }}
