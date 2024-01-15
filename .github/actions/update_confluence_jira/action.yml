@@ -17,10 +17,10 @@ inputs:
   DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE:
     required: true
     description: "The role to assume to execute the release notes lambda"
-  DEV_CLOUD_FORMATION_DEPLOY_ROLE:
+  DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE:
     required: true
     description: "The dev cloud formation deploy role"
-  TARGET_CLOUD_FORMATION_DEPLOY_ROLE:
+  TARGET_CLOUD_FORMATION_CHECK_VERSION_ROLE:
     required: true
     description: "The target cloud formation deploy role"
   DRY_RUN:
@@ -36,7 +36,7 @@ runs:
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-region: eu-west-2
-        role-to-assume: ${{ inputs.TARGET_CLOUD_FORMATION_DEPLOY_ROLE }}
+        role-to-assume: ${{ inputs.TARGET_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
         role-session-name: account-resources-release-notes-target
     - name: Get deployed tag on target
       shell: bash
@@ -53,7 +53,7 @@ runs:
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-region: eu-west-2
-        role-to-assume: ${{ inputs.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+        role-to-assume: ${{ inputs.DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
         role-session-name: account-resources-release-notes-dev
     - name: get current dev tag
       shell: bash
