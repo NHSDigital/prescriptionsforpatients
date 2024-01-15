@@ -65,23 +65,33 @@ Conditions:
 
 Resources:
   LambdaRole:
-    Type: "AWS::IAM::Role"
+    Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: "2012-10-17"
+        Version: 2012-10-17
         Statement:
           - Effect: Allow
             Principal:
-              Service: "lambda.amazonaws.com"
-            Action: "sts:AssumeRole"
+              Service: lambda.amazonaws.com
+            Action:
+            - sts:AssumeRole
       ManagedPolicyArns:
         - !ImportValue lambda-resources:LambdaInsightsLogGroupPolicy
+        - !ImportValue lambda-resources:LambdaEncryptCloudwatchKMSPolicy
+        - !ImportValue account-resources:LambdaDecryptSecretsKMSPolicy
+        - !If
+          - AllowAccessToSpine
+          - !ImportValue account-resources:LambdaAccessSecretsPolicy
+          - !Ref AWS::NoValue
+
   LambdaPolicy:
-    Type: "AWS::IAM::Policy"
+    Type: AWS::IAM::ManagedPolicy
     Properties:
-      PolicyName: "allow-lambda-logging"
+      ManagedPolicyName: allow-lambda-logging
+      Roles:
+        - !Ref LambdaRole
       PolicyDocument:
-        Version: "2012-10-17"
+        Version: 2012-10-17
         Statement:
           - Effect: Allow
             Action:
@@ -90,65 +100,14 @@ Resources:
             Resource:
               - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${LambdaLogGroup}"
               - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${LambdaLogGroup}:log-stream:*"
-      Roles:
-        - !Ref LambdaRole
-  LambdaKMSPolicy:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: "allow-CloudWatchKMS-access"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - kms:DescribeKey
-              - kms:GenerateDataKey*
-              - kms:Encrypt
-              - kms:ReEncrypt*
-            Resource:
-              - !Ref CloudWatchKMSKey
-      Roles:
-        - !Ref LambdaRole
-  LambdaSecretsKMSPolicy:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: "allow-SecretsKMS-access"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - kms:Decrypt
-            Resource:
-              - !ImportValue account-resources:SecretsKMSKey
-      Roles:
-        - !Ref LambdaRole
-  LambdaSecretsPolicy:
-    Condition: AllowAccessToSpine
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: "allow-access-to-spine-secrets"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - secretsmanager:GetSecretValue
-            Resource:
-              - !ImportValue account-resources:SpinePrivateKey
-              - !ImportValue account-resources:SpinePublicCertificate
-              - !ImportValue account-resources:SpineASID
-              - !ImportValue account-resources:SpinePartyKey
-              - !ImportValue account-resources:SpineCAChain
-              - !ImportValue account-resources:ServiceSearchApiKey
-      Roles:
-        - !Ref LambdaRole
+
   LambdaLogGroup:
-    Type: "AWS::Logs::LogGroup"
+    Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Sub "/aws/lambda/${LambdaName}"
       RetentionInDays: !Ref LogRetentionDays
       KmsKeyId: !Ref CloudWatchKMSKey
+
   LambdaSplunkSubscriptionFilter:
     Condition: ShouldUseSplunk
     Type: AWS::Logs::SubscriptionFilter
