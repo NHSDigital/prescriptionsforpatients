@@ -6,7 +6,7 @@ select ( .StackStatus != "DELETE_COMPLETE" ) |
 select( .StackName | capture("^pr-(sandbox-)?(\\d+)$") ) 
 | .StackName ')
 
-ACTIVE_STACKS_ARRAY=( $ACTIVE_STACKS )
+ACTIVE_STACKS_ARRAY=( "$ACTIVE_STACKS" )
 
 for i in "${ACTIVE_STACKS_ARRAY[@]}"
 do 
@@ -15,11 +15,11 @@ do
     PULL_REQUEST=${PULL_REQUEST//sandbox-/}
     echo "Checking pull request id ${PULL_REQUEST}"
     URL="https://api.github.com/repos/NHSDigital/prescriptionsforpatients/pulls/${PULL_REQUEST}"
-    RESPONSE=$(curl ${URL} 2>/dev/null)
-    STATE=$(echo ${RESPONSE} | jq -r .state)
+    RESPONSE=$(curl "${URL}" 2>/dev/null)
+    STATE=$(echo "${RESPONSE}" | jq -r .state)
     if [ "$STATE" == "closed" ]; then
         echo "** going to delete stack $i as state is ${STATE} **"
-        aws cloudformation delete-stack --stack-name ${i}
+        aws cloudformation delete-stack --stack-name "${i}"
     else
         echo "not going to delete stack $i as state is ${STATE}"
     fi
