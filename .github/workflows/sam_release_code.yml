@@ -14,13 +14,13 @@ on:
         type: string
       ENABLE_MUTUAL_TLS:
         required: true
-        type: string
+        type: boolean
       BUILD_ARTIFACT:
         required: true
         type: string
       DEPLOY_SANDBOX:
         required: true
-        type: string
+        type: boolean
       TRUSTSTORE_FILE:
         required: true
         type: string
