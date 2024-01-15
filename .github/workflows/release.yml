@@ -63,11 +63,11 @@ jobs:
           make install-python
 
       - name: Set SPEC_VERSION env var for merges to main
-        run: echo "SPEC_VERSION=$(poetry run python scripts/calculate_version.py)" >> $GITHUB_ENV
+        run: echo "SPEC_VERSION=$(poetry run python scripts/calculate_version.py)" >> "$GITHUB_ENV"
         if: github.ref == 'refs/heads/main'
 
       - name: Set SPEC_VERSION env var for tags
-        run: echo "SPEC_VERSION=${{  github.ref_name }}" >> $GITHUB_ENV
+        run: echo "SPEC_VERSION=${{  github.ref_name }}" >> "$GITHUB_ENV"
         if: github.ref != 'refs/heads/main'
 
       - name: Create release (tags and main)
@@ -91,7 +91,7 @@ jobs:
 
       - name: output SPEC_VERSION
         id: output_spec_version
-        run: echo SPEC_VERSION=${{ env.SPEC_VERSION }} >> $GITHUB_OUTPUT
+        run: echo SPEC_VERSION=${{ env.SPEC_VERSION }} >> "$GITHUB_OUTPUT"
 
   package_code:
     needs: tag_release
