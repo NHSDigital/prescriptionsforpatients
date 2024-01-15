@@ -106,8 +106,9 @@ jobs:
         name: release code
         run: |
           echo ${{ inputs.COMMIT_ID }}
-          export artifact_bucket=$(aws cloudformation list-exports --output json | \
+          artifact_bucket=$(aws cloudformation list-exports --output json | \
             jq -r '.Exports[] | select(.Name == "account-resources:ArtifactsBucket") | .Value' |grep -o '[^:]*$')
+          export artifact_bucket
           export artifact_bucket_prefix=prescriptions_for_patients/${{ inputs.ARTIFACT_BUCKET_PREFIX }}
           export template_file=template.yaml
           export stack_name=${{ inputs.STACK_NAME }}
@@ -117,21 +118,23 @@ jobs:
           export target_service_search_server=${{ secrets.TARGET_SERVICE_SEARCH_SERVER }}
           export VERSION_NUMBER=${{ inputs.VERSION_NUMBER }}
           export COMMIT_ID=${{ inputs.COMMIT_ID }}
-          export cloud_formation_execution_role=$(aws cloudformation list-exports --output json | \
+          cloud_formation_execution_role=$(aws cloudformation list-exports --output json | \
               jq -r '.Exports[] | select(.Name == "ci-resources:CloudFormationExecutionRole") | .Value' )
+          export cloud_formation_execution_role
           TRUSTSTORE_BUCKET_ARN=$(aws cloudformation describe-stacks \
-              --stack-name account-resources \
-              --query 'Stacks[0].Outputs[?OutputKey==`TrustStoreBucket`].OutputValue' --output text)
-          TRUSTSTORE_BUCKET_NAME=$(echo ${TRUSTSTORE_BUCKET_ARN} | cut -d ":" -f 6)
-          export LATEST_TRUSTSTORE_VERSION=$(aws s3api list-object-versions \
-          --bucket ${TRUSTSTORE_BUCKET_NAME} \
-          --prefix ${{ inputs.TRUSTSTORE_FILE }} \
-          --query 'Versions[?IsLatest].[VersionId]' --output text)
+            --stack-name account-resources \
+            --query 'Stacks[0].Outputs[?OutputKey==`TrustStoreBucket`].OutputValue' --output text)
+          TRUSTSTORE_BUCKET_NAME=$(echo "${TRUSTSTORE_BUCKET_ARN}" | cut -d ":" -f 6)
+          LATEST_TRUSTSTORE_VERSION=$(aws s3api list-object-versions \
+            --bucket "${TRUSTSTORE_BUCKET_NAME}" \
+            --prefix ${{ inputs.TRUSTSTORE_FILE }} \
+            --query 'Versions[?IsLatest].[VersionId]' --output text)
+          export LATEST_TRUSTSTORE_VERSION
           export enable_mutual_tls=${{ inputs.ENABLE_MUTUAL_TLS }}
-          export LOG_LEVEL=${{inputs.LOG_LEVEL}}
+          export LOG_LEVEL=${{ inputs.LOG_LEVEL }}
           export deploy_sandbox=${{ inputs.DEPLOY_SANDBOX }}
-          export LOG_RETENTION_DAYS=${{inputs.LOG_RETENTION_DAYS}}
-          export TARGET_ENVIRONMENT=${{inputs.TARGET_ENVIRONMENT}}
+          export LOG_RETENTION_DAYS=${{ inputs.LOG_RETENTION_DAYS }}
+          export TARGET_ENVIRONMENT=${{ inputs.TARGET_ENVIRONMENT }}
           cd .aws-sam/build
           make sam-deploy-package
       - name: create_int_release_notes
