@@ -1,0 +1,22 @@
+name: test_connect_to_other_env
+
+on:
+  pull_request:
+    branches: [main]
+
+env:
+  BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
+
+jobs:
+  connect_to_int:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: eu-west-2
+          role-to-assume: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
+          role-session-name: github-actions
+
+          
