@@ -67,7 +67,7 @@ jobs:
         if: github.ref == 'refs/heads/main'
 
       - name: Set SPEC_VERSION env var for tags
-        run: echo "SPEC_VERSION=${{  github.ref_name }}" >> "$GITHUB_ENV"
+        run: echo "SPEC_VERSION=${{ github.ref_name }}" >> "$GITHUB_ENV"
         if: github.ref != 'refs/heads/main'
 
       - name: Create release (tags and main)

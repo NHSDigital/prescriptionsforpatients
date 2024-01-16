@@ -73,25 +73,6 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    env:
-      artifact_bucket_prefix: prescriptions_for_patients/${{ inputs.ARTIFACT_BUCKET_PREFIX }}
-      COMMIT_ID: ${{ inputs.COMMIT_ID }}
-      deploy_sandbox: ${{ inputs.DEPLOY_SANDBOX }}
-      enable_mutual_tls: ${{ inputs.ENABLE_MUTUAL_TLS }}
-      LOG_LEVEL: ${{ inputs.LOG_LEVEL }}
-      LOG_RETENTION_DAYS: ${{ inputs.LOG_RETENTION_DAYS }}
-      SPLUNK_HEC_ENDPOINT: ${{ vars.SPLUNK_STRUCTURED_ENDPOINT }}
-      SPLUNK_HEC_TOKEN: ${{ secrets.SPLUNK_HEC_TOKEN }}
-      stack_name: ${{ inputs.STACK_NAME }}
-      TARGET_ENVIRONMENT: ${{ inputs.TARGET_ENVIRONMENT }}
-      target_service_search_server: ${{ secrets.TARGET_SERVICE_SEARCH_SERVER }}
-      target_spine_server: ${{ secrets.TARGET_SPINE_SERVER }}
-      template_file: template.yaml
-      TRUSTSTORE_FILE: ${{ inputs.TRUSTSTORE_FILE }}
-      VERSION_NUMBER: ${{ inputs.VERSION_NUMBER }}
-    defaults:
-      run:
-        working-directory: ./.github/scripts
 
     steps:
       - name: Checkout local github actions
@@ -101,7 +82,7 @@ jobs:
           fetch-depth: 0
           sparse-checkout: |
             .github/actions
-      
+
       - name: create_int_rc_release_notes
         uses: ./.github/actions/update_confluence_jira
         if: ${{ inputs.CREATE_INT_RC_RELEASE_NOTES == true }}
@@ -113,6 +94,7 @@ jobs:
           DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
           TARGET_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.INT_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
           DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -128,6 +110,23 @@ jobs:
 
       - name: release code
         shell: bash
+        working-directory: .github/scripts
+        env:
+          artifact_bucket_prefix: prescriptions_for_patients/${{ inputs.ARTIFACT_BUCKET_PREFIX }}
+          COMMIT_ID: ${{ inputs.COMMIT_ID }}
+          deploy_sandbox: ${{ inputs.DEPLOY_SANDBOX }}
+          enable_mutual_tls: ${{ inputs.ENABLE_MUTUAL_TLS }}
+          LOG_LEVEL: ${{ inputs.LOG_LEVEL }}
+          LOG_RETENTION_DAYS: ${{ inputs.LOG_RETENTION_DAYS }}
+          SPLUNK_HEC_ENDPOINT: ${{ vars.SPLUNK_STRUCTURED_ENDPOINT }}
+          SPLUNK_HEC_TOKEN: ${{ secrets.SPLUNK_HEC_TOKEN }}
+          stack_name: ${{ inputs.STACK_NAME }}
+          TARGET_ENVIRONMENT: ${{ inputs.TARGET_ENVIRONMENT }}
+          target_service_search_server: ${{ secrets.TARGET_SERVICE_SEARCH_SERVER }}
+          target_spine_server: ${{ secrets.TARGET_SPINE_SERVER }}
+          template_file: template.yaml
+          TRUSTSTORE_FILE: ${{ inputs.TRUSTSTORE_FILE }}
+          VERSION_NUMBER: ${{ inputs.VERSION_NUMBER }}
         run: ./release_code.sh
 
       - name: create_int_release_notes
@@ -140,6 +139,7 @@ jobs:
           DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
           TARGET_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.INT_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
           DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
+
       - name: create_prod_release_notes
         uses: ./.github/actions/update_confluence_jira
         if: ${{ inputs.CREATE_PROD_RELEASE_NOTES == true && always() && !failure() && !cancelled() }}
@@ -150,6 +150,7 @@ jobs:
           DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
           TARGET_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.INT_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
           DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
+
       - name: mark_released_in_jira
         uses: ./.github/actions/mark_jira_released
         if: ${{ inputs.MARK_JIRA_RELEASED == true && always() && !failure() && !cancelled() }}
