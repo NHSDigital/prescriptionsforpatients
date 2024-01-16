@@ -25,10 +25,6 @@
 			"path": "../packages/middleware"
 		},
 		{
-			"name": "packages/splunkProcessor",
-			"path": "../packages/splunkProcessor"
-		},
-		{
 			"name": "packages/statusLambda",
 			"path": "../packages/statusLambda"
 		},

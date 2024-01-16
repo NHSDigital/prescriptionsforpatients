@@ -32,14 +32,6 @@ repos:
         types_or: [ts, tsx, javascript, jsx, json]
         pass_filenames: false
 
-      - id: lint-splunkProcessor
-        name: Lint Splunk Processor
-        entry: npm
-        args: ["run", "--prefix=packages/splunkProcessor", "lint"]
-        language: system
-        files: ^packages\/splunkProcessor
-        types_or: [ts, tsx, javascript, jsx, json]
-        pass_filenames: false
 
       - id: lint-middleware
         name: Lint Middleware
