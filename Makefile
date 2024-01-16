@@ -135,7 +135,10 @@ lint-python:
 lint-githubactions:
 	actionlint
 
-lint: lint-node lint-cloudformation lint-samtemplates lint-python
+lint-githubaction-scripts:
+	shellcheck .github/scripts/*.sh
+
+lint: lint-node lint-cloudformation lint-samtemplates lint-python lint-githubactions lint-githubaction-scripts
 
 test: compile
 	npm run test --workspace packages/capabilityStatement
