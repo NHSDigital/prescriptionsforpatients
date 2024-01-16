@@ -10,6 +10,9 @@ env:
 jobs:
   connect_to_int:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
       - name: Configure AWS Credentials
