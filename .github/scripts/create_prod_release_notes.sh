@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 
-# shellcheck disable=SC2154
-
 ENV_VAR=release-notes:CreateReleaseNotesLambdaName
 RELEASE_NOTES_LAMBDA=$(aws cloudformation list-exports --query "Exports[?Name=='$ENV_VAR'].Value" --output text)
 
+# shellcheck disable=SC2154
 cat <<EOF > payload.json
 { 
   "currentTag": "$target_tag",
