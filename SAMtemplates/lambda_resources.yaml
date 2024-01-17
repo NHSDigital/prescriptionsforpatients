@@ -87,7 +87,6 @@ Resources:
   LambdaPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
-      ManagedPolicyName: allow-lambda-logging
       Roles:
         - !Ref LambdaRole
       PolicyDocument:
