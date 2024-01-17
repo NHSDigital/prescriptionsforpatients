@@ -47,6 +47,12 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       this.logger.info("serviceSearch request duration", {serviceSearch_duration: currentTime - startTime})
 
       return response
+    }, (response) => {
+      const currentTime = new Date().getTime()
+      const startTime = response.config.headers["request-startTime"]
+      this.logger.info("serviceSearch request duration", {serviceSearch_duration: currentTime - startTime})
+
+      return Promise.reject(response)
     })
 
     this.outboundHeaders = {
