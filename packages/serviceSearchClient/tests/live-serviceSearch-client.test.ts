@@ -89,11 +89,22 @@ describe("live serviceSearch client", () => {
     await expect(serviceSearchClient.searchService("")).rejects.toThrow("Request failed with status code 500")
   })
 
-  test("successful log response time", async () => {
+  test("log response time on successful call", async () => {
     mock.onGet(serviceSearchUrl).reply(200, {value: []})
     const mockLoggerInfo = jest.spyOn(Logger.prototype, "info")
 
     await serviceSearchClient.searchService("")
+
+    expect(mockLoggerInfo).toHaveBeenCalledWith(
+      "serviceSearch request duration", {"serviceSearch_duration": expect.any(Number)}
+    )
+  })
+
+  test("log response time on unsuccessful call", async () => {
+    mock.onGet(serviceSearchUrl).reply(401, {value: []})
+    const mockLoggerInfo = jest.spyOn(Logger.prototype, "info")
+
+    await expect(serviceSearchClient.searchService("")).rejects.toThrow("Request failed with status code 401")
 
     expect(mockLoggerInfo).toHaveBeenCalledWith(
       "serviceSearch request duration", {"serviceSearch_duration": expect.any(Number)}
