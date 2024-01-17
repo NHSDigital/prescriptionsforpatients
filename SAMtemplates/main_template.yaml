@@ -109,7 +109,7 @@ Resources:
     Properties:
       Location: lambda_resources.yaml
       Parameters:
-        CloudWatchKMSKey: !ImportValue lambda-resources:CloudWatchKMSKey
+        CloudWatchKMSKey: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
         SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
         SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
@@ -152,7 +152,7 @@ Resources:
     Properties:
       Location: lambda_resources.yaml
       Parameters:
-        CloudWatchKMSKey: !ImportValue lambda-resources:CloudWatchKMSKey
+        CloudWatchKMSKey: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
         SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
         SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
@@ -188,7 +188,7 @@ Resources:
     Properties:
       Location: lambda_resources.yaml
       Parameters:
-        CloudWatchKMSKey: !ImportValue lambda-resources:CloudWatchKMSKey
+        CloudWatchKMSKey: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
         SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
         SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
