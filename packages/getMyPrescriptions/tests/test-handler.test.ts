@@ -6,6 +6,7 @@ import {
   it,
   jest
 } from "@jest/globals"
+import "./toMatchJsonLogMessage"
 import {ContextExamples} from "@aws-lambda-powertools/commons"
 import {Logger} from "@aws-lambda-powertools/logger"
 import MockAdapter from "axios-mock-adapter"
@@ -339,6 +340,48 @@ describe("Unit tests for app handler including service search", function () {
       "Cache-Control": "no-cache"
     })
   })
+})
+
+it("logs the correct apigw-request-id on multiple calls", async () => {
+  const mockLoggerInfo = jest.spyOn(global.console, "info")
+
+  mock.onGet("https://live/mm/patientfacingprescriptions").reply(200, {statusCode: "0"})
+
+  const event_one: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+  const event_two: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+  event_two.requestContext.requestId = "d6af9ac6-7b61-11e6-9a41-93e8deadbeef"
+  await handler(event_one, dummyContext)
+  await handler(event_two, dummyContext)
+
+  // should have logged event.requestContext.requestId but not apigw-request-id
+  expect(mockLoggerInfo).toHaveBeenCalledWith(
+    expect.toMatchJsonLogMessage("event.requestContext.requestId",
+      "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
+      "apigw-request-id"
+    )
+  )
+
+  expect(mockLoggerInfo).toHaveBeenCalledWith(
+    expect.toMatchJsonLogMessage("event.requestContext.requestId",
+      "d6af9ac6-7b61-11e6-9a41-93e8deadbeef",
+      "apigw-request-id"
+    )
+  )
+
+  // should have logged apigw-request-id on some messages
+  expect(mockLoggerInfo).toHaveBeenCalledWith(
+    expect.toMatchJsonLogMessage("apigw-request-id",
+      "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
+      ""
+    )
+  )
+
+  expect(mockLoggerInfo).toHaveBeenCalledWith(
+    expect.toMatchJsonLogMessage("apigw-request-id",
+      "d6af9ac6-7b61-11e6-9a41-93e8deadbeef",
+      ""
+    )
+  )
 })
 
 export {}

@@ -34,7 +34,7 @@ describe("live spine client", () => {
     expect(spineResponse.data).toStrictEqual({resourceType: "Bundle"})
   })
 
-  test("successful log response time", async () => {
+  test("log response time on successful call", async () => {
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, {resourceType: "Bundle"})
     const mockLoggerInfo = jest.spyOn(Logger.prototype, "info")
     const spineClient = new LiveSpineClient(logger)
@@ -45,6 +45,19 @@ describe("live spine client", () => {
 
     expect(mockLoggerInfo).toHaveBeenCalledWith("spine request duration", {"spine_duration": expect.any(Number)})
   })
+
+  test("log response time on unsuccessful call", async () => {
+    mock.onGet("https://spine/mm/patientfacingprescriptions").reply(401)
+    const mockLoggerInfo = jest.spyOn(Logger.prototype, "info")
+    const spineClient = new LiveSpineClient(logger)
+    const headers: APIGatewayProxyEventHeaders = {
+      "nhsd-nhslogin-user": "P9:9912003071"
+    }
+    await expect(spineClient.getPrescriptions(headers)).rejects.toThrow("Request failed with status code 401")
+
+    expect(mockLoggerInfo).toHaveBeenCalledWith("spine request duration", {"spine_duration": expect.any(Number)})
+  })
+
   test.each<spineFailureTestData>([
     {
       httpResponseCode: 200,
