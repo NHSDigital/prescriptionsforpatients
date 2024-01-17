@@ -77,7 +77,7 @@ Resources:
             - sts:AssumeRole
       ManagedPolicyArns:
         - !ImportValue lambda-resources:LambdaInsightsLogGroupPolicy
-        - !ImportValue lambda-resources:LambdaEncryptCloudwatchKMSPolicy
+        - !ImportValue account-resources:LambdaEncryptCloudwatchKMSPolicy
         - !ImportValue account-resources:LambdaDecryptSecretsKMSPolicy
         - !If
           - AllowAccessToSpine
