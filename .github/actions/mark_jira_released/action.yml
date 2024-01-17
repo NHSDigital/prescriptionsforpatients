@@ -1,5 +1,5 @@
-name: 'Create confluence release notes'
-description: 'Do release note actions in confluence and jira'
+name: "Create confluence release notes"
+description: "Do release note actions in confluence and jira"
 inputs:
   RELEASE_TAG:
     required: false
@@ -38,4 +38,5 @@ runs:
           aws lambda invoke --function-name "${function_arn}" \
           --cli-binary-format raw-in-base64-out \
           --payload file://payload.json out.txt
+          cat out.txt
         fi

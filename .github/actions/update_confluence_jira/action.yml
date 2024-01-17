@@ -1,5 +1,5 @@
-name: 'Create confluence release notes'
-description: 'Do release note actions in confluence and jira'
+name: "Create confluence release notes"
+description: "Do release note actions in confluence and jira"
 inputs:
   TARGET_ENVIRONMENT:
     required: true
@@ -84,7 +84,7 @@ runs:
             "targetTag": "$dev_tag", 
             "repoName": "prescriptionsforpatients", 
             "targetEnvironment": "INT", 
-            "productName": "Prescritpions for Patients AWS layer", 
+            "productName": "Prescriptions for Patients AWS layer", 
             "releaseNotesPageId": "693750027", 
             "releaseNotesPageTitle": "Current PfP AWS layer release notes - INT"
         }
@@ -95,6 +95,7 @@ runs:
           aws lambda invoke --function-name "${function_arn}" \
           --cli-binary-format raw-in-base64-out \
           --payload file://payload.json out.txt
+          cat out.txt
         fi
     - name: create int rc release notes
       shell: bash
@@ -108,7 +109,7 @@ runs:
             "targetTag": "$release_tag", 
             "repoName": "prescriptionsforpatients", 
             "targetEnvironment": "INT", 
-            "productName": "Prescritpions for Patients AWS layer", 
+            "productName": "Prescriptions for Patients AWS layer", 
             "releaseNotesPageId": "710051481", 
             "releaseNotesPageTitle": "PfP-AWS-$release_tag - Deployed to [INT] on $(date +'%d-%m-%y')",
             "createReleaseCandidate": "true",
@@ -121,6 +122,7 @@ runs:
           aws lambda invoke --function-name "${function_arn}" \
           --cli-binary-format raw-in-base64-out \
           --payload file://payload.json out.txt
+          cat out.txt
         fi
     - name: create prod release notes
       shell: bash
@@ -133,7 +135,7 @@ runs:
             "targetTag": "$dev_tag", 
             "repoName": "prescriptionsforpatients", 
             "targetEnvironment": "PROD", 
-            "productName": "Prescritpions for Patients AWS layer", 
+            "productName": "Prescriptions for Patients AWS layer", 
             "releaseNotesPageId": "693750029", 
             "releaseNotesPageTitle": "Current PfP AWS layer release notes - PROD"
         }
@@ -144,4 +146,5 @@ runs:
           aws lambda invoke --function-name "${function_arn}" \
             --cli-binary-format raw-in-base64-out \
             --payload file://payload.json out.txt
+          cat out.txt
         fi
