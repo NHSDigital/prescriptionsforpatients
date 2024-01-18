@@ -38,16 +38,21 @@ runs:
         aws-region: eu-west-2
         role-to-assume: ${{ inputs.TARGET_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
         role-session-name: account-resources-release-notes-target
+
     - name: Get deployed tag on target
       shell: bash
+      env:
+        DRY_RUN: ${{ inputs.DRY_RUN }}
+        TARGET_ENVIRONMENT: ${{ inputs.TARGET_ENVIRONMENT }}
       run: |
         # get current deployed tag on target
-        if [ "${{ inputs.DRY_RUN}}" != "true" ]; then
-          export current_deployed_tag=$(aws cloudformation describe-stacks --stack-name ${{ inputs.TARGET_ENVIRONMENT }}-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
+        if [ "$DRY_RUN" != "true" ]; then
+          export current_deployed_tag=$(aws cloudformation describe-stacks --stack-name $TARGET_ENVIRONMENT-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
         else
           export current_deployed_tag="current_deployed_tag"
         fi
         echo "current_deployed_tag=${current_deployed_tag}" >> "$GITHUB_ENV"
+
     - name: connect to dev account
       if: ${{ inputs.DRY_RUN }} != 'true'
       uses: aws-actions/configure-aws-credentials@v4
@@ -55,16 +60,20 @@ runs:
         aws-region: eu-west-2
         role-to-assume: ${{ inputs.DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
         role-session-name: account-resources-release-notes-dev
+
     - name: get current dev tag
       shell: bash
+      env:
+        DRY_RUN: ${{ inputs.DRY_RUN }}
       run: |
         # get current dev tag
-        if [ "${{ inputs.DRY_RUN}}" != "true" ]; then
+        if [ "$DRY_RUN" != "true" ]; then
           export dev_tag=$(aws cloudformation describe-stacks --stack-name dev-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
         else
           export dev_tag="dev_tag"
         fi
         echo "dev_tag=${dev_tag}" >> "$GITHUB_ENV"
+
     - name: connect to dev account to run release notes lambda
       if: ${{ inputs.DRY_RUN }} != 'true'
       uses: aws-actions/configure-aws-credentials@v4
@@ -73,9 +82,12 @@ runs:
         role-to-assume: ${{ inputs.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
         role-session-name: account-resources-release-notes-run-lambda
         unset-current-credentials: true
+
     - name: create int release notes
       shell: bash
       if: ${{ inputs.TARGET_ENVIRONMENT }} == 'int' && ${{ inputs.CREATE_RC_RELEASE_NOTES }} == 'false'
+      env:
+        DRY_RUN: ${{ inputs.DRY_RUN }}
       run: |
         # create int release notes
         cat <<EOF > payload.json
@@ -90,19 +102,23 @@ runs:
         }
         EOF
         cat payload.json
-        if [ "${{ inputs.DRY_RUN}}" != "true" ]; then
+        if [ "$DRY_RUN" != "true" ]; then
           function_arn=$(aws cloudformation list-exports --query "Exports[?Name=='release-notes:CreateReleaseNotesLambdaArn'].Value" --output text)
           aws lambda invoke --function-name "${function_arn}" \
           --cli-binary-format raw-in-base64-out \
           --payload file://payload.json out.txt
           cat out.txt
         fi
+
     - name: create int rc release notes
       shell: bash
       if: ${{ inputs.TARGET_ENVIRONMENT }} == 'int' && ${{ inputs.CREATE_RC_RELEASE_NOTES }} == 'true'
+      env:
+        DRY_RUN: ${{ inputs.DRY_RUN }}
+        RELEASE_TAG: ${{ inputs.RELEASE_TAG }}
       run: |
         # create int rc release notes
-        release_tag="${{ inputs.RELEASE_TAG }}"
+        release_tag="$RELEASE_TAG"
         cat <<EOF > payload.json
         { 
             "currentTag": "$current_deployed_tag", 
@@ -117,16 +133,19 @@ runs:
         }
         EOF
         cat payload.json
-        if [ "${{ inputs.DRY_RUN}}" != "true" ]; then
+        if [ "$DRY_RUN" != "true" ]; then
           function_arn=$(aws cloudformation list-exports --query "Exports[?Name=='release-notes:CreateReleaseNotesLambdaArn'].Value" --output text)
           aws lambda invoke --function-name "${function_arn}" \
           --cli-binary-format raw-in-base64-out \
           --payload file://payload.json out.txt
           cat out.txt
         fi
+
     - name: create prod release notes
       shell: bash
       if: ${{ inputs.TARGET_ENVIRONMENT }} == 'prod'
+      env:
+        DRY_RUN: ${{ inputs.DRY_RUN }}
       run: |
         # create prod release notes
         cat <<EOF > payload.json
@@ -141,7 +160,7 @@ runs:
         }
         EOF
         cat payload.json
-        if [ "${{ inputs.DRY_RUN}}" != "true" ]; then
+        if [ "$DRY_RUN" != "true" ]; then
           function_arn=$(aws cloudformation list-exports --query "Exports[?Name=='release-notes:CreateReleaseNotesLambdaArn'].Value" --output text)
           aws lambda invoke --function-name "${function_arn}" \
             --cli-binary-format raw-in-base64-out \

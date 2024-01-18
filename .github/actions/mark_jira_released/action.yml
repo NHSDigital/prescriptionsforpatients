@@ -22,6 +22,7 @@ runs:
         aws-region: eu-west-2
         role-to-assume: ${{ inputs.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
         role-session-name: account-resources-release-notes-run-lambda
+
     - name: call markJiraReleased lambda
       shell: bash
       working-directory: .github/scripts
