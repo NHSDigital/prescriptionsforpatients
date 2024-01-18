@@ -41,17 +41,11 @@ runs:
 
     - name: Get deployed tag on target
       shell: bash
+      working-directory: .github/scripts
       env:
         DRY_RUN: ${{ inputs.DRY_RUN }}
         TARGET_ENVIRONMENT: ${{ inputs.TARGET_ENVIRONMENT }}
-      run: |
-        # get current deployed tag on target
-        if [ "$DRY_RUN" != "true" ]; then
-          export current_deployed_tag=$(aws cloudformation describe-stacks --stack-name $TARGET_ENVIRONMENT-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
-        else
-          export current_deployed_tag="current_deployed_tag"
-        fi
-        echo "current_deployed_tag=${current_deployed_tag}" >> "$GITHUB_ENV"
+      run: ./get_target_deployed_tag.sh
 
     - name: connect to dev account
       if: ${{ inputs.DRY_RUN }} != 'true'
