@@ -32,7 +32,7 @@ runs:
   using: "composite"
   steps:
     - name: connect to target account
-      if: inputs.DRY_RUN != 'true'
+      if: ${{ inputs.DRY_RUN }} != 'true'
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-region: eu-west-2
@@ -49,7 +49,7 @@ runs:
         fi
         echo "current_deployed_tag=${current_deployed_tag}" >> "$GITHUB_ENV"
     - name: connect to dev account
-      if: inputs.DRY_RUN != 'true'
+      if: ${{ inputs.DRY_RUN }} != 'true'
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-region: eu-west-2
@@ -66,7 +66,7 @@ runs:
         fi
         echo "dev_tag=${dev_tag}" >> "$GITHUB_ENV"
     - name: connect to dev account to run release notes lambda
-      if: inputs.DRY_RUN != 'true'
+      if: ${{ inputs.DRY_RUN }} != 'true'
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-region: eu-west-2
@@ -75,7 +75,7 @@ runs:
         unset-current-credentials: true
     - name: create int release notes
       shell: bash
-      if: inputs.TARGET_ENVIRONMENT == 'int' && inputs.CREATE_RC_RELEASE_NOTES == 'false'
+      if: ${{ inputs.TARGET_ENVIRONMENT }} == 'int' && ${{ inputs.CREATE_RC_RELEASE_NOTES }} == 'false'
       run: |
         # create int release notes
         cat <<EOF > payload.json
@@ -99,7 +99,7 @@ runs:
         fi
     - name: create int rc release notes
       shell: bash
-      if: inputs.TARGET_ENVIRONMENT == 'int' && inputs.CREATE_RC_RELEASE_NOTES == 'true'
+      if: ${{ inputs.TARGET_ENVIRONMENT }} == 'int' && ${{ inputs.CREATE_RC_RELEASE_NOTES }} == 'true'
       run: |
         # create int rc release notes
         release_tag="${{ inputs.RELEASE_TAG }}"
@@ -126,7 +126,7 @@ runs:
         fi
     - name: create prod release notes
       shell: bash
-      if: inputs.TARGET_ENVIRONMENT == 'prod'
+      if: ${{ inputs.TARGET_ENVIRONMENT }} == 'prod'
       run: |
         # create prod release notes
         cat <<EOF > payload.json
