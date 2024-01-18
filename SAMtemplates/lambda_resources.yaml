@@ -84,7 +84,7 @@ Resources:
           - !ImportValue account-resources:LambdaAccessSecretsPolicy
           - !Ref AWS::NoValue
 
-  LambdaPolicy:
+  LambdaManagedPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
       Roles:
