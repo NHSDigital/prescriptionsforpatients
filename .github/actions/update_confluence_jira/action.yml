@@ -59,14 +59,7 @@ runs:
       shell: bash
       env:
         DRY_RUN: ${{ inputs.DRY_RUN }}
-      run: |
-        # get current dev tag
-        if [ "$DRY_RUN" != "true" ]; then
-          export dev_tag=$(aws cloudformation describe-stacks --stack-name dev-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
-        else
-          export dev_tag="dev_tag"
-        fi
-        echo "dev_tag=${dev_tag}" >> "$GITHUB_ENV"
+      run: ./get_current_dev_tag.sh
 
     - name: connect to dev account to run release notes lambda
       if: ${{ inputs.DRY_RUN }} != 'true'
