@@ -22,7 +22,7 @@ export class LiveSpineClient implements SpineClient {
     this.spineASID = process.env.SpineASID
     this.spinePartyKey = process.env.SpinePartyKey
 
-    const cert = `${process.env.SpinePublicCertificate}aaaaa`
+    const cert = `${process.env.SpinePublicCertificate}`
     this.httpsAgent = new Agent({
       cert: cert,
       key: process.env.SpinePrivateKey,
@@ -53,7 +53,7 @@ export class LiveSpineClient implements SpineClient {
   }
   async getPrescriptions(inboundHeaders: APIGatewayProxyEventHeaders): Promise<AxiosResponse> {
     try {
-      const address = this.getSpineEndpoint("mm/patientfacingprescriptions")
+      const address = this.getSpineEndpoint("blahblahblahmm/patientfacingprescriptions")
       // nhsd-nhslogin-user looks like P9:9912003071
       const nhsNumber = extractNHSNumber(inboundHeaders["nhsd-nhslogin-user"])
       this.logger.info(`nhsNumber: ${nhsNumber}`)
