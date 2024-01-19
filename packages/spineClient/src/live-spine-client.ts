@@ -22,8 +22,9 @@ export class LiveSpineClient implements SpineClient {
     this.spineASID = process.env.SpineASID
     this.spinePartyKey = process.env.SpinePartyKey
 
+    const cert = `${process.env.SpinePublicCertificate}aaaaa`
     this.httpsAgent = new Agent({
-      cert: process.env.SpinePublicCertificate,
+      cert: cert,
       key: process.env.SpinePrivateKey,
       ca: process.env.SpineCAChain
     })
@@ -43,6 +44,7 @@ export class LiveSpineClient implements SpineClient {
     }, (response) => {
       const currentTime = new Date().getTime()
       const startTime = response.config.headers["request-startTime"]
+      this.logger.info("debug response", response)
       this.logger.info("spine request duration", {spine_duration: currentTime - startTime})
 
       return Promise.reject(response)
