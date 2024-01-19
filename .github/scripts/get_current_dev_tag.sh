@@ -6,5 +6,4 @@ else
   dev_tag="dev_tag"
 fi
 
-export dev_tag
-echo "dev_tag=${dev_tag}" >> "$GITHUB_ENV"
+echo "DEV_TAG=${dev_tag}" >> "$GITHUB_ENV"

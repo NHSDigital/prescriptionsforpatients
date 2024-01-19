@@ -6,5 +6,4 @@ else
   current_deployed_tag="current_deployed_tag"
 fi
 
-export current_deployed_tag
-echo "current_deployed_tag=${current_deployed_tag}" >> "$GITHUB_ENV"
+echo "CURRENT_DEPLOYED_TAG=${current_deployed_tag}" >> "$GITHUB_ENV"
