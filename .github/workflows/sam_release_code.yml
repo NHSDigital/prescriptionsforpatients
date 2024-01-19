@@ -51,8 +51,6 @@ on:
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
-      SPLUNK_HEC_TOKEN:
-        required: true
       TARGET_SPINE_SERVER:
         required: true
       TARGET_SERVICE_SEARCH_SERVER:
@@ -118,8 +116,6 @@ jobs:
           enable_mutual_tls: ${{ inputs.ENABLE_MUTUAL_TLS }}
           LOG_LEVEL: ${{ inputs.LOG_LEVEL }}
           LOG_RETENTION_DAYS: ${{ inputs.LOG_RETENTION_DAYS }}
-          SPLUNK_HEC_ENDPOINT: ${{ vars.SPLUNK_STRUCTURED_ENDPOINT }}
-          SPLUNK_HEC_TOKEN: ${{ secrets.SPLUNK_HEC_TOKEN }}
           stack_name: ${{ inputs.STACK_NAME }}
           TARGET_ENVIRONMENT: ${{ inputs.TARGET_ENVIRONMENT }}
           target_service_search_server: ${{ secrets.TARGET_SERVICE_SEARCH_SERVER }}
