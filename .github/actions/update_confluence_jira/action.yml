@@ -75,7 +75,9 @@ runs:
       if: ${{ inputs.TARGET_ENVIRONMENT }} == 'int' && ${{ inputs.CREATE_RC_RELEASE_NOTES }} == 'false'
       env:
         DRY_RUN: ${{ inputs.DRY_RUN }}
-      run: ./create_int_release_notes.sh
+        ENV: INT
+        PAGE_ID: ${{ inputs.CONFLUENCE_PAGE_ID }}
+      run: ./create_env_release_notes.sh
 
     - name: create int rc release notes
       shell: bash
@@ -83,6 +85,7 @@ runs:
       env:
         DRY_RUN: ${{ inputs.DRY_RUN }}
         RELEASE_TAG: ${{ inputs.RELEASE_TAG }}
+        PAGE_ID: ${{ inputs.CONFLUENCE_PAGE_ID }}
       run: ./create_int_rc_release_notes.sh
 
     - name: create prod release notes
@@ -90,4 +93,6 @@ runs:
       if: ${{ inputs.TARGET_ENVIRONMENT }} == 'prod'
       env:
         DRY_RUN: ${{ inputs.DRY_RUN }}
-      run: ./create_prod_release_notes.sh
+        ENV: PROD
+        PAGE_ID: ${{ inputs.CONFLUENCE_PAGE_ID }}
+      run: ./create_env_release_notes.sh
