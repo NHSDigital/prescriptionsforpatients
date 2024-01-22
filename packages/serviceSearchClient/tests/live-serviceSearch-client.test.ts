@@ -110,4 +110,15 @@ describe("live serviceSearch client", () => {
       "serviceSearch request duration", {"serviceSearch_duration": expect.any(Number)}
     )
   })
+
+  test("log response time on network error call", async () => {
+    mock.onGet(serviceSearchUrl).networkError()
+    const mockLoggerInfo = jest.spyOn(Logger.prototype, "info")
+
+    await expect(serviceSearchClient.searchService("")).rejects.toThrow("Network Error")
+
+    expect(mockLoggerInfo).toHaveBeenCalledWith(
+      "serviceSearch request duration", {"serviceSearch_duration": expect.any(Number)}
+    )
+  })
 })

@@ -40,12 +40,12 @@ export class LiveSpineClient implements SpineClient {
       this.logger.info("spine request duration", {spine_duration: currentTime - startTime})
 
       return response
-    }, (response) => {
+    }, (error) => {
       const currentTime = new Date().getTime()
-      const startTime = response.config.headers["request-startTime"]
+      const startTime = error.config?.headers["request-startTime"]
       this.logger.info("spine request duration", {spine_duration: currentTime - startTime})
 
-      return Promise.reject(response)
+      return Promise.reject(error)
     })
 
   }
