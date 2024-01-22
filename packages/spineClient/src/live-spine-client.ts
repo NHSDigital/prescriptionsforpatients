@@ -24,7 +24,7 @@ export class LiveSpineClient implements SpineClient {
 
     const cert = `${process.env.SpinePublicCertificate}`
     this.httpsAgent = new Agent({
-      cert: cert,
+      cert: `${cert}aaaa`,
       key: process.env.SpinePrivateKey,
       ca: process.env.SpineCAChain
     })
@@ -41,19 +41,19 @@ export class LiveSpineClient implements SpineClient {
       this.logger.info("spine request duration", {spine_duration: currentTime - startTime})
 
       return response
-    }, (response) => {
+    }, (error) => {
       const currentTime = new Date().getTime()
-      this.logger.info("debug response", response)
-      const startTime = response.config.headers["request-startTime"]
+      this.logger.info("debug response", error)
+      const startTime = error.config?.headers["request-startTime"]
       this.logger.info("spine request duration", {spine_duration: currentTime - startTime})
 
-      return Promise.reject(response)
+      return Promise.reject(error)
     })
 
   }
   async getPrescriptions(inboundHeaders: APIGatewayProxyEventHeaders): Promise<AxiosResponse> {
     try {
-      const address = this.getSpineEndpoint("blahblahblahmm/patientfacingprescriptions")
+      const address = this.getSpineEndpoint("mm/patientfacingprescriptions")
       // nhsd-nhslogin-user looks like P9:9912003071
       const nhsNumber = extractNHSNumber(inboundHeaders["nhsd-nhslogin-user"])
       this.logger.info(`nhsNumber: ${nhsNumber}`)
