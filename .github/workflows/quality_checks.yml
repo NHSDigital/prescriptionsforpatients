@@ -37,7 +37,7 @@ jobs:
           asdf_branch: v0.11.3
         env:
           PYTHON_CONFIGURE_OPTS: --enable-shared 
-  
+
       - name: make install
         run: |
           make install
