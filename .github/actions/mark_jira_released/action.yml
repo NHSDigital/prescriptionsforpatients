@@ -6,7 +6,7 @@ inputs:
     description: "The tag we are marking as released in jira"
   DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE:
     required: true
-    description: "The dev cloud formation deploy role"
+    description: "The role to assume to execute the release notes lambda"
   DRY_RUN:
     required: false
     description: "whether to use a dry run and do not connect to anything"
