@@ -15,10 +15,6 @@ cat <<EOF > payload.json
 EOF
 cat payload.json
 
-if [ "$DRY_RUN" != "true" ]; then
-  function_arn=$(aws cloudformation list-exports --query "Exports[?Name=='release-notes:CreateReleaseNotesLambdaArn'].Value" --output text)
-  aws lambda invoke --function-name "${function_arn}" \
-  --cli-binary-format raw-in-base64-out \
-  --payload file://payload.json out.txt
-  cat out.txt
-fi
+function_arn=$(aws cloudformation list-exports --query "Exports[?Name=='release-notes:CreateReleaseNotesLambdaArn'].Value" --output text)
+aws lambda invoke --function-name "${function_arn}" --cli-binary-format raw-in-base64-out --payload file://payload.json out.txt
+cat out.txt

@@ -23,16 +23,11 @@ inputs:
   TARGET_CLOUD_FORMATION_CHECK_VERSION_ROLE:
     required: true
     description: "The target cloud formation deploy role"
-  DRY_RUN:
-    required: false
-    description: "whether to use a dry run and do not connect to anything"
-    default: "false"
 
 runs:
   using: "composite"
   steps:
     - name: connect to target account
-      if: ${{ inputs.DRY_RUN }} != 'true'
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-region: eu-west-2
@@ -43,12 +38,10 @@ runs:
       shell: bash
       working-directory: .github/scripts
       env:
-        DRY_RUN: ${{ inputs.DRY_RUN }}
         TARGET_ENVIRONMENT: ${{ inputs.TARGET_ENVIRONMENT }}
       run: ./get_target_deployed_tag.sh
 
     - name: connect to dev account
-      if: ${{ inputs.DRY_RUN }} != 'true'
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-region: eu-west-2
@@ -57,12 +50,9 @@ runs:
 
     - name: get current dev tag
       shell: bash
-      env:
-        DRY_RUN: ${{ inputs.DRY_RUN }}
       run: ./get_current_dev_tag.sh
 
     - name: connect to dev account to run release notes lambda
-      if: ${{ inputs.DRY_RUN }} != 'true'
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-region: eu-west-2
@@ -74,7 +64,6 @@ runs:
       shell: bash
       if: ${{ inputs.TARGET_ENVIRONMENT }} == 'int' && ${{ inputs.CREATE_RC_RELEASE_NOTES }} == 'false'
       env:
-        DRY_RUN: ${{ inputs.DRY_RUN }}
         ENV: INT
         PAGE_ID: ${{ inputs.CONFLUENCE_PAGE_ID }}
       run: ./create_env_release_notes.sh
@@ -83,7 +72,6 @@ runs:
       shell: bash
       if: ${{ inputs.TARGET_ENVIRONMENT }} == 'int' && ${{ inputs.CREATE_RC_RELEASE_NOTES }} == 'true'
       env:
-        DRY_RUN: ${{ inputs.DRY_RUN }}
         RELEASE_TAG: ${{ inputs.RELEASE_TAG }}
         PAGE_ID: ${{ inputs.CONFLUENCE_PAGE_ID }}
       run: ./create_int_rc_release_notes.sh
@@ -92,7 +80,6 @@ runs:
       shell: bash
       if: ${{ inputs.TARGET_ENVIRONMENT }} == 'prod'
       env:
-        DRY_RUN: ${{ inputs.DRY_RUN }}
         ENV: PROD
         PAGE_ID: ${{ inputs.CONFLUENCE_PAGE_ID }}
       run: ./create_env_release_notes.sh
