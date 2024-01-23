@@ -7,16 +7,11 @@ inputs:
   DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE:
     required: true
     description: "The role to assume to execute the release notes lambda"
-  DRY_RUN:
-    required: false
-    description: "whether to use a dry run and do not connect to anything"
-    default: "false"
 
 runs:
   using: "composite"
   steps:
     - name: connect to dev account
-      if: ${{ inputs.DRY_RUN }} != 'true'
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-region: eu-west-2
@@ -27,6 +22,5 @@ runs:
       shell: bash
       working-directory: .github/scripts
       env:
-        DRY_RUN: ${{ inputs.DRY_RUN }}
         RELEASE_TAG: ${{ inputs.RELEASE_TAG }}
       run: ./call_mark_jira_released.sh
