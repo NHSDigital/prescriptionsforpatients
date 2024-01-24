@@ -116,6 +116,7 @@ Resources:
       FilterPattern: "" # All logs
       DestinationArn: !Ref SplunkDeliveryStream
 
+
 Outputs:
   LambdaRoleArn:
     Description: "LambdaRole ARN"
