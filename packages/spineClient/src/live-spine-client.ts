@@ -54,7 +54,7 @@ export class LiveSpineClient implements SpineClient {
       const address = this.getSpineEndpoint("mm/patientfacingprescriptions")
       // nhsd-nhslogin-user looks like P9:9912003071
       const nhsNumber = extractNHSNumber(inboundHeaders["nhsd-nhslogin-user"])
-      this.logger.info("NHS", {NhsNumber: nhsNumber})
+      this.logger.info(`nhsNumber: ${nhsNumber}`)
 
       const outboundHeaders = {
         Accept: "application/json",

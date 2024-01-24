@@ -110,16 +110,22 @@ Resources:
         Name: nhs-number-data-protection-policy
         Description: block viewing nhs number
         Version: '2021-06-01'
+        Configuration:
+          CustomDataIdentifier:
+          - Name: custom-nhs-number
+            Regex: 'nhsNumber: \d{10}'
         Statement:
         - Sid: audit-policy
           DataIdentifier:
           - arn:aws:dataprotection::aws:data-identifier/NhsNumber-GB
+          - custom-nhs-number
           Operation:
             Audit:
               FindingsDestination: {}
         - Sid: redact-policy
           DataIdentifier:
           - arn:aws:dataprotection::aws:data-identifier/NhsNumber-GB
+          - custom-nhs-number
           Operation:
             Deidentify:
               MaskConfig: {}
