@@ -50,6 +50,7 @@ runs:
 
     - name: get current dev tag
       shell: bash
+      working-directory: .github/scripts
       run: ./get_current_dev_tag.sh
 
     - name: connect to dev account to run release notes lambda
@@ -62,6 +63,7 @@ runs:
 
     - name: create int release notes
       shell: bash
+      working-directory: .github/scripts
       if: ${{ inputs.TARGET_ENVIRONMENT }} == 'int' && ${{ inputs.CREATE_RC_RELEASE_NOTES }} == 'false'
       env:
         ENV: INT
@@ -70,6 +72,7 @@ runs:
 
     - name: create int rc release notes
       shell: bash
+      working-directory: .github/scripts
       if: ${{ inputs.TARGET_ENVIRONMENT }} == 'int' && ${{ inputs.CREATE_RC_RELEASE_NOTES }} == 'true'
       env:
         RELEASE_TAG: ${{ inputs.RELEASE_TAG }}
@@ -78,6 +81,7 @@ runs:
 
     - name: create prod release notes
       shell: bash
+      working-directory: .github/scripts
       if: ${{ inputs.TARGET_ENVIRONMENT }} == 'prod'
       env:
         ENV: PROD
