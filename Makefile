@@ -112,7 +112,6 @@ download-get-secrets-layer:
 lint-node: compile-node
 	npm run lint --workspace packages/capabilityStatement
 	npm run lint --workspace packages/getMyPrescriptions
-	npm run lint --workspace packages/middleware
 	npm run lint --workspace packages/sandbox
 	npm run lint --workspace packages/statusLambda
 	npm run lint --workspace packages/spineClient
@@ -134,7 +133,6 @@ lint: lint-node lint-samtemplates lint-python
 test: compile
 	npm run test --workspace packages/capabilityStatement
 	npm run test --workspace packages/getMyPrescriptions
-	npm run test --workspace packages/middleware
 	npm run test --workspace packages/sandbox
 	npm run test --workspace packages/statusLambda
 	npm run test --workspace packages/spineClient
@@ -144,7 +142,6 @@ test: compile
 clean:
 	rm -rf packages/capabilityStatement/coverage
 	rm -rf packages/getMyPrescriptions/coverage
-	rm -rf packages/middleware/coverage
 	rm -rf packages/sandbox/coverage
 	rm -rf packages/spineClient/coverage
 	rm -rf packages/serviceSearchClient/coverage
@@ -153,7 +150,6 @@ clean:
 	rm -rf packages/common/testing/coverage
 	rm -rf packages/capabilityStatement/lib
 	rm -rf packages/getMyPrescriptions/lib
-	rm -rf packages/middleware/lib
 	rm -rf packages/sandbox/lib
 	rm -rf packages/spineClient/lib
 	rm -rf packages/serviceSearchClient/lib
@@ -174,7 +170,6 @@ check-licenses-node:
 	npm run check-licenses --workspace packages/getMyPrescriptions
 	npm run check-licenses --workspace packages/capabilityStatement
 	npm run check-licenses --workspace packages/sandbox
-	npm run check-licenses --workspace packages/middleware
 	npm run check-licenses --workspace packages/statusLambda
 	npm run check-licenses --workspace packages/spineClient
 	npm run check-licenses --workspace packages/serviceSearchClient

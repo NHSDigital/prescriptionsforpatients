@@ -16,7 +16,6 @@
   "workspaces": [
     "packages/capabilityStatement",
     "packages/getMyPrescriptions",
-    "packages/middleware",
     "packages/sandbox",
     "packages/statusLambda",
     "packages/spineClient",
@@ -44,6 +43,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "esbuild": "^0.19.11"
+    "esbuild": "^0.19.11",
+    "@nhs/fhir-middy-error-handler": "^1.0.0"
   }
 }

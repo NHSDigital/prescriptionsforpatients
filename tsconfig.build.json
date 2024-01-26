@@ -6,7 +6,6 @@
   "references": [
     { "path": "packages/spineClient" },
     { "path": "packages/serviceSearchClient" },
-    { "path": "packages/middleware" },
     { "path": "packages/capabilityStatement" },
     { "path": "packages/getMyPrescriptions" },
     { "path": "packages/sandbox" },
