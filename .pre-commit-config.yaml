@@ -121,12 +121,30 @@ repos:
         files: ^cloudformation
         pass_filenames: false
 
-      - id: lint-samtemplatess
+      - id: lint-samtemplates
         name: Lint sam templates
         entry: make
         args: ["lint-samtemplates"]
         language: system
         files: ^SAMtemplates
+        pass_filenames: false
+
+      - id: lint-githubactions
+        name: Lint github actions
+        entry: make
+        args: ["lint-githubactions"]
+        language: system
+        files: ^.github
+        types_or: [yaml]
+        pass_filenames: false
+
+      - id: lint-githubaction-scripts
+        name: Lint github action scripts
+        entry: make
+        args: ["lint-githubaction-scripts"]
+        language: system
+        files: ^.github/scripts
+        types_or: [sh, shell]
         pass_filenames: false
 
 fail_fast: true

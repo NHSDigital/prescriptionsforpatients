@@ -72,7 +72,7 @@ sam-validate-sandbox:
 	sam validate --template-file SAMtemplates/sandbox_template.yaml --region eu-west-2
 	sam validate --template-file SAMtemplates/lambda_resources.yaml --region eu-west-2
 
-sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role guard-LATEST_TRUSTSTORE_VERSION guard-enable_mutual_tls guard-SPLUNK_HEC_TOKEN guard-SPLUNK_HEC_ENDPOINT guard-VERSION_NUMBER guard-COMMIT_ID guard-LOG_LEVEL guard-LOG_RETENTION_DAYS guard-TARGET_ENVIRONMENT guard-target_spine_server guard-target_service_search_server
+sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role guard-LATEST_TRUSTSTORE_VERSION guard-enable_mutual_tls guard-VERSION_NUMBER guard-COMMIT_ID guard-LOG_LEVEL guard-LOG_RETENTION_DAYS guard-TARGET_ENVIRONMENT guard-target_spine_server guard-target_service_search_server
 	sam deploy \
 		--template-file $$template_file \
 		--stack-name $$stack_name \
@@ -87,8 +87,6 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 		--force-upload \
 		--tags "version=$$VERSION_NUMBER" \
 		--parameter-overrides \
-			  SplunkHECToken=$$SPLUNK_HEC_TOKEN \
-			  SplunkHECEndpoint=$$SPLUNK_HEC_ENDPOINT \
 			  TruststoreVersion=$$LATEST_TRUSTSTORE_VERSION \
 			  EnableMutualTLS=$$enable_mutual_tls \
 			  TargetSpineServer=$$target_spine_server \
@@ -129,7 +127,10 @@ lint-python:
 lint-githubactions:
 	actionlint
 
-lint: lint-node lint-samtemplates lint-python
+lint-githubaction-scripts:
+	shellcheck .github/scripts/*.sh
+
+lint: lint-node lint-samtemplates lint-python lint-githubactions lint-githubaction-scripts
 
 test: compile
 	npm run test --workspace packages/capabilityStatement

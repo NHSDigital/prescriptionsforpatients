@@ -1,41 +1,26 @@
-name: 'Create confluence release notes'
-description: 'Do release note actions in confluence and jira'
+name: "Create confluence release notes"
+description: "Do release note actions in confluence and jira"
 inputs:
   RELEASE_TAG:
     required: false
     description: "The tag we are marking as released in jira"
   DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE:
     required: true
-    description: "The dev cloud formation deploy role"
-  DRY_RUN:
-    required: false
-    description: "whether to use a dry run and do not connect to anything"
-    default: "false"
+    description: "The role to assume to execute the release notes lambda"
 
 runs:
   using: "composite"
   steps:
     - name: connect to dev account
-      if: inputs.DRY_RUN != 'true'
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-region: eu-west-2
         role-to-assume: ${{ inputs.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
         role-session-name: account-resources-release-notes-run-lambda
-    - name: create markJiraReleased payload
+
+    - name: call markJiraReleased lambda
       shell: bash
-      run: |
-        # call mark jira released
-        echo "calling mark jira released"
-        cat <<EOF > payload.json
-        { 
-            "releaseVersion": "PfP-AWS-${{ inputs.RELEASE_TAG }}"
-        }
-        EOF
-        cat payload.json
-        if [ "${{ inputs.DRY_RUN}}" != "true" ]; then
-          function_arn=$(aws cloudformation list-exports --query "Exports[?Name=='release-notes:MarkJiraReleasedLambdaArn'].Value" --output text)
-          aws lambda invoke --function-name "${function_arn}" \
-          --cli-binary-format raw-in-base64-out \
-          --payload file://payload.json out.txt
-        fi
+      working-directory: .github/scripts
+      env:
+        RELEASE_TAG: ${{ inputs.RELEASE_TAG }}
+      run: ./call_mark_jira_released.sh
