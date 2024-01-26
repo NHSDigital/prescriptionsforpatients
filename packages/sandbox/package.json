@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@aws-lambda-powertools/commons": "^1.15.0",
-    "@aws-lambda-powertools/logger": "^1.17.0",
+    "@aws-lambda-powertools/logger": "^1.18.0",
     "@middy/core": "^5.2.3",
     "@middy/input-output-logger": "^5.2.3",
     "@prescriptionsforpatients/middleware": "^1.0.0"
