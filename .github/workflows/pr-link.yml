@@ -14,9 +14,7 @@ jobs:
 
       - name: Grab ticket name
         if: contains(github.event.pull_request.head.ref, 'aea-') || contains(github.event.pull_request.head.ref, 'AEA-') || contains(github.event.pull_request.head.ref, 'apm-') || contains(github.event.pull_request.head.ref, 'APM-') || contains(github.event.pull_request.head.ref, 'apmspii-') || contains(github.event.pull_request.head.ref, 'APMSPII-') || contains(github.event.pull_request.head.ref, 'adz-') || contains(github.event.pull_request.head.ref, 'ADZ-') || contains(github.event.pull_request.head.ref, 'amb-') || contains(github.event.pull_request.head.ref, 'AMB-')
-        run: |
-          # shellcheck disable=SC2046
-          echo name=TICKET_NAME::$(echo "$REF" | grep -i -o '\(aea-[0-9]\+\)\|\(apm-[0-9]\+\)\|\(apmspii-[0-9]\+\)\|\(adz-[0-9]\+\)|\(amb-[0-9]\+\)' | tr '[:lower:]' '[:upper:]') >> "$GITHUB_ENV"
+        run: echo name=TICKET_NAME::"$(echo "$REF" | grep -i -o '\(aea-[0-9]\+\)\|\(apm-[0-9]\+\)\|\(apmspii-[0-9]\+\)\|\(adz-[0-9]\+\)|\(amb-[0-9]\+\)' | tr '[:lower:]' '[:upper:]')" >> "$GITHUB_ENV"
         continue-on-error: true
         env:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: true
