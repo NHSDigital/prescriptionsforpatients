@@ -62,27 +62,27 @@ runs:
         unset-current-credentials: true
 
     - name: create int release notes
+      if: ${{ inputs.TARGET_ENVIRONMENT }} == 'int' && ${{ inputs.CREATE_RC_RELEASE_NOTES }} == 'false'
       shell: bash
       working-directory: .github/scripts
-      if: ${{ inputs.TARGET_ENVIRONMENT }} == 'int' && ${{ inputs.CREATE_RC_RELEASE_NOTES }} == 'false'
       env:
         ENV: INT
         PAGE_ID: ${{ inputs.CONFLUENCE_PAGE_ID }}
       run: ./create_env_release_notes.sh
 
     - name: create int rc release notes
+      if: ${{ inputs.TARGET_ENVIRONMENT }} == 'int' && ${{ inputs.CREATE_RC_RELEASE_NOTES }} == 'true'
       shell: bash
       working-directory: .github/scripts
-      if: ${{ inputs.TARGET_ENVIRONMENT }} == 'int' && ${{ inputs.CREATE_RC_RELEASE_NOTES }} == 'true'
       env:
         RELEASE_TAG: ${{ inputs.RELEASE_TAG }}
         PAGE_ID: ${{ inputs.CONFLUENCE_PAGE_ID }}
       run: ./create_int_rc_release_notes.sh
 
     - name: create prod release notes
+      if: ${{ inputs.TARGET_ENVIRONMENT }} == 'prod'
       shell: bash
       working-directory: .github/scripts
-      if: ${{ inputs.TARGET_ENVIRONMENT }} == 'prod'
       env:
         ENV: PROD
         PAGE_ID: ${{ inputs.CONFLUENCE_PAGE_ID }}
