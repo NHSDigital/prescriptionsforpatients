@@ -64,7 +64,7 @@ runs:
     - name: create int release notes
       shell: bash
       working-directory: .github/scripts
-      if: ${{ inputs.TARGET_ENVIRONMENT }} == 'int' && ${{ inputs.CREATE_RC_RELEASE_NOTES }} == 'false'
+      if: inputs.TARGET_ENVIRONMENT == 'int' && inputs.CREATE_RC_RELEASE_NOTES == 'false'
       env:
         ENV: INT
         PAGE_ID: ${{ inputs.CONFLUENCE_PAGE_ID }}
@@ -73,7 +73,7 @@ runs:
     - name: create int rc release notes
       shell: bash
       working-directory: .github/scripts
-      if: ${{ inputs.TARGET_ENVIRONMENT }} == 'int' && ${{ inputs.CREATE_RC_RELEASE_NOTES }} == 'true'
+      if: inputs.TARGET_ENVIRONMENT == 'int' && inputs.CREATE_RC_RELEASE_NOTES == 'true'
       env:
         RELEASE_TAG: ${{ inputs.RELEASE_TAG }}
         PAGE_ID: ${{ inputs.CONFLUENCE_PAGE_ID }}
@@ -82,7 +82,7 @@ runs:
     - name: create prod release notes
       shell: bash
       working-directory: .github/scripts
-      if: ${{ inputs.TARGET_ENVIRONMENT }} == 'prod'
+      if: inputs.TARGET_ENVIRONMENT == 'prod'
       env:
         ENV: PROD
         PAGE_ID: ${{ inputs.CONFLUENCE_PAGE_ID }}
