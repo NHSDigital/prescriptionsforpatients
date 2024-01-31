@@ -2,7 +2,7 @@
 
 ACTIVE_STACKS=$(aws cloudformation list-stacks | jq -r '.StackSummaries[] | select ( .StackStatus != "DELETE_COMPLETE" ) | select( .StackName | capture("^pr-(sandbox-)?(\\d+)$") ) | .StackName ')
 
-read -ra ACTIVE_STACKS_ARRAY <<< "$ACTIVE_STACKS"
+mapfile -t ACTIVE_STACKS_ARRAY <<< "$ACTIVE_STACKS"
 
 for i in "${ACTIVE_STACKS_ARRAY[@]}"
 do 
