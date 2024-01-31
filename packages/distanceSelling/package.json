@@ -16,7 +16,7 @@
   "dependencies": {
     "@aws-lambda-powertools/logger": "^1.18.0",
     "@prescriptionsforpatients/serviceSearchClient": "^1.0.0",
-    "@types/fhir": "^0.0.40"
+    "@types/fhir": "^0.0.41"
   },
   "devDependencies": {
     "@prescriptionsforpatients_common/testing": "^1.0.0",
