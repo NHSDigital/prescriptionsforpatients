@@ -38,6 +38,14 @@ jobs:
         env:
           PYTHON_CONFIGURE_OPTS: --enable-shared 
 
+      - name: Install eps-spine-client package
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
+          echo "@kris-szlapa:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          npm install @kris-szlapa/eps-spine-client
+
       - name: make install
         run: |
           make install
