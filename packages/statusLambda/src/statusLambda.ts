@@ -3,7 +3,7 @@ import {Logger, injectLambdaContext} from "@aws-lambda-powertools/logger"
 import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
 import errorHandler from "@prescriptionsforpatients/middleware"
-import {createSpineClient} from "@prescriptionsforpatients/spineClient"
+import {createSpineClient} from "@kris-szlapa/eps-spine-client"
 
 const logger = new Logger({serviceName: "status"})
 
