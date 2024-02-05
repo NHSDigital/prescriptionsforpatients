@@ -18,7 +18,7 @@
     "@aws-lambda-powertools/logger": "^1.18.0",
     "@aws-lambda-powertools/parameters": "^1.18.0",
     "@aws-sdk/client-secrets-manager": "^3.504.0",
-    "@kris-szlapa/eps-spine-client": "^1.0.1",
+    "@kris-szlapa/eps-spine-client": "^1.0.2",
     "@middy/core": "^5.2.3",
     "@middy/input-output-logger": "^5.2.3",
     "@prescriptionsforpatients/distanceSelling": "^1.0.0",
