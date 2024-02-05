@@ -1,4 +1,5 @@
-import {LiveSpineClient} from "../src/live-spine-client"
+import {LiveSpineClient} from "@kris-szlapa/eps-spine-client"
+import {extractNHSNumber} from "../src/extractNHSNumber"
 import {jest, expect, describe} from "@jest/globals"
 import MockAdapter from "axios-mock-adapter"
 import axios from "axios"
@@ -24,10 +25,13 @@ describe("live spine client", () => {
 
   test("successful response when http response is status 200 and spine status does not exist", async () => {
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, {resourceType: "Bundle"})
+
     const spineClient = new LiveSpineClient(logger)
     const headers: APIGatewayProxyEventHeaders = {
       "nhsd-nhslogin-user": "P9:9912003071"
     }
+    const nhsNumber = extractNHSNumber(headers["nhsd-nhslogin-user"])
+    logger.info(`nhsNumber: ${nhsNumber}`)
     const spineResponse = await spineClient.getPrescriptions(headers)
 
     expect(spineResponse.status).toBe(200)

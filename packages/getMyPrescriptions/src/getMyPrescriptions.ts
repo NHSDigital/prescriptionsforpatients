@@ -3,8 +3,10 @@ import {Logger, injectLambdaContext} from "@aws-lambda-powertools/logger"
 import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
 import errorHandler from "@prescriptionsforpatients/middleware"
+// import {createSpineClient} from "@prescriptionsforpatients/spineClient"
+// import {NHSNumberValidationError} from "@prescriptionsforpatients/spineClient"
 import {createSpineClient} from "@kris-szlapa/eps-spine-client"
-import {NHSNumberValidationError} from "@prescriptionsforpatients/spineClient"
+import {extractNHSNumber, NHSNumberValidationError} from "./extractNHSNumber"
 import {LogLevel} from "@aws-lambda-powertools/logger/lib/types"
 import type {Bundle} from "fhir/r4"
 import {DistanceSelling} from "@prescriptionsforpatients/distanceSelling"
@@ -68,6 +70,8 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
         }
       }
     }
+    const nhsNumber = extractNHSNumber(event.headers["nhsd-nhslogin-user"])
+    console.log(nhsNumber)
     const returnData = await spineClient.getPrescriptions(event.headers)
     const searchsetBundle: Bundle = returnData.data
     searchsetBundle.id = xRequestId
