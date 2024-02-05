@@ -43,7 +43,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "@kris-szlapa/eps-spine-client": "^1.0.1",
+    "@kris-szlapa/eps-spine-client": "^1.0.2",
     "esbuild": "^0.20.0"
   }
 }
