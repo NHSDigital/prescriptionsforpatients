@@ -1,4 +1,4 @@
-import {LiveSpineClient} from "@kris-szlapa/eps-spine-client"
+import {LiveSpineClient} from "@nhsdigital/eps-spine-client"
 import {extractNHSNumber} from "../src/extractNHSNumber"
 import {jest, expect, describe} from "@jest/globals"
 import MockAdapter from "axios-mock-adapter"

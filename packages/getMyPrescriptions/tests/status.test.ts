@@ -1,4 +1,4 @@
-import {serviceHealthCheck} from "@kris-szlapa/eps-spine-client/lib/status"
+import {serviceHealthCheck} from "@nhsdigital/eps-spine-client/lib/status"
 import "jest"
 import MockAdapter from "axios-mock-adapter"
 import axios from "axios"
