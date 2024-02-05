@@ -35,7 +35,15 @@ jobs:
         with:
           asdf_branch: v0.11.3
         env:
-          PYTHON_CONFIGURE_OPTS: --enable-shared 
+          PYTHON_CONFIGURE_OPTS: --enable-shared
+
+      - name: Install eps-spine-client package
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
+          echo "@NHSDigital:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          npm install @NHSDigital/eps-spine-client 
   
       - name: make install
         run: |
