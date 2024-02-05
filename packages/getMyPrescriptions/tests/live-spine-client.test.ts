@@ -76,7 +76,20 @@ describe("live spine client", () => {
       nhsdLoginUser: "P9:9912003071",
       errorMessage: "Request failed with status code 500",
       scenarioDescription: "spine returns an unsuccessful http status code"
-    },
+    }
+  ])(
+    "throw error when $scenarioDescription",
+    async ({httpResponseCode, spineStatusCode, nhsdLoginUser, errorMessage}) => {
+      mock.onGet("https://spine/mm/patientfacingprescriptions").reply(httpResponseCode, {statusCode: spineStatusCode})
+      const spineClient = new LiveSpineClient(logger)
+      const headers: APIGatewayProxyEventHeaders = {
+        "nhsd-nhslogin-user": nhsdLoginUser
+      }
+      await expect(spineClient.getPrescriptions(headers)).rejects.toThrow(errorMessage)
+    }
+  )
+
+  test.each<spineFailureTestData>([
     {
       httpResponseCode: 200,
       spineStatusCode: "0",
@@ -116,11 +129,10 @@ describe("live spine client", () => {
     "throw error when $scenarioDescription",
     async ({httpResponseCode, spineStatusCode, nhsdLoginUser, errorMessage}) => {
       mock.onGet("https://spine/mm/patientfacingprescriptions").reply(httpResponseCode, {statusCode: spineStatusCode})
-      const spineClient = new LiveSpineClient(logger)
       const headers: APIGatewayProxyEventHeaders = {
         "nhsd-nhslogin-user": nhsdLoginUser
       }
-      await expect(spineClient.getPrescriptions(headers)).rejects.toThrow(errorMessage)
+      expect(() => extractNHSNumber(headers["nhsd-nhslogin-user"])).toThrow(errorMessage)
     }
   )
 
