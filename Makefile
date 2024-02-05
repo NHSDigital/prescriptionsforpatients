@@ -113,7 +113,6 @@ lint-node: compile-node
 	npm run lint --workspace packages/middleware
 	npm run lint --workspace packages/sandbox
 	npm run lint --workspace packages/statusLambda
-	npm run lint --workspace packages/spineClient
 	npm run lint --workspace packages/serviceSearchClient
 	npm run lint --workspace packages/common/testing
 	npm run lint --workspace packages/distanceSelling
@@ -138,7 +137,6 @@ test: compile
 	npm run test --workspace packages/middleware
 	npm run test --workspace packages/sandbox
 	npm run test --workspace packages/statusLambda
-	npm run test --workspace packages/spineClient
 	npm run test --workspace packages/serviceSearchClient
 	npm run test --workspace packages/distanceSelling
 
@@ -147,7 +145,6 @@ clean:
 	rm -rf packages/getMyPrescriptions/coverage
 	rm -rf packages/middleware/coverage
 	rm -rf packages/sandbox/coverage
-	rm -rf packages/spineClient/coverage
 	rm -rf packages/serviceSearchClient/coverage
 	rm -rf packages/distanceSelling/coverage
 	rm -rf packages/statusLambda/coverage
@@ -156,7 +153,6 @@ clean:
 	rm -rf packages/getMyPrescriptions/lib
 	rm -rf packages/middleware/lib
 	rm -rf packages/sandbox/lib
-	rm -rf packages/spineClient/lib
 	rm -rf packages/serviceSearchClient/lib
 	rm -rf packages/distanceSelling/lib
 	rm -rf packages/statusLambda/lib
@@ -177,7 +173,6 @@ check-licenses-node:
 	npm run check-licenses --workspace packages/sandbox
 	npm run check-licenses --workspace packages/middleware
 	npm run check-licenses --workspace packages/statusLambda
-	npm run check-licenses --workspace packages/spineClient
 	npm run check-licenses --workspace packages/serviceSearchClient
 	npm run check-licenses --workspace packages/distanceSelling
 

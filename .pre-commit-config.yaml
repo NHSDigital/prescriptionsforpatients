@@ -69,15 +69,6 @@ repos:
         types_or: [ts, tsx, javascript, jsx, json]
         pass_filenames: false
 
-      - id: lint-spineClient
-        name: Lint spineClient
-        entry: npm
-        args: ["run", "--prefix=packages/spineClient", "lint"]
-        language: system
-        files: ^packages\/spineClient
-        types_or: [ts, tsx, javascript, jsx, json]
-        pass_filenames: false
-
       - id: lint-serviceSearchClient
         name: Lint serviceSearchClient
         entry: npm

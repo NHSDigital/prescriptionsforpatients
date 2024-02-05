@@ -19,7 +19,6 @@
     "@kris-szlapa/eps-spine-client": "^1.0.1",
     "@middy/core": "^5.2.3",
     "@middy/input-output-logger": "^5.2.3",
-    "@prescriptionsforpatients/middleware": "^1.0.0",
-    "@prescriptionsforpatients/spineClient": "^1.0.0"
+    "@prescriptionsforpatients/middleware": "^1.0.0"
   }
 }

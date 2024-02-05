@@ -4,7 +4,7 @@
     "rootDir": ".",
     "outDir": "lib"
   },
-  "references": [{"path": "../spineClient"}, {"path": "../distanceSelling"}, {"path": "../middleware"}, {"path": "../common/testing"}],
+  "references": [{"path": "../distanceSelling"}, {"path": "../middleware"}, {"path": "../common/testing"}],
   "include": ["src/**/*", "tests/**/*"],
   "exclude": ["node_modules"]
 }

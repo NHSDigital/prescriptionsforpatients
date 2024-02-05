@@ -4,7 +4,6 @@
   "files": [],
   // Building this project will build all of the following:
   "references": [
-    { "path": "packages/spineClient" },
     { "path": "packages/serviceSearchClient" },
     { "path": "packages/middleware" },
     { "path": "packages/capabilityStatement" },
