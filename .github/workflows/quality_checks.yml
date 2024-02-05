@@ -43,8 +43,8 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
-          echo "@NHSDigital:registry=https://npm.pkg.github.com" >> ~/.npmrc
-          npm install @NHSDigital/eps-spine-client
+          echo "@nhsdigital:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          npm install @nhsdigital/eps-spine-client
 
       - name: make install
         run: |
