@@ -69,7 +69,7 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       }
     }
     const nhsNumber = extractNHSNumber(event.headers["nhsd-nhslogin-user"])
-    console.log(nhsNumber)
+    logger.info(`nhsNumber: ${nhsNumber}`)
     const returnData = await spineClient.getPrescriptions(event.headers)
     const searchsetBundle: Bundle = returnData.data
     searchsetBundle.id = xRequestId
