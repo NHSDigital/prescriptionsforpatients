@@ -121,4 +121,15 @@ describe("live serviceSearch client", () => {
       "serviceSearch request duration", {"serviceSearch_duration": expect.any(Number)}
     )
   })
+
+  test("handle null url", async () => {
+    mock.onGet(serviceSearchUrl).reply(200, {value: [{URL: null, OrganisationSubType: "DistanceSelling"}]})
+    const mockLoggerWarn = jest.spyOn(Logger.prototype, "warn")
+    const result = await serviceSearchClient.searchService("no_url")
+    expect(result).toEqual(undefined)
+    expect(mockLoggerWarn).toHaveBeenCalledWith(
+      "ods code no_url has no URL but is of type DistanceSelling", {"odsCode": "no_url"}
+    )
+  })
+
 })
