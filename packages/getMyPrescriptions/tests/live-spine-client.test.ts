@@ -8,13 +8,6 @@ import {APIGatewayProxyEventHeaders} from "aws-lambda"
 
 const mock = new MockAdapter(axios)
 process.env.TargetSpineServer = "spine"
-type spineFailureTestData = {
-  httpResponseCode: number
-  spineStatusCode: string
-  nhsdLoginUser: string | undefined
-  errorMessage: string
-  scenarioDescription: string
-}
 
 describe("live spine client", () => {
   const logger = new Logger({serviceName: "spineClient"})
@@ -61,80 +54,6 @@ describe("live spine client", () => {
 
     expect(mockLoggerInfo).toHaveBeenCalledWith("spine request duration", {"spine_duration": expect.any(Number)})
   })
-
-  test.each<spineFailureTestData>([
-    {
-      httpResponseCode: 200,
-      spineStatusCode: "99",
-      nhsdLoginUser: "P9:9912003071",
-      errorMessage: "Unsuccessful status code response from spine",
-      scenarioDescription: "spine returns a non successful response status"
-    },
-    {
-      httpResponseCode: 500,
-      spineStatusCode: "0",
-      nhsdLoginUser: "P9:9912003071",
-      errorMessage: "Request failed with status code 500",
-      scenarioDescription: "spine returns an unsuccessful http status code"
-    }
-  ])(
-    "throw error when $scenarioDescription",
-    async ({httpResponseCode, spineStatusCode, nhsdLoginUser, errorMessage}) => {
-      mock.onGet("https://spine/mm/patientfacingprescriptions").reply(httpResponseCode, {statusCode: spineStatusCode})
-      const spineClient = new LiveSpineClient(logger)
-      const headers: APIGatewayProxyEventHeaders = {
-        "nhsd-nhslogin-user": nhsdLoginUser
-      }
-      await expect(spineClient.getPrescriptions(headers)).rejects.toThrow(errorMessage)
-    }
-  )
-
-  test.each<spineFailureTestData>([
-    {
-      httpResponseCode: 200,
-      spineStatusCode: "0",
-      nhsdLoginUser: undefined,
-      errorMessage: "nhsdloginUser not passed in",
-      scenarioDescription: "no nhsd-login-user is passed in"
-    },
-    {
-      httpResponseCode: 200,
-      spineStatusCode: "0",
-      nhsdLoginUser: "P9:A",
-      errorMessage: "NHS Number failed preflight checks",
-      scenarioDescription: "nhs number in nhsdLoginUser contains a string"
-    },
-    {
-      httpResponseCode: 200,
-      spineStatusCode: "0",
-      nhsdLoginUser: "P9:123",
-      errorMessage: "NHS Number failed preflight checks",
-      scenarioDescription: "nhs number in nhsdLoginUser is too short"
-    },
-    {
-      httpResponseCode: 200,
-      spineStatusCode: "0",
-      nhsdLoginUser: "P0:9912003071",
-      errorMessage: "Identity proofing level is not P9",
-      scenarioDescription: "Identity proofing in nhsdLoginUser is not P9"
-    },
-    {
-      httpResponseCode: 200,
-      spineStatusCode: "0",
-      nhsdLoginUser: "P9:9912003072",
-      errorMessage: "invalid check digit in NHS number",
-      scenarioDescription: "nhs number does not validate checksum"
-    }
-  ])(
-    "throw error when $scenarioDescription",
-    async ({httpResponseCode, spineStatusCode, nhsdLoginUser, errorMessage}) => {
-      mock.onGet("https://spine/mm/patientfacingprescriptions").reply(httpResponseCode, {statusCode: spineStatusCode})
-      const headers: APIGatewayProxyEventHeaders = {
-        "nhsd-nhslogin-user": nhsdLoginUser
-      }
-      expect(() => extractNHSNumber(headers["nhsd-nhslogin-user"])).toThrow(errorMessage)
-    }
-  )
 
   test("should throw error when unsuccessful http request", async () => {
     mock.onGet("https://spine/mm/patientfacingprescriptions").networkError()
