@@ -7,7 +7,6 @@ It is called by an Apigee proxy that is defined at https://github.com/NHSDigital
 
 - `packages/getMyPrescriptions/` Get prescription details for /Bundle endpoint.
 - `packages/sandbox/` Returns [static data](./packages/sandbox/examples/GetMyPrescriptions/Bundle/success.json) from the Sandbox.
-- `packages/middleware/` A modified [middy-error-handler](https://github.com/schibsted/middy-error-handler) to return FHIR responses.
 - `packages/statusLambda/` Returns the status of the getMyPrescriptions endpoint.
 - `packages/capabilityStatement/` Returns a static capability statement.
 - `packages/serviceSearchClient/` Module for connecting to service search.

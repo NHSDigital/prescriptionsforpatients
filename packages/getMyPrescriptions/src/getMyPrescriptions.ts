@@ -2,7 +2,7 @@ import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
 import {Logger, injectLambdaContext} from "@aws-lambda-powertools/logger"
 import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
-import errorHandler from "@prescriptionsforpatients/middleware"
+import errorHandler from "@nhs/fhir-middy-error-handler"
 import {createSpineClient} from "@nhsdigital/eps-spine-client"
 import {extractNHSNumber, NHSNumberValidationError} from "./extractNHSNumber"
 import {LogLevel} from "@aws-lambda-powertools/logger/lib/types"
@@ -132,4 +132,4 @@ export const handler = middy(lambdaHandler)
       }
     })
   )
-  .use(errorHandler({logger}))
+  .use(errorHandler({logger: console}))

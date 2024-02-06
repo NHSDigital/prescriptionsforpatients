@@ -5,7 +5,6 @@
   // Building this project will build all of the following:
   "references": [
     { "path": "packages/serviceSearchClient" },
-    { "path": "packages/middleware" },
     { "path": "packages/capabilityStatement" },
     { "path": "packages/getMyPrescriptions" },
     { "path": "packages/sandbox" },
