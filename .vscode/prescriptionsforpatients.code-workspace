@@ -29,10 +29,6 @@
 			"path": "../packages/statusLambda"
 		},
 		{
-			"name": "packages/spineClient",
-			"path": "../packages/spineClient"
-		},
-		{
 			"name": "packages/serviceSearchClient",
 			"path": "../packages/serviceSearchClient"
 		},
