@@ -89,6 +89,10 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       const service = services[0]
       const urlString = service["URL"]
 
+      if (urlString === null) {
+        this.logger.warn(`ods code ${odsCode} has no URL but is of type ${DISTANCE_SELLING}`, {odsCode: odsCode})
+        return undefined
+      }
       const serviceUrl = handleUrl(urlString, odsCode, this.logger)
       return serviceUrl
     } catch (error) {
