@@ -125,11 +125,13 @@ describe("live serviceSearch client", () => {
   test("handle null url", async () => {
     mock.onGet(serviceSearchUrl).reply(200, {value: [{URL: null, OrganisationSubType: "DistanceSelling"}]})
     const mockLoggerWarn = jest.spyOn(Logger.prototype, "warn")
+    const mockLoggerError = jest.spyOn(Logger.prototype, "error")
     const result = await serviceSearchClient.searchService("no_url")
     expect(result).toEqual(undefined)
     expect(mockLoggerWarn).toHaveBeenCalledWith(
       "ods code no_url has no URL but is of type DistanceSelling", {"odsCode": "no_url"}
     )
+    expect(mockLoggerError).not.toHaveBeenCalled()
   })
 
 })
