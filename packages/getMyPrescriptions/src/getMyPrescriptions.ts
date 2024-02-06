@@ -1,14 +1,13 @@
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
 import {Logger, injectLambdaContext} from "@aws-lambda-powertools/logger"
+import {LogLevel} from "@aws-lambda-powertools/logger/lib/types"
 import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
 import errorHandler from "@nhs/fhir-middy-error-handler"
 import {createSpineClient} from "@nhsdigital/eps-spine-client"
 import {extractNHSNumber, NHSNumberValidationError} from "./extractNHSNumber"
-import {LogLevel} from "@aws-lambda-powertools/logger/lib/types"
+import {DistanceSelling, ServicesCache} from "@prescriptionsforpatients/distanceSelling"
 import type {Bundle} from "fhir/r4"
-import {DistanceSelling} from "@prescriptionsforpatients/distanceSelling"
-import {ServicesCache} from "@prescriptionsforpatients/distanceSelling"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
