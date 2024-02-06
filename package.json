@@ -43,7 +43,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "@nhsdigital/eps-spine-client": "^1.0.0",
+    "@nhsdigital/eps-spine-client": "^1.0.1",
     "esbuild": "^0.20.0"
   }
 }
