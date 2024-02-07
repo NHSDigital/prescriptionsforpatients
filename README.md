@@ -109,6 +109,30 @@ This can be obtained from [SonarCloud](https://sonarcloud.io/)
 as described [here](https://docs.sonarsource.com/sonarqube/latest/user-guide/user-account/generating-and-using-tokens/).
 You will need the "Execute Analysis" permission for the project (NHSDigital_prescriptionsforpatients) in order for the token to work.
 
+### GitHub Packages Setup
+
+To work with the GitHub Package Registry, you need to generate a [personal access token (classic)](https://docs.github.com/en/enterprise-cloud@latest/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#personal-access-tokens-classic) with appropriate permissions. 
+
+Follow these steps:
+
+- [Generate a personal access token (classic)](https://docs.github.com/en/enterprise-cloud@latest/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token)
+   - Go to your GitHub account settings and navigate to "Developer settings" > "Personal access tokens".
+   - Click "Generate new token" and select the `read:packages` scope. Ensure the token has no expiration.
+
+
+- [Authorize a personal access token for use with SAML single sign-on](https://docs.github.com/en/enterprise-cloud@latest/authentication/authenticating-with-saml-single-sign-on/authorizing-a-personal-access-token-for-use-with-saml-single-sign-on)
+  - Click "Configure SSO". If you don't see this option, ensure that you have authenticated at least once through your SAML IdP to access resources on GitHub.com
+  - In the dropdown menu, to the right of the organization you'd like to authorize the token for, click "Authorize".
+
+- [Authenticating with a personal access token in to npm](https://docs.github.com/en/enterprise-cloud@latest/packages/working-with-a-github-packages-registry/working-with-the-npm-registry#authenticating-with-a-personal-access-token)
+   - To authenticate with npm, use the following command, replacing `USERNAME` with your GitHub username, `TOKEN` with your personal access token (classic), and `PUBLIC-EMAIL-ADDRESS` with your email address.
+
+```bash
+$ npm login --scope=@nhsdigital --auth-type=legacy --registry=https://npm.pkg.github.com
+> Username: USERNAME
+> Password: TOKEN
+```
+
 ### Continuous deployment for testing
 
 You can run the following command to deploy the code to AWS for testing
