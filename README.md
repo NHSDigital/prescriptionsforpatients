@@ -115,7 +115,7 @@ To work with the GitHub Package Registry, you need to generate a [personal acces
 
 Follow these steps:
 
-- [Generate a personal access token (classic)](https://docs.github.com/en/enterprise-cloud@latest/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token)
+- [Generate a personal access token (classic)](https://docs.github.com/en/enterprise-cloud@latest/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic)
    - Go to your GitHub account settings and navigate to "Developer settings" > "Personal access tokens".
    - Click "Generate new token" and select the `read:packages` scope. Ensure the token has no expiration.
 
