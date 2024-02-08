@@ -32,16 +32,6 @@ repos:
         types_or: [ts, tsx, javascript, jsx, json]
         pass_filenames: false
 
-
-      - id: lint-middleware
-        name: Lint Middleware
-        entry: npm
-        args: ["run", "--prefix=packages/middleware", "lint"]
-        language: system
-        files: ^packages\/middleware
-        types_or: [ts, tsx, javascript, jsx, json]
-        pass_filenames: false
-
       - id: lint-statusLambda
         name: Lint statusLambda
         entry: npm
@@ -66,15 +56,6 @@ repos:
         args: ["run", "--prefix=packages/sandbox", "lint"]
         language: system
         files: ^packages\/sandbox
-        types_or: [ts, tsx, javascript, jsx, json]
-        pass_filenames: false
-
-      - id: lint-spineClient
-        name: Lint spineClient
-        entry: npm
-        args: ["run", "--prefix=packages/spineClient", "lint"]
-        language: system
-        files: ^packages\/spineClient
         types_or: [ts, tsx, javascript, jsx, json]
         pass_filenames: false
 

@@ -9,6 +9,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
+      packages: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -35,8 +36,15 @@ jobs:
         with:
           asdf_branch: v0.11.3
         env:
-          PYTHON_CONFIGURE_OPTS: --enable-shared 
-  
+          PYTHON_CONFIGURE_OPTS: --enable-shared
+      
+      - name: Setting up .npmrc
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
+          echo "@nhsdigital:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          
       - name: make install
         run: |
           make install
@@ -75,5 +83,4 @@ jobs:
           name: packaged_sandbox_code
           path: |
             .aws-sam/build
-            packages/getSecretLayer/lib/get-secrets-layer.zip 
-          
+            packages/getSecretLayer/lib/get-secrets-layer.zip

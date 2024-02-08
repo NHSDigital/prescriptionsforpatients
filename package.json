@@ -16,10 +16,8 @@
   "workspaces": [
     "packages/capabilityStatement",
     "packages/getMyPrescriptions",
-    "packages/middleware",
     "packages/sandbox",
     "packages/statusLambda",
-    "packages/spineClient",
     "packages/serviceSearchClient",
     "packages/common/testing",
     "packages/distanceSelling"

@@ -1,13 +1,13 @@
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
 import {Logger, injectLambdaContext} from "@aws-lambda-powertools/logger"
+import {LogLevel} from "@aws-lambda-powertools/logger/lib/types"
 import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
-import errorHandler from "@prescriptionsforpatients/middleware"
-import {createSpineClient, NHSNumberValidationError} from "@prescriptionsforpatients/spineClient"
-import {LogLevel} from "@aws-lambda-powertools/logger/lib/types"
+import errorHandler from "@nhs/fhir-middy-error-handler"
+import {createSpineClient} from "@nhsdigital/eps-spine-client"
+import {extractNHSNumber, NHSNumberValidationError} from "./extractNHSNumber"
+import {DistanceSelling, ServicesCache} from "@prescriptionsforpatients/distanceSelling"
 import type {Bundle} from "fhir/r4"
-import {DistanceSelling} from "@prescriptionsforpatients/distanceSelling"
-import {ServicesCache} from "@prescriptionsforpatients/distanceSelling"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
@@ -67,6 +67,9 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
         }
       }
     }
+    const nhsNumber = extractNHSNumber(event.headers["nhsd-nhslogin-user"])
+    logger.info(`nhsNumber: ${nhsNumber}`)
+    event.headers["nhsNumber"] = nhsNumber
     const returnData = await spineClient.getPrescriptions(event.headers)
     const searchsetBundle: Bundle = returnData.data
     searchsetBundle.id = xRequestId
@@ -129,4 +132,4 @@ export const handler = middy(lambdaHandler)
       }
     })
   )
-  .use(errorHandler({logger}))
+  .use(errorHandler({logger: logger}))

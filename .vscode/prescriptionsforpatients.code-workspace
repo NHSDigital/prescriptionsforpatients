@@ -21,16 +21,8 @@
 			"path": "../packages/sandbox"
 		},
 		{
-			"name": "packages/middleware",
-			"path": "../packages/middleware"
-		},
-		{
 			"name": "packages/statusLambda",
 			"path": "../packages/statusLambda"
-		},
-		{
-			"name": "packages/spineClient",
-			"path": "../packages/spineClient"
 		},
 		{
 			"name": "packages/serviceSearchClient",

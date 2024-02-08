@@ -2,7 +2,7 @@ import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
 import {Logger, injectLambdaContext} from "@aws-lambda-powertools/logger"
 import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
-import errorHandler from "@prescriptionsforpatients/middleware"
+import errorHandler from "@nhs/fhir-middy-error-handler"
 import capabilityStatement from "../examples/CapabilityStatement/apim-medicines-prescriptionsforpatients.json"
 
 const logger = new Logger({serviceName: "capabilityStatement"})
@@ -47,4 +47,4 @@ export const handler = middy(lambdaHandler)
       }
     })
   )
-  .use(errorHandler({logger}))
+  .use(errorHandler({logger: logger}))

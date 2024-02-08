@@ -28,7 +28,7 @@ export function extractNHSNumber(nhsloginUser: string | undefined): string {
   // Step 1: Multiply each of the first 9 numbers by (11 - position indexed from 1)
   // Step 2: Add the results together
   // Step 3: Divide the total by 11 to get the remainder
-  const nhsNumberAsArray: string[] = nhsNumber.split("")
+  const nhsNumberAsArray: Array<string> = nhsNumber.split("")
   const remainder = nhsNumberAsArray.slice(0, 9).map(multiplyByPosition).reduce(addTogether, 0) % 11
 
   let checkDigit = 11 - remainder

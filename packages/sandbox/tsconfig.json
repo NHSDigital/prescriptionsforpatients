@@ -4,7 +4,7 @@
     "rootDir": ".",
     "outDir": "lib"
   },
-  "references": [{"path": "../middleware"}, {"path": "../common/testing"}],
+  "references": [{"path": "../common/testing"}],
   "include": ["src/**/*", "tests/**/*", "examples/GetMyPrescriptions/Bundle/success.json"],
   "exclude": ["node_modules"]
 }
