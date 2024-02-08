@@ -42,6 +42,13 @@ jobs:
         run: |
           make install
 
+      - name: Setting up .npmrc
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
+          echo "@nhsdigital:registry=https://npm.pkg.github.com" >> ~/.npmrc
+
       - shell: bash
         name: package code
         run: |
@@ -76,5 +83,4 @@ jobs:
           name: packaged_sandbox_code
           path: |
             .aws-sam/build
-            packages/getSecretLayer/lib/get-secrets-layer.zip 
-          
+            packages/getSecretLayer/lib/get-secrets-layer.zip
