@@ -45,13 +45,13 @@ tests-no-zope = ["cloudpickle", "hypothesis", "mypy (>=1.1.1)", "pympler", "pyte
 
 [[package]]
 name = "aws-sam-translator"
-version = "1.83.0"
+version = "1.84.0"
 description = "AWS SAM Translator is a library that transform SAM templates into AWS CloudFormation templates"
 optional = false
 python-versions = ">=3.8, <=4.0, !=4.0"
 files = [
-    {file = "aws-sam-translator-1.83.0.tar.gz", hash = "sha256:46025ca8894a56eacd87eb0e4f9af5c01c567c9a734b97fbba353bffd56ba5dc"},
-    {file = "aws_sam_translator-1.83.0-py3-none-any.whl", hash = "sha256:022246b4745cc9067f88ab2b051f49898606bcf0222e22b9da41063e5619c6f9"},
+    {file = "aws-sam-translator-1.84.0.tar.gz", hash = "sha256:dbfd5669b5ef4bd7bc7af4775eec2ce4db61a2c2a17d721e67b51cf6a6dd63f9"},
+    {file = "aws_sam_translator-1.84.0-py3-none-any.whl", hash = "sha256:a24f43e80095c79258a1f1c7a0b8169f55daf0b2bc237d5b9010b02ba86fa3bb"},
 ]
 
 [package.dependencies]
@@ -174,17 +174,17 @@ files = [
 
 [[package]]
 name = "cfn-lint"
-version = "0.85.0"
+version = "0.85.1"
 description = "Checks CloudFormation templates for practices and behaviour that could potentially be improved"
 optional = false
 python-versions = ">=3.8, <=4.0, !=4.0"
 files = [
-    {file = "cfn-lint-0.85.0.tar.gz", hash = "sha256:64d6e8d85cdc573b61add78f9ff95a142a1834edb4793d1291551f6d953f73fe"},
-    {file = "cfn_lint-0.85.0-py3-none-any.whl", hash = "sha256:e4849e1779bd1a9f4543617372708a20519b6d7cad5f980e20c6deaa227361a2"},
+    {file = "cfn-lint-0.85.1.tar.gz", hash = "sha256:f003603a6f13bcda125c60f5021fc19b96f18a27ebc44498947709cb7627d0d6"},
+    {file = "cfn_lint-0.85.1-py3-none-any.whl", hash = "sha256:5d5b31609ded0bc513f1c57c0dc0017ec1613c2b33ef8e74802149bedb01a3de"},
 ]
 
 [package.dependencies]
-aws-sam-translator = ">=1.83.0"
+aws-sam-translator = ">=1.84.0"
 jschema-to-python = ">=1.2.3,<1.3.0"
 jsonpatch = "*"
 jsonschema = ">=3.0,<5"
@@ -1606,4 +1606,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "0601a56726c5e6e0de457600caab4b5e78acda8ac22652a4bec1e7465f654f01"
+content-hash = "432d1a28f00fd53c7d3d155049e371b690c95a333c69e1a2c739468924d754e6"
