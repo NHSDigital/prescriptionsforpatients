@@ -18,7 +18,7 @@
     "@aws-lambda-powertools/logger": "^1.18.0",
     "@aws-lambda-powertools/parameters": "^1.18.0",
     "@aws-sdk/client-secrets-manager": "^3.511.0",
-    "@middy/core": "^5.2.3",
+    "@middy/core": "^5.2.4",
     "@middy/input-output-logger": "^5.2.4",
     "@nhs/fhir-middy-error-handler": "^1.0.3",
     "@nhsdigital/eps-spine-client": "^1.0.1",
