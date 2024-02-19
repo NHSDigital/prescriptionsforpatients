@@ -23,7 +23,7 @@
     "packages/distanceSelling"
   ],
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.133",
+    "@types/aws-lambda": "^8.10.134",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.11.19",
     "@typescript-eslint/eslint-plugin": "^7.0.1",
