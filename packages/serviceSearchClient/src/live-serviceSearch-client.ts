@@ -113,13 +113,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
             }
           })
         } else if (error.request) {
-          this.logger.error("error in request to serviceSearch", {
-            method: error.request.method,
-            path: error.request.path,
-            params: error.request.params,
-            headers: error.request.headers,
-            host: error.request.host
-          })
+          this.logger.error("error in request to serviceSearch", {error})
         } else {
           this.logger.error("general error calling serviceSearch", {error})
         }
