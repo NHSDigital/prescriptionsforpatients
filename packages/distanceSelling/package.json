@@ -14,7 +14,7 @@
     "check-licenses": "license-checker --failOn GPL --failOn LGPL --start ../.."
   },
   "dependencies": {
-    "@aws-lambda-powertools/logger": "^1.18.1",
+    "@aws-lambda-powertools/logger": "^2.0.2",
     "@prescriptionsforpatients/serviceSearchClient": "^1.0.0",
     "@types/fhir": "^0.0.41"
   },
