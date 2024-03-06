@@ -1,11 +1,11 @@
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
 import {handler} from "../src/capabilityStatement"
 import {expect, describe, it} from "@jest/globals"
-import {ContextExamples} from "@aws-lambda-powertools/commons"
+import {helloworldContext} from "@prescriptionsforpatients_common/testing"
 import capabilityStatement from "../examples/CapabilityStatement/apim-medicines-prescriptionsforpatients.json"
 import {mockAPIGatewayProxyEvent, test_append_trace_ids, test_mime_type} from "@prescriptionsforpatients_common/testing"
 
-const dummyContext = ContextExamples.helloworldContext
+const dummyContext = helloworldContext
 const mockEvent: APIGatewayProxyEvent = mockAPIGatewayProxyEvent
 
 describe("Unit test for app handler", function () {
