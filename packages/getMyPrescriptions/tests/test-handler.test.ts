@@ -7,7 +7,7 @@ import {
   jest
 } from "@jest/globals"
 import "./toMatchJsonLogMessage"
-import {ContextExamples} from "@aws-lambda-powertools/commons"
+import {helloworldContext} from "@prescriptionsforpatients_common/testing"
 import {Logger} from "@aws-lambda-powertools/logger"
 import MockAdapter from "axios-mock-adapter"
 import axios from "axios"
@@ -19,7 +19,7 @@ import {
   mockPharmicaResponse
 } from "@prescriptionsforpatients_common/testing"
 
-const dummyContext = ContextExamples.helloworldContext
+const dummyContext = helloworldContext
 const mock = new MockAdapter(axios)
 
 const exampleEvent = JSON.stringify(mockAPIGatewayProxyEvent)

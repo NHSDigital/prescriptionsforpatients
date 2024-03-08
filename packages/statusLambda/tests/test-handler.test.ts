@@ -6,7 +6,7 @@ import {
   describe,
   it
 } from "@jest/globals"
-import {ContextExamples} from "@aws-lambda-powertools/commons"
+import {helloworldContext} from "@prescriptionsforpatients_common/testing"
 import {Logger} from "@aws-lambda-powertools/logger"
 import MockAdapter from "axios-mock-adapter"
 import axios from "axios"
@@ -14,7 +14,7 @@ import {mockAPIGatewayProxyEvent} from "@prescriptionsforpatients_common/testing
 
 const mock = new MockAdapter(axios)
 
-const dummyContext = ContextExamples.helloworldContext
+const dummyContext = helloworldContext
 
 describe("Unit test for status check", function () {
   let originalEnv: {[key: string]: string | undefined}
