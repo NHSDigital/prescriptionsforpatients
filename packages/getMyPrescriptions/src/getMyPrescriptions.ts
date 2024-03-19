@@ -14,6 +14,10 @@ const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
 const servicesCache: ServicesCache = {}
 
+type Milliseconds = number
+const LAMBDA_TIMEOUT: Milliseconds = 10_000
+const SPINE_TIMEOUT: Milliseconds = 9_000
+
 /* eslint-disable  max-len */
 
 /**
@@ -27,6 +31,23 @@ const servicesCache: ServicesCache = {}
  */
 
 const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  return timeoutHandler(LAMBDA_TIMEOUT, eventHandler(event))
+}
+
+type Timeout = {
+  statusCode: number
+  body: string
+}
+async function timeoutHandler<T>(timeout: Milliseconds, job: Promise<T>): Promise<T | Timeout> {
+  const timeoutPromise = new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({statusCode: 504, body: "Request Timed Out"})
+    }, timeout)
+  }) as Promise<Timeout>
+  return Promise.race([job, timeoutPromise])
+}
+
+export async function eventHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
   const xRequestId = event.headers["x-request-id"]
   logger.appendKeys({
     "nhsd-correlation-id": event.headers["nhsd-correlation-id"],
@@ -71,7 +92,14 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     const nhsNumber = extractNHSNumber(event.headers["nhsd-nhslogin-user"])
     logger.info(`nhsNumber: ${nhsNumber}`)
     event.headers["nhsNumber"] = nhsNumber
-    const returnData = await spineClient.getPrescriptions(event.headers)
+
+    const spineCallout = spineClient.getPrescriptions(event.headers)
+    const response = await timeoutHandler(SPINE_TIMEOUT, spineCallout)
+    if ((response as Timeout).statusCode === 504){
+      return response as APIGatewayProxyResult
+    }
+    const returnData = await spineCallout
+
     const searchsetBundle: Bundle = returnData.data
     searchsetBundle.id = xRequestId
 
