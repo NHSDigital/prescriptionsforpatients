@@ -7,11 +7,11 @@ export interface Timeout {
   isTimeout: true
 }
 export async function jobWithTimeout<T>(timeout: Milliseconds, job: Promise<T>): Promise<T | Timeout> {
-  const timeoutPromise = new Promise((resolve) => {
+  const timeoutPromise: Promise<Timeout> = new Promise((resolve) => {
     setTimeout(() => {
       resolve({isTimeout: true})
     }, timeout)
-  }) as Promise<Timeout>
+  })
   return Promise.race([job, timeoutPromise])
 }
 
