@@ -11,7 +11,7 @@ import {DistanceSelling, ServicesCache} from "@prescriptionsforpatients/distance
 import type {Bundle} from "fhir/r4"
 import {
   INVALID_NHS_NUMBER_RESPONSE,
-  SERVER_ERROR_RESPONSE,
+  SPINE_CERT_NOT_CONFIGURED_RESPONSE,
   TIMEOUT_RESPONSE,
   successResponse
 } from "./responses"
@@ -63,7 +63,7 @@ export async function eventHandler(event: APIGatewayProxyEvent): Promise<APIGate
   try {
     const isCertificateConfigured = spineClient.isCertificateConfigured()
     if (!isCertificateConfigured) {
-      return SERVER_ERROR_RESPONSE
+      return SPINE_CERT_NOT_CONFIGURED_RESPONSE
     }
 
     const nhsNumber = extractNHSNumber(event.headers["nhsd-nhslogin-user"])

@@ -29,7 +29,7 @@ export const TIMEOUT_RESPONSE: APIGatewayProxyResult = {
   headers: HEADERS
 }
 
-export const SERVER_ERROR_RESPONSE: APIGatewayProxyResult = {
+export const SPINE_CERT_NOT_CONFIGURED_RESPONSE: APIGatewayProxyResult = {
   statusCode: 500,
   body: JSON.stringify({
     resourceType: "OperationOutcome",
