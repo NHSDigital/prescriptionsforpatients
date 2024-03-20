@@ -18,6 +18,7 @@ import {
   mockPharmacy2uResponse,
   mockPharmicaResponse
 } from "@prescriptionsforpatients_common/testing"
+import {HEADERS} from "../src/responses"
 
 const dummyContext = helloworldContext
 const mock = new MockAdapter(axios)
@@ -97,10 +98,14 @@ type spineFailureTestData = {
 }
 
 describe("Unit test for app handler", function () {
+  const ENV = process.env
+
   beforeEach(() => {
+    process.env = {...ENV}
     process.env.TargetSpineServer = "live"
   })
   afterEach(() => {
+    process.env = {...ENV}
     mock.reset()
   })
 
@@ -117,10 +122,7 @@ describe("Unit test for app handler", function () {
         id: "test-request-id"
       })
     )
-    expect(result.headers).toEqual({
-      "Content-Type": "application/fhir+json",
-      "Cache-Control": "no-cache"
-    })
+    expect(result.headers).toEqual(HEADERS)
   })
 
   it.each<spineFailureTestData>([
@@ -196,10 +198,7 @@ describe("Unit test for app handler", function () {
       event.headers = {"nhsd-nhslogin-user": nhsdLoginUser}
       const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
       expect(result.statusCode).toBe(expectedHttpResponse)
-      expect(result.headers).toEqual({
-        "Content-Type": "application/fhir+json",
-        "Cache-Control": "no-cache"
-      })
+      expect(result.headers).toEqual(HEADERS)
       expect(JSON.parse(result.body)).toEqual(errorResponse)
     }
   )
@@ -210,10 +209,7 @@ describe("Unit test for app handler", function () {
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
     expect(result.statusCode).toBe(500)
-    expect(result.headers).toEqual({
-      "Content-Type": "application/fhir+json",
-      "Cache-Control": "no-cache"
-    })
+    expect(result.headers).toEqual(HEADERS)
     expect(JSON.parse(result.body)).toEqual(responseStatus500)
   })
 
@@ -240,10 +236,7 @@ describe("Unit test for app handler", function () {
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
     expect(result.statusCode).toBe(500)
-    expect(result.headers).toEqual({
-      "Content-Type": "application/fhir+json",
-      "Cache-Control": "no-cache"
-    })
+    expect(result.headers).toEqual(HEADERS)
     expect(JSON.parse(result.body)).toEqual(responseStatus500)
   })
 
@@ -257,10 +250,7 @@ describe("Unit test for app handler", function () {
     const result: APIGatewayProxyResult = await handler(event, dummyContext)
 
     expect(result.statusCode).toBe(500)
-    expect(result.headers).toEqual({
-      "Content-Type": "application/fhir+json",
-      "Cache-Control": "no-cache"
-    })
+    expect(result.headers).toEqual(HEADERS)
     expect(JSON.parse(result.body)).toEqual(responseNotConfCertStatus500)
   })
 })
@@ -306,10 +296,7 @@ describe("Unit tests for app handler including service search", function () {
       expect(result.body).toEqual(
         JSON.stringify(mockAPIResponseBody)
       )
-      expect(result.headers).toEqual({
-        "Content-Type": "application/fhir+json",
-        "Cache-Control": "no-cache"
-      })
+      expect(result.headers).toEqual(HEADERS)
     }
 
     expect(mock.history.get.length).toEqual(4)
