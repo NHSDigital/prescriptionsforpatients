@@ -9,6 +9,13 @@ import {createSpineClient} from "@nhsdigital/eps-spine-client"
 import {extractNHSNumber, NHSNumberValidationError} from "./extractNHSNumber"
 import {DistanceSelling, ServicesCache} from "@prescriptionsforpatients/distanceSelling"
 import type {Bundle} from "fhir/r4"
+import {
+  INVALID_NHS_NUMBER_RESPONSE,
+  SERVER_ERROR_RESPONSE,
+  TIMEOUT_RESPONSE,
+  successResponse
+} from "./responses"
+import {deepCopy} from "./utils"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
@@ -17,6 +24,7 @@ const servicesCache: ServicesCache = {}
 type Milliseconds = number
 const LAMBDA_TIMEOUT: Milliseconds = 10_000
 const SPINE_TIMEOUT: Milliseconds = 9_000
+const DISTANCE_SELLING_TIMEOUT: Milliseconds = 8_000
 
 /* eslint-disable  max-len */
 
@@ -29,22 +37,28 @@ const SPINE_TIMEOUT: Milliseconds = 9_000
  * @returns {Object} object - API Gateway Lambda Proxy Output Format
  *
  */
-
 const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  return timeoutHandler(LAMBDA_TIMEOUT, eventHandler(event))
+  const handlerResponse = await jobWithTimeout(LAMBDA_TIMEOUT, eventHandler(event))
+  if (hasTimedOut(handlerResponse)){
+    return TIMEOUT_RESPONSE
+  }
+  return handlerResponse
 }
 
-type Timeout = {
-  statusCode: number
-  body: string
+interface Timeout {
+  isTimeout: true
 }
-async function timeoutHandler<T>(timeout: Milliseconds, job: Promise<T>): Promise<T | Timeout> {
+async function jobWithTimeout<T>(timeout: Milliseconds, job: Promise<T>): Promise<T | Timeout> {
   const timeoutPromise = new Promise((resolve) => {
     setTimeout(() => {
-      resolve({statusCode: 504, body: "Request Timed Out"})
+      resolve({isTimeout: true})
     }, timeout)
   }) as Promise<Timeout>
   return Promise.race([job, timeoutPromise])
+}
+
+function hasTimedOut<T>(response: T | Timeout): response is Timeout{
+  return !!(response as Timeout).isTimeout
 }
 
 export async function eventHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
@@ -61,87 +75,33 @@ export async function eventHandler(event: APIGatewayProxyEvent): Promise<APIGate
   try {
     const isCertificateConfigured = spineClient.isCertificateConfigured()
     if (!isCertificateConfigured) {
-      const errorResponseBody = {
-        resourceType: "OperationOutcome",
-        issue: [
-          {
-            code: "security",
-            severity: "fatal",
-            details: {
-              coding: [
-                {
-                  system: "https://fhir.nhs.uk/CodeSystem/http-error-codes",
-                  code: "SERVER_ERROR",
-                  display: "500: The Server has encountered an error processing the request."
-                }
-              ]
-            },
-            diagnostics: "Spine certificate is not configured"
-          }
-        ]
-      }
-      return {
-        statusCode: 500,
-        body: JSON.stringify(errorResponseBody),
-        headers: {
-          "Content-Type": "application/fhir+json",
-          "Cache-Control": "no-cache"
-        }
-      }
+      return SERVER_ERROR_RESPONSE
     }
+
     const nhsNumber = extractNHSNumber(event.headers["nhsd-nhslogin-user"])
     logger.info(`nhsNumber: ${nhsNumber}`)
     event.headers["nhsNumber"] = nhsNumber
 
     const spineCallout = spineClient.getPrescriptions(event.headers)
-    const response = await timeoutHandler(SPINE_TIMEOUT, spineCallout)
-    if ((response as Timeout).statusCode === 504){
-      return response as APIGatewayProxyResult
+    const response = await jobWithTimeout(SPINE_TIMEOUT, spineCallout)
+    if (hasTimedOut(response)){
+      return TIMEOUT_RESPONSE
     }
-    const returnData = await spineCallout
-
-    const searchsetBundle: Bundle = returnData.data
+    const searchsetBundle: Bundle = response.data
     searchsetBundle.id = xRequestId
 
     const distanceSelling = new DistanceSelling(servicesCache, logger)
-    await distanceSelling.search(searchsetBundle)
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify(searchsetBundle),
-      headers: {
-        "Content-Type": "application/fhir+json",
-        "Cache-Control": "no-cache"
-      }
+    const distanceSellingBundle = deepCopy(searchsetBundle)
+    const distanceSellingCallout = distanceSelling.search(distanceSellingBundle)
+    const distanceSellingResponse = await jobWithTimeout(DISTANCE_SELLING_TIMEOUT, distanceSellingCallout)
+    if (hasTimedOut(distanceSellingResponse)){
+      return successResponse(searchsetBundle)
     }
+
+    return successResponse(distanceSellingBundle)
   } catch (error) {
     if (error instanceof NHSNumberValidationError) {
-      const errorResponseBody = {
-        resourceType: "OperationOutcome",
-        issue: [
-          {
-            code: "value",
-            severity: "error",
-            details: {
-              coding: [
-                {
-                  system: "https://fhir.nhs.uk/CodeSystem/Spine-ErrorOrWarningCode",
-                  code: "INVALID_RESOURCE_ID",
-                  display: "Invalid resource ID"
-                }
-              ]
-            }
-          }
-        ]
-      }
-      return {
-        statusCode: 400,
-        body: JSON.stringify(errorResponseBody),
-        headers: {
-          "Content-Type": "application/fhir+json",
-          "Cache-Control": "no-cache"
-        }
-      }
+      return INVALID_NHS_NUMBER_RESPONSE
     } else {
       throw error
     }
