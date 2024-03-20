@@ -15,13 +15,17 @@ import {
   TIMEOUT_RESPONSE,
   successResponse
 } from "./responses"
-import {deepCopy} from "./utils"
+import {
+  Milliseconds,
+  deepCopy,
+  hasTimedOut,
+  jobWithTimeout
+} from "./utils"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
 const servicesCache: ServicesCache = {}
 
-type Milliseconds = number
 const LAMBDA_TIMEOUT: Milliseconds = 10_000
 const SPINE_TIMEOUT: Milliseconds = 9_000
 const DISTANCE_SELLING_TIMEOUT: Milliseconds = 8_000
@@ -43,22 +47,6 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     return TIMEOUT_RESPONSE
   }
   return handlerResponse
-}
-
-interface Timeout {
-  isTimeout: true
-}
-async function jobWithTimeout<T>(timeout: Milliseconds, job: Promise<T>): Promise<T | Timeout> {
-  const timeoutPromise = new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({isTimeout: true})
-    }, timeout)
-  }) as Promise<Timeout>
-  return Promise.race([job, timeoutPromise])
-}
-
-function hasTimedOut<T>(response: T | Timeout): response is Timeout{
-  return !!(response as Timeout).isTimeout
 }
 
 export async function eventHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
