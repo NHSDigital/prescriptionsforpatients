@@ -43,7 +43,8 @@
         "streetsidesoftware.code-spell-checker",
         "timonwong.shellcheck",
         "mkhl.direnv",
-        "github.vscode-github-actions"
+        "github.vscode-github-actions",
+        "Orta.vscode-jest"
       ],
       "settings": {
         "python.defaultInterpreterPath": "/workspaces/prescriptionsforpatients/.venv/bin/python",
