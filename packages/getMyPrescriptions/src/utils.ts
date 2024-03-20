@@ -16,5 +16,5 @@ export async function jobWithTimeout<T>(timeout: Milliseconds, job: Promise<T>):
 }
 
 export function hasTimedOut<T>(response: T | Timeout): response is Timeout{
-  return !!(response as Timeout).isTimeout
+  return !!(response as Timeout)?.isTimeout
 }
