@@ -267,7 +267,7 @@ describe("Unit test for app handler", function () {
     await jest.advanceTimersByTimeAsync(11_000)
 
     const result = await eventHandler
-    expect(result.statusCode).toBe(504)
+    expect(result.statusCode).toBe(408)
     expect(result.headers).toEqual(HEADERS)
     expect(JSON.parse(result.body)).toEqual(JSON.parse(TIMEOUT_RESPONSE.body))
   })
