@@ -7,13 +7,13 @@ export const HEADERS = {
 }
 
 export const TIMEOUT_RESPONSE: APIGatewayProxyResult = {
-  statusCode: 504,
+  statusCode: 408,
   body: JSON.stringify({
     resourceType: "OperationOutcome",
     issue: [
       {
-        code: "TIMEOUT",
-        severity: "error",
+        code: "timeout",
+        severity: "fatal",
         details: {
           coding: [
             {
