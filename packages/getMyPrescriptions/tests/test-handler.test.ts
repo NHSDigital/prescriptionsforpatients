@@ -285,11 +285,16 @@ describe("Unit tests for app handler including service search", function () {
   beforeEach(() => {
     mock.reset()
     mock.resetHistory()
+    jest.useFakeTimers()
     process.env.TargetSpineServer = "spine"
     process.env.TargetServiceSearchServer = "service-search"
     process.env.SpinePublicCertificate = "public-certificate"
     process.env.SpinePrivateKey = "private-key"
     process.env.SpineCAChain = "ca-chain"
+  })
+
+  afterEach(() => {
+    jest.clearAllTimers()
   })
 
   it("local cache is used to reduce calls to service search", async () => {
@@ -341,6 +346,25 @@ describe("Unit tests for app handler including service search", function () {
       JSON.stringify(mockAPIResponseBody)
     )
     expect(result.headers).toEqual(HEADERS)
+  })
+
+  it("return unenhanced data if service search call takes too long", async () => {
+    const exampleResponse = {resourceType: "Bundle"}
+    mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, exampleResponse)
+
+    const delayedResponse: Promise<Array<unknown>> = new Promise((resolve) => setTimeout(() => resolve([]), 15_000))
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    mock.onGet("https://service-search/service-search").reply((_config) => delayedResponse)
+
+    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+    const eventHandler: Promise<APIGatewayProxyResult> = handler(event, dummyContext)
+
+    await jest.advanceTimersByTimeAsync(8_000)
+
+    const result = await eventHandler
+    expect(result.statusCode).toBe(200)
+    expect(result.headers).toEqual(HEADERS)
+    expect(JSON.parse(result.body)).toEqual({...exampleResponse, id: "test-request-id"})
   })
 })
 
