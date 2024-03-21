@@ -348,7 +348,7 @@ describe("Unit tests for app handler including service search", function () {
     expect(result.headers).toEqual(HEADERS)
   })
 
-  it("timesout  if service search call takes too long", async () => {
+  it("return unenhanced data if service search call takes too long", async () => {
     const exampleResponse = {resourceType: "Bundle"}
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, exampleResponse)
 

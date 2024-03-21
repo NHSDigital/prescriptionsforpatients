@@ -28,7 +28,7 @@ const servicesCache: ServicesCache = {}
 
 const LAMBDA_TIMEOUT: Milliseconds = 10_000
 const SPINE_TIMEOUT: Milliseconds = 9_000
-const DISTANCE_SELLING_TIMEOUT: Milliseconds = 8_000
+const SERVICE_SEARCH_TIMEOUT: Milliseconds = 5_000
 
 /* eslint-disable  max-len */
 
@@ -81,7 +81,7 @@ export async function eventHandler(event: APIGatewayProxyEvent): Promise<APIGate
     const distanceSelling = new DistanceSelling(servicesCache, logger)
     const distanceSellingBundle = deepCopy(searchsetBundle)
     const distanceSellingCallout = distanceSelling.search(distanceSellingBundle)
-    const distanceSellingResponse = await jobWithTimeout(DISTANCE_SELLING_TIMEOUT, distanceSellingCallout)
+    const distanceSellingResponse = await jobWithTimeout(SERVICE_SEARCH_TIMEOUT, distanceSellingCallout)
     if (hasTimedOut(distanceSellingResponse)){
       return successResponse(searchsetBundle)
     }
