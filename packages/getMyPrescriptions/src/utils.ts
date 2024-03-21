@@ -1,12 +1,11 @@
-export type Milliseconds = number
 export interface Timeout {
   isTimeout: true
 }
-export async function jobWithTimeout<T>(timeout: Milliseconds, job: Promise<T>): Promise<T | Timeout> {
+export async function jobWithTimeout<T>(timeoutMS: number, job: Promise<T>): Promise<T | Timeout> {
   const timeoutPromise: Promise<Timeout> = new Promise((resolve) => {
     setTimeout(() => {
       resolve({isTimeout: true})
-    }, timeout)
+    }, timeoutMS)
   })
   return Promise.race([job, timeoutPromise])
 }

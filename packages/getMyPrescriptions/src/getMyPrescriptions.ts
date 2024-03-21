@@ -15,14 +15,14 @@ import {
   TIMEOUT_RESPONSE,
   successResponse
 } from "./responses"
-import {Milliseconds, hasTimedOut, jobWithTimeout} from "./utils"
+import {hasTimedOut, jobWithTimeout} from "./utils"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
 const servicesCache: ServicesCache = {}
 
-const LAMBDA_TIMEOUT: Milliseconds = 10_000
-const SPINE_TIMEOUT: Milliseconds = 9_000
+const LAMBDA_TIMEOUT_MS = 10_000
+const SPINE_TIMEOUT_MS = 9_000
 
 /* eslint-disable  max-len */
 
@@ -36,7 +36,7 @@ const SPINE_TIMEOUT: Milliseconds = 9_000
  *
  */
 const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  const handlerResponse = await jobWithTimeout(LAMBDA_TIMEOUT, eventHandler(event))
+  const handlerResponse = await jobWithTimeout(LAMBDA_TIMEOUT_MS, eventHandler(event))
   if (hasTimedOut(handlerResponse)){
     return TIMEOUT_RESPONSE
   }
@@ -65,7 +65,7 @@ export async function eventHandler(event: APIGatewayProxyEvent): Promise<APIGate
     event.headers["nhsNumber"] = nhsNumber
 
     const spineCallout = spineClient.getPrescriptions(event.headers)
-    const response = await jobWithTimeout(SPINE_TIMEOUT, spineCallout)
+    const response = await jobWithTimeout(SPINE_TIMEOUT_MS, spineCallout)
     if (hasTimedOut(response)){
       return TIMEOUT_RESPONSE
     }
