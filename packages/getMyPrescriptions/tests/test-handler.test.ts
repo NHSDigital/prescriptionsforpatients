@@ -18,6 +18,7 @@ import {
   mockPharmacy2uResponse,
   mockPharmicaResponse
 } from "@prescriptionsforpatients_common/testing"
+import {HEADERS, TIMEOUT_RESPONSE} from "../src/responses"
 
 const dummyContext = helloworldContext
 const mock = new MockAdapter(axios)
@@ -97,10 +98,16 @@ type spineFailureTestData = {
 }
 
 describe("Unit test for app handler", function () {
+  const ENV = process.env
+
   beforeEach(() => {
+    process.env = {...ENV}
     process.env.TargetSpineServer = "live"
+    jest.useFakeTimers()
   })
   afterEach(() => {
+    process.env = {...ENV}
+    jest.clearAllTimers()
     mock.reset()
   })
 
@@ -117,10 +124,7 @@ describe("Unit test for app handler", function () {
         id: "test-request-id"
       })
     )
-    expect(result.headers).toEqual({
-      "Content-Type": "application/fhir+json",
-      "Cache-Control": "no-cache"
-    })
+    expect(result.headers).toEqual(HEADERS)
   })
 
   it.each<spineFailureTestData>([
@@ -196,10 +200,7 @@ describe("Unit test for app handler", function () {
       event.headers = {"nhsd-nhslogin-user": nhsdLoginUser}
       const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
       expect(result.statusCode).toBe(expectedHttpResponse)
-      expect(result.headers).toEqual({
-        "Content-Type": "application/fhir+json",
-        "Cache-Control": "no-cache"
-      })
+      expect(result.headers).toEqual(HEADERS)
       expect(JSON.parse(result.body)).toEqual(errorResponse)
     }
   )
@@ -210,10 +211,7 @@ describe("Unit test for app handler", function () {
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
     expect(result.statusCode).toBe(500)
-    expect(result.headers).toEqual({
-      "Content-Type": "application/fhir+json",
-      "Cache-Control": "no-cache"
-    })
+    expect(result.headers).toEqual(HEADERS)
     expect(JSON.parse(result.body)).toEqual(responseStatus500)
   })
 
@@ -240,10 +238,7 @@ describe("Unit test for app handler", function () {
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
     expect(result.statusCode).toBe(500)
-    expect(result.headers).toEqual({
-      "Content-Type": "application/fhir+json",
-      "Cache-Control": "no-cache"
-    })
+    expect(result.headers).toEqual(HEADERS)
     expect(JSON.parse(result.body)).toEqual(responseStatus500)
   })
 
@@ -257,11 +252,24 @@ describe("Unit test for app handler", function () {
     const result: APIGatewayProxyResult = await handler(event, dummyContext)
 
     expect(result.statusCode).toBe(500)
-    expect(result.headers).toEqual({
-      "Content-Type": "application/fhir+json",
-      "Cache-Control": "no-cache"
-    })
+    expect(result.headers).toEqual(HEADERS)
     expect(JSON.parse(result.body)).toEqual(responseNotConfCertStatus500)
+  })
+
+  it("timesout if spine call takes too long", async () => {
+    const delayedResponse: Promise<Array<unknown>> = new Promise((resolve) => setTimeout(() => resolve([]), 15_000))
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    mock.onGet("https://live/mm/patientfacingprescriptions").reply((_config) => delayedResponse)
+
+    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+    const eventHandler: Promise<APIGatewayProxyResult> = handler(event, dummyContext)
+
+    await jest.advanceTimersByTimeAsync(11_000)
+
+    const result = await eventHandler
+    expect(result.statusCode).toBe(408)
+    expect(result.headers).toEqual(HEADERS)
+    expect(JSON.parse(result.body)).toEqual(JSON.parse(TIMEOUT_RESPONSE.body))
   })
 })
 
@@ -306,10 +314,7 @@ describe("Unit tests for app handler including service search", function () {
       expect(result.body).toEqual(
         JSON.stringify(mockAPIResponseBody)
       )
-      expect(result.headers).toEqual({
-        "Content-Type": "application/fhir+json",
-        "Cache-Control": "no-cache"
-      })
+      expect(result.headers).toEqual(HEADERS)
     }
 
     expect(mock.history.get.length).toEqual(4)
@@ -335,10 +340,7 @@ describe("Unit tests for app handler including service search", function () {
     expect(result.body).toEqual(
       JSON.stringify(mockAPIResponseBody)
     )
-    expect(result.headers).toEqual({
-      "Content-Type": "application/fhir+json",
-      "Cache-Control": "no-cache"
-    })
+    expect(result.headers).toEqual(HEADERS)
   })
 })
 
