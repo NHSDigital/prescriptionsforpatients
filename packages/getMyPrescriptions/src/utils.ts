@@ -1,7 +1,3 @@
-export function deepCopy<T>(obj: T): T {
-  return JSON.parse(JSON.stringify(obj))
-}
-
 export type Milliseconds = number
 export interface Timeout {
   isTimeout: true
