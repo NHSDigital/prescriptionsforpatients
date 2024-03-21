@@ -15,7 +15,7 @@ import {
   TIMEOUT_RESPONSE,
   successResponse
 } from "./responses"
-import {hasTimedOut, jobWithTimeout} from "./utils"
+import {deepCopy, hasTimedOut, jobWithTimeout} from "./utils"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
@@ -23,6 +23,7 @@ const servicesCache: ServicesCache = {}
 
 const LAMBDA_TIMEOUT_MS = 10_000
 const SPINE_TIMEOUT_MS = 9_000
+const SERVICE_SEARCH_TIMEOUT_MS = 5_000
 
 /* eslint-disable  max-len */
 
@@ -73,9 +74,14 @@ export async function eventHandler(event: APIGatewayProxyEvent): Promise<APIGate
     searchsetBundle.id = xRequestId
 
     const distanceSelling = new DistanceSelling(servicesCache, logger)
-    await distanceSelling.search(searchsetBundle)
+    const distanceSellingBundle = deepCopy(searchsetBundle)
+    const distanceSellingCallout = distanceSelling.search(distanceSellingBundle)
+    const distanceSellingResponse = await jobWithTimeout(SERVICE_SEARCH_TIMEOUT_MS, distanceSellingCallout)
+    if (hasTimedOut(distanceSellingResponse)){
+      return successResponse(searchsetBundle)
+    }
 
-    return successResponse(searchsetBundle)
+    return successResponse(distanceSellingBundle)
   } catch (error) {
     if (error instanceof NHSNumberValidationError) {
       return INVALID_NHS_NUMBER_RESPONSE
