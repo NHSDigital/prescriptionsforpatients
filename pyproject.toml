@@ -39,7 +39,7 @@ cfn-lint = "^0.86.1"
 [tool.poetry.dev-dependencies]
 flake8 = "^5.0.4"
 black = "^24.3"
-pip-licenses = "^4.3.4"
+pip-licenses = "^4.4.0"
 jinja2 = "^3.1.3"
 
 [tool.poetry.scripts]
