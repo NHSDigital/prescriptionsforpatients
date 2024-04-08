@@ -115,6 +115,7 @@ Resources:
         EnableSplunk: !Ref EnableSplunk
         LambdaName: !Sub "${AWS::StackName}-GetMyPrescriptions"
         LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${StackName}-GetMyPrescriptions
+        StackName: !Ref AWS::StackName
         AccessToSpine: "true"
         LogRetentionInDays: !Ref LogRetentionInDays
   GetMyPrescriptions:

@@ -29,6 +29,9 @@ Parameters:
     Type: String
     Description: Arn of lambda we are creating resources for.
     Default: none
+  StackName:
+    Type: String
+    Description: The name of the main stack
   AccessToSpine:
     Type: String
     Description: Whether to use splunk
