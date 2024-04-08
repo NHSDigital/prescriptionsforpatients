@@ -114,6 +114,7 @@ Resources:
         SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
         LambdaName: !Sub "${AWS::StackName}-GetMyPrescriptions"
+        LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${StackName}-GetMyPrescriptions
         AccessToSpine: "true"
         LogRetentionInDays: !Ref LogRetentionInDays
   GetMyPrescriptions:
