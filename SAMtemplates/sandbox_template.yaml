@@ -50,7 +50,7 @@ Parameters:
     Type: String
     Description: Most recent commit hash
     Default: "xxx"
-  LogRetentionDays:
+  LogRetentionInDays:
     Type: Number
     Description: How long to keep logs for
     AllowedValues:
@@ -84,7 +84,6 @@ Conditions:
   ShouldUseSplunk: !Equals [true, !Ref EnableSplunk]
 
 Resources:
-
   # sandbox lambda
   SandboxResources:
     Type: AWS::Serverless::Application
@@ -96,7 +95,7 @@ Resources:
         SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
         LambdaName: !Sub "${AWS::StackName}-Sandbox"
-        LogRetentionDays: !Ref LogRetentionDays
+        LogRetentionInDays: !Ref LogRetentionInDays
   Sandbox:
     Type: AWS::Serverless::Function
     Properties:
@@ -132,7 +131,7 @@ Resources:
         SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
         LambdaName: !Sub "${AWS::StackName}-CapabilityStatement"
-        LogRetentionDays: !Ref LogRetentionDays
+        LogRetentionInDays: !Ref LogRetentionInDays
   CapabilityStatement:
     Type: AWS::Serverless::Function
     Properties:
@@ -168,7 +167,7 @@ Resources:
         SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
         LambdaName: !Sub "${AWS::StackName}-statusLambda"
-        LogRetentionDays: !Ref LogRetentionDays
+        LogRetentionInDays: !Ref LogRetentionInDays
   StatusLambda:
     Type: AWS::Serverless::Function
     Properties:
@@ -302,7 +301,7 @@ Resources:
           "/",
           ["/aws/apigateway", !Ref "AWS::StackName", !Sub "${HttpApiGateway}"],
         ]
-      RetentionInDays: !Ref LogRetentionDays
+      RetentionInDays: !Ref LogRetentionInDays
       KmsKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
 
   ApiGwAccessLogsSplunkSubscriptionFilter:

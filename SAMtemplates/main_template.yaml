@@ -60,7 +60,7 @@ Parameters:
     Type: String
     Description: The log level to set in the lambda
     Default: "INFO"
-  LogRetentionDays:
+  LogRetentionInDays:
     Type: Number
     Description: How long to keep logs for
     Default: 30
@@ -115,7 +115,7 @@ Resources:
         EnableSplunk: !Ref EnableSplunk
         LambdaName: !Sub "${AWS::StackName}-GetMyPrescriptions"
         AccessToSpine: "true"
-        LogRetentionDays: !Ref LogRetentionDays
+        LogRetentionInDays: !Ref LogRetentionInDays
   GetMyPrescriptions:
     Type: AWS::Serverless::Function
     Properties:
@@ -150,7 +150,7 @@ Resources:
         SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
         LambdaName: !Sub "${AWS::StackName}-CapabilityStatement"
-        LogRetentionDays: !Ref LogRetentionDays
+        LogRetentionInDays: !Ref LogRetentionInDays
   CapabilityStatement:
     Type: AWS::Serverless::Function
     Properties:
@@ -187,7 +187,7 @@ Resources:
         EnableSplunk: !Ref EnableSplunk
         LambdaName: !Sub "${AWS::StackName}-statusLambda"
         AccessToSpine: "true"
-        LogRetentionDays: !Ref LogRetentionDays
+        LogRetentionInDays: !Ref LogRetentionInDays
   StatusLambda:
     Type: AWS::Serverless::Function
     Properties:
@@ -326,7 +326,7 @@ Resources:
           "/",
           ["/aws/apigateway", !Ref "AWS::StackName", !Sub "${HttpApiGateway}"],
         ]
-      RetentionInDays: !Ref LogRetentionDays
+      RetentionInDays: !Ref LogRetentionInDays
       KmsKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
 
   ApiGwAccessLogsSplunkSubscriptionFilter:
@@ -345,6 +345,6 @@ Resources:
       Parameters:
         StackName: !Ref AWS::StackName
         GetMyPrescriptionsFunctionName: !Ref GetMyPrescriptions
-        GetMyPrescriptionsFunctionArn: !Ref GetMyPrescriptions.Arn
+        GetMyPrescriptionsFunctionArn: !GetAtt GetMyPrescriptions.Arn
         LogRetentionInDays: !Ref LogRetentionInDays
         EnableSplunk: !Ref EnableSplunk
