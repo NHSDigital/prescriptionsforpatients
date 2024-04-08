@@ -9,6 +9,37 @@
         "Payload.$": "$",
         "FunctionName": "${GetMyPrescriptionsFunctionArn}"
       },
+      "ResultPath": "$.Payload.statusCode",
+      "ResultSelector": {
+        "Response.$": "$.Payload",
+        "StatusCode.$": "$.Payload.statusCode"
+      },
+      "Next": "Get My Prescriptions Result",
+      "InputPath": "$.body"
+    },
+    "Get My Prescriptions Result": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.Payload.statusCode",
+          "NumericEquals": 200,
+          "Next": "Get Status Updates"
+        }
+      ],
+      "Default": "Failed Get My Prescriptions"
+    },
+    "Failed Get My Prescriptions": {
+      "Type": "Pass",
+      "End": true,
+      "InputPath": "$.Payload.body"
+    },
+    "Get Status Updates": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "Payload.$": "$",
+        "FunctionName": "${GetStatusUpdates}"
+      },
       "End": true
     }
   }
