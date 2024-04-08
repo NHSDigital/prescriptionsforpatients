@@ -152,6 +152,7 @@ Resources:
         SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
         LambdaName: !Sub "${AWS::StackName}-CapabilityStatement"
+        LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-CapabilityStatement
         StackName: !Ref AWS::StackName
         LogRetentionInDays: !Ref LogRetentionInDays
   CapabilityStatement:
@@ -189,6 +190,7 @@ Resources:
         SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
         LambdaName: !Sub "${AWS::StackName}-statusLambda"
+        LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-StatusLambda
         StackName: !Ref AWS::StackName
         AccessToSpine: "true"
         LogRetentionInDays: !Ref LogRetentionInDays

@@ -95,6 +95,7 @@ Resources:
         SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
         LambdaName: !Sub "${AWS::StackName}-Sandbox"
+        LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-Sandbox
         LogRetentionInDays: !Ref LogRetentionInDays
   Sandbox:
     Type: AWS::Serverless::Function
@@ -131,6 +132,7 @@ Resources:
         SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
         LambdaName: !Sub "${AWS::StackName}-CapabilityStatement"
+        LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-CapabilityStatement
         LogRetentionInDays: !Ref LogRetentionInDays
   CapabilityStatement:
     Type: AWS::Serverless::Function
@@ -167,6 +169,7 @@ Resources:
         SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
         LambdaName: !Sub "${AWS::StackName}-statusLambda"
+        LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-StatusLambda
         LogRetentionInDays: !Ref LogRetentionInDays
   StatusLambda:
     Type: AWS::Serverless::Function
