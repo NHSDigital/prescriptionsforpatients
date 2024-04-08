@@ -1,0 +1,149 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Description: Resources for a state machine
+
+Parameters:
+  StackName:
+    Type: String
+    Description: The name of the main stack
+    Default: none
+
+  StateMachineName:
+    Type: String
+    Description: The name of the state machine
+    Default: none
+
+  StateMachineArn:
+    Type: String
+    Description: The Arn of the state machine
+    Default: none
+
+  AdditionalPolicies:
+    Type: CommaDelimitedList
+    Description: A list of additional policies to attach the state machines role (comma delimited).
+    Default: none
+
+  LogRetentionInDays:
+    Type: Number
+    Description: How long to keep logs for.
+
+  CloudWatchKMSKeyId:
+    Type: String
+    Description: The KMS Key ID used for encrypting logs.
+    Default: none
+
+  EnableSplunk:
+    Type: String
+    Description: Whether to use splunk
+
+  SplunkSubscriptionFilterRole:
+    Type: String
+    Description: Subscription filter role for sending logs to splunk
+    Default: none
+
+  SplunkDeliveryStreamArn:
+    Type: String
+    Description: Splunk delivery stream
+    Default: none
+
+Conditions:
+  ShouldUseSplunk: !Equals
+    - true
+    - !Ref EnableSplunk
+
+Resources:
+  ExecuteStateMachineManagedPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - states:StartSyncExecution
+              - states:StartExecution
+            Resource:
+              - !Ref StateMachineArn
+
+  StateMachineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: states.amazonaws.com
+            Action:
+              - sts:AssumeRole
+            Condition:
+              ArnLike:
+                aws:SourceArn: !Sub arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:*
+              StringEquals:
+                aws:SourceAccount: !Ref AWS::AccountId
+      ManagedPolicyArns: !Split
+        - ","
+        - !Join
+          - ","
+          - - !Ref StateMachineManagedPolicy
+            - !ImportValue account-resources:CloudwatchEncryptionKMSPolicyArn
+            - !Join
+              - ","
+              - !Ref AdditionalPolicies
+
+  StateMachineManagedPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource:
+              - !GetAtt StateMachineLogGroup.Arn
+              - !Sub ${StateMachineLogGroup.Arn}:log-stream:*
+          - Effect: Allow
+            Action:
+              - logs:CreateLogDelivery
+              - logs:GetLogDelivery
+              - logs:UpdateLogDelivery
+              - logs:DeleteLogDelivery
+              - logs:ListLogDeliveries
+              - logs:PutResourcePolicy
+              - logs:DescribeResourcePolicies
+              - logs:DescribeLogGroups
+            Resource: "*"
+
+  StateMachineLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/stepfunctions/${StateMachineName}
+      RetentionInDays: !Ref LogRetentionInDays
+      KmsKeyId: !Ref CloudWatchKMSKeyId
+
+  StateMachineSplunkSubscriptionFilter:
+    Condition: ShouldUseSplunk
+    Type: AWS::Logs::SubscriptionFilter
+    Properties:
+      RoleArn: !Ref SplunkSubscriptionFilterRole
+      LogGroupName: !Ref StateMachineLogGroup
+      FilterPattern: ""
+      DestinationArn: !Ref SplunkDeliveryStreamArn
+
+Outputs:
+  ExecuteStateMachinePolicyArn:
+    Description: State machine execution policy arn
+    Value: !Ref ExecuteStateMachineManagedPolicy
+    Export:
+      Name: !Sub ${StackName}:state-machines:${StateMachineName}:ExecuteStateMachinePolicy
+
+  StateMachineRoleArn:
+    Description: State machine role arn
+    Value: !GetAtt StateMachineRole.Arn
+
+  StateMachineLogGroupArn:
+    Description: State machine log group arn
+    Value: !GetAtt StateMachineLogGroup.Arn

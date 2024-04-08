@@ -129,13 +129,6 @@ Resources:
           LOG_LEVEL: !Ref LogLevel
       Layers:
         - !Ref GetSecretsLayer
-      Events:
-        getMyPrescriptions:
-          Type: HttpApi
-          Properties:
-            ApiId: !Ref HttpApiGateway
-            Path: /Bundle
-            Method: get
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
       BuildProperties:
@@ -344,3 +337,14 @@ Resources:
       LogGroupName: !Ref ApiGwAccessLogs
       FilterPattern: "" # All logs
       DestinationArn: !ImportValue lambda-resources:SplunkDeliveryStream
+
+  StateMachines:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: state_machines/main.yaml
+      Parameters:
+        StackName: !Ref AWS::StackName
+        GetMyPrescriptionsFunctionName: !Ref GetMyPrescriptions
+        GetMyPrescriptionsFunctionArn: !Ref GetMyPrescriptions.Arn
+        LogRetentionInDays: !Ref LogRetentionInDays
+        EnableSplunk: !Ref EnableSplunk

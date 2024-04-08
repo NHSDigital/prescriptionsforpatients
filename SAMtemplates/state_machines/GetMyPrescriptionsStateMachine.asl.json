@@ -1,0 +1,15 @@
+{
+  "Comment": "Get My Prescriptions State Machine",
+  "StartAt": "Get My Prescriptions",
+  "States": {
+    "Get My Prescriptions": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "Payload.$": "$",
+        "FunctionName": "${GetMyPrescriptionsFunctionArn}"
+      },
+      "End": true
+    }
+  }
+}

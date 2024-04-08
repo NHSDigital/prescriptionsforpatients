@@ -65,7 +65,8 @@ jobs:
           name: packaged_code
           path: |
             .aws-sam/build
-            packages/getSecretLayer/lib/get-secrets-layer.zip 
+            packages/getSecretLayer/lib/get-secrets-layer.zip
+            SAMtemplates/state_machines/GetMyPrescriptionsStateMachine.asl.json
 
       - shell: bash
         name: package sandbox code
