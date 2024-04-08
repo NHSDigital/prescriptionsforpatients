@@ -114,8 +114,7 @@ Resources:
         SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
         LambdaName: !Sub "${AWS::StackName}-GetMyPrescriptions"
-        LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${StackName}-GetMyPrescriptions
-        StackName: !Ref AWS::StackName
+        LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-GetMyPrescriptions
         AccessToSpine: "true"
         LogRetentionInDays: !Ref LogRetentionInDays
   GetMyPrescriptions:
@@ -345,7 +344,6 @@ Resources:
     Properties:
       Location: state_machines/main.yaml
       Parameters:
-        StackName: !Ref AWS::StackName
         GetMyPrescriptionsFunctionName: !Ref GetMyPrescriptions
         GetMyPrescriptionsFunctionArn: !GetAtt GetMyPrescriptions.Arn
         LogRetentionInDays: !Ref LogRetentionInDays
