@@ -32,7 +32,7 @@ Parameters:
   StackName:
     Type: String
     Description: The name of the main stack
-    Default: !Ref AWS::StackName
+    Default: none
   AccessToSpine:
     Type: String
     Description: Whether to use splunk

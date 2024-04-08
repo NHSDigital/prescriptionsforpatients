@@ -115,6 +115,7 @@ Resources:
         EnableSplunk: !Ref EnableSplunk
         LambdaName: !Sub "${AWS::StackName}-GetMyPrescriptions"
         LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-GetMyPrescriptions
+        StackName: !Ref AWS::StackName
         AccessToSpine: "true"
         LogRetentionInDays: !Ref LogRetentionInDays
   GetMyPrescriptions:
@@ -151,6 +152,7 @@ Resources:
         SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
         LambdaName: !Sub "${AWS::StackName}-CapabilityStatement"
+        StackName: !Ref AWS::StackName
         LogRetentionInDays: !Ref LogRetentionInDays
   CapabilityStatement:
     Type: AWS::Serverless::Function
@@ -187,6 +189,7 @@ Resources:
         SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
         LambdaName: !Sub "${AWS::StackName}-statusLambda"
+        StackName: !Ref AWS::StackName
         AccessToSpine: "true"
         LogRetentionInDays: !Ref LogRetentionInDays
   StatusLambda:
@@ -344,6 +347,7 @@ Resources:
     Properties:
       Location: state_machines/main.yaml
       Parameters:
+        StackName: !Ref AWS::StackName
         GetMyPrescriptionsFunctionName: !Ref GetMyPrescriptions
         GetMyPrescriptionsFunctionArn: !GetAtt GetMyPrescriptions.Arn
         LogRetentionInDays: !Ref LogRetentionInDays

@@ -7,7 +7,7 @@ Parameters:
   StackName:
     Type: String
     Description: The name of the main stack
-    Default: AWS::StackName
+    Default: none
 
   GetMyPrescriptionsFunctionName:
     Type: String
