@@ -141,6 +141,43 @@ Resources:
         EntryPoints:
           - getMyPrescriptions/src/getMyPrescriptions.ts
 
+  EnrichPrescriptionsResources:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: lambda_resources.yaml
+      Parameters:
+        CloudWatchKMSKey: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
+        SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
+        SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
+        EnableSplunk: !Ref EnableSplunk
+        LambdaName: !Sub "${AWS::StackName}-EnrichPrescriptions"
+        LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-EnrichPrescriptions
+        StackName: !Ref AWS::StackName
+        AccessToSpine: "true"
+        LogRetentionInDays: !Ref LogRetentionInDays
+  EnrichPrescriptions:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-EnrichPrescriptions"
+      CodeUri: ../packages
+      Handler: enrichPrescriptions.handler
+      Role: !GetAtt EnrichPrescriptionsResources.Outputs.LambdaRoleArn
+      Environment:
+        Variables:
+          AWS_LAMBDA_EXEC_WRAPPER: /opt/get-secrets-layer
+          LOG_LEVEL: !Ref LogLevel
+      Layers:
+        - !Ref GetSecretsLayer
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        tsconfig: enrichPrescriptions/tsconfig.json
+        EntryPoints:
+          - enrichPrescriptions/src/enrichPrescriptions.ts
+
   # capabilityStatement lambda
   CapabilityStatementResources:
     Type: AWS::Serverless::Application

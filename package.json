@@ -16,6 +16,7 @@
   "workspaces": [
     "packages/capabilityStatement",
     "packages/getMyPrescriptions",
+    "packages/enrichPrescriptions",
     "packages/sandbox",
     "packages/statusLambda",
     "packages/serviceSearchClient",

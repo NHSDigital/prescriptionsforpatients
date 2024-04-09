@@ -17,6 +17,10 @@
 			"path": "../packages/getMyPrescriptions"
 		},
 		{
+			"name": "packages/enrichPrescriptions",
+			"path": "../packages/enrichPrescriptions"
+		},
+		{
 			"name": "packages/sandbox",
 			"path": "../packages/sandbox"
 		},

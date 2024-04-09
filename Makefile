@@ -112,6 +112,7 @@ download-get-secrets-layer:
 lint-node: compile-node
 	npm run lint --workspace packages/capabilityStatement
 	npm run lint --workspace packages/getMyPrescriptions
+	npm run lint --workspace packages/enrichPrescriptions
 	npm run lint --workspace packages/sandbox
 	npm run lint --workspace packages/statusLambda
 	npm run lint --workspace packages/serviceSearchClient
@@ -135,6 +136,7 @@ lint: lint-node lint-samtemplates lint-python lint-githubactions lint-githubacti
 test: compile
 	npm run test --workspace packages/capabilityStatement
 	npm run test --workspace packages/getMyPrescriptions
+	npm run test --workspace packages/enrichPrescriptions
 	npm run test --workspace packages/sandbox
 	npm run test --workspace packages/statusLambda
 	npm run test --workspace packages/serviceSearchClient
@@ -143,6 +145,7 @@ test: compile
 clean:
 	rm -rf packages/capabilityStatement/coverage
 	rm -rf packages/getMyPrescriptions/coverage
+	rm -rf packages/enrichPrescriptions/coverage
 	rm -rf packages/sandbox/coverage
 	rm -rf packages/serviceSearchClient/coverage
 	rm -rf packages/distanceSelling/coverage
@@ -150,6 +153,7 @@ clean:
 	rm -rf packages/common/testing/coverage
 	rm -rf packages/capabilityStatement/lib
 	rm -rf packages/getMyPrescriptions/lib
+	rm -rf packages/enrichPrescriptions/lib
 	rm -rf packages/sandbox/lib
 	rm -rf packages/serviceSearchClient/lib
 	rm -rf packages/distanceSelling/lib
@@ -167,6 +171,7 @@ check-licenses: check-licenses-node check-licenses-python
 check-licenses-node:
 	npm run check-licenses
 	npm run check-licenses --workspace packages/getMyPrescriptions
+	npm run check-licenses --workspace packages/enrichPrescriptions
 	npm run check-licenses --workspace packages/capabilityStatement
 	npm run check-licenses --workspace packages/sandbox
 	npm run check-licenses --workspace packages/statusLambda
