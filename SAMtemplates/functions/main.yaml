@@ -1,0 +1,195 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: |
+  PFP lambda functions and related resources
+
+Globals:
+  Function:
+    Timeout: 50
+    MemorySize: 256
+    Architectures:
+      - x86_64
+    Runtime: nodejs20.x
+    Environment:
+      Variables:
+        NODE_OPTIONS: '--enable-source-maps'
+        TargetSpineServer: !Ref TargetSpineServer
+        TargetServiceSearchServer: !Ref TargetServiceSearchServer
+        SpinePrivateKeyARN: !ImportValue account-resources:SpinePrivateKey
+        SpinePublicCertificateARN: !ImportValue account-resources:SpinePublicCertificate
+        SpineASIDARN: !ImportValue account-resources:SpineASID
+        SpinePartyKeyARN: !ImportValue account-resources:SpinePartyKey
+        SpineCAChainARN: !ImportValue account-resources:SpineCAChain
+        ServiceSearchApiKeyARN: !ImportValue account-resources:ServiceSearchApiKey
+    Layers:
+      - !Sub arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:49
+
+Parameters:
+  StackName:
+    Type: String
+    Default: none
+  
+  TargetSpineServer:
+    Type: String
+  
+  TargetServiceSearchServer:
+    Type: String
+
+  LogLevel:
+    Type: String
+  
+  LogRetentionInDays:
+    Type: Number
+  
+  EnableSplunk:
+    Type: String
+  
+  VersionNumber:
+    Type: String
+
+  CommitId:
+    Type: String
+  
+Resources:
+  GetSecretsLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: get-secrets-layer
+      Description: get secrets layer
+      ContentUri: ../packages/getSecretLayer/lib/get-secrets-layer.zip
+      RetentionPolicy: Retain
+  
+  GetMyPrescriptions:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${StackName}-GetMyPrescriptions
+      CodeUri: ../../packages
+      Handler: getMyPrescriptions.handler
+      Role: !GetAtt GetMyPrescriptionsResources.Outputs.LambdaRoleArn
+      Environment:
+        Variables:
+          AWS_LAMBDA_EXEC_WRAPPER: /opt/get-secrets-layer
+          LOG_LEVEL: !Ref LogLevel
+      Layers:
+        - !Ref GetSecretsLayer
+      # Events: todo > move to api
+      #   getMyPrescriptions:
+      #     Type: HttpApi
+      #     Properties:
+      #       ApiId: !Ref HttpApiGateway
+      #       Path: /Bundle
+      #       Method: get
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: es2020
+        Sourcemap: true
+        tsconfig: getMyPrescriptions/tsconfig.json
+        EntryPoints:
+          - getMyPrescriptions/src/getMyPrescriptions.ts
+  
+  GetMyPrescriptionsResources:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: lambda_resources.yaml
+      Parameters:
+        StackName: !Ref StackName
+        LambdaName: !Sub ${StackName}-GetMyPrescriptions
+        LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${StackName}-GetMyPrescriptions
+        IncludeAdditionalPolicies: true
+        AdditionalPolicies: !Join
+          - ','
+          - - !ImportValue account-resources:LambdaAccessSecretsPolicy
+        LogRetentionInDays: !Ref LogRetentionInDays
+        CloudWatchKMSKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
+        EnableSplunk: !Ref EnableSplunk
+        SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
+        SplunkDeliveryStreamArn: !ImportValue lambda-resources:SplunkDeliveryStream
+  
+  CapabilityStatement:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${StackName}-CapabilityStatement
+      CodeUri: ../../packages
+      Handler: capabilityStatement.handler
+      Role: !GetAtt CapabilityStatementResources.Outputs.LambdaRoleArn
+      # Events: todo > move to api
+      #   capabilityStatement:
+      #     Type: HttpApi
+      #     Properties:
+      #       ApiId: !Ref HttpApiGateway
+      #       Path: /metadata
+      #       Method: get
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: es2020
+        Sourcemap: true
+        tsconfig: capabilityStatement/tsconfig.json
+        EntryPoints:
+          - capabilityStatement/src/capabilityStatement.ts
+    
+  CapabilityStatementResources:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: lambda_resources.yaml
+      Parameters:
+        StackName: !Ref StackName
+        LambdaName: !Sub ${StackName}-CapabilityStatement
+        LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${StackName}-CapabilityStatement
+        LogRetentionInDays: !Ref LogRetentionInDays
+        CloudWatchKMSKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
+        EnableSplunk: !Ref EnableSplunk
+        SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
+        SplunkDeliveryStreamArn: !ImportValue lambda-resources:SplunkDeliveryStream
+  
+  StatusLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${StackName}-statusLambda
+      CodeUri: ../../packages
+      Handler: statusLambda.handler
+      Role: !GetAtt StatusLambdaResources.Outputs.LambdaRoleArn
+      Environment:
+        Variables:
+          VERSION_NUMBER: !Ref VersionNumber
+          COMMIT_ID: !Ref CommitId
+          AWS_LAMBDA_EXEC_WRAPPER: /opt/get-secrets-layer
+      Layers:
+        - !Ref GetSecretsLayer
+      # Events: todo > move to api
+      #   status:
+      #     Type: HttpApi
+      #     Properties:
+      #       ApiId: !Ref HttpApiGateway
+      #       Path: /_status
+      #       Method: get
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: es2020
+        Sourcemap: true
+        tsconfig: statusLambda/tsconfig.json
+        EntryPoints:
+          - statusLambda/src/statusLambda.ts
+
+  StatusLambdaResources:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: lambda_resources.yaml
+      Parameters:
+        StackName: !Ref StackName
+        LambdaName: !Sub ${StackName}-statusLambda
+        LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${StackName}-statusLambda
+        IncludeAdditionalPolicies: true
+        AdditionalPolicies: !Join
+          - ','
+          - - !ImportValue account-resources:LambdaAccessSecretsPolicy
+        LogRetentionInDays: !Ref LogRetentionInDays
+        CloudWatchKMSKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
+        EnableSplunk: !Ref EnableSplunk
+        SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
+        SplunkDeliveryStreamArn: !ImportValue lambda-resources:SplunkDeliveryStream

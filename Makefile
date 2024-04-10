@@ -95,7 +95,7 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 			  VersionNumber=$$VERSION_NUMBER \
 			  CommitId=$$COMMIT_ID \
 			  LogLevel=$$LOG_LEVEL \
-			  LogRetentionDays=$$LOG_RETENTION_DAYS \
+			  LogRetentionInDays=$$LOG_RETENTION_DAYS \
 			  Env=$$TARGET_ENVIRONMENT
 
 compile-node:
