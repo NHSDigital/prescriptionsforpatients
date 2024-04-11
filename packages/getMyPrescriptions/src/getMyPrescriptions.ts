@@ -4,7 +4,6 @@ import {injectLambdaContext} from "@aws-lambda-powertools/logger/middleware"
 import {LogLevel} from "@aws-lambda-powertools/logger/types"
 import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
-import errorHandler from "@nhs/fhir-middy-error-handler"
 import {createSpineClient} from "@nhsdigital/eps-spine-client"
 import {extractNHSNumber, NHSNumberValidationError} from "./extractNHSNumber"
 import {DistanceSelling, ServicesCache} from "@prescriptionsforpatients/distanceSelling"
@@ -13,6 +12,7 @@ import {
   INVALID_NHS_NUMBER_RESPONSE,
   SPINE_CERT_NOT_CONFIGURED_RESPONSE,
   TIMEOUT_RESPONSE,
+  generalError,
   lambdaResponse
 } from "./responses"
 import {deepCopy, hasTimedOut, jobWithTimeout} from "./utils"
@@ -48,6 +48,8 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
 
 export async function eventHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
   const xRequestId = event.headers["x-request-id"]
+  const requestId = event.requestContext?.requestId ?? null
+
   logger.appendKeys({
     "nhsd-correlation-id": event.headers["nhsd-correlation-id"],
     "x-request-id": xRequestId,
@@ -90,7 +92,7 @@ export async function eventHandler(event: APIGatewayProxyEvent): Promise<APIGate
     if (error instanceof NHSNumberValidationError) {
       return lambdaResponse(400, INVALID_NHS_NUMBER_RESPONSE)
     } else {
-      throw error
+      return lambdaResponse(500, generalError(requestId))
     }
   }
 }
@@ -108,4 +110,3 @@ export const handler = middy(lambdaHandler)
       }
     })
   )
-  .use(errorHandler({logger: logger}))

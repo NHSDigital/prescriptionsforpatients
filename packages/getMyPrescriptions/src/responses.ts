@@ -9,6 +9,28 @@ export const HEADERS = {
   "Cache-Control": "no-cache"
 }
 
+export function generalError(responseBodyId: string): OperationOutcome {
+  return {
+    id: responseBodyId,
+    resourceType: "OperationOutcome",
+    issue: [
+      {
+        severity: "fatal",
+        code: "exception",
+        details: {
+          coding: [
+            {
+              system: "https://fhir.nhs.uk/CodeSystem/http-error-codes",
+              code: "SERVER_ERROR",
+              display: "500: The Server has encountered an error processing the request."
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
+
 export const TIMEOUT_RESPONSE: OperationOutcome = {
   resourceType: "OperationOutcome",
   issue: [

@@ -3,7 +3,6 @@ import {injectLambdaContext} from "@aws-lambda-powertools/logger/middleware"
 import {LogLevel} from "@aws-lambda-powertools/logger/types"
 import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
-import errorHandler from "@nhs/fhir-middy-error-handler"
 import {jobWithTimeout} from "./utils"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
@@ -43,4 +42,3 @@ export const handler = middy(lambdaHandler)
       }
     })
   )
-  .use(errorHandler({logger: logger}))

@@ -347,9 +347,7 @@ describe("Unit tests for app handler including service search", function () {
     const result: APIGatewayProxyResult = (await handler(event, dummyContext)) as APIGatewayProxyResult
 
     expect(result.statusCode).toEqual(200)
-    expect(result.body).toEqual(
-      JSON.stringify(mockAPIResponseBody)
-    )
+    expect(JSON.parse(result.body)).toEqual(mockAPIResponseBody)
     expect(result.headers).toEqual(HEADERS)
   })
 
