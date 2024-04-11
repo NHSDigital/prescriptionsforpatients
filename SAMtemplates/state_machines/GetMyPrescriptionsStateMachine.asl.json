@@ -7,11 +7,11 @@
       "Resource": "arn:aws:states:::lambda:invoke",
       "Parameters": {
         "Payload.$": "$",
-        "FunctionName": "arn:aws:lambda:eu-west-2:591291862413:function:pr-793-GetMyPrescriptions:$LATEST"
+        "FunctionName": "${GetMyPrescriptionsFunctionArn}"
       },
-      "Next": "Choice"
+      "Next": "Get My Prescriptions Result"
     },
-    "Choice": {
+    "Get My Prescriptions Result": {
       "Type": "Choice",
       "Choices": [
         {
@@ -19,12 +19,12 @@
             "Variable": "$.Payload.statusCode",
             "NumericEquals": 200
           },
-          "Next": "Pass"
+          "Next": "Failed Get My Prescriptions"
         }
       ],
       "Default": "Get Status Updates"
     },
-    "Pass": {
+    "Failed Get My Prescriptions": {
       "Type": "Pass",
       "End": true
     },
@@ -36,19 +36,6 @@
         "Payload.$": "$",
         "FunctionName": "arn:aws:lambda:eu-west-2:591291862413:function:psu-ab-1-GSUL:$LATEST"
       },
-      "Retry": [
-        {
-          "ErrorEquals": [
-            "Lambda.ServiceException",
-            "Lambda.AWSLambdaException",
-            "Lambda.SdkClientException",
-            "Lambda.TooManyRequestsException"
-          ],
-          "IntervalSeconds": 1,
-          "MaxAttempts": 3,
-          "BackoffRate": 2
-        }
-      ],
       "End": true
     }
   }
