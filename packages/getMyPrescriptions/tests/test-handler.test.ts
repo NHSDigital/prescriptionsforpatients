@@ -20,8 +20,8 @@ import {
 import {HEADERS, TIMEOUT_RESPONSE, lambdaResponse} from "../src/responses"
 import {mockInternalDependency} from "./utils"
 
-import * as utils from "../src/utils"
-mockInternalDependency("../src/utils", utils, "buildStatusUpdateData")
+import * as statusUpdate from "../src/statusUpdate"
+mockInternalDependency("../src/statusUpdate", statusUpdate, "buildStatusUpdateData")
 const {handler} = await import("../src/getMyPrescriptions")
 
 const dummyContext = helloworldContext

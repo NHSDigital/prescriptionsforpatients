@@ -1,7 +1,7 @@
 import {APIGatewayProxyResult} from "aws-lambda"
 import {Bundle, FhirResource, OperationOutcome} from "fhir/r4"
+import {StatusUpdateData} from "./statusUpdate"
 
-type StatusUpdateData = {odsCode: string, prescriptionID: string}
 type FhirBody = Bundle<FhirResource> | OperationOutcome
 
 export const HEADERS = {

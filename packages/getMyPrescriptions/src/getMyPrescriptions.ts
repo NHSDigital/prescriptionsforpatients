@@ -15,12 +15,8 @@ import {
   TIMEOUT_RESPONSE,
   lambdaResponse
 } from "./responses"
-import {
-  buildStatusUpdateData,
-  deepCopy,
-  hasTimedOut,
-  jobWithTimeout
-} from "./utils"
+import {deepCopy, hasTimedOut, jobWithTimeout} from "./utils"
+import {buildStatusUpdateData} from "./statusUpdate"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
