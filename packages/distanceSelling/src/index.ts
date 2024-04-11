@@ -1,3 +1,3 @@
-import {DistanceSelling, ServicesCache} from "./distanceSelling"
+import {Entry, DistanceSelling, ServicesCache} from "./distanceSelling"
 
-export {DistanceSelling, ServicesCache}
+export {Entry, DistanceSelling, ServicesCache}

@@ -13,9 +13,14 @@ import {
   INVALID_NHS_NUMBER_RESPONSE,
   SPINE_CERT_NOT_CONFIGURED_RESPONSE,
   TIMEOUT_RESPONSE,
-  successResponse
+  lambdaResponse
 } from "./responses"
-import {deepCopy, hasTimedOut, jobWithTimeout} from "./utils"
+import {
+  buildStatusUpdateData,
+  deepCopy,
+  hasTimedOut,
+  jobWithTimeout
+} from "./utils"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
@@ -36,10 +41,11 @@ const SERVICE_SEARCH_TIMEOUT_MS = 5_000
  * @returns {Object} object - API Gateway Lambda Proxy Output Format
  *
  */
+
 const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const handlerResponse = await jobWithTimeout(LAMBDA_TIMEOUT_MS, eventHandler(event))
   if (hasTimedOut(handlerResponse)){
-    return TIMEOUT_RESPONSE
+    return lambdaResponse(408, TIMEOUT_RESPONSE)
   }
   return handlerResponse
 }
@@ -58,7 +64,7 @@ export async function eventHandler(event: APIGatewayProxyEvent): Promise<APIGate
   try {
     const isCertificateConfigured = spineClient.isCertificateConfigured()
     if (!isCertificateConfigured) {
-      return SPINE_CERT_NOT_CONFIGURED_RESPONSE
+      return lambdaResponse(500, SPINE_CERT_NOT_CONFIGURED_RESPONSE)
     }
 
     const nhsNumber = extractNHSNumber(event.headers["nhsd-nhslogin-user"])
@@ -68,23 +74,25 @@ export async function eventHandler(event: APIGatewayProxyEvent): Promise<APIGate
     const spineCallout = spineClient.getPrescriptions(event.headers)
     const response = await jobWithTimeout(SPINE_TIMEOUT_MS, spineCallout)
     if (hasTimedOut(response)){
-      return TIMEOUT_RESPONSE
+      return lambdaResponse(408, TIMEOUT_RESPONSE)
     }
     const searchsetBundle: Bundle = response.data
     searchsetBundle.id = xRequestId
+
+    const statusUpdateData = buildStatusUpdateData(searchsetBundle)
 
     const distanceSelling = new DistanceSelling(servicesCache, logger)
     const distanceSellingBundle = deepCopy(searchsetBundle)
     const distanceSellingCallout = distanceSelling.search(distanceSellingBundle)
     const distanceSellingResponse = await jobWithTimeout(SERVICE_SEARCH_TIMEOUT_MS, distanceSellingCallout)
     if (hasTimedOut(distanceSellingResponse)){
-      return successResponse(searchsetBundle)
+      return lambdaResponse(200, searchsetBundle, statusUpdateData)
     }
 
-    return successResponse(distanceSellingBundle)
+    return lambdaResponse(200, distanceSellingBundle, statusUpdateData)
   } catch (error) {
     if (error instanceof NHSNumberValidationError) {
-      return INVALID_NHS_NUMBER_RESPONSE
+      return lambdaResponse(400, INVALID_NHS_NUMBER_RESPONSE)
     } else {
       throw error
     }

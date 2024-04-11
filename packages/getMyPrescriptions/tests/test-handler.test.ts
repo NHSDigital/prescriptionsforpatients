@@ -1,5 +1,4 @@
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
-import {handler} from "../src/getMyPrescriptions"
 import {
   expect,
   describe,
@@ -18,7 +17,12 @@ import {
   mockPharmacy2uResponse,
   mockPharmicaResponse
 } from "@prescriptionsforpatients_common/testing"
-import {HEADERS, TIMEOUT_RESPONSE} from "../src/responses"
+import {HEADERS, TIMEOUT_RESPONSE, lambdaResponse} from "../src/responses"
+import {mockInternalDependency} from "./utils"
+
+import * as utils from "../src/utils"
+mockInternalDependency("../src/utils", utils, "buildStatusUpdateData")
+const {handler} = await import("../src/getMyPrescriptions")
 
 const dummyContext = helloworldContext
 const mock = new MockAdapter(axios)
@@ -121,7 +125,8 @@ describe("Unit test for app handler", function () {
     expect(result.body).toEqual(
       JSON.stringify({
         resourceType: "Bundle",
-        id: "test-request-id"
+        id: "test-request-id",
+        statusUpdateData: []
       })
     )
     expect(result.headers).toEqual(HEADERS)
@@ -256,7 +261,7 @@ describe("Unit test for app handler", function () {
     expect(JSON.parse(result.body)).toEqual(responseNotConfCertStatus500)
   })
 
-  it("timesout if spine call takes too long", async () => {
+  it("timeout if spine call takes too long", async () => {
     const delayedResponse: Promise<Array<unknown>> = new Promise((resolve) => setTimeout(() => resolve([]), 15_000))
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     mock.onGet("https://live/mm/patientfacingprescriptions").reply((_config) => delayedResponse)
@@ -269,7 +274,7 @@ describe("Unit test for app handler", function () {
     const result = await eventHandler
     expect(result.statusCode).toBe(408)
     expect(result.headers).toEqual(HEADERS)
-    expect(JSON.parse(result.body)).toEqual(JSON.parse(TIMEOUT_RESPONSE.body))
+    expect(result.body).toEqual(lambdaResponse(408, TIMEOUT_RESPONSE).body)
   })
 })
 
@@ -348,7 +353,7 @@ describe("Unit tests for app handler including service search", function () {
     expect(result.headers).toEqual(HEADERS)
   })
 
-  it("return unenhanced data if service search call takes too long", async () => {
+  it("return un-enhanced data if service search call takes too long", async () => {
     const exampleResponse = {resourceType: "Bundle"}
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, exampleResponse)
 
@@ -364,7 +369,9 @@ describe("Unit tests for app handler including service search", function () {
     const result = await eventHandler
     expect(result.statusCode).toBe(200)
     expect(result.headers).toEqual(HEADERS)
-    expect(JSON.parse(result.body)).toEqual({...exampleResponse, id: "test-request-id"})
+    expect(JSON.parse(result.body)).toEqual(
+      {...exampleResponse, id: "test-request-id", statusUpdateData: []}
+    )
   })
 })
 
