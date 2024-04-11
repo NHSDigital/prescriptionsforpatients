@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: |
   PFP resources
@@ -78,10 +78,13 @@ Resources:
         VersionNumber: !Ref VersionNumber
         CommitId: !Ref CommitId
 
-  
   StateMachines:
     Type: AWS::Serverless::Application
     Properties:
       Location: state_machines/main.yaml
       Parameters:
         StackName: !Ref AWS::StackName
+        GetMyPrescriptionsFunctionName: !GetAtt Functions.Outputs.GetMyPrescriptionsFunctionName
+        GetMyPrescriptionsFunctionArn: !GetAtt Functions.Outputs.GetMyPrescriptionsFunctionArn
+        LogRetentionInDays: !Ref LogRetentionInDays
+        EnableSplunk: !Ref EnableSplunk

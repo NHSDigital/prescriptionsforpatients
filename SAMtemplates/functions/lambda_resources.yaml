@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: |
   Resources for a lambda
@@ -76,9 +76,9 @@ Resources:
             Action:
               - sts:AssumeRole
       ManagedPolicyArns: !Split
-        - ','
+        - ","
         - !Join
-          - ','
+          - ","
           - - !Ref LambdaManagedPolicy
             - !ImportValue lambda-resources:LambdaInsightsLogGroupPolicy
             - !ImportValue account-resources:CloudwatchEncryptionKMSPolicyArn
@@ -86,7 +86,7 @@ Resources:
             - !If
               - ShouldIncludeAdditionalPolicies
               - !Join
-                - ','
+                - ","
                 - !Ref AdditionalPolicies
               - !Ref AWS::NoValue
 

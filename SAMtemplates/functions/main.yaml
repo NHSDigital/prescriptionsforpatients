@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: |
   PFP lambda functions and related resources
@@ -12,7 +12,7 @@ Globals:
     Runtime: nodejs20.x
     Environment:
       Variables:
-        NODE_OPTIONS: '--enable-source-maps'
+        NODE_OPTIONS: "--enable-source-maps"
         TargetSpineServer: !Ref TargetSpineServer
         TargetServiceSearchServer: !Ref TargetServiceSearchServer
         SpinePrivateKeyARN: !ImportValue account-resources:SpinePrivateKey
@@ -99,7 +99,7 @@ Resources:
         LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${StackName}-GetMyPrescriptions
         IncludeAdditionalPolicies: true
         AdditionalPolicies: !Join
-          - ','
+          - ","
           - - !ImportValue account-resources:LambdaAccessSecretsPolicy
         LogRetentionInDays: !Ref LogRetentionInDays
         CloudWatchKMSKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
@@ -186,10 +186,19 @@ Resources:
         LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${StackName}-statusLambda
         IncludeAdditionalPolicies: true
         AdditionalPolicies: !Join
-          - ','
+          - ","
           - - !ImportValue account-resources:LambdaAccessSecretsPolicy
         LogRetentionInDays: !Ref LogRetentionInDays
         CloudWatchKMSKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
         EnableSplunk: !Ref EnableSplunk
         SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
         SplunkDeliveryStreamArn: !ImportValue lambda-resources:SplunkDeliveryStream
+
+Outputs:
+  GetMyPrescriptionsFunctionName:
+    Description: The function name of the GetMyPrescriptions lambda
+    Value: !Ref GetMyPrescriptions
+
+  GetMyPrescriptionsFunctionArn:
+    Description: The function ARN of the GetMyPrescriptions lambda
+    Value: !GetAtt  GetMyPrescriptions.Arn
