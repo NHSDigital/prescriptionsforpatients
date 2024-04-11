@@ -1,8 +1,14 @@
-import {APIGatewayProxyResult} from "aws-lambda"
 import {Bundle, FhirResource, OperationOutcome} from "fhir/r4"
 import {StatusUpdateData} from "./statusUpdate"
 
 type FhirBody = Bundle<FhirResource> | OperationOutcome
+
+export type StateMachineFunctionResponse = {
+  statusCode: number
+  body: FhirBody
+  headers: object
+  statusUpdateData: Array<StatusUpdateData>
+}
 
 export const HEADERS = {
   "Content-Type": "application/fhir+json",
@@ -91,15 +97,11 @@ export const INVALID_NHS_NUMBER_RESPONSE: OperationOutcome = {
 
 export function lambdaResponse(
   statusCode: number, fhirBody: FhirBody, statusUpdateData: Array<StatusUpdateData> = []
-): APIGatewayProxyResult {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const body = fhirBody as any
-  if (statusCode === 200) {
-    body.statusUpdateData = statusUpdateData
-  }
+): StateMachineFunctionResponse {
   return {
     statusCode: statusCode,
-    body: JSON.stringify(body),
-    headers: HEADERS
+    body: fhirBody,
+    headers: HEADERS,
+    statusUpdateData: statusUpdateData
   }
 }

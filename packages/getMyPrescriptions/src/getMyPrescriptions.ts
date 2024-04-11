@@ -1,4 +1,4 @@
-import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
+import {APIGatewayProxyEvent} from "aws-lambda"
 import {Logger} from "@aws-lambda-powertools/logger"
 import {injectLambdaContext} from "@aws-lambda-powertools/logger/middleware"
 import {LogLevel} from "@aws-lambda-powertools/logger/types"
@@ -11,6 +11,7 @@ import type {Bundle} from "fhir/r4"
 import {
   INVALID_NHS_NUMBER_RESPONSE,
   SPINE_CERT_NOT_CONFIGURED_RESPONSE,
+  StateMachineFunctionResponse,
   TIMEOUT_RESPONSE,
   generalError,
   lambdaResponse
@@ -38,7 +39,7 @@ const SERVICE_SEARCH_TIMEOUT_MS = 5_000
  *
  */
 
-const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<StateMachineFunctionResponse> => {
   const handlerResponse = await jobWithTimeout(LAMBDA_TIMEOUT_MS, eventHandler(event))
   if (hasTimedOut(handlerResponse)){
     return lambdaResponse(408, TIMEOUT_RESPONSE)
@@ -46,7 +47,7 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
   return handlerResponse
 }
 
-export async function eventHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+export async function eventHandler(event: APIGatewayProxyEvent): Promise<StateMachineFunctionResponse> {
   const xRequestId = event.headers["x-request-id"]
   const requestId = event.requestContext?.requestId ?? null
 
