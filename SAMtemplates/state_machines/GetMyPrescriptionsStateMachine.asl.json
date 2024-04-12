@@ -34,9 +34,10 @@
       "OutputPath": "$.Payload",
       "Parameters": {
         "Payload.$": "$",
-        "FunctionName": "arn:aws:lambda:eu-west-2:591291862413:function:psu-ab-1-GSUL:$LATEST"
+        "FunctionName": "{GetStatusUpdatesFunctionArn}"
       },
-      "End": true
+      "End": true,
+      "InputPath": "$.Payload.statusUpdateData"
     }
   }
 }

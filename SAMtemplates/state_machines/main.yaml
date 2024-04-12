@@ -37,6 +37,7 @@ Resources:
       DefinitionUri: GetMyPrescriptionsStateMachine.asl.json
       DefinitionSubstitutions:
         GetMyPrescriptionsFunctionArn: !Sub ${GetMyPrescriptionsFunctionArn}:$LATEST
+        GetStatusUpdatesFunctionArn: !ImportValue psu-ab-1:functions:GSUL:GSULArn
       Logging:
         Destinations:
           - CloudWatchLogsLogGroup:
@@ -55,6 +56,7 @@ Resources:
         AdditionalPolicies: !Join
           - ","
           - - Fn::ImportValue: !Sub ${StackName}:functions:${GetMyPrescriptionsFunctionName}:ExecuteLambdaPolicyArn
+            - !ImportValue psu-ab-1:functions:psu-ab-1-GetStatusUpdates:ExecuteLambdaPolicyArn
         LogRetentionInDays: !Ref LogRetentionInDays
         CloudWatchKMSKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
         EnableSplunk: !Ref EnableSplunk
