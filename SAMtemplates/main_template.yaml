@@ -63,6 +63,12 @@ Resources:
       Location: apis/main.yaml
       Parameters:
         StackName: !Ref AWS::StackName
+        EnableMutualTLS: !Ref EnableMutualTLS
+        TruststoreVersion: !Ref TruststoreVersion
+        GetMyPrescriptionsStateMachineName: !GetAtt StateMachines.Outputs.GetMyPrescriptionsStateMachineName
+        GetMyPrescriptionsStateMachineArn: !GetAtt StateMachines.Outputs.GetMyPrescriptionsStateMachineArn
+        LogRetentionInDays: !Ref LogRetentionInDays
+        EnableSplunk: !Ref EnableSplunk
   
   Functions:
     Type: AWS::Serverless::Application

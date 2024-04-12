@@ -1,0 +1,145 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: |
+  PFP API's and related resources
+
+Parameters:
+  StackName:
+    Type: String
+    Default: none
+
+  EnableMutualTLS:
+    Type: String
+  
+  TruststoreVersion:
+    Type: String
+  
+  GetMyPrescriptionsStateMachineName:
+    Type: String
+    Default: none
+  
+  GetMyPrescriptionsStateMachineArn:
+    Type: String
+    Default: none
+  
+  LogRetentionInDays:
+    Type: Number
+  
+  EnableSplunk:
+    Type: String
+
+Conditions:
+  ShouldUseMutualTLS: !Equals
+    - true
+    - !Ref EnableMutualTLS
+
+Resources:
+  GenerateCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      ValidationMethod: DNS
+      DomainName:
+        Fn::Join:
+          - .
+          - - !Ref StackName
+            - Fn::ImportValue: eps-route53-resources:EPS-domain
+      DomainValidationOptions:
+        - DomainName: !Join
+            - .
+            - - !Ref StackName
+              - !ImportValue eps-route53-resources:EPS-domain
+          HostedZoneId: !ImportValue eps-route53-resources:EPS-ZoneID
+  
+  RestApiGateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: !Sub ${StackName}-apigw
+      DisableExecuteApiEndpoint: !If
+        - ShouldUseMutualTLS
+        - true
+        - !Ref AWS::NoValue
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+  
+  RestApiDomain:
+    Type: AWS::ApiGateway::DomainName
+    Properties:
+      DomainName: !Join
+        - .
+        - - !Ref StackName
+          - !ImportValue eps-route53-resources:EPS-domain
+      RegionalCertificateArn: !Ref GenerateCertificate
+      EndpointConfiguration: 
+        Types:
+          - REGIONAL
+      SecurityPolicy: TLS_1_2
+      MutualTlsAuthentication:
+        TruststoreUri: !If
+          - ShouldUseMutualTLS
+          - !Join
+            - /
+            - - s3:/
+              - !Select
+                - 5
+                - !Split
+                  - :
+                  - !ImportValue account-resources:TrustStoreBucket
+              - pfp-truststore.pem
+          - !Ref AWS::NoValue
+        TruststoreVersion: !If
+          - ShouldUseMutualTLS
+          - !Ref TruststoreVersion
+          - !Ref AWS::NoValue
+  
+  RestApiRecordSet:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Name: !Join
+        - .
+        - - !Ref StackName
+          - !ImportValue eps-route53-resources:EPS-domain
+      Type: A
+      HostedZoneId: !ImportValue eps-route53-resources:EPS-ZoneID
+      AliasTarget:
+        DNSName: !GetAtt RestApiDomain.RegionalDomainName
+        HostedZoneId: !GetAtt RestApiDomain.RegionalHostedZoneId
+  
+  # todo: methods for endpoints
+
+  RestApiGatewayDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - # todo methods
+    Properties:
+      RestApiId: !Ref RestApiGateway
+  
+  RestApiGatewayStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      RestApiId: !Ref RestApiGateway
+      StageName: prod
+      DeploymentId: !Ref RestApiGatewayDeployment
+      TracingEnabled: true
+      AccessLogSetting:
+        DestinationArn: !GetAtt RestApiGatewayResources.Outputs.ApiGwAccessLogsArn
+        Format: '{ "requestTime": "$context.requestTime", "apiId": "$context.apiId", "accountId": "$context.accountId", "resourcePath": "$context.resourcePath", "stage": "$context.stage", "requestId": "$context.requestId", "extendedRequestId": "$context.extendedRequestId", "status": "$context.status", "httpMethod": "$context.httpMethod", "protocol": "$context.protocol", "path": "$context.path", "responseLatency": "$context.responseLatency", "responseLength": "$context.responseLength", "domainName": "$context.domainName", "identity": { "sourceIp": "$context.identity.sourceIp", "userAgent": "$context.identity.userAgent", "clientCert":{ "subjectDN": "$context.identity.clientCert.subjectDN", "issuerDN": "$context.identity.clientCert.issuerDN", "serialNumber": "$context.identity.clientCert.serialNumber", "validityNotBefore": "$context.identity.clientCert.validity.notBefore", "validityNotAfter": "$context.identity.clientCert.validity.notAfter" }}, "integration":{ "error": "$context.integration.error", "integrationStatus": "$context.integration.integrationStatus", "latency": "$context.integration.latency", "requestId": "$context.integration.requestId", "status": "$context.integration.status" }}'
+  
+  RestApiDomainMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      DomainName: !Ref RestApiDomain
+      RestApiId: !Ref RestApiGateway
+      Stage: !Ref RestApiGatewayStage
+  
+  RestApiGatewayResources:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: api_resources.yaml
+      Parameters:
+        AdditionalPolicies: !Join
+          - ","
+          - - Fn::ImportValue: !Sub ${StackName}:state-machines:${GetMyPrescriptionsStateMachineName}:ExecuteStateMachinePolicy
+        ApiName: !Sub ${StackName}-apigw
+        LogRetentionInDays: !Ref LogRetentionInDays
+        EnableSplunk: !Ref EnableSplunk
