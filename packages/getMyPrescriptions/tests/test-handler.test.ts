@@ -128,7 +128,7 @@ describe("Unit test for app handler", function () {
     const result: StateMachineFunctionResponse = (await handler(event, dummyContext)) as StateMachineFunctionResponse
 
     expect(result.statusCode).toEqual(200)
-    expect(result.body).toEqual({resourceType: "Bundle", id: "test-request-id"})
+    expect(result.body.fhir).toEqual({resourceType: "Bundle", id: "test-request-id"})
     expect(result.headers).toEqual(HEADERS)
   })
 
@@ -206,7 +206,7 @@ describe("Unit test for app handler", function () {
       const result: StateMachineFunctionResponse = (await handler(event, dummyContext)) as StateMachineFunctionResponse
       expect(result.statusCode).toBe(expectedHttpResponse)
       expect(result.headers).toEqual(HEADERS)
-      expect(result.body).toEqual(errorResponse)
+      expect(result.body.fhir).toEqual(errorResponse)
     }
   )
 
@@ -217,7 +217,7 @@ describe("Unit test for app handler", function () {
 
     expect(result.statusCode).toBe(500)
     expect(result.headers).toEqual(HEADERS)
-    expect(result.body).toEqual(responseStatus500)
+    expect(result.body.fhir).toEqual(responseStatus500)
   })
 
   it("appends trace id's to the logger", async () => {
@@ -244,7 +244,7 @@ describe("Unit test for app handler", function () {
 
     expect(result.statusCode).toBe(500)
     expect(result.headers).toEqual(HEADERS)
-    expect(result.body).toEqual(responseStatus500)
+    expect(result.body.fhir).toEqual(responseStatus500)
   })
 
   it("return error when the certificate is not configured", async () => {
@@ -258,7 +258,7 @@ describe("Unit test for app handler", function () {
 
     expect(result.statusCode).toBe(500)
     expect(result.headers).toEqual(HEADERS)
-    expect(result.body).toEqual(responseNotConfCertStatus500)
+    expect(result.body.fhir).toEqual(responseNotConfCertStatus500)
   })
 
   it("timeout if spine call takes too long", async () => {
@@ -321,7 +321,7 @@ describe("Unit tests for app handler including service search", function () {
 
     for (const result of [resultA, resultB]) {
       expect(result.statusCode).toEqual(200)
-      expect(result.body).toEqual(mockAPIResponseBody)
+      expect(result.body.fhir).toEqual(mockAPIResponseBody)
       expect(result.headers).toEqual(HEADERS)
     }
 
@@ -345,7 +345,7 @@ describe("Unit tests for app handler including service search", function () {
     const result: StateMachineFunctionResponse = (await handler(event, dummyContext)) as StateMachineFunctionResponse
 
     expect(result.statusCode).toEqual(200)
-    expect(result.body).toEqual(mockAPIResponseBody)
+    expect(result.body.fhir).toEqual(mockAPIResponseBody)
     expect(result.headers).toEqual(HEADERS)
   })
 
@@ -365,7 +365,7 @@ describe("Unit tests for app handler including service search", function () {
     const result = await eventHandler
     expect(result.statusCode).toBe(200)
     expect(result.headers).toEqual(HEADERS)
-    expect(result.body).toEqual({...exampleResponse, id: "test-request-id"})
+    expect(result.body.fhir).toEqual({...exampleResponse, id: "test-request-id"})
   })
 })
 

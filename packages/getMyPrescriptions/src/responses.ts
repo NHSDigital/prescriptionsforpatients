@@ -5,9 +5,13 @@ type FhirBody = Bundle<FhirResource> | OperationOutcome
 
 export type StateMachineFunctionResponse = {
   statusCode: number
-  body: FhirBody
+  body: StateMachineFunctionResponseBody
   headers: object
-  statusUpdateData: Array<StatusUpdateData>
+}
+
+type StateMachineFunctionResponseBody = {
+  fhir: FhirBody,
+  statusUpdateData?: Array<StatusUpdateData>
 }
 
 export const HEADERS = {
@@ -96,12 +100,15 @@ export const INVALID_NHS_NUMBER_RESPONSE: OperationOutcome = {
 }
 
 export function lambdaResponse(
-  statusCode: number, fhirBody: FhirBody, statusUpdateData: Array<StatusUpdateData> = []
+  statusCode: number, fhirBody: FhirBody, statusUpdateData?: Array<StatusUpdateData>
 ): StateMachineFunctionResponse {
+  const body: StateMachineFunctionResponseBody = {fhir: fhirBody}
+  if (statusUpdateData) {
+    body.statusUpdateData = statusUpdateData
+  }
   return {
     statusCode: statusCode,
-    body: fhirBody,
-    headers: HEADERS,
-    statusUpdateData: statusUpdateData
+    body: body,
+    headers: HEADERS
   }
 }
