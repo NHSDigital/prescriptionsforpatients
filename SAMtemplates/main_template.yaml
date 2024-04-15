@@ -90,7 +90,7 @@ Parameters:
         3653,
       ]
   ToggleGetStatusUpdates:
-    Type: Boolean
+    Type: String
     Default: false
 
 Conditions:
