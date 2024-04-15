@@ -89,6 +89,9 @@ Parameters:
         3288,
         3653,
       ]
+  ToggleGetStatusUpdates:
+    Type: Boolean
+    Default: false
 
 Conditions:
   ShouldUseMutualTLS: !Equals [true, !Ref EnableMutualTLS]
@@ -140,43 +143,6 @@ Resources:
         tsconfig: getMyPrescriptions/tsconfig.json
         EntryPoints:
           - getMyPrescriptions/src/getMyPrescriptions.ts
-
-  EnrichPrescriptionsResources:
-    Type: AWS::Serverless::Application
-    Properties:
-      Location: lambda_resources.yaml
-      Parameters:
-        CloudWatchKMSKey: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
-        SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
-        SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
-        EnableSplunk: !Ref EnableSplunk
-        LambdaName: !Sub "${AWS::StackName}-EnrichPrescriptions"
-        LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-EnrichPrescriptions
-        StackName: !Ref AWS::StackName
-        AccessToSpine: "true"
-        LogRetentionInDays: !Ref LogRetentionInDays
-  EnrichPrescriptions:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub "${AWS::StackName}-EnrichPrescriptions"
-      CodeUri: ../packages
-      Handler: enrichPrescriptions.handler
-      Role: !GetAtt EnrichPrescriptionsResources.Outputs.LambdaRoleArn
-      Environment:
-        Variables:
-          AWS_LAMBDA_EXEC_WRAPPER: /opt/get-secrets-layer
-          LOG_LEVEL: !Ref LogLevel
-      Layers:
-        - !Ref GetSecretsLayer
-    Metadata: # Manage esbuild properties
-      BuildMethod: esbuild
-      BuildProperties:
-        Minify: true
-        Target: "es2020"
-        Sourcemap: true
-        tsconfig: enrichPrescriptions/tsconfig.json
-        EntryPoints:
-          - enrichPrescriptions/src/enrichPrescriptions.ts
 
   # capabilityStatement lambda
   CapabilityStatementResources:
@@ -381,6 +347,47 @@ Resources:
       FilterPattern: "" # All logs
       DestinationArn: !ImportValue lambda-resources:SplunkDeliveryStream
 
+############
+# AEA-3899 #
+############
+
+  EnrichPrescriptionsResources:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: lambda_resources.yaml
+      Parameters:
+        CloudWatchKMSKey: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
+        SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
+        SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
+        EnableSplunk: !Ref EnableSplunk
+        LambdaName: !Sub "${AWS::StackName}-EnrichPrescriptions"
+        LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-EnrichPrescriptions
+        StackName: !Ref AWS::StackName
+        AccessToSpine: "true"
+        LogRetentionInDays: !Ref LogRetentionInDays
+  EnrichPrescriptions:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-EnrichPrescriptions"
+      CodeUri: ../packages
+      Handler: enrichPrescriptions.handler
+      Role: !GetAtt EnrichPrescriptionsResources.Outputs.LambdaRoleArn
+      Environment:
+        Variables:
+          AWS_LAMBDA_EXEC_WRAPPER: /opt/get-secrets-layer
+          LOG_LEVEL: !Ref LogLevel
+      Layers:
+        - !Ref GetSecretsLayer
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        tsconfig: enrichPrescriptions/tsconfig.json
+        EntryPoints:
+          - enrichPrescriptions/src/enrichPrescriptions.ts
+
   StateMachines:
     Type: AWS::Serverless::Application
     Properties:
@@ -391,3 +398,14 @@ Resources:
         GetMyPrescriptionsFunctionArn: !GetAtt GetMyPrescriptions.Arn
         LogRetentionInDays: !Ref LogRetentionInDays
         EnableSplunk: !Ref EnableSplunk
+
+  ParameterStore:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: ToggleGetStatusUpdates
+      Type: String
+      Value: !Ref ToggleGetStatusUpdates
+
+#############
+# /AEA-3899 #
+#############

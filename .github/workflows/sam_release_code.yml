@@ -48,6 +48,9 @@ on:
       MARK_JIRA_RELEASED:
         type: boolean
         default: false
+      TOGGLE_GET_STATUS_UPDATES:
+        type: boolean
+        default: false
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
@@ -123,6 +126,7 @@ jobs:
           template_file: template.yaml
           TRUSTSTORE_FILE: ${{ inputs.TRUSTSTORE_FILE }}
           VERSION_NUMBER: ${{ inputs.VERSION_NUMBER }}
+          TOGGLE_GET_STATUS_UPDATES: ${{ inputs.TOGGLE_GET_STATUS_UPDATES }}
         run: ./release_code.sh
 
       - name: create_int_release_notes
