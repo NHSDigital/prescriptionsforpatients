@@ -278,6 +278,10 @@ describe("Unit test for app handler", function () {
       expect.toMatchJsonLogMessage("message",
         "Call to Spine has timed out. Returning error response.", "")
     )
+    expect(mockErrorLogger).toHaveBeenCalledWith(
+      expect.toMatchJsonLogMessage("level",
+        "ERROR", "")
+    )
   })
 })
 
