@@ -404,6 +404,7 @@ Resources:
         StackName: !Ref AWS::StackName
         GetMyPrescriptionsFunctionName: !Ref GetMyPrescriptions
         GetMyPrescriptionsFunctionArn: !GetAtt GetMyPrescriptions.Arn
+        EnrichPrescriptionsFunctionName: !Ref EnrichPrescriptions
         EnrichPrescriptionsFunctionArn: !GetAtt EnrichPrescriptions.Arn
         ToggleGetStatusUpdatesParameterName: !GetAtt Parameters.Outputs.ToggleGetStatusUpdatesParameterName
         ToggleGetStatusUpdatesParameterManagedPolicyArn: !GetAtt Parameters.Outputs.ToggleGetStatusUpdatesParameterManagedPolicyArn
