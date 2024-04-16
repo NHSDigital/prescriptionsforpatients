@@ -68,6 +68,7 @@ export async function eventHandler(event: APIGatewayProxyEvent): Promise<APIGate
     const spineCallout = spineClient.getPrescriptions(event.headers)
     const response = await jobWithTimeout(SPINE_TIMEOUT_MS, spineCallout)
     if (hasTimedOut(response)){
+      logger.error("Call to Spine has timed out. Returning error response.")
       return TIMEOUT_RESPONSE
     }
     const searchsetBundle: Bundle = response.data

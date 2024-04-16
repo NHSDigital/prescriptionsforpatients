@@ -257,6 +257,8 @@ describe("Unit test for app handler", function () {
   })
 
   it("timesout if spine call takes too long", async () => {
+    const mockErrorLogger = jest.spyOn(global.console, "error")
+
     const delayedResponse: Promise<Array<unknown>> = new Promise((resolve) => setTimeout(() => resolve([]), 15_000))
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     mock.onGet("https://live/mm/patientfacingprescriptions").reply((_config) => delayedResponse)
@@ -270,6 +272,12 @@ describe("Unit test for app handler", function () {
     expect(result.statusCode).toBe(408)
     expect(result.headers).toEqual(HEADERS)
     expect(JSON.parse(result.body)).toEqual(JSON.parse(TIMEOUT_RESPONSE.body))
+
+    // Assert error level log was produced
+    expect(mockErrorLogger).toHaveBeenCalledWith(
+      expect.toMatchJsonLogMessage("message",
+        "Call to Spine has timed out. Returning error response.", "")
+    )
   })
 })
 
