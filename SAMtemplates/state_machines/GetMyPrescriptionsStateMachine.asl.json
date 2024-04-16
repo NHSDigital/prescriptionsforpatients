@@ -22,21 +22,22 @@
           "Next": "Failed Get My Prescriptions"
         }
       ],
-      "Default": "Get Status Updates Toggle Parameter"
+      "Default": "Get Toggle Get Status Updates Parameter"
     },
-    "Get Status Updates Toggle Parameter": {
+    "Get Toggle Get Status Updates Parameter": {
       "Type": "Task",
-      "Next": "Evaluate Get Status Updates Toggle",
+      "Next": "Evaluate Toggle Get Status Updates Parameter",
       "Parameters": {
         "Name": "${ToggleGetStatusUpdatesParameterName}"
       },
-      "Resource": "arn:aws:states:::aws-sdk:ssm:getParameter"
+      "Resource": "arn:aws:states:::aws-sdk:ssm:getParameter",
+      "ResultPath": "$.ToggleGetStatusUpdatesParameter"
     },
-    "Evaluate Get Status Updates Toggle": {
+    "Evaluate Toggle Get Status Updates Parameter": {
       "Type": "Choice",
       "Choices": [
         {
-          "Variable": "$.Payload",
+          "Variable": "$.ToggleGetStatusUpdatesParameter.Parameter.Value",
           "StringMatches": "true",
           "Next": "Get Status Updates"
         }
@@ -46,13 +47,13 @@
     "Get Status Updates": {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
-      "OutputPath": "$.Payload",
       "Parameters": {
         "Payload.$": "$",
         "FunctionName": "${GetStatusUpdatesFunctionArn}"
       },
-      "InputPath": "$.Payload.statusUpdateData",
-      "Next": "Enrich Prescriptions"
+      "InputPath": "$.Payload.body.statusUpdateData",
+      "Next": "Enrich Prescriptions",
+      "ResultPath": "$.StatusUpdates"
     },
     "Enrich Prescriptions": {
       "Type": "Task",
