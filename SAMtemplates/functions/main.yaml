@@ -72,13 +72,6 @@ Resources:
           LOG_LEVEL: !Ref LogLevel
       Layers:
         - !Ref GetSecretsLayer
-      # Events: todo > move to api
-      #   getMyPrescriptions:
-      #     Type: HttpApi
-      #     Properties:
-      #       ApiId: !Ref HttpApiGateway
-      #       Path: /Bundle
-      #       Method: get
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -114,13 +107,6 @@ Resources:
       CodeUri: ../../packages
       Handler: capabilityStatement.handler
       Role: !GetAtt CapabilityStatementResources.Outputs.LambdaRoleArn
-      # Events: todo > move to api
-      #   capabilityStatement:
-      #     Type: HttpApi
-      #     Properties:
-      #       ApiId: !Ref HttpApiGateway
-      #       Path: /metadata
-      #       Method: get
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -145,13 +131,13 @@ Resources:
         SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
         SplunkDeliveryStreamArn: !ImportValue lambda-resources:SplunkDeliveryStream
   
-  StatusLambda:
+  Status:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub ${StackName}-statusLambda
+      FunctionName: !Sub ${StackName}-status
       CodeUri: ../../packages
       Handler: statusLambda.handler
-      Role: !GetAtt StatusLambdaResources.Outputs.LambdaRoleArn
+      Role: !GetAtt StatusResources.Outputs.LambdaRoleArn
       Environment:
         Variables:
           VERSION_NUMBER: !Ref VersionNumber
@@ -176,14 +162,14 @@ Resources:
         EntryPoints:
           - statusLambda/src/statusLambda.ts
 
-  StatusLambdaResources:
+  StatusResources:
     Type: AWS::Serverless::Application
     Properties:
       Location: lambda_resources.yaml
       Parameters:
         StackName: !Ref StackName
-        LambdaName: !Sub ${StackName}-statusLambda
-        LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${StackName}-statusLambda
+        LambdaName: !Sub ${StackName}-status
+        LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${StackName}-status
         IncludeAdditionalPolicies: true
         AdditionalPolicies: !Join
           - ","
@@ -202,3 +188,11 @@ Outputs:
   GetMyPrescriptionsFunctionArn:
     Description: The function ARN of the GetMyPrescriptions lambda
     Value: !GetAtt  GetMyPrescriptions.Arn
+
+  CapabilityStatementFunctionArn:
+    Description: The function ARN of the CapabilityStatement lambda
+    Value: !GetAtt  CapabilityStatement.Arn
+  
+  StatusFunctionArn:
+    Description: The function ARN of the Status lambda
+    Value: !GetAtt  Status.Arn

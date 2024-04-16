@@ -22,6 +22,14 @@ Parameters:
     Type: String
     Default: none
   
+  CapabilityStatementFunctionArn:
+    Type: String
+    Default: none
+  
+  StatusFunctionArn:
+    Type: String
+    Default: none
+  
   LogRetentionInDays:
     Type: Number
   
@@ -83,7 +91,7 @@ Resources:
               - !Select
                 - 5
                 - !Split
-                  - :
+                  - ":"
                   - !ImportValue account-resources:TrustStoreBucket
               - pfp-truststore.pem
           - !Ref AWS::NoValue
@@ -105,12 +113,153 @@ Resources:
         DNSName: !GetAtt RestApiDomain.RegionalDomainName
         HostedZoneId: !GetAtt RestApiDomain.RegionalHostedZoneId
   
-  # todo: methods for endpoints
+  GetMyPrescriptionsResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref RestApiGateway
+      ParentId: !GetAtt RestApiGateway.RootResourceId
+      PathPart: Bundle
+
+  GetMyPrescriptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref RestApiGateway
+      ResourceId: !Ref GetMyPrescriptionsResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS
+        Credentials: !GetAtt RestApiGatewayResources.Outputs.ApiGwRoleArn
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:states:action/StartSyncExecution
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: !Sub
+            - |-
+              ## Velocity Template used for API Gateway request mapping template
+              ## "@@" is used here as a placeholder for '"' to avoid using escape characters.
+
+              #set($includeHeaders = true)
+              #set($includeQueryString = true)
+              #set($includePath = true)
+              #set($requestContext = '')
+
+              #set($inputString = '')
+              #set($allParams = $input.params())
+              #set($allParams.header.apigw-request-id = $context.requestId)
+              {
+                  "stateMachineArn": "${stateMachineArn}",
+
+                  #set($inputString = "$inputString,@@body@@: $input.body")
+
+                  #if ($includeHeaders)
+                      #set($inputString = "$inputString, @@headers@@:{")
+                      #foreach($paramName in $allParams.header.keySet())
+                          #set($inputString = "$inputString @@$paramName@@: @@$util.escapeJavaScript($allParams.header.get($paramName))@@")
+                          #if($foreach.hasNext)
+                              #set($inputString = "$inputString,")
+                          #end
+                      #end
+                      #set($inputString = "$inputString }")
+
+                  #end
+
+                  #if ($includeQueryString)
+                      #set($inputString = "$inputString, @@querystring@@:{")
+                      #foreach($paramName in $allParams.querystring.keySet())
+                          #set($inputString = "$inputString @@$paramName@@: @@$util.escapeJavaScript($allParams.querystring.get($paramName))@@")
+                          #if($foreach.hasNext)
+                              #set($inputString = "$inputString,")
+                          #end
+                      #end
+                      #set($inputString = "$inputString }")
+                  #end
+
+                  #if ($includePath)
+                      #set($inputString = "$inputString, @@path@@:{")
+                      #foreach($paramName in $allParams.path.keySet())
+                          #set($inputString = "$inputString @@$paramName@@: @@$util.escapeJavaScript($allParams.path.get($paramName))@@")
+                          #if($foreach.hasNext)
+                              #set($inputString = "$inputString,")
+                          #end
+                      #end
+                      #set($inputString = "$inputString }")
+                  #end
+
+                  ## Check if the request context should be included as part of the execution input
+                  #if($requestContext && !$requestContext.empty)
+                      #set($inputString = "$inputString,")
+                      #set($inputString = "$inputString @@requestContext@@: $requestContext")
+                  #end
+
+                  #set($inputString = "$inputString}")
+                  #set($inputString = $inputString.replaceAll("@@",'"'))
+                  #set($len = $inputString.length() - 1)
+                  "input": "{$util.escapeJavaScript($inputString.substring(1,$len))}"
+              }
+            - stateMachineArn: !Ref GetMyPrescriptionsStateMachineArn
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseTemplates:
+              application/json: |-
+                #set($payload = $util.parseJson($input.path('$.output')))
+                #set($context.responseOverride.status = $payload.Payload.statusCode)
+                #set($allHeaders = $payload.Payload.headers)
+
+                #foreach($headerName in $allHeaders.keySet())
+                    #set($context.responseOverride.header[$headerName] = $allHeaders.get($headerName))
+                #end
+
+                $util.toJson($payload.Payload.body)
+      MethodResponses:
+        - StatusCode: "200"    
+
+  CapabilityStatementResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref RestApiGateway
+      ParentId: !GetAtt RestApiGateway.RootResourceId
+      PathPart: metadata
+
+  CapabilityStatementMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref RestApiGateway
+      ResourceId: !Ref CapabilityStatementResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        Credentials: !GetAtt RestApiGatewayResources.Outputs.ApiGwRoleArn
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CapabilityStatementFunctionArn}/invocations
+
+  StatusStatementResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref RestApiGateway
+      ParentId: !GetAtt RestApiGateway.RootResourceId
+      PathPart: _status
+  
+  StatusMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref RestApiGateway
+      ResourceId: !Ref StatusStatementResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        Credentials: !GetAtt RestApiGatewayResources.Outputs.ApiGwRoleArn
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StatusFunctionArn}/invocations
 
   RestApiGatewayDeployment:
     Type: AWS::ApiGateway::Deployment
     DependsOn:
-      - # todo methods
+      - GetMyPrescriptionsMethod
+      - CapabilityStatementMethod
+      - StatusMethod
     Properties:
       RestApiId: !Ref RestApiGateway
   

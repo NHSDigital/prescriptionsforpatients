@@ -23,7 +23,7 @@ Parameters:
     Type: String
 
 
-Resource:
+Resources:
   GetMyPrescriptionsStateMachine:
     Type: AWS::Serverless::StateMachine
     Properties:
