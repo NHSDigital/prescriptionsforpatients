@@ -21,7 +21,7 @@ const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
 const servicesCache: ServicesCache = {}
 
-const LAMBDA_TIMEOUT_MS = 10_000
+const LAMBDA_TIMEOUT_MS = 9_500
 const SPINE_TIMEOUT_MS = 9_000
 const SERVICE_SEARCH_TIMEOUT_MS = 5_000
 
