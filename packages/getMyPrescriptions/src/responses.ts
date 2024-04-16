@@ -11,7 +11,7 @@ export type StateMachineFunctionResponse = {
 
 type StateMachineFunctionResponseBody = {
   fhir: FhirBody,
-  statusUpdateData?: Array<StatusUpdateData>
+  statusUpdateData?: {prescriptions: Array<StatusUpdateData>}
 }
 
 export const HEADERS = {
@@ -104,7 +104,7 @@ export function lambdaResponse(
 ): StateMachineFunctionResponse {
   const body: StateMachineFunctionResponseBody = {fhir: fhirBody}
   if (statusUpdateData) {
-    body.statusUpdateData = statusUpdateData
+    body.statusUpdateData = {prescriptions: statusUpdateData}
   }
   return {
     statusCode: statusCode,
