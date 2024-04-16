@@ -27,6 +27,14 @@ Parameters:
     Type: String
     Description: Whether to use splunk
 
+  ToggleGetStatusUpdatesParameterName:
+    Type: String
+    Default: none
+
+  ToggleGetStatusUpdatesParameterManagedPolicyArn:
+    Type: String
+    Default: none
+
 Resources:
   GetMyPrescriptionsStateMachine:
     Type: AWS::Serverless::StateMachine
@@ -37,7 +45,11 @@ Resources:
       DefinitionUri: GetMyPrescriptionsStateMachine.asl.json
       DefinitionSubstitutions:
         GetMyPrescriptionsFunctionArn: !Sub ${GetMyPrescriptionsFunctionArn}:$LATEST
-        GetStatusUpdatesFunctionArn: !ImportValue psu-pr-98:functions:GSUL:GSULArn
+        GetStatusUpdatesFunctionArn: !Join
+          - ":"
+          - - !ImportValue psu-pr-98:functions:GSUL:GSULArn
+            - $LATEST
+        ToggleGetStatusUpdatesParameterName: !Ref ToggleGetStatusUpdatesParameterName
       Logging:
         Destinations:
           - CloudWatchLogsLogGroup:
@@ -57,6 +69,7 @@ Resources:
           - ","
           - - Fn::ImportValue: !Sub ${StackName}:functions:${GetMyPrescriptionsFunctionName}:ExecuteLambdaPolicyArn
             - !ImportValue psu-pr-98:functions:psu-pr-98-GetStatusUpdates:ExecuteLambdaPolicyArn
+            - !Ref ToggleGetStatusUpdatesParameterManagedPolicyArn
         LogRetentionInDays: !Ref LogRetentionInDays
         CloudWatchKMSKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
         EnableSplunk: !Ref EnableSplunk

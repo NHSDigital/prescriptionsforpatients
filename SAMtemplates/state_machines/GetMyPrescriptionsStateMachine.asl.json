@@ -22,7 +22,15 @@
           "Next": "Failed Get My Prescriptions"
         }
       ],
-      "Default": "Get Status Updates"
+      "Default": "Get Parameter"
+    },
+    "Get Parameter": {
+      "Type": "Task",
+      "Next": "Get Status Updates",
+      "Parameters": {
+        "Name": "${ToggleGetStatusUpdatesParameterName}"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:ssm:getParameter"
     },
     "Failed Get My Prescriptions": {
       "Type": "Pass",

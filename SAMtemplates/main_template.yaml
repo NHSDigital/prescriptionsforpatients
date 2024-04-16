@@ -347,10 +347,9 @@ Resources:
       FilterPattern: "" # All logs
       DestinationArn: !ImportValue lambda-resources:SplunkDeliveryStream
 
-############
-# AEA-3899 #
-############
-
+  ############
+  # AEA-3899 #
+  ############
   EnrichPrescriptionsResources:
     Type: AWS::Serverless::Application
     Properties:
@@ -365,6 +364,7 @@ Resources:
         StackName: !Ref AWS::StackName
         AccessToSpine: "true"
         LogRetentionInDays: !Ref LogRetentionInDays
+
   EnrichPrescriptions:
     Type: AWS::Serverless::Function
     Properties:
@@ -388,6 +388,14 @@ Resources:
         EntryPoints:
           - enrichPrescriptions/src/enrichPrescriptions.ts
 
+  Parameters:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: parameters/main.yaml
+      Parameters:
+        StackName: !Ref AWS::StackName
+        ToggleGetStatusUpdatesParameterValue: !Ref ToggleGetStatusUpdates
+
   StateMachines:
     Type: AWS::Serverless::Application
     Properties:
@@ -396,16 +404,10 @@ Resources:
         StackName: !Ref AWS::StackName
         GetMyPrescriptionsFunctionName: !Ref GetMyPrescriptions
         GetMyPrescriptionsFunctionArn: !GetAtt GetMyPrescriptions.Arn
+        ToggleGetStatusUpdatesParameterName: !GetAtt Parameters.Outputs.ToggleGetStatusUpdatesParameterName
+        ToggleGetStatusUpdatesParameterManagedPolicyArn: !GetAtt Parameters.Outputs.ToggleGetStatusUpdatesParameterManagedPolicyArn
         LogRetentionInDays: !Ref LogRetentionInDays
         EnableSplunk: !Ref EnableSplunk
-
-  ParameterStore:
-    Type: AWS::SSM::Parameter
-    Properties:
-      Name: ToggleGetStatusUpdates
-      Type: String
-      Value: !Ref ToggleGetStatusUpdates
-
 #############
 # /AEA-3899 #
 #############
