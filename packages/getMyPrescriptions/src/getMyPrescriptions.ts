@@ -39,6 +39,7 @@ const SERVICE_SEARCH_TIMEOUT_MS = 5_000
 const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const handlerResponse = await jobWithTimeout(LAMBDA_TIMEOUT_MS, eventHandler(event))
   if (hasTimedOut(handlerResponse)){
+    logger.error("Lambda handler has timed out. Returning error response.")
     return TIMEOUT_RESPONSE
   }
   return handlerResponse
