@@ -36,8 +36,8 @@ const SERVICE_SEARCH_TIMEOUT_MS = 5_000
  * @returns {Object} object - API Gateway Lambda Proxy Output Format
  *
  */
-const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  const handlerResponse = await jobWithTimeout(LAMBDA_TIMEOUT_MS, eventHandler(event))
+const lambdaHandler = async (event: APIGatewayProxyEvent, config: HandlerConfig): Promise<APIGatewayProxyResult> => {
+  const handlerResponse = await jobWithTimeout(config.lambdaTimeoutMs, eventHandler(event, config))
   if (hasTimedOut(handlerResponse)){
     logger.error("Lambda handler has timed out. Returning error response.")
     return TIMEOUT_RESPONSE
@@ -45,7 +45,7 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
   return handlerResponse
 }
 
-export async function eventHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+export async function eventHandler(event: APIGatewayProxyEvent, config: HandlerConfig): Promise<APIGatewayProxyResult> {
   const xRequestId = event.headers["x-request-id"]
   logger.appendKeys({
     "nhsd-correlation-id": event.headers["nhsd-correlation-id"],
@@ -67,7 +67,7 @@ export async function eventHandler(event: APIGatewayProxyEvent): Promise<APIGate
     event.headers["nhsNumber"] = nhsNumber
 
     const spineCallout = spineClient.getPrescriptions(event.headers)
-    const response = await jobWithTimeout(SPINE_TIMEOUT_MS, spineCallout)
+    const response = await jobWithTimeout(config.spineTimeoutMs, spineCallout)
     if (hasTimedOut(response)){
       logger.error("Call to Spine has timed out. Returning error response.")
       return TIMEOUT_RESPONSE
@@ -78,7 +78,7 @@ export async function eventHandler(event: APIGatewayProxyEvent): Promise<APIGate
     const distanceSelling = new DistanceSelling(servicesCache, logger)
     const distanceSellingBundle = deepCopy(searchsetBundle)
     const distanceSellingCallout = distanceSelling.search(distanceSellingBundle)
-    const distanceSellingResponse = await jobWithTimeout(SERVICE_SEARCH_TIMEOUT_MS, distanceSellingCallout)
+    const distanceSellingResponse = await jobWithTimeout(config.serviceSearchTimeoutMs, distanceSellingCallout)
     if (hasTimedOut(distanceSellingResponse)){
       return successResponse(searchsetBundle)
     }
@@ -93,7 +93,12 @@ export async function eventHandler(event: APIGatewayProxyEvent): Promise<APIGate
   }
 }
 
-export const handler = middy(lambdaHandler)
+type HandlerConfig = {
+  lambdaTimeoutMs: number,
+  spineTimeoutMs: number,
+  serviceSearchTimeoutMs: number
+}
+export const newHandler = (config: HandlerConfig) => middy((event) => lambdaHandler(event as APIGatewayProxyEvent, config))
   .use(injectLambdaContext(logger, {clearState: true}))
   .use(
     inputOutputLogger({
@@ -107,3 +112,10 @@ export const handler = middy(lambdaHandler)
     })
   )
   .use(errorHandler({logger: logger}))
+
+export const DEFAULT_HANDLER_CONFIG = {
+  lambdaTimeoutMs: LAMBDA_TIMEOUT_MS,
+  spineTimeoutMs: SPINE_TIMEOUT_MS,
+  serviceSearchTimeoutMs: SERVICE_SEARCH_TIMEOUT_MS
+}
+export const handler = newHandler(DEFAULT_HANDLER_CONFIG)
