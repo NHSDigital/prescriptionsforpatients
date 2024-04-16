@@ -34,7 +34,7 @@
       "OutputPath": "$.Payload",
       "Parameters": {
         "Payload.$": "$",
-        "FunctionName": "{GetStatusUpdatesFunctionArn}"
+        "FunctionName": "${GetStatusUpdatesFunctionArn}"
       },
       "End": true,
       "InputPath": "$.Payload.statusUpdateData"
