@@ -22,19 +22,26 @@
           "Next": "Failed Get My Prescriptions"
         }
       ],
-      "Default": "Get Parameter"
+      "Default": "Get Status Updates Toggle Parameter"
     },
-    "Get Parameter": {
+    "Get Status Updates Toggle Parameter": {
       "Type": "Task",
-      "Next": "Get Status Updates",
+      "Next": "Evaluate Get Status Updates Toggle",
       "Parameters": {
         "Name": "${ToggleGetStatusUpdatesParameterName}"
       },
       "Resource": "arn:aws:states:::aws-sdk:ssm:getParameter"
     },
-    "Failed Get My Prescriptions": {
-      "Type": "Pass",
-      "End": true
+    "Evaluate Get Status Updates Toggle": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.Payload",
+          "StringMatches": "true",
+          "Next": "Get Status Updates"
+        }
+      ],
+      "Default": "Enrich Prescriptions"
     },
     "Get Status Updates": {
       "Type": "Task",
@@ -44,8 +51,22 @@
         "Payload.$": "$",
         "FunctionName": "${GetStatusUpdatesFunctionArn}"
       },
-      "End": true,
-      "InputPath": "$.Payload.statusUpdateData"
+      "InputPath": "$.Payload.statusUpdateData",
+      "Next": "Enrich Prescriptions"
+    },
+    "Enrich Prescriptions": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "OutputPath": "$.Payload",
+      "Parameters": {
+        "Payload.$": "$",
+        "FunctionName": "${EnrichPrescriptionsFunctionArn}"
+      },
+      "End": true
+    },
+    "Failed Get My Prescriptions": {
+      "Type": "Pass",
+      "End": true
     }
   }
 }

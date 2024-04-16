@@ -9,31 +9,35 @@ Parameters:
     Description: The name of the main stack
     Default: none
 
-  GetMyPrescriptionsFunctionName:
-    Type: String
-    Description: The function name of GetMyPrescriptions lambda
-    Default: none
-
   GetMyPrescriptionsFunctionArn:
     Type: String
-    Description: The function ARN of GetMyPrescriptions lambda
     Default: none
 
-  LogRetentionInDays:
-    Type: Number
-    Description: How long to keep logs for
-
-  EnableSplunk:
-    Type: String
-    Description: Whether to use splunk
-
   ToggleGetStatusUpdatesParameterName:
+    Type: String
+    Default: none
+
+  EnrichPrescriptionsFunctionArn:
+    Type: String
+    Default: none
+
+  GetMyPrescriptionsFunctionName:
+    Type: String
+    Default: none
+
+  EnrichPrescriptionsFunctionName:
     Type: String
     Default: none
 
   ToggleGetStatusUpdatesParameterManagedPolicyArn:
     Type: String
     Default: none
+
+  LogRetentionInDays:
+    Type: Number
+
+  EnableSplunk:
+    Type: String
 
 Resources:
   GetMyPrescriptionsStateMachine:
@@ -45,11 +49,12 @@ Resources:
       DefinitionUri: GetMyPrescriptionsStateMachine.asl.json
       DefinitionSubstitutions:
         GetMyPrescriptionsFunctionArn: !Sub ${GetMyPrescriptionsFunctionArn}:$LATEST
+        ToggleGetStatusUpdatesParameterName: !Ref ToggleGetStatusUpdatesParameterName
         GetStatusUpdatesFunctionArn: !Join
           - ":"
           - - !ImportValue psu-pr-98:functions:GSUL:GSULArn
             - $LATEST
-        ToggleGetStatusUpdatesParameterName: !Ref ToggleGetStatusUpdatesParameterName
+        EnrichPrescriptionsFunctionArn: !Sub ${EnrichPrescriptionsFunctionArn}:$LATEST
       Logging:
         Destinations:
           - CloudWatchLogsLogGroup:
@@ -68,6 +73,7 @@ Resources:
         AdditionalPolicies: !Join
           - ","
           - - Fn::ImportValue: !Sub ${StackName}:functions:${GetMyPrescriptionsFunctionName}:ExecuteLambdaPolicyArn
+            - Fn::ImportValue: !Sub ${StackName}:functions:${EnrichPrescriptionsFunctionName}:ExecuteLambdaPolicyArn
             - !ImportValue psu-pr-98:functions:psu-pr-98-GetStatusUpdates:ExecuteLambdaPolicyArn
             - !Ref ToggleGetStatusUpdatesParameterManagedPolicyArn
         LogRetentionInDays: !Ref LogRetentionInDays
@@ -78,9 +84,7 @@ Resources:
 
 Outputs:
   GetMyPrescriptionsStateMachineArn:
-    Description: GetMyPrescriptions state machine arn
     Value: !Ref GetMyPrescriptionsStateMachine
 
   GetMyPrescriptionsStateMachineName:
-    Description: GetMyPrescriptions state machine name
     Value: !GetAtt GetMyPrescriptionsStateMachine.Name
