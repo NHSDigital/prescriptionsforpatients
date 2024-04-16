@@ -9,10 +9,6 @@ Parameters:
     Description: The name of the main stack
     Default: none
 
-  ToggleGetStatusUpdatesParameterName:
-    Type: String
-    Default: ToggleGetStatusUpdates
-
   ToggleGetStatusUpdatesParameterValue:
     Type: String
 
@@ -20,7 +16,7 @@ Resources:
   ToggleGetStatusUpdatesParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: !Sub ${StackName}-${ToggleGetStatusUpdatesParameterName}
+      Name: !Sub ${StackName}-ToggleGetStatusUpdates
       Type: String
       Value: !Ref ToggleGetStatusUpdatesParameterValue
 
@@ -33,11 +29,11 @@ Resources:
           - Effect: Allow
             Action:
               - ssm:GetParameter
-            Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${StackName}-${ToggleGetStatusUpdatesParameterName}
+            Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${ToggleGetStatusUpdatesParameter}
 
 Outputs:
   ToggleGetStatusUpdatesParameterName:
-    Value: !Sub ${StackName}-${ToggleGetStatusUpdatesParameterName}
+    Value: !Ref ToggleGetStatusUpdatesParameter
 
   ToggleGetStatusUpdatesParameterManagedPolicyArn:
     Value: !Ref ToggleGetStatusUpdatesParameterManagedPolicy
