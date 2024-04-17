@@ -76,8 +76,6 @@ sam-validate:
 	sam validate --template-file SAMtemplates/apis/api_resources.yaml --region eu-west-2
 	sam validate --template-file SAMtemplates/functions/main.yaml --region eu-west-2
 	sam validate --template-file SAMtemplates/functions/lambda_resources.yaml --region eu-west-2
-	sam validate --template-file SAMtemplates/tables/main.yaml --region eu-west-2
-	sam validate --template-file SAMtemplates/tables/dynamodb_resources.yaml --region eu-west-2
 	sam validate --template-file SAMtemplates/state_machines/main.yaml --region eu-west-2
 	sam validate --template-file SAMtemplates/state_machines/state_machine_resources.yaml --region eu-west-2
 
