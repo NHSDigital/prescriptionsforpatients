@@ -70,7 +70,7 @@ sam-list-outputs: guard-AWS_DEFAULT_PROFILE guard-stack_name
 
 sam-validate: 
 	sam validate --template-file SAMtemplates/main_template.old.yaml --region eu-west-2
-	sam validate --template-file SAMtemplates/lambda_resources.old/yaml --region eu-west-2
+	sam validate --template-file SAMtemplates/lambda_resources.old.yaml --region eu-west-2
 	sam validate --template-file SAMtemplates/main_template.yaml --region eu-west-2
 	sam validate --template-file SAMtemplates/apis/main.yaml --region eu-west-2
 	sam validate --template-file SAMtemplates/apis/api_resources.yaml --region eu-west-2
