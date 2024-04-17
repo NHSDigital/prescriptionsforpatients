@@ -4,6 +4,17 @@ Description: |
   PFP resources
 
 Parameters:
+  EnableMutualTLS:
+    Type: String
+    Default: false
+    AllowedValues:
+      - true
+      - false
+  
+  TruststoreVersion:
+    Type: String
+    Default: none
+  
   TargetSpineServer:
     Type: String
     Default: none
