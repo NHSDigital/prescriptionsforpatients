@@ -89,7 +89,7 @@ Resources:
   SandboxResources:
     Type: AWS::Serverless::Application
     Properties:
-      Location: functions//lambda_resources.yaml
+      Location: functions/lambda_resources.yaml
       Parameters:
         StackName: AWS::StackName
         LambdaName: !Sub ${AWS::StackName}-Sandbox
@@ -167,7 +167,7 @@ Resources:
   StatusResources:
     Type: AWS::Serverless::Application
     Properties:
-      Location: lambda_resources.yaml
+      Location: functions/lambda_resources.yaml
       Parameters:
         StackName: AWS::StackName
         LambdaName: !Sub ${AWS::StackName}-status
