@@ -56,7 +56,7 @@ Resources:
     Properties:
       LayerName: get-secrets-layer
       Description: get secrets layer
-      ContentUri: ../packages/getSecretLayer/lib/get-secrets-layer.zip
+      ContentUri: ../../packages/getSecretLayer/lib/get-secrets-layer.zip
       RetentionPolicy: Retain
   
   GetMyPrescriptions:

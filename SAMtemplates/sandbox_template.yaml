@@ -185,7 +185,7 @@ Resources:
       FunctionName: !Sub ${AWS::StackName}-status
       CodeUri: ../packages
       Handler: statusLambda.handler
-      Role: !GetAtt StatusLambdaResources.Outputs.LambdaRoleArn
+      Role: !GetAtt StatusResources.Outputs.LambdaRoleArn
       Environment:
         Variables:
           VERSION_NUMBER: !Ref VersionNumber
