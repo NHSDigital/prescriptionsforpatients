@@ -107,7 +107,7 @@ Resources:
   GetMyPrescriptionsResources:
     Type: AWS::Serverless::Application
     Properties:
-      Location: lambda_resources.yaml
+      Location: lambda_resources.old.yaml
       Parameters:
         CloudWatchKMSKey: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
         SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
@@ -150,7 +150,7 @@ Resources:
   CapabilityStatementResources:
     Type: AWS::Serverless::Application
     Properties:
-      Location: lambda_resources.yaml
+      Location: lambda_resources.old.yaml
       Parameters:
         CloudWatchKMSKey: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
         SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
@@ -186,7 +186,7 @@ Resources:
   StatusLambdaResources:
     Type: AWS::Serverless::Application
     Properties:
-      Location: lambda_resources.yaml
+      Location: lambda_resources.old.yaml
       Parameters:
         CloudWatchKMSKey: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
         SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole

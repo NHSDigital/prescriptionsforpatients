@@ -145,13 +145,6 @@ Resources:
           AWS_LAMBDA_EXEC_WRAPPER: /opt/get-secrets-layer
       Layers:
         - !Ref GetSecretsLayer
-      # Events: todo > move to api
-      #   status:
-      #     Type: HttpApi
-      #     Properties:
-      #       ApiId: !Ref HttpApiGateway
-      #       Path: /_status
-      #       Method: get
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
