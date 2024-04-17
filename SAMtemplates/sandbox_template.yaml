@@ -312,7 +312,7 @@ Resources:
           "/",
           ["/aws/apigateway", !Ref "AWS::StackName", !Sub "${HttpApiGateway}"],
         ]
-      RetentionInDays: !Ref LogRetentionDays
+      RetentionInDays: !Ref LogRetentionInDays
       KmsKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
 
   ApiGwAccessLogsSplunkSubscriptionFilter:
