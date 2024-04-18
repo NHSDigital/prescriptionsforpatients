@@ -33,10 +33,6 @@ Resources:
       DefinitionUri: GetMyPrescriptionsStateMachine.asl.json
       DefinitionSubstitutions:
         UpdatePrescriptionStatusFunctionArn: !Sub ${GetMyPrescriptionsFunctionArn}:$LATEST
-        GetStatusUpdatesFunctionArn: !Join
-          - ":"
-          - - !ImportValue psu:functions:psu-GetStatusUpdates:FunctionArn
-            - $LATEST
       Logging:
         Destinations:
           - CloudWatchLogsLogGroup:
