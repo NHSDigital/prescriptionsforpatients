@@ -52,7 +52,7 @@ Resources:
         ToggleGetStatusUpdatesParameterName: !Ref ToggleGetStatusUpdatesParameterName
         GetStatusUpdatesFunctionArn: !Join
           - ":"
-          - - !ImportValue psu-pr-98:functions:psu-pr-98-GetStatusUpdates:FunctionArn
+          - - !ImportValue psu-pr-98:functions:GetStatusUpdates:FunctionArn
             - $LATEST
         EnrichPrescriptionsFunctionArn: !Sub ${EnrichPrescriptionsFunctionArn}:$LATEST
       Logging:
