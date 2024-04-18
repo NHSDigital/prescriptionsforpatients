@@ -22,7 +22,15 @@ Parameters:
     Type: String
     Default: none
   
+  CapabilityStatementFunctionName:
+    Type: String
+    Default: none
+  
   CapabilityStatementFunctionArn:
+    Type: String
+    Default: none
+  
+  StatusFunctionName:
     Type: String
     Default: none
   
@@ -288,7 +296,9 @@ Resources:
       Parameters:
         AdditionalPolicies: !Join
           - ","
-          - - Fn::ImportValue: !Sub ${StackName}:state-machines:${GetMyPrescriptionsStateMachineName}:ExecuteStateMachinePolicy
+          - - Fn::ImportValue: !Sub ${StackName}:state-machines:${GetMyPrescriptionsStateMachineName}:ExecuteStateMachinePolicyArn
+            - Fn::ImportValue: !Sub ${StackName}:functions:${CapabilityStatementFunctionName}:ExecuteLambdaPolicyArn
+            - Fn::ImportValue: !Sub ${StackName}:functions:${StatusFunctionName}:ExecuteLambdaPolicyArn
         ApiName: !Sub ${StackName}-apigw
         LogRetentionInDays: !Ref LogRetentionInDays
         EnableSplunk: !Ref EnableSplunk

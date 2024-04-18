@@ -130,7 +130,7 @@ Outputs:
     Description: State machine execution policy arn
     Value: !Ref ExecuteStateMachineManagedPolicy
     Export:
-      Name: !Sub ${StackName}:state-machines:${StateMachineName}:ExecuteStateMachinePolicy
+      Name: !Sub ${StackName}:state-machines:${StateMachineName}:ExecuteStateMachinePolicyArn
 
   StateMachineRoleArn:
     Description: State machine role arn

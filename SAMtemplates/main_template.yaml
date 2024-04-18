@@ -78,7 +78,9 @@ Resources:
         TruststoreVersion: !Ref TruststoreVersion
         GetMyPrescriptionsStateMachineName: !GetAtt StateMachines.Outputs.GetMyPrescriptionsStateMachineName
         GetMyPrescriptionsStateMachineArn: !GetAtt StateMachines.Outputs.GetMyPrescriptionsStateMachineArn
+        CapabilityStatementFunctionName: !GetAtt Functions.Outputs.CapabilityStatementFunctionName
         CapabilityStatementFunctionArn: !GetAtt Functions.Outputs.CapabilityStatementFunctionArn
+        StatusFunctionName: !GetAtt Functions.Outputs.StatusFunctionName
         StatusFunctionArn: !GetAtt Functions.Outputs.StatusFunctionArn
         LogRetentionInDays: !Ref LogRetentionInDays
         EnableSplunk: !Ref EnableSplunk

@@ -182,9 +182,17 @@ Outputs:
     Description: The function ARN of the GetMyPrescriptions lambda
     Value: !GetAtt  GetMyPrescriptions.Arn
 
+  CapabilityStatementFunctionName:
+    Description: The function name of the CapabilityStatement lambda
+    Value: !Ref  CapabilityStatement
+  
   CapabilityStatementFunctionArn:
     Description: The function ARN of the CapabilityStatement lambda
     Value: !GetAtt  CapabilityStatement.Arn
+
+  StatusFunctionName:
+    Description: The function name of the Status lambda
+    Value: !Ref  Status
   
   StatusFunctionArn:
     Description: The function ARN of the Status lambda
