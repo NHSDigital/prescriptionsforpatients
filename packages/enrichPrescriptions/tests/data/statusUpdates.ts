@@ -3,7 +3,7 @@ import {StatusUpdates} from "../../src/statusUpdates"
 export function statusUpdates(): StatusUpdates {
   return {
     schemaVersion: 1,
-    isSuccess: false,
+    isSuccess: true,
     prescriptions: [
       {
         onboarded: true,

@@ -10,5 +10,3 @@ describe("Unit test for handler", function () {
     expect(actualResponse).toEqual(response)
   })
 })
-
-export {}

@@ -42,7 +42,7 @@ export function isolateMedicationRequests(searchsetBundle: Bundle): Array<Medica
 }
 
 export function updateMedicationRequest(medicationRequest: MedicationRequest, updateItem?: UpdateItem) {
-  const status = updateItem && updateItem.isTerminalState ? "completed" : "active"
+  const status = updateItem?.isTerminalState.toLowerCase() === "true" ? "completed" : "active"
   medicationRequest.status = status
 
   const extensionStatus = updateItem?.latestStatus ?? "With Pharmacy"
