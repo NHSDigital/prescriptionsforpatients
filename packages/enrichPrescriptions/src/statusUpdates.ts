@@ -53,7 +53,10 @@ export function updateMedicationRequest(medicationRequest: MedicationRequest, up
     extension: [
       {
         url: "status",
-        valueString: extensionStatus
+        valueCoding: {
+          system: "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt",
+          code: extensionStatus
+        }
       },
       {
         url: "statusDate",

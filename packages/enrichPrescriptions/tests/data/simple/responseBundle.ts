@@ -1,6 +1,7 @@
 import {Bundle} from "fhir/r4"
+import {EXTENSION_URL} from "../../../src/statusUpdates"
 
-export function requestBundle(): Bundle {
+export function simpleResponseBundle(): Bundle {
   return {
     resourceType: "Bundle",
     id: "3f03c9df-111e-4746-ad9b-3a0c8ee65f89",
@@ -63,7 +64,7 @@ export function requestBundle(): Bundle {
                 requester: {
                   reference: "urn:uuid:9d4afe92-348e-4f10-9ba5-67e7712eb8a1"
                 },
-                status: "unknown",
+                status: "active",
                 subject: {
                   identifier: {
                     system: "https://fhir.nhs.uk/Id/nhs-number",
@@ -73,7 +74,25 @@ export function requestBundle(): Bundle {
                 substitution: {
                   allowedBoolean: false
                 },
-                resourceType: "MedicationRequest"
+                resourceType: "MedicationRequest",
+                extension: [
+                  {
+                    url: EXTENSION_URL,
+                    extension: [
+                      {
+                        url: "status",
+                        valueCoding: {
+                          system: "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt",
+                          code: "Ready to Collect"
+                        }
+                      },
+                      {
+                        url: "statusDate",
+                        valueDateTime: "2023-09-11T10:11:12.000Z"
+                      }
+                    ]
+                  }
+                ]
               }
             },
             {

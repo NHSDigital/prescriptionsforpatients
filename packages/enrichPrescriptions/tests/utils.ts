@@ -3,27 +3,47 @@
 import {EnrichPrescriptionsEvent} from "../src/enrichPrescriptions"
 import {HEADERS, StateMachineFunctionResponse} from "../src/responses"
 
-import {requestBundle} from "./data/requestBundle"
-import {statusUpdates} from "./data/statusUpdates"
-import {responseBundle} from "./data/responseBundle"
+import {simpleRequestBundle} from "./data/simple/requestBundle"
+import {simpleStatusUpdates} from "./data/simple/statusUpdates"
+import {simpleResponseBundle} from "./data/simple/responseBundle"
+
+import {richRequestBundle} from "./data/rich/requestBundle"
+import {richStatusUpdates} from "./data/rich/statusUpdates"
+import {richResponseBundle} from "./data/rich/responseBundle"
 
 type RequestAndResponse = {
   event: EnrichPrescriptionsEvent
   response: StateMachineFunctionResponse
 }
 
-export function eventWithBundleAndStatusUpdates(): RequestAndResponse {
+export function simpleEventAndResponse(): RequestAndResponse {
   return {
     event: {
       Payload: {
-        body: {fhir: requestBundle()}
+        body: {fhir: simpleRequestBundle()}
       },
-      StatusUpdates: {Payload: statusUpdates()}
+      StatusUpdates: {Payload: simpleStatusUpdates()}
     },
     response: {
       statusCode: 200,
       headers: HEADERS,
-      body: responseBundle()
+      body: simpleResponseBundle()
+    }
+  }
+}
+
+export function richEventAndResponse(): RequestAndResponse {
+  return {
+    event: {
+      Payload: {
+        body: {fhir: richRequestBundle()}
+      },
+      StatusUpdates: {Payload: richStatusUpdates()}
+    },
+    response: {
+      statusCode: 200,
+      headers: HEADERS,
+      body: richResponseBundle()
     }
   }
 }

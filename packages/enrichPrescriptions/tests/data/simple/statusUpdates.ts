@@ -1,6 +1,6 @@
-import {StatusUpdates} from "../../src/statusUpdates"
+import {StatusUpdates} from "../../../src/statusUpdates"
 
-export function statusUpdates(): StatusUpdates {
+export function simpleStatusUpdates(): StatusUpdates {
   return {
     schemaVersion: 1,
     isSuccess: true,
@@ -13,7 +13,7 @@ export function statusUpdates(): StatusUpdates {
             isTerminalState: "false",
             itemId: "e76812cf-c893-42ff-ab02-b19ea1fa11b4",
             lastUpdateDateTime: "2023-09-11T10:11:12.000Z",
-            latestStatus: "Ready for delivery"
+            latestStatus: "Ready to Collect"
           }
         ]
       }
