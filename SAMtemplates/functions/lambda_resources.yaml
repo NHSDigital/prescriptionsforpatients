@@ -62,7 +62,7 @@ Resources:
             Action:
               - lambda:InvokeFunction
             Resource:
-              - !Sub ${LambdaArn}:*
+              - !Sub ${LambdaArn}*
 
   LambdaRole:
     Type: AWS::IAM::Role
