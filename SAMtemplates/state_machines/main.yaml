@@ -53,7 +53,6 @@ Resources:
         AdditionalPolicies: !Join
           - ","
           - - Fn::ImportValue: !Sub ${StackName}:functions:${GetMyPrescriptionsFunctionName}:ExecuteLambdaPolicyArn
-            - !ImportValue psu:functions:psu-GetStatusUpdates:ExecuteLambdaPolicyArn
         LogRetentionInDays: !Ref LogRetentionInDays
         CloudWatchKMSKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
         EnableSplunk: !Ref EnableSplunk
