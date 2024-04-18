@@ -24,7 +24,7 @@ import {
   TIMEOUT_RESPONSE,
   lambdaResponse
 } from "../src/responses"
-import {mockInternalDependency} from "./utils"
+import {SERVICE_SEARCH_PARAMS, mockInternalDependency} from "./utils"
 
 import * as statusUpdate from "../src/statusUpdate"
 mockInternalDependency("../src/statusUpdate", statusUpdate, "buildStatusUpdateData")
@@ -279,14 +279,6 @@ describe("Unit test for app handler", function () {
 })
 
 describe("Unit tests for app handler including service search", function () {
-  const queryParams = {
-    "api-version": 2,
-    "searchFields": "ODSCode",
-    "$filter": "OrganisationTypeId eq 'PHA' and OrganisationSubType eq 'DistanceSelling'",
-    "$select": "URL,OrganisationSubType",
-    "$top": 1
-  }
-
   beforeEach(() => {
     mock.reset()
     mock.resetHistory()
@@ -306,11 +298,11 @@ describe("Unit tests for app handler including service search", function () {
     const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
 
     mock.onGet(
-      "https://service-search/service-search", {params: {...queryParams, search: "flm49"}}
+      "https://service-search/service-search", {params: {...SERVICE_SEARCH_PARAMS, search: "flm49"}}
     ).reply(200, JSON.parse(pharmacy2uResponse))
 
     mock.onGet(
-      "https://service-search/service-search", {params: {...queryParams, search: "few08"}}
+      "https://service-search/service-search", {params: {...SERVICE_SEARCH_PARAMS, search: "few08"}}
     ).reply(200, JSON.parse(pharmicaResponse))
 
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, JSON.parse(exampleInteractionResponse))
@@ -334,11 +326,11 @@ describe("Unit tests for app handler including service search", function () {
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, interactionResponse)
 
     mock.onGet(
-      "https://service-search/service-search", {params: {...queryParams, search: "flm49"}}
+      "https://service-search/service-search", {params: {...SERVICE_SEARCH_PARAMS, search: "flm49"}}
     ).reply(200, JSON.parse(pharmacy2uResponse))
 
     mock.onGet(
-      "https://service-search/service-search", {params: {...queryParams, search: "few08"}}
+      "https://service-search/service-search", {params: {...SERVICE_SEARCH_PARAMS, search: "few08"}}
     ).reply(200, JSON.parse(pharmicaResponse))
 
     const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
