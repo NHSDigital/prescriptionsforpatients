@@ -8,7 +8,7 @@ import {Bundle} from "fhir/r4"
 import {StatusUpdates, applyStatusUpdates} from "./statusUpdates"
 import {lambdaResponse} from "./responses"
 
-const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
+export const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 const logger = new Logger({serviceName: "enrichPrescriptions", logLevel: LOG_LEVEL})
 
 const LAMBDA_TIMEOUT_MS = 10_000

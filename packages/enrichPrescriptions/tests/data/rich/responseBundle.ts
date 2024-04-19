@@ -24,9 +24,15 @@ export function richResponseBundle(): Bundle {
           type: "collection",
           entry: [
             {
-              fullUrl: "urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6",
+              fullUrl: "urn:uuid:b4e289db-1d7c-45fc-a3d9-e81f2114b5ee",
               resource: {
-                id: "a54219b8-f741-4c47-b662-e4f8dfa49ab6",
+                id: "b4e289db-1d7c-45fc-a3d9-e81f2114b5ee",
+                identifier: [
+                  {
+                    system: "https://fhir.nhs.uk/Id/prescription-order-item-number",
+                    value: "a54219b8-f741-4c47-b662-e4f8dfa49ab6"
+                  }
+                ],
                 resourceType: "MedicationRequest",
                 status: "active",
                 intent: "order",
@@ -99,9 +105,15 @@ export function richResponseBundle(): Bundle {
               }
             },
             {
-              fullUrl: "urn:uuid:6989b7bd-8db6-428c-a593-4022e3044c00",
+              fullUrl: "urn:uuid:2bf8f0e0-8567-4aef-ad03-c3fbfedaf4b3",
               resource: {
-                id: "6989b7bd-8db6-428c-a593-4022e3044c00",
+                id: "2bf8f0e0-8567-4aef-ad03-c3fbfedaf4b3",
+                identifier: [
+                  {
+                    system: "https://fhir.nhs.uk/Id/prescription-order-item-number",
+                    value: "6989b7bd-8db6-428c-a593-4022e3044c00"
+                  }
+                ],
                 resourceType: "MedicationRequest",
                 status: "completed",
                 intent: "order",
@@ -174,9 +186,15 @@ export function richResponseBundle(): Bundle {
               }
             },
             {
-              fullUrl: "urn:uuid:2868554c-5565-4d31-b92a-c5b8dab8b90a",
+              fullUrl: "urn:uuid:18c20e6c-dc34-4a17-8307-5cfd7efa707b",
               resource: {
-                id: "2868554c-5565-4d31-b92a-c5b8dab8b90a",
+                id: "18c20e6c-dc34-4a17-8307-5cfd7efa707b",
+                identifier: [
+                  {
+                    system: "https://fhir.nhs.uk/Id/prescription-order-item-number",
+                    value: "2868554c-5565-4d31-b92a-c5b8dab8b90a"
+                  }
+                ],
                 resourceType: "MedicationRequest",
                 status: "active",
                 intent: "order",
@@ -249,9 +267,15 @@ export function richResponseBundle(): Bundle {
               }
             },
             {
-              fullUrl: "urn:uuid:5cb17f5a-11ac-4e18-825f-6470467238b3",
+              fullUrl: "urn:uuid:b7b8c142-7ccb-4d0c-b0a7-25f7fa83f4b4",
               resource: {
-                id: "5cb17f5a-11ac-4e18-825f-6470467238b3",
+                id: "b7b8c142-7ccb-4d0c-b0a7-25f7fa83f4b4",
+                identifier: [
+                  {
+                    system: "https://fhir.nhs.uk/Id/prescription-order-item-number",
+                    value: "5cb17f5a-11ac-4e18-825f-6470467238b3"
+                  }
+                ],
                 resourceType: "MedicationRequest",
                 status: "active",
                 intent: "order",
@@ -441,9 +465,15 @@ export function richResponseBundle(): Bundle {
           type: "collection",
           entry: [
             {
-              fullUrl: "urn:uuid:ee035711-7aac-48c4-951a-62c07891d37d",
+              fullUrl: "urn:uuid:7f9fa7aa-a6ef-4d2e-8efc-08fb9098ce34",
               resource: {
-                id: "ee035711-7aac-48c4-951a-62c07891d37d",
+                id: "7f9fa7aa-a6ef-4d2e-8efc-08fb9098ce34",
+                identifier: [
+                  {
+                    system: "https://fhir.nhs.uk/Id/prescription-order-item-number",
+                    value: "ee035711-7aac-48c4-951a-62c07891d37d"
+                  }
+                ],
                 resourceType: "MedicationRequest",
                 status: "active",
                 intent: "order",
@@ -590,9 +620,15 @@ export function richResponseBundle(): Bundle {
           type: "collection",
           entry: [
             {
-              fullUrl: "urn:uuid:b6bf7869-9b30-436c-9260-84fc3dbf449b",
+              fullUrl: "urn:uuid:26fe7442-49fc-4600-aae8-658fc7d4c955",
               resource: {
-                id: "b6bf7869-9b30-436c-9260-84fc3dbf449b",
+                id: "26fe7442-49fc-4600-aae8-658fc7d4c955",
+                identifier: [
+                  {
+                    system: "https://fhir.nhs.uk/Id/prescription-order-item-number",
+                    value: "b6bf7869-9b30-436c-9260-84fc3dbf449b"
+                  }
+                ],
                 resourceType: "MedicationRequest",
                 status: "active",
                 intent: "order",

@@ -1,3 +1,4 @@
+import {Logger} from "@aws-lambda-powertools/logger"
 import {
   Bundle,
   BundleEntry,
@@ -5,9 +6,13 @@ import {
   MedicationRequest
 } from "fhir/r4"
 
+import {LOG_LEVEL} from "./enrichPrescriptions"
+
 export const EXTENSION_URL = "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory"
 export const DEFAULT_EXTENSION_STATUS = "With Pharmacy but Tracking not Supported"
 export const VALUE_CODING_SYSTEM = "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt"
+
+const logger = new Logger({serviceName: "statusUpdates", logLevel: LOG_LEVEL})
 
 type UpdateItem = {
   isTerminalState: string
@@ -79,15 +84,20 @@ export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: Statu
     const medicationRequests = isolateMedicationRequests(searchsetBundle)
 
     medicationRequests?.forEach(medicationRequest => {
+      const medicationRequestId = medicationRequest.identifier?.[0].value
+      logger.info(`Updating MedicationRequest with id ${medicationRequestId}`)
+
       const matchingUpdateItems = statusUpdates.prescriptions.flatMap(
         prescription => prescription.items
       ).filter(
-        items => items.itemId === medicationRequest.id
+        items => items.itemId === medicationRequestId
       )
 
       if (matchingUpdateItems.length > 0) {
+        logger.info(`Update found for MedicationRequest with id ${medicationRequestId}. Applying.`)
         updateMedicationRequest(medicationRequest, matchingUpdateItems[0])
       } else {
+        logger.info(`No update found for MedicationRequest with id ${medicationRequestId}. Applying default.`)
         updateMedicationRequest(medicationRequest)
       }
     })

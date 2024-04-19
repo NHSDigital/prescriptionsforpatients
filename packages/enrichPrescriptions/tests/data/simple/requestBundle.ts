@@ -20,9 +20,15 @@ export function simpleRequestBundle(): Bundle {
           type: "collection",
           entry: [
             {
-              fullUrl: "urn:uuid:e76812cf-c893-42ff-ab02-b19ea1fa11b4",
+              fullUrl: "urn:uuid:526b31df-e9ae-4423-b205-9692ec617469",
               resource: {
-                id: "e76812cf-c893-42ff-ab02-b19ea1fa11b4",
+                id: "526b31df-e9ae-4423-b205-9692ec617469",
+                identifier: [
+                  {
+                    system: "https://fhir.nhs.uk/Id/prescription-order-item-number",
+                    value: "e76812cf-c893-42ff-ab02-b19ea1fa11b4"
+                  }
+                ],
                 courseOfTherapyType: {
                   coding: [
                     {
