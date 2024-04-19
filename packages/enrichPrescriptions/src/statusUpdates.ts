@@ -6,6 +6,8 @@ import {
 } from "fhir/r4"
 
 export const EXTENSION_URL = "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory"
+export const DEFAULT_EXTENSION_STATUS = "With Pharmacy but Tracking not Supported"
+export const VALUE_CODING_SYSTEM = "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt"
 
 type UpdateItem = {
   isTerminalState: string
@@ -45,7 +47,7 @@ export function updateMedicationRequest(medicationRequest: MedicationRequest, up
   const status = updateItem?.isTerminalState.toLowerCase() === "true" ? "completed" : "active"
   medicationRequest.status = status
 
-  const extensionStatus = updateItem?.latestStatus ?? "With Pharmacy"
+  const extensionStatus = updateItem?.latestStatus ?? DEFAULT_EXTENSION_STATUS
   const extensionDateTime = updateItem?.lastUpdateDateTime ?? new Date().toISOString()
 
   const extension: Extension = {
@@ -54,7 +56,7 @@ export function updateMedicationRequest(medicationRequest: MedicationRequest, up
       {
         url: "status",
         valueCoding: {
-          system: "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt",
+          system: VALUE_CODING_SYSTEM,
           code: extensionStatus
         }
       },
