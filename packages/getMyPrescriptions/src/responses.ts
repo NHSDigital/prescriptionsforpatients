@@ -10,8 +10,11 @@ export type StateMachineFunctionResponse = {
 }
 
 type StateMachineFunctionResponseBody = {
-  fhir: FhirBody,
-  statusUpdateData?: {prescriptions: Array<StatusUpdateData>}
+  fhir: FhirBody
+  statusUpdateData?: {
+    schemaVersion: number
+    prescriptions: Array<StatusUpdateData>
+  }
 }
 
 export const HEADERS = {
@@ -104,7 +107,10 @@ export function lambdaResponse(
 ): StateMachineFunctionResponse {
   const body: StateMachineFunctionResponseBody = {fhir: fhirBody}
   if (statusUpdateData) {
-    body.statusUpdateData = {prescriptions: statusUpdateData}
+    body.statusUpdateData = {
+      schemaVersion: 1,
+      prescriptions: statusUpdateData
+    }
   }
   return {
     statusCode: statusCode,
