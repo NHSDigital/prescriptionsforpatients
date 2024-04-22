@@ -9,7 +9,15 @@
         "Payload.$": "$",
         "FunctionName": "${GetMyPrescriptionsFunctionArn}"
       },
-      "Next": "Get My Prescriptions Result"
+      "Next": "Get My Prescriptions Result",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "Catch All Error"
+        }
+      ]
     },
     "Get My Prescriptions Result": {
       "Type": "Choice",
@@ -63,10 +71,32 @@
         "Payload.$": "$",
         "FunctionName": "${EnrichPrescriptionsFunctionArn}"
       },
-      "End": true
+      "End": true,
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "Catch All Error"
+        }
+      ]
     },
     "Failed Get My Prescriptions": {
       "Type": "Pass",
+      "End": true
+    },
+    "Catch All Error": {
+      "Type": "Pass",
+      "Result": {
+        "Payload": {
+          "statusCode": 500,
+          "headers": {
+            "Content-Type": "application/fhir+json",
+            "Cache-Control": "no-cache"
+          },
+          "body": "{\"resourceType\":\"OperationOutcome\",\"issue\":[{\"severity\":\"error\",\"code\":\"processing\",\"diagnostics\":\"System error\"}]}"
+        }
+      },
       "End": true
     }
   }
