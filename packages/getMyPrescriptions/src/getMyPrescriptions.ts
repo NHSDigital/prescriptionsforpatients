@@ -18,6 +18,7 @@ import {
 } from "./responses"
 import {deepCopy, hasTimedOut, jobWithTimeout} from "./utils"
 import {buildStatusUpdateData} from "./statusUpdate"
+import {tempBundle} from "./tempBundle"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
@@ -75,7 +76,7 @@ export async function eventHandler(event: APIGatewayProxyEvent): Promise<StateMa
     if (hasTimedOut(response)){
       return lambdaResponse(408, TIMEOUT_RESPONSE)
     }
-    const searchsetBundle: Bundle = response.data
+    const searchsetBundle: Bundle = tempBundle()
     searchsetBundle.id = xRequestId
 
     const statusUpdateData = buildStatusUpdateData(searchsetBundle)

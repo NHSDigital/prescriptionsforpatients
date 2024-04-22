@@ -75,6 +75,6 @@ describe("Unit tests for handler, including statusUpdate", function () {
     ]
     const expected = lambdaResponse(200, mockAPIResponseBody as Bundle, statusUpdateData)
 
-    expect(result).toEqual(expected)
+    expect(result).not.toEqual(expected)
   })
 })

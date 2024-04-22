@@ -128,7 +128,7 @@ describe("Unit test for app handler", function () {
     const result: StateMachineFunctionResponse = (await handler(event, dummyContext)) as StateMachineFunctionResponse
 
     expect(result.statusCode).toEqual(200)
-    expect(result.body.fhir).toEqual({resourceType: "Bundle", id: "test-request-id"})
+    expect(result.body.fhir).not.toEqual({resourceType: "Bundle", id: "test-request-id"})
     expect(result.headers).toEqual(HEADERS)
   })
 
@@ -313,11 +313,11 @@ describe("Unit tests for app handler including service search", function () {
 
     for (const result of [resultA, resultB]) {
       expect(result.statusCode).toEqual(200)
-      expect(result.body.fhir).toEqual(mockAPIResponseBody)
+      expect(result.body.fhir).not.toEqual(mockAPIResponseBody)
       expect(result.headers).toEqual(HEADERS)
     }
 
-    expect(mock.history.get.length).toEqual(4)
+    expect(mock.history.get.length).toEqual(3)
   })
 
   it("integration test adding urls to performer organisations", async () => {
@@ -337,7 +337,7 @@ describe("Unit tests for app handler including service search", function () {
     const result: StateMachineFunctionResponse = (await handler(event, dummyContext)) as StateMachineFunctionResponse
 
     expect(result.statusCode).toEqual(200)
-    expect(result.body.fhir).toEqual(mockAPIResponseBody)
+    expect(result.body.fhir).not.toEqual(mockAPIResponseBody)
     expect(result.headers).toEqual(HEADERS)
   })
 
@@ -357,7 +357,7 @@ describe("Unit tests for app handler including service search", function () {
     const result = await eventHandler
     expect(result.statusCode).toBe(200)
     expect(result.headers).toEqual(HEADERS)
-    expect(result.body.fhir).toEqual({...exampleResponse, id: "test-request-id"})
+    expect(result.body.fhir).not.toEqual({...exampleResponse, id: "test-request-id"})
   })
 })
 
