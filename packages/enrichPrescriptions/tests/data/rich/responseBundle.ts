@@ -11,7 +11,7 @@ export function richResponseBundle(): Bundle {
       lastUpdated: "2022-11-21T14:00:00+00:00"
     },
     type: "searchset",
-    total: 2,
+    total: 3,
     entry: [
       {
         fullUrl: "urn:uuid:0cb82cfa-76c8-4fb2-a08e-bf0e326e5487",
@@ -801,64 +801,6 @@ export function richResponseBundle(): Bundle {
                   }
                 ]
               }
-            }
-          ]
-        }
-      },
-      {
-        fullUrl: "urn:uuid:1a388581-dbbe-43e3-9054-f5976c0245e5",
-        search: {
-          mode: "outcome"
-        },
-        resource: {
-          resourceType: "OperationOutcome",
-          id: "1a388581-dbbe-43e3-9054-f5976c0245e5",
-          meta: {
-            lastUpdated: "2023-09-29T10:52:00+00:00"
-          },
-          issue: [
-            {
-              code: "business-rule",
-              severity: "warning",
-              details: {
-                coding: [
-                  {
-                    system: "https://fhir.nhs.uk/CodeSystem/Spine-ErrorOrWarningCode",
-                    code: "INVALIDATED_RESOURCE",
-                    display: "Invalidated resource"
-                  }
-                ]
-              },
-              diagnostics: "Prescription with short form ID D7AC09-A99968-4BA59C has been invalidated so could not be returned."
-            }
-          ]
-        }
-      },
-      {
-        fullUrl: "urn:uuid:fedef61e-bc62-452e-91c0-6f44ad2d5c0c",
-        search: {
-          mode: "outcome"
-        },
-        resource: {
-          resourceType: "OperationOutcome",
-          id: "fedef61e-bc62-452e-91c0-6f44ad2d5c0c",
-          meta: {
-            lastUpdated: "2023-09-29T10:52:00+00:00"
-          },
-          issue: [
-            {
-              code: "business-rule",
-              severity: "warning",
-              details: {
-                coding: [
-                  {
-                    system: "https://fhir.nhs.uk/CodeSystem/Spine-ErrorOrWarningCode",
-                    code: "INVALIDATED_RESOURCE",
-                    display: "Invalidated resource"
-                  }
-                ]
-              },
-              diagnostics: "Prescription with short form ID CDF34E-A99968-4FF3BQ has been invalidated so could not be returned."
             }
           ]
         }
