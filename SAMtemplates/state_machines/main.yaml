@@ -52,7 +52,7 @@ Resources:
         ToggleGetStatusUpdatesParameterName: !Ref ToggleGetStatusUpdatesParameterName
         GetStatusUpdatesFunctionArn: !Join
           - ":"
-          - - !ImportValue psu-pr-98:functions:GetStatusUpdates:FunctionArn
+          - - !ImportValue psu:functions:GetStatusUpdates:FunctionArn
             - $LATEST
         EnrichPrescriptionsFunctionArn: !Sub ${EnrichPrescriptionsFunctionArn}:$LATEST
       Logging:
@@ -74,7 +74,7 @@ Resources:
           - ","
           - - Fn::ImportValue: !Sub ${StackName}:functions:${GetMyPrescriptionsFunctionName}:ExecuteLambdaPolicyArn
             - Fn::ImportValue: !Sub ${StackName}:functions:${EnrichPrescriptionsFunctionName}:ExecuteLambdaPolicyArn
-            - !ImportValue psu-pr-98:functions:psu-pr-98-GetStatusUpdates:ExecuteLambdaPolicyArn
+            - !ImportValue psu:functions:psu-GetStatusUpdates:ExecuteLambdaPolicyArn
             - !Ref ToggleGetStatusUpdatesParameterManagedPolicyArn
         LogRetentionInDays: !Ref LogRetentionInDays
         CloudWatchKMSKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
