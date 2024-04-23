@@ -1,16 +1,22 @@
+import {Logger} from "@aws-lambda-powertools/logger"
+import {LogLevel} from "@aws-lambda-powertools/logger/types"
 import {Entry} from "@prescriptionsforpatients/distanceSelling"
 import {Bundle, MedicationRequest, Organization} from "fhir/r4"
 
+const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
+const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
 export type StatusUpdateData = {odsCode: string, prescriptionID: string}
 
 export function buildStatusUpdateData(searchsetBundle: Bundle): Array<StatusUpdateData> {
   const statusUpdateData: Array<StatusUpdateData> = []
   isolatePrescriptions(searchsetBundle).forEach(prescription => {
-    const medicationRequests = isolateMedicationRequestsWithPerformer(prescription)
-    if (medicationRequests.length > 0) {
-      const performerReference = medicationRequests[0].dispenseRequest!.performer!.reference!
+    const medicationRequests = isolateMedicationRequests(prescription)
+    const performerReference = isolatePerformerReference(medicationRequests)
+    if (performerReference) {
+      const performer = isolatePerformerOrganisation(performerReference, prescription)
+      const odsCode = performer.identifier![0].value!
       const prescriptionID = medicationRequests[0].groupIdentifier!.value!
-      const odsCode = getPerformerOdsCode(performerReference, prescription)
+      logger.info(`Adding status update data for prescription ${prescriptionID}`)
 
       statusUpdateData.push({odsCode: odsCode, prescriptionID: prescriptionID})
     }
@@ -23,16 +29,23 @@ function isolatePrescriptions(searchsetBundle: Bundle): Array<Bundle> {
   return filterAndTypeBundleEntries<Bundle>(searchsetBundle, filter)
 }
 
-function isolateMedicationRequestsWithPerformer(prescription: Bundle): Array<MedicationRequest> {
-  const filter = (entry: Entry) =>
-    entry.resource!.resourceType === "MedicationRequest" &&
-    entry.resource.dispenseRequest?.performer?.reference !== undefined
+function isolateMedicationRequests(prescription: Bundle): Array<MedicationRequest> {
+  const filter = (entry: Entry) => entry.resource!.resourceType === "MedicationRequest"
   return filterAndTypeBundleEntries<MedicationRequest>(prescription, filter)
 }
 
-function getPerformerOdsCode(reference: string, prescription: Bundle): string {
+function isolatePerformerReference(medicationRequests: Array<MedicationRequest>): string | undefined {
+  for (const medicationRequest of medicationRequests) {
+    const reference = medicationRequest.dispenseRequest?.performer?.reference
+    if (reference !== undefined) {
+      return reference
+    }
+  }
+}
+
+function isolatePerformerOrganisation(reference: string, prescription: Bundle): Organization {
   const filter = (entry: Entry) => entry.fullUrl! === reference
-  return filterAndTypeBundleEntries<Organization>(prescription, filter)[0].identifier![0].value!
+  return filterAndTypeBundleEntries<Organization>(prescription, filter)[0]
 }
 
 function filterAndTypeBundleEntries<T>(bundle: Bundle, filter: (entry: Entry) => boolean): Array<T> {

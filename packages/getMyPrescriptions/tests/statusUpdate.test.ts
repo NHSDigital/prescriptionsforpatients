@@ -28,7 +28,7 @@ const pharmicaResponse = JSON.stringify(mockPharmicaResponse)
 const mock = new MockAdapter(axios)
 
 describe("Unit tests for statusUpdate", () => {
-  test("when a bundle is passed-in, expected status update data is returned for prescriptions with performers", async () => {
+  test("when a bundle is passed-in, expected status update data is returned for prescriptions with performers without duplicates", async () => {
     const bundle = mockInteractionResponseBody as Bundle
     const result = buildStatusUpdateData(bundle)
     expect(result).toEqual([

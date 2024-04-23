@@ -14,6 +14,15 @@ import {Logger} from "@aws-lambda-powertools/logger"
 const mock = new MockAdapter(axios)
 const mockBundleString = JSON.stringify(mockInteractionResponseBody)
 
+function getPerformerOrganisationFromSearchsetBundle(
+  searchsetBundle: Bundle, distanceSelling: DistanceSelling
+): Organization {
+  const prescription = distanceSelling.isolatePrescriptions(searchsetBundle)[0]
+  const medicationRequests = distanceSelling.isolateMedicationRequests(prescription)
+  const performerReference = distanceSelling.isolatePerformerReference(medicationRequests)
+  return distanceSelling.isolatePerformerOrganisation(performerReference!, prescription)
+}
+
 describe("ServiceSearch tests", function () {
   const logger = new Logger({serviceName: "distanceSelling"})
   beforeEach(() => {
@@ -29,106 +38,86 @@ describe("ServiceSearch tests", function () {
     const result = distanceSelling.isolatePrescriptions(searchsetBundle)
 
     expect(result.length).toEqual(3)
-    expect(result.filter((r) =>
-      r.resourceType === "Bundle"
-    ).length).toEqual(3)
+    result.forEach(r => expect(r.resourceType === "Bundle"))
   })
 
-  it("getPerformerReferences returns performer references from prescription resources", async () => {
+  it("isolateMedicationRequests returns medication request resources", async () => {
     const distanceSelling = new DistanceSelling({}, logger)
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
     const prescriptions = distanceSelling.isolatePrescriptions(searchsetBundle)
-    const result = distanceSelling.getPerformerReferences(prescriptions)
+    const result = prescriptions.flatMap(p => distanceSelling.isolateMedicationRequests(p))
 
-    const expectedPerformers = new Set<string>()
-    expectedPerformers.add("urn:uuid:afb07f8b-e8d7-4cad-895d-494e6b35b2a1")
-    expectedPerformers.add("urn:uuid:154dcc4a-0006-4272-9758-9dcb8d95ce8b")
+    expect(result.length).toEqual(6)
+    result.forEach(r => expect(r.resourceType === "MedicationRequest"))
+  })
+
+  it("isolatePerformerReference returns performer reference from medication request resource", async () => {
+    const distanceSelling = new DistanceSelling({}, logger)
+    const searchsetBundle = JSON.parse(mockBundleString) as Bundle
+
+    const prescriptions = distanceSelling.isolatePrescriptions(searchsetBundle)
+    const medicationRequests = prescriptions.map(p => distanceSelling.isolateMedicationRequests(p))
+    const performerReferences = medicationRequests.flatMap(m => distanceSelling.isolatePerformerReference(m))
+    const result = performerReferences.filter(p => p !== undefined)
+
+    const expectedPerformers = [
+      "urn:uuid:afb07f8b-e8d7-4cad-895d-494e6b35b2a1",
+      "urn:uuid:154dcc4a-0006-4272-9758-9dcb8d95ce8b"
+    ]
 
     expect(result).toEqual(expectedPerformers)
   })
 
-  it("getPerformerOrganisations returns relevant organisations", async () => {
+  it("isolatePerformerOrganisation returns relevant organisation", async () => {
     const distanceSelling = new DistanceSelling({}, logger)
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
-    const prescriptions = distanceSelling.isolatePrescriptions(searchsetBundle)
-    const performerReferences = distanceSelling.getPerformerReferences(prescriptions)
-    const result = distanceSelling.getPerformerOrganisations(performerReferences, prescriptions)
+    const prescription = distanceSelling.isolatePrescriptions(searchsetBundle)[0]
+    const medicationRequests = distanceSelling.isolateMedicationRequests(prescription)
+    const performerReference = distanceSelling.isolatePerformerReference(medicationRequests)
 
-    const expectedOrganisations: Array<Organization> = [
-      {
-        resourceType: "Organization",
-        id: "afb07f8b-e8d7-4cad-895d-494e6b35b2a1",
-        identifier: [
-          {
-            system: "https://fhir.nhs.uk/Id/ods-organization-code",
-            value: "FLM49"
-          }
-        ],
-        name: "Pharmacy2u",
-        telecom: [
-          {
-            system: "phone",
-            use: "work",
-            value: "0113 2650222"
-          }
-        ],
-        address: [
-          {
-            use: "work",
-            type: "both",
-            line: [
-              "Unit 4B",
-              "Victoria Road"
-            ],
-            city: "LEEDS",
-            district: "WEST YORKSHIRE",
-            postalCode: "LS14 2LA"
-          }
-        ]
-      },
-      {
-        resourceType: "Organization",
-        id: "154dcc4a-0006-4272-9758-9dcb8d95ce8b",
-        identifier: [
-          {
-            system: "https://fhir.nhs.uk/Id/ods-organization-code",
-            value: "FEW08"
-          }
-        ],
-        name: "Pharmica",
-        telecom: [
-          {
-            system: "phone",
-            use: "work",
-            value: "020 71129014"
-          }
-        ],
-        address: [
-          {
-            use: "work",
-            type: "both",
-            line: [
-              "1-5 Clerkenwell Road"
-            ],
-            city: "LONDON",
-            district: "GREATER LONDON",
-            postalCode: "EC1M 5PA"
-          }
-        ]
-      }
-    ]
-    expect(result).toEqual(expectedOrganisations)
+    const result = distanceSelling.isolatePerformerOrganisation(performerReference!, prescription)
+
+    const expectedOrganisation: Organization = {
+      resourceType: "Organization",
+      id: "afb07f8b-e8d7-4cad-895d-494e6b35b2a1",
+      identifier: [
+        {
+          system: "https://fhir.nhs.uk/Id/ods-organization-code",
+          value: "FLM49"
+        }
+      ],
+      name: "Pharmacy2u",
+      telecom: [
+        {
+          system: "phone",
+          use: "work",
+          value: "0113 2650222"
+        }
+      ],
+      address: [
+        {
+          use: "work",
+          type: "both",
+          line: [
+            "Unit 4B",
+            "Victoria Road"
+          ],
+          city: "LEEDS",
+          district: "WEST YORKSHIRE",
+          postalCode: "LS14 2LA"
+        }
+      ]
+    }
+    expect(result).toEqual(expectedOrganisation)
   })
 
   it("addToTelecom does exactly that while maintaining the address", async () => {
     const distanceSelling = new DistanceSelling({}, logger)
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
-    const prescriptions = distanceSelling.isolatePrescriptions(searchsetBundle)
-    const performerReferences = distanceSelling.getPerformerReferences(prescriptions)
-    const organisation = distanceSelling.getPerformerOrganisations(performerReferences, prescriptions)[0]
+    const organisation = getPerformerOrganisationFromSearchsetBundle(searchsetBundle, distanceSelling)
 
     const expectedTelecom: ContactPoint = {use: "work", system: "url", value: "www.pharmacy2u.co.uk"}
     const expectedAddress: Address = {
@@ -156,9 +145,7 @@ describe("ServiceSearch tests", function () {
     const distanceSelling = new DistanceSelling({}, logger)
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
-    const prescriptions = distanceSelling.isolatePrescriptions(searchsetBundle)
-    const performerReferences = distanceSelling.getPerformerReferences(prescriptions)
-    const organisation = distanceSelling.getPerformerOrganisations(performerReferences, prescriptions)[0]
+    const organisation = getPerformerOrganisationFromSearchsetBundle(searchsetBundle, distanceSelling)
 
     const expectedUrl: ContactPoint = {use: "work", system: "url", value: "www.pharmacy2u.co.uk"}
     const expectedTelephone: ContactPoint = {use: "work", system: "phone", value: "0113 2650222"}
@@ -207,15 +194,12 @@ describe("ServiceSearch tests", function () {
     const distanceSelling = new DistanceSelling({}, logger)
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
-    const prescriptions = distanceSelling.isolatePrescriptions(searchsetBundle)
-    const performerReferences = distanceSelling.getPerformerReferences(prescriptions)
-    const organisations = distanceSelling.getPerformerOrganisations(performerReferences, prescriptions)
+    const organisation = getPerformerOrganisationFromSearchsetBundle(searchsetBundle, distanceSelling)
 
     const expectedTelecom: ContactPoint = {use: "work", system: "url", value: "www.pharmacy2u.co.uk"}
 
-    await distanceSelling.processOdsCodes(organisations)
+    await distanceSelling.processOdsCodes([organisation])
 
-    const organisation: Organization = organisations[0]
     expect(organisation.address).toBeDefined()
     expect(organisation.telecom![1]).toEqual(expectedTelecom)
   })
@@ -253,9 +237,7 @@ describe("ServiceSearch tests", function () {
     const distanceSelling = new DistanceSelling(servicesCache, logger)
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
-    const prescriptions = distanceSelling.isolatePrescriptions(searchsetBundle)
-    const performerReferences = distanceSelling.getPerformerReferences(prescriptions)
-    const organisation = distanceSelling.getPerformerOrganisations(performerReferences, prescriptions)[0]
+    const organisation = getPerformerOrganisationFromSearchsetBundle(searchsetBundle, distanceSelling)
 
     const odsCode = "flm49"
     await distanceSelling.searchOdsCode(odsCode, organisation)
@@ -270,9 +252,7 @@ describe("ServiceSearch tests", function () {
     const distanceSelling = new DistanceSelling(servicesCache, logger)
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
-    const prescriptions = distanceSelling.isolatePrescriptions(searchsetBundle)
-    const performerReferences = distanceSelling.getPerformerReferences(prescriptions)
-    const organisation = distanceSelling.getPerformerOrganisations(performerReferences, prescriptions)[0]
+    const organisation = getPerformerOrganisationFromSearchsetBundle(searchsetBundle, distanceSelling)
 
     const odsCode = "flm49"
     await distanceSelling.searchOdsCode(odsCode, organisation)
@@ -287,9 +267,7 @@ describe("ServiceSearch tests", function () {
     const distanceSelling = new DistanceSelling(servicesCache, logger)
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
-    const prescriptions = distanceSelling.isolatePrescriptions(searchsetBundle)
-    const performerReferences = distanceSelling.getPerformerReferences(prescriptions)
-    const organisation = distanceSelling.getPerformerOrganisations(performerReferences, prescriptions)[0]
+    const organisation = getPerformerOrganisationFromSearchsetBundle(searchsetBundle, distanceSelling)
 
     const odsCode = "flm49"
     await distanceSelling.searchOdsCode(odsCode, organisation)

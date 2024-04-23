@@ -24,11 +24,14 @@ export class DistanceSelling {
   }
 
   async search(searchsetBundle: Bundle) {
-    const prescriptions: Array<Bundle> = this.isolatePrescriptions(searchsetBundle)
-    const performerReferences: Set<string> = this.getPerformerReferences(prescriptions)
-    const performerOrganisations: Array<Organization> = this.getPerformerOrganisations(
-      performerReferences, prescriptions
-    )
+    const performerOrganisations: Array<Organization> = []
+    this.isolatePrescriptions(searchsetBundle).forEach(prescription => {
+      const medicationRequests = this.isolateMedicationRequests(prescription)
+      const performerReference = this.isolatePerformerReference(medicationRequests)
+      if (performerReference) {
+        performerOrganisations.push(this.isolatePerformerOrganisation(performerReference, prescription))
+      }
+    })
     await this.processOdsCodes(performerOrganisations)
   }
 
@@ -37,27 +40,25 @@ export class DistanceSelling {
     return this.filterAndTypeBundleEntries<Bundle>(searchsetBundle, filter)
   }
 
-  getPerformerReferences(prescriptions: Array<Bundle>): Set<string> {
+  isolateMedicationRequests(prescription: Bundle): Array<MedicationRequest> {
     const filter = (entry: Entry) => entry.resource!.resourceType === "MedicationRequest"
-    const medicationRequests = prescriptions.flatMap((prescription: Bundle) =>
-      this.filterAndTypeBundleEntries<MedicationRequest>(prescription, filter)
-    )
-
-    const performerReferences: Set<string> = new Set<string>()
-    medicationRequests.forEach((medicationRequest: MedicationRequest) => {
-      const reference = medicationRequest.dispenseRequest?.performer?.reference
-      if (reference) {
-        performerReferences.add(reference)
-      }
-    })
-    return performerReferences
+    return this.filterAndTypeBundleEntries<MedicationRequest>(prescription, filter)
   }
 
-  getPerformerOrganisations(performerReferences: Set<string>, prescriptions: Array<Bundle>): Array<Organization> {
-    const filter = (entry: Entry) => performerReferences.has(entry.fullUrl!)
-    return prescriptions.flatMap((prescription: Bundle) =>
-      this.filterAndTypeBundleEntries<Organization>(prescription, filter)
-    )
+  isolatePerformerReference(medicationRequests: Array<MedicationRequest>): string | undefined {
+    let performerReference: string | undefined = undefined
+    medicationRequests.forEach(medicationRequest => {
+      const reference = medicationRequest.dispenseRequest?.performer?.reference
+      if (reference) {
+        performerReference = reference
+      }
+    })
+    return performerReference
+  }
+
+  isolatePerformerOrganisation(reference: string, prescription: Bundle): Organization {
+    const filter = (entry: Entry) => entry.fullUrl! === reference
+    return this.filterAndTypeBundleEntries<Organization>(prescription, filter)[0]
   }
 
   async processOdsCodes(organisations: Array<Organization>) {
