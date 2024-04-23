@@ -6,21 +6,45 @@ import {
   Organization
 } from "fhir/r4"
 import {DistanceSelling, Entry, ServicesCache} from "../src/distanceSelling"
-import {mockInteractionResponseBody, mockPharmacy2uResponse} from "@prescriptionsforpatients_common/testing"
+import {mockPharmacy2uResponse} from "@prescriptionsforpatients_common/testing"
 import MockAdapter from "axios-mock-adapter"
 import axios from "axios"
 import {Logger} from "@aws-lambda-powertools/logger"
 
 const mock = new MockAdapter(axios)
-const mockBundleString = JSON.stringify(mockInteractionResponseBody)
 
-function getPerformerOrganisationFromSearchsetBundle(
-  searchsetBundle: Bundle, distanceSelling: DistanceSelling
-): Organization {
-  const prescription = distanceSelling.isolatePrescriptions(searchsetBundle)[0]
-  const medicationRequests = distanceSelling.isolateMedicationRequests(prescription)
-  const performerReference = distanceSelling.isolatePerformerReference(medicationRequests)
-  return distanceSelling.isolatePerformerOrganisation(performerReference!, prescription)
+function getOrganisation(): Organization {
+  return {
+    resourceType: "Organization",
+    id: "afb07f8b-e8d7-4cad-895d-494e6b35b2a1",
+    identifier: [
+      {
+        system: "https://fhir.nhs.uk/Id/ods-organization-code",
+        value: "FLM49"
+      }
+    ],
+    name: "Pharmacy2u",
+    telecom: [
+      {
+        system: "phone",
+        use: "work",
+        value: "0113 2650222"
+      }
+    ],
+    address: [
+      {
+        use: "work",
+        type: "both",
+        line: [
+          "Unit 4B",
+          "Victoria Road"
+        ],
+        city: "LEEDS",
+        district: "WEST YORKSHIRE",
+        postalCode: "LS14 2LA"
+      }
+    ]
+  }
 }
 
 describe("ServiceSearch tests", function () {
@@ -30,94 +54,9 @@ describe("ServiceSearch tests", function () {
     mock.reset()
   })
 
-  it("isolatePrescriptions returns prescription resources", async () => {
-    expect(mockInteractionResponseBody.entry.length).toEqual(5)
-    const distanceSelling = new DistanceSelling({}, logger)
-    const searchsetBundle = JSON.parse(mockBundleString) as Bundle
-
-    const result = distanceSelling.isolatePrescriptions(searchsetBundle)
-
-    expect(result.length).toEqual(3)
-    result.forEach(r => expect(r.resourceType === "Bundle"))
-  })
-
-  it("isolateMedicationRequests returns medication request resources", async () => {
-    const distanceSelling = new DistanceSelling({}, logger)
-    const searchsetBundle = JSON.parse(mockBundleString) as Bundle
-
-    const prescriptions = distanceSelling.isolatePrescriptions(searchsetBundle)
-    const result = prescriptions.flatMap(p => distanceSelling.isolateMedicationRequests(p))
-
-    expect(result.length).toEqual(6)
-    result.forEach(r => expect(r.resourceType === "MedicationRequest"))
-  })
-
-  it("isolatePerformerReference returns performer reference from medication request resource", async () => {
-    const distanceSelling = new DistanceSelling({}, logger)
-    const searchsetBundle = JSON.parse(mockBundleString) as Bundle
-
-    const prescriptions = distanceSelling.isolatePrescriptions(searchsetBundle)
-    const medicationRequests = prescriptions.map(p => distanceSelling.isolateMedicationRequests(p))
-    const performerReferences = medicationRequests.flatMap(m => distanceSelling.isolatePerformerReference(m))
-    const result = performerReferences.filter(p => p !== undefined)
-
-    const expectedPerformers = [
-      "urn:uuid:afb07f8b-e8d7-4cad-895d-494e6b35b2a1",
-      "urn:uuid:154dcc4a-0006-4272-9758-9dcb8d95ce8b"
-    ]
-
-    expect(result).toEqual(expectedPerformers)
-  })
-
-  it("isolatePerformerOrganisation returns relevant organisation", async () => {
-    const distanceSelling = new DistanceSelling({}, logger)
-    const searchsetBundle = JSON.parse(mockBundleString) as Bundle
-
-    const prescription = distanceSelling.isolatePrescriptions(searchsetBundle)[0]
-    const medicationRequests = distanceSelling.isolateMedicationRequests(prescription)
-    const performerReference = distanceSelling.isolatePerformerReference(medicationRequests)
-
-    const result = distanceSelling.isolatePerformerOrganisation(performerReference!, prescription)
-
-    const expectedOrganisation: Organization = {
-      resourceType: "Organization",
-      id: "afb07f8b-e8d7-4cad-895d-494e6b35b2a1",
-      identifier: [
-        {
-          system: "https://fhir.nhs.uk/Id/ods-organization-code",
-          value: "FLM49"
-        }
-      ],
-      name: "Pharmacy2u",
-      telecom: [
-        {
-          system: "phone",
-          use: "work",
-          value: "0113 2650222"
-        }
-      ],
-      address: [
-        {
-          use: "work",
-          type: "both",
-          line: [
-            "Unit 4B",
-            "Victoria Road"
-          ],
-          city: "LEEDS",
-          district: "WEST YORKSHIRE",
-          postalCode: "LS14 2LA"
-        }
-      ]
-    }
-    expect(result).toEqual(expectedOrganisation)
-  })
-
   it("addToTelecom does exactly that while maintaining the address", async () => {
     const distanceSelling = new DistanceSelling({}, logger)
-    const searchsetBundle = JSON.parse(mockBundleString) as Bundle
-
-    const organisation = getPerformerOrganisationFromSearchsetBundle(searchsetBundle, distanceSelling)
+    const organisation = getOrganisation()
 
     const expectedTelecom: ContactPoint = {use: "work", system: "url", value: "www.pharmacy2u.co.uk"}
     const expectedAddress: Address = {
@@ -143,9 +82,7 @@ describe("ServiceSearch tests", function () {
 
   it("addToTelecom does does not add multiple url entries", async () => {
     const distanceSelling = new DistanceSelling({}, logger)
-    const searchsetBundle = JSON.parse(mockBundleString) as Bundle
-
-    const organisation = getPerformerOrganisationFromSearchsetBundle(searchsetBundle, distanceSelling)
+    const organisation = getOrganisation()
 
     const expectedUrl: ContactPoint = {use: "work", system: "url", value: "www.pharmacy2u.co.uk"}
     const expectedTelephone: ContactPoint = {use: "work", system: "phone", value: "0113 2650222"}
@@ -192,24 +129,21 @@ describe("ServiceSearch tests", function () {
   it("processOdsCodes uses returned value in telecom", async () => {
     mock.onGet("https://live/service-search").reply(200, mockPharmacy2uResponse)
     const distanceSelling = new DistanceSelling({}, logger)
-    const searchsetBundle = JSON.parse(mockBundleString) as Bundle
-
-    const organisation = getPerformerOrganisationFromSearchsetBundle(searchsetBundle, distanceSelling)
+    const organisation = getOrganisation()
 
     const expectedTelecom: ContactPoint = {use: "work", system: "url", value: "www.pharmacy2u.co.uk"}
 
-    await distanceSelling.processOdsCodes([organisation])
+    await distanceSelling.search([organisation])
 
     expect(organisation.address).toBeDefined()
     expect(organisation.telecom![1]).toEqual(expectedTelecom)
   })
 
   it("processOdsCode doesn't call service search when cache entry exists for ODS code", async () => {
-    const cache: Record<string, string> = {"flm49": "www.pharmacy2u.co.uk", "few08": "www.pharmica.co.uk"}
+    const cache: Record<string, string> = {"flm49": "www.pharmacy2u.co.uk"}
     const distanceSellingWithCache = new DistanceSelling(cache, logger)
-    const searchsetBundle = JSON.parse(mockBundleString) as Bundle
-
-    await distanceSellingWithCache.search(searchsetBundle)
+    const organisation = getOrganisation()
+    await distanceSellingWithCache.search([organisation])
 
     expect(mock.history.get.length).toEqual(0)
   })
@@ -235,9 +169,7 @@ describe("ServiceSearch tests", function () {
     mock.onGet("https://live/service-search").reply(200, mockPharmacy2uResponse)
     const servicesCache: ServicesCache = {}
     const distanceSelling = new DistanceSelling(servicesCache, logger)
-    const searchsetBundle = JSON.parse(mockBundleString) as Bundle
-
-    const organisation = getPerformerOrganisationFromSearchsetBundle(searchsetBundle, distanceSelling)
+    const organisation = getOrganisation()
 
     const odsCode = "flm49"
     await distanceSelling.searchOdsCode(odsCode, organisation)
@@ -250,9 +182,7 @@ describe("ServiceSearch tests", function () {
     mock.onGet("https://live/service-search").reply(200, {value: []})
     const servicesCache: ServicesCache = {}
     const distanceSelling = new DistanceSelling(servicesCache, logger)
-    const searchsetBundle = JSON.parse(mockBundleString) as Bundle
-
-    const organisation = getPerformerOrganisationFromSearchsetBundle(searchsetBundle, distanceSelling)
+    const organisation = getOrganisation()
 
     const odsCode = "flm49"
     await distanceSelling.searchOdsCode(odsCode, organisation)
@@ -265,9 +195,7 @@ describe("ServiceSearch tests", function () {
     mock.onGet("https://live/service-search").networkError()
     const servicesCache: ServicesCache = {}
     const distanceSelling = new DistanceSelling(servicesCache, logger)
-    const searchsetBundle = JSON.parse(mockBundleString) as Bundle
-
-    const organisation = getPerformerOrganisationFromSearchsetBundle(searchsetBundle, distanceSelling)
+    const organisation = getOrganisation()
 
     const odsCode = "flm49"
     await distanceSelling.searchOdsCode(odsCode, organisation)

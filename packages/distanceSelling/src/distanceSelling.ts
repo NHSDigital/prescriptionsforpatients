@@ -5,7 +5,6 @@ import {
   BundleEntry,
   ContactPoint,
   FhirResource,
-  MedicationRequest,
   Organization
 } from "fhir/r4"
 
@@ -23,45 +22,7 @@ export class DistanceSelling {
     this.servicesCache = servicesCache
   }
 
-  async search(searchsetBundle: Bundle) {
-    const performerOrganisations: Array<Organization> = []
-    this.isolatePrescriptions(searchsetBundle).forEach(prescription => {
-      const medicationRequests = this.isolateMedicationRequests(prescription)
-      const performerReference = this.isolatePerformerReference(medicationRequests)
-      if (performerReference) {
-        performerOrganisations.push(this.isolatePerformerOrganisation(performerReference, prescription))
-      }
-    })
-    await this.processOdsCodes(performerOrganisations)
-  }
-
-  isolatePrescriptions(searchsetBundle: Bundle): Array<Bundle> {
-    const filter = (entry: Entry) => entry.resource!.resourceType === "Bundle"
-    return this.filterAndTypeBundleEntries<Bundle>(searchsetBundle, filter)
-  }
-
-  isolateMedicationRequests(prescription: Bundle): Array<MedicationRequest> {
-    const filter = (entry: Entry) => entry.resource!.resourceType === "MedicationRequest"
-    return this.filterAndTypeBundleEntries<MedicationRequest>(prescription, filter)
-  }
-
-  isolatePerformerReference(medicationRequests: Array<MedicationRequest>): string | undefined {
-    let performerReference: string | undefined = undefined
-    medicationRequests.forEach(medicationRequest => {
-      const reference = medicationRequest.dispenseRequest?.performer?.reference
-      if (reference) {
-        performerReference = reference
-      }
-    })
-    return performerReference
-  }
-
-  isolatePerformerOrganisation(reference: string, prescription: Bundle): Organization {
-    const filter = (entry: Entry) => entry.fullUrl! === reference
-    return this.filterAndTypeBundleEntries<Organization>(prescription, filter)[0]
-  }
-
-  async processOdsCodes(organisations: Array<Organization>) {
+  async search(organisations: Array<Organization>) {
     for (const organisation of organisations) {
       const odsCode = organisation.identifier![0].value?.toLowerCase()
       if (odsCode) {

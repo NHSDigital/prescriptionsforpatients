@@ -19,6 +19,7 @@ import {
 import {deepCopy, hasTimedOut, jobWithTimeout} from "./utils"
 import {buildStatusUpdateData} from "./statusUpdate"
 import {tempBundle} from "./tempBundle"
+import {isolatePerformerOrganisations} from "./fhirUtils"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
@@ -81,9 +82,12 @@ export async function eventHandler(event: APIGatewayProxyEvent): Promise<StateMa
 
     const statusUpdateData = buildStatusUpdateData(searchsetBundle)
 
-    const distanceSelling = new DistanceSelling(servicesCache, logger)
     const distanceSellingBundle = deepCopy(searchsetBundle)
-    const distanceSellingCallout = distanceSelling.search(distanceSellingBundle)
+    const performerOrganisations = isolatePerformerOrganisations(distanceSellingBundle)
+
+    const distanceSelling = new DistanceSelling(servicesCache, logger)
+    const distanceSellingCallout = distanceSelling.search(performerOrganisations)
+
     const distanceSellingResponse = await jobWithTimeout(SERVICE_SEARCH_TIMEOUT_MS, distanceSellingCallout)
     if (hasTimedOut(distanceSellingResponse)){
       return lambdaResponse(200, searchsetBundle, statusUpdateData)
