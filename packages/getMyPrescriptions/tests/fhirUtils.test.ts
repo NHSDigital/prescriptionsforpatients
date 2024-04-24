@@ -8,9 +8,11 @@ import {mockInteractionResponseBody} from "@prescriptionsforpatients_common/test
 import {
   isolateMedicationRequests,
   isolatePerformerOrganisation,
+  isolatePerformerOrganisations,
   isolatePerformerReference,
   isolatePrescriptions
 } from "../src/fhirUtils"
+import {pharmacy2uOrganisation, pharmicaOrganisation} from "./utils"
 
 const mockBundleString = JSON.stringify(mockInteractionResponseBody)
 
@@ -60,37 +62,37 @@ describe("Unit tests for fhirUtils", function () {
 
     const result = isolatePerformerOrganisation(performerReference!, prescription)
 
-    const expectedOrganisation: Organization = {
-      resourceType: "Organization",
-      id: "afb07f8b-e8d7-4cad-895d-494e6b35b2a1",
-      identifier: [
-        {
-          system: "https://fhir.nhs.uk/Id/ods-organization-code",
-          value: "FLM49"
-        }
-      ],
-      name: "Pharmacy2u",
-      telecom: [
-        {
-          system: "phone",
-          use: "work",
-          value: "0113 2650222"
-        }
-      ],
-      address: [
-        {
-          use: "work",
-          type: "both",
-          line: [
-            "Unit 4B",
-            "Victoria Road"
-          ],
-          city: "LEEDS",
-          district: "WEST YORKSHIRE",
-          postalCode: "LS14 2LA"
-        }
-      ]
-    }
+    const expectedOrganisation: Organization = pharmacy2uOrganisation()
     expect(result).toEqual(expectedOrganisation)
+  })
+
+  it("isolatePerformerOrganisations returns relevant organisations", async () => {
+    const searchsetBundle = JSON.parse(mockBundleString) as Bundle
+
+    const result = isolatePerformerOrganisations(searchsetBundle)
+
+    const expectedOrganisations: Array<Organization> = [
+      pharmacy2uOrganisation(),
+      pharmicaOrganisation()
+    ]
+
+    expect(result.length).toEqual(2)
+    expect(result).toEqual(expectedOrganisations)
+  })
+
+  it("isolatePerformerOrganisations returns relevant organisations when same organisation across prescriptions", async () => {
+    const searchsetBundle = JSON.parse(mockBundleString) as Bundle
+    const pharmicaPrescription = searchsetBundle.entry![2].resource! as Bundle
+    pharmicaPrescription.entry![4].resource! = pharmacy2uOrganisation()
+
+    const result = isolatePerformerOrganisations(searchsetBundle)
+
+    const expectedOrganisations: Array<Organization> = [
+      pharmacy2uOrganisation(),
+      pharmacy2uOrganisation()
+    ]
+
+    expect(result.length).toEqual(2)
+    expect(result).toEqual(expectedOrganisations)
   })
 })

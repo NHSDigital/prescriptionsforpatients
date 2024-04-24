@@ -98,23 +98,23 @@ describe("ServiceSearch tests", function () {
   it("addToTelecom handles absence of existing telecom", async () => {
     const distanceSelling = new DistanceSelling({}, logger)
     const organisation: Organization = {
-      "resourceType": "Organization",
-      "id": "afb07f8b-e8d7-4cad-895d-494e6b35b2a1",
-      "identifier": [{
-        "system": "https://fhir.nhs.uk/Id/ods-organization-code",
-        "value": "FLM49"
+      resourceType: "Organization",
+      id: "afb07f8b-e8d7-4cad-895d-494e6b35b2a1",
+      identifier: [{
+        system: "https://fhir.nhs.uk/Id/ods-organization-code",
+        value: "FLM49"
       }],
-      "name": "Social Care Site - HEALTH AND CARE AT HOME",
-      "address": [{
-        "use": "work",
-        "type": "both",
-        "line": [
+      name: "Social Care Site - HEALTH AND CARE AT HOME",
+      address: [{
+        use: "work",
+        type: "both",
+        line: [
           "THE HEALTH AND WELLBEING INNOVATION C",
           "TRELISKE"
         ],
-        "city": "TRURO",
-        "district": "CORNWALL",
-        "postalCode": "TR1 3FF"
+        city: "TRURO",
+        district: "CORNWALL",
+        postalCode: "TR1 3FF"
       }]
     }
 
