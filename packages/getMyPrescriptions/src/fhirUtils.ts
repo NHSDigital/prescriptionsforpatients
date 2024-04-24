@@ -1,6 +1,12 @@
-import {Entry} from "@prescriptionsforpatients/distanceSelling"
-import {Bundle, MedicationRequest, Organization} from "fhir/r4"
+import {
+  Bundle,
+  BundleEntry,
+  FhirResource,
+  MedicationRequest,
+  Organization
+} from "fhir/r4"
 
+export type Entry = BundleEntry<FhirResource>
 export type StatusUpdateData = {odsCode: string, prescriptionID: string}
 
 export function isolatePerformerOrganisations(searchsetBundle: Bundle): Array<Organization> {
@@ -39,7 +45,7 @@ export function isolatePerformerOrganisation(reference: string, prescription: Bu
   return filterAndTypeBundleEntries<Organization>(prescription, filter)[0]
 }
 
-function filterAndTypeBundleEntries<T>(bundle: Bundle, filter: (entry: Entry) => boolean): Array<T> {
+export function filterAndTypeBundleEntries<T>(bundle: Bundle, filter: (entry: Entry) => boolean): Array<T> {
   const entries = bundle.entry
   if (entries) {
     return entries.filter((entry) => filter(entry)).map((entry) => entry.resource) as Array<T>

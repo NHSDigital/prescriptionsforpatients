@@ -6,6 +6,8 @@ import {Bundle, Organization} from "fhir/r4"
 import {mockInteractionResponseBody} from "@prescriptionsforpatients_common/testing"
 
 import {
+  Entry,
+  filterAndTypeBundleEntries,
   isolateMedicationRequests,
   isolatePerformerOrganisation,
   isolatePerformerOrganisations,
@@ -94,5 +96,14 @@ describe("Unit tests for fhirUtils", function () {
 
     expect(result.length).toEqual(2)
     expect(result).toEqual(expectedOrganisations)
+  })
+
+  it("filterAndTypeBundleEntries will return empty array when no entries present", async () => {
+    const bundle: Bundle = {type: "collection", resourceType: "Bundle"}
+
+    const filter = (entry: Entry) => entry.resource!.resourceType === "Organization"
+    const result = filterAndTypeBundleEntries<Organization>(bundle, filter)
+
+    expect(result).toEqual([])
   })
 })

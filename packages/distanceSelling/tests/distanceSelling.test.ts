@@ -1,11 +1,6 @@
 import {expect, describe, it} from "@jest/globals"
-import {
-  Address,
-  Bundle,
-  ContactPoint,
-  Organization
-} from "fhir/r4"
-import {DistanceSelling, Entry, ServicesCache} from "../src/distanceSelling"
+import {Address, ContactPoint, Organization} from "fhir/r4"
+import {DistanceSelling, ServicesCache} from "../src/distanceSelling"
 import {mockPharmacy2uResponse} from "@prescriptionsforpatients_common/testing"
 import MockAdapter from "axios-mock-adapter"
 import axios from "axios"
@@ -201,15 +196,5 @@ describe("ServiceSearch tests", function () {
     await distanceSelling.searchOdsCode(odsCode, organisation)
 
     expect(odsCode in servicesCache).toBeFalsy()
-  })
-
-  it("filterAndTypeBundleEntries will return empty array when no entries present", async () => {
-    const distanceSelling = new DistanceSelling({}, logger)
-    const bundle: Bundle = {type: "collection", resourceType: "Bundle"}
-
-    const filter = (entry: Entry) => entry.resource!.resourceType === "Organization"
-    const result = distanceSelling.filterAndTypeBundleEntries<Organization>(bundle, filter)
-
-    expect(result).toEqual([])
   })
 })

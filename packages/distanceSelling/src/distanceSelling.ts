@@ -1,14 +1,7 @@
 import {Logger} from "@aws-lambda-powertools/logger"
 import {ServiceSearchClient, createServiceSearchClient} from "@prescriptionsforpatients/serviceSearchClient"
-import {
-  Bundle,
-  BundleEntry,
-  ContactPoint,
-  FhirResource,
-  Organization
-} from "fhir/r4"
+import {ContactPoint, Organization} from "fhir/r4"
 
-export type Entry = BundleEntry<FhirResource>
 export type ServicesCache = Record<string, string | undefined>
 
 export class DistanceSelling {
@@ -76,15 +69,6 @@ export class DistanceSelling {
     if (urlEntryAbsent) {
       const telecom: ContactPoint = {system: "url", use: "work", value: url}
       organisation.telecom.push(telecom)
-    }
-  }
-
-  filterAndTypeBundleEntries<T>(bundle: Bundle, filter: (entry: Entry) => boolean): Array<T> {
-    const entries = bundle.entry
-    if (entries) {
-      return entries.filter((entry) => filter(entry)).map((entry) => entry.resource) as Array<T>
-    } else {
-      return []
     }
   }
 }

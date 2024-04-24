@@ -3,10 +3,13 @@ import {
   Bundle,
   BundleEntry,
   Extension,
+  FhirResource,
   MedicationRequest
 } from "fhir/r4"
 
 import {LOG_LEVEL} from "./enrichPrescriptions"
+
+export type Entry = BundleEntry<FhirResource>
 
 export const EXTENSION_URL = "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory"
 export const DEFAULT_EXTENSION_STATUS = "With Pharmacy but Tracking not Supported"
@@ -33,18 +36,18 @@ export type StatusUpdates = {
   schemaVersion: number
 }
 
-export function isolateMedicationRequests(searchsetBundle: Bundle): Array<MedicationRequest> | undefined {
-  const collectionBundleEntries: Array<BundleEntry> | undefined = searchsetBundle.entry
-  const collectionBundleResources: Array<Bundle> | undefined = collectionBundleEntries?.map(
-    entry => entry.resource as Bundle
-  )
-
-  return collectionBundleResources?.flatMap(resource => resource.entry)
+function isolateMedicationRequests(prescriptions: Array<Bundle>): Array<MedicationRequest> | undefined {
+  return prescriptions?.flatMap(resource => resource.entry)
     .filter(entry => entry?.resource?.resourceType === "MedicationRequest")
     .map(entry => entry?.resource as MedicationRequest)
 }
 
-export function updateMedicationRequest(medicationRequest: MedicationRequest, updateItem?: UpdateItem) {
+function isolatePrescriptions(searchsetBundle: Bundle): Array<Bundle> {
+  const filter = (entry: Entry) => entry.resource?.resourceType === "Bundle"
+  return filterAndTypeBundleEntries<Bundle>(searchsetBundle, filter)
+}
+
+function updateMedicationRequest(medicationRequest: MedicationRequest, updateItem?: UpdateItem) {
   const status = updateItem?.isTerminalState.toLowerCase() === "true" ? "completed" : "active"
   medicationRequest.status = status
 
@@ -77,7 +80,8 @@ export function updateMedicationRequest(medicationRequest: MedicationRequest, up
 
 export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: StatusUpdates) {
   if (statusUpdates.isSuccess) {
-    const medicationRequests = isolateMedicationRequests(searchsetBundle)
+    const prescriptions = isolatePrescriptions(searchsetBundle)
+    const medicationRequests = isolateMedicationRequests(prescriptions)
 
     medicationRequests?.forEach(medicationRequest => {
       const medicationRequestId = medicationRequest.identifier?.[0].value
@@ -97,5 +101,14 @@ export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: Statu
     })
   } else {
     logger.info("Status updates flagged as unsuccessful. Skipping.")
+  }
+}
+
+function filterAndTypeBundleEntries<T>(bundle: Bundle, filter: (entry: Entry) => boolean): Array<T> {
+  const entries = bundle.entry
+  if (entries) {
+    return entries.filter((entry) => filter(entry)).map((entry) => entry.resource) as Array<T>
+  } else {
+    return []
   }
 }
