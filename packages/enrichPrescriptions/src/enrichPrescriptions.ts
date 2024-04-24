@@ -3,7 +3,6 @@ import {injectLambdaContext} from "@aws-lambda-powertools/logger/middleware"
 import {LogLevel} from "@aws-lambda-powertools/logger/types"
 import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
-import {jobWithTimeout} from "./utils"
 import {Bundle} from "fhir/r4"
 import {StatusUpdates, applyStatusUpdates} from "./statusUpdates"
 import {lambdaResponse} from "./responses"
@@ -11,18 +10,12 @@ import {lambdaResponse} from "./responses"
 export const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 const logger = new Logger({serviceName: "enrichPrescriptions", logLevel: LOG_LEVEL})
 
-const LAMBDA_TIMEOUT_MS = 10_000
-
 export type EnrichPrescriptionsEvent = {
   Payload: {body: {fhir: Bundle}},
   StatusUpdates?: {Payload: StatusUpdates}
 }
 
-const lambdaHandler = async (event: EnrichPrescriptionsEvent) => {
-  return jobWithTimeout(LAMBDA_TIMEOUT_MS, eventHandler(event))
-}
-
-export async function eventHandler(event: EnrichPrescriptionsEvent) {
+export async function lambdaHandler(event: EnrichPrescriptionsEvent) {
   const searchsetBundle = event.Payload.body.fhir
   const statusUpdates = event.StatusUpdates?.Payload
 

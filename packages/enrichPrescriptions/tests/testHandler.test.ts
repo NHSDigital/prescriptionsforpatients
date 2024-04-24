@@ -14,8 +14,8 @@ import {
   simpleEventAndResponse,
   unsuccessfulEventAndResponse
 } from "./utils"
-import {eventHandler} from "../src/enrichPrescriptions"
 import {Bundle, MedicationRequest} from "fhir/r4"
+import {lambdaHandler} from "../src/enrichPrescriptions"
 
 describe("Unit tests for handler", function () {
   beforeEach(() => {
@@ -24,14 +24,14 @@ describe("Unit tests for handler", function () {
 
   it("when event contains a bundle with one prescription, one MedicationRequest and status updates, updates are applied", async () => {
     const {event, expectedResponse} = simpleEventAndResponse()
-    const actualResponse = await eventHandler(event)
+    const actualResponse = await lambdaHandler(event)
 
     expect(actualResponse).toEqual(expectedResponse)
   })
 
   it("when event contains a bundle with multiple prescriptions, multiple MedicationRequests and status updates, updates are applied", async () => {
     const {event, expectedResponse} = richEventAndResponse()
-    const actualResponse = await eventHandler(event)
+    const actualResponse = await lambdaHandler(event)
 
     expect(actualResponse).toEqual(expectedResponse)
   })
@@ -46,21 +46,21 @@ describe("Unit tests for handler", function () {
     const medicationRequest = collectionBundle.entry![0].resource as MedicationRequest
     medicationRequest.extension = defaultExtension()
 
-    const actualResponse = await eventHandler(event)
+    const actualResponse = await lambdaHandler(event)
 
     expect(actualResponse).toEqual(expectedResponse)
   })
 
   it("when status update data is flagged as unsuccessful, no updates are applied", async () => {
     const {event, expectedResponse} = unsuccessfulEventAndResponse()
-    const actualResponse = await eventHandler(event)
+    const actualResponse = await lambdaHandler(event)
 
     expect(actualResponse).toEqual(expectedResponse)
   })
 
   it("when no status update data, no updates are applied", async () => {
     const {event, expectedResponse} = noUpdateDataEventAndResponse()
-    const actualResponse = await eventHandler(event)
+    const actualResponse = await lambdaHandler(event)
 
     expect(actualResponse).toEqual(expectedResponse)
   })
