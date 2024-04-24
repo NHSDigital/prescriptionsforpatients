@@ -39,13 +39,9 @@ export function isolateMedicationRequests(searchsetBundle: Bundle): Array<Medica
     entry => entry.resource as Bundle
   )
 
-  return collectionBundleResources?.flatMap(
-    resource => resource.entry
-  ).filter(
-    entry => entry?.resource?.resourceType === "MedicationRequest"
-  ).map(
-    entry => entry?.resource as MedicationRequest
-  )
+  return collectionBundleResources?.flatMap(resource => resource.entry)
+    .filter(entry => entry?.resource?.resourceType === "MedicationRequest")
+    .map(entry => entry?.resource as MedicationRequest)
 }
 
 export function updateMedicationRequest(medicationRequest: MedicationRequest, updateItem?: UpdateItem) {
@@ -87,11 +83,9 @@ export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: Statu
       const medicationRequestId = medicationRequest.identifier?.[0].value
       logger.info(`Updating MedicationRequest with id ${medicationRequestId}`)
 
-      const matchingUpdateItems = statusUpdates.prescriptions.flatMap(
-        prescription => prescription.items
-      ).filter(
-        items => items.itemId === medicationRequestId
-      )
+      const matchingUpdateItems = statusUpdates.prescriptions
+        .flatMap(prescription => prescription.items)
+        .filter(items => items.itemId === medicationRequestId)
 
       if (matchingUpdateItems.length > 0) {
         logger.info(`Update found for MedicationRequest with id ${medicationRequestId}. Applying.`)
@@ -101,5 +95,7 @@ export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: Statu
         updateMedicationRequest(medicationRequest)
       }
     })
+  } else {
+    logger.info("Status updates flagged as unsuccessful. Skipping.")
   }
 }

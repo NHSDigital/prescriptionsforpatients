@@ -15,7 +15,7 @@ const LAMBDA_TIMEOUT_MS = 10_000
 
 export type EnrichPrescriptionsEvent = {
   Payload: {body: {fhir: Bundle}},
-  StatusUpdates: {Payload: StatusUpdates}
+  StatusUpdates?: {Payload: StatusUpdates}
 }
 
 const lambdaHandler = async (event: EnrichPrescriptionsEvent) => {
@@ -24,8 +24,14 @@ const lambdaHandler = async (event: EnrichPrescriptionsEvent) => {
 
 export async function eventHandler(event: EnrichPrescriptionsEvent) {
   const searchsetBundle = event.Payload.body.fhir
-  const statusUpdates = event.StatusUpdates.Payload
-  applyStatusUpdates(searchsetBundle, statusUpdates)
+  const statusUpdates = event.StatusUpdates?.Payload
+
+  if (statusUpdates) {
+    logger.info("Applying status updates.")
+    applyStatusUpdates(searchsetBundle, statusUpdates)
+  } else {
+    logger.info("No status updates to apply.")
+  }
 
   return lambdaResponse(200, searchsetBundle)
 }

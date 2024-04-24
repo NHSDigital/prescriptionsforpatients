@@ -18,47 +18,69 @@ import {simpleResponseBundle} from "./data/simple/responseBundle"
 import {richRequestBundle} from "./data/rich/requestBundle"
 import {richStatusUpdates} from "./data/rich/statusUpdates"
 import {richResponseBundle} from "./data/rich/responseBundle"
+import {unalteredResponseBundle} from "./data/unalteredResponseBundle"
 
 type RequestAndResponse = {
   event: EnrichPrescriptionsEvent
-  response: StateMachineFunctionResponse
+  expectedResponse: StateMachineFunctionResponse
 }
 
 export const SYSTEM_DATETIME = new Date("2023-09-11T10:11:12.000Z")
 
 function eventAndResponse(
   requestBundle: Bundle,
-  statusUpdates: StatusUpdates,
-  responseBundle: Bundle
+  responseBundle: Bundle,
+  statusUpdates?: StatusUpdates
 ): RequestAndResponse {
-  return {
+  const requestAndResponse: RequestAndResponse = {
     event: {
       Payload: {
         body: {fhir: requestBundle}
-      },
-      StatusUpdates: {Payload: statusUpdates}
+      }
     },
-    response: {
+    expectedResponse: {
       statusCode: 200,
       headers: HEADERS,
       body: responseBundle
     }
   }
+  if (statusUpdates) {
+    requestAndResponse.event.StatusUpdates = {Payload: statusUpdates}
+  }
+  return requestAndResponse
 }
 
 export function simpleEventAndResponse(): RequestAndResponse {
   return eventAndResponse(
     simpleRequestBundle(),
-    simpleStatusUpdates(),
-    simpleResponseBundle()
+    simpleResponseBundle(),
+    simpleStatusUpdates()
   )
 }
 
 export function richEventAndResponse(): RequestAndResponse {
   return eventAndResponse(
     richRequestBundle(),
-    richStatusUpdates(),
-    richResponseBundle()
+    richResponseBundle(),
+    richStatusUpdates()
+  )
+}
+
+export function unsuccessfulEventAndResponse(): RequestAndResponse {
+  const unsuccessfulStatusUpdates = simpleStatusUpdates()
+  unsuccessfulStatusUpdates.isSuccess = false
+
+  return eventAndResponse(
+    simpleRequestBundle(),
+    unalteredResponseBundle(),
+    unsuccessfulStatusUpdates
+  )
+}
+
+export function noUpdateDataEventAndResponse(): RequestAndResponse {
+  return eventAndResponse(
+    simpleRequestBundle(),
+    unalteredResponseBundle()
   )
 }
 
