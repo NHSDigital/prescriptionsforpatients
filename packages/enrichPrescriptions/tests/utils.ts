@@ -11,14 +11,23 @@ import {
   VALUE_CODING_SYSTEM
 } from "../src/statusUpdates"
 
-import {simpleRequestBundle} from "./data/simple/requestBundle"
-import {simpleStatusUpdates} from "./data/simple/statusUpdates"
-import {simpleResponseBundle} from "./data/simple/responseBundle"
+import simpleRequestBundle from "./data/simple/requestBundle.json"
+import simpleStatusUpdates from "./data/simple/statusUpdates.json"
+import simpleResponseBundle from "./data/simple/responseBundle.json"
 
-import {richRequestBundle} from "./data/rich/requestBundle"
-import {richStatusUpdates} from "./data/rich/statusUpdates"
-import {richResponseBundle} from "./data/rich/responseBundle"
-import {unalteredResponseBundle} from "./data/unalteredResponseBundle"
+import richRequestBundle from "./data/rich/requestBundle.json"
+import richStatusUpdates from "./data/rich/statusUpdates.json"
+import richResponseBundle from "./data/rich/responseBundle.json"
+import unalteredResponseBundle from "./data/unalteredResponseBundle.json"
+
+const simpleRequestBundleString = JSON.stringify(simpleRequestBundle)
+const simpleStatusUpdatesString = JSON.stringify(simpleStatusUpdates)
+const simpleResponseBundleString = JSON.stringify(simpleResponseBundle)
+
+const richRequestBundleString = JSON.stringify(richRequestBundle)
+const richStatusUpdatesString = JSON.stringify(richStatusUpdates)
+const richResponseBundleString = JSON.stringify(richResponseBundle)
+const unalteredResponseBundleString = JSON.stringify(unalteredResponseBundle)
 
 type RequestAndResponse = {
   event: EnrichPrescriptionsEvent
@@ -52,35 +61,35 @@ function eventAndResponse(
 
 export function simpleEventAndResponse(): RequestAndResponse {
   return eventAndResponse(
-    simpleRequestBundle(),
-    simpleResponseBundle(),
-    simpleStatusUpdates()
+    JSON.parse(simpleRequestBundleString),
+    JSON.parse(simpleResponseBundleString),
+    JSON.parse(simpleStatusUpdatesString)
   )
 }
 
 export function richEventAndResponse(): RequestAndResponse {
   return eventAndResponse(
-    richRequestBundle(),
-    richResponseBundle(),
-    richStatusUpdates()
+    JSON.parse(richRequestBundleString),
+    JSON.parse(richResponseBundleString),
+    JSON.parse(richStatusUpdatesString)
   )
 }
 
 export function unsuccessfulEventAndResponse(): RequestAndResponse {
-  const unsuccessfulStatusUpdates = simpleStatusUpdates()
+  const unsuccessfulStatusUpdates = JSON.parse(simpleStatusUpdatesString)
   unsuccessfulStatusUpdates.isSuccess = false
 
   return eventAndResponse(
-    simpleRequestBundle(),
-    unalteredResponseBundle(),
+    JSON.parse(simpleRequestBundleString),
+    JSON.parse(unalteredResponseBundleString),
     unsuccessfulStatusUpdates
   )
 }
 
 export function noUpdateDataEventAndResponse(): RequestAndResponse {
   return eventAndResponse(
-    simpleRequestBundle(),
-    unalteredResponseBundle()
+    JSON.parse(simpleRequestBundleString),
+    JSON.parse(unalteredResponseBundleString)
   )
 }
 
