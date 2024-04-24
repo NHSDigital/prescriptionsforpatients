@@ -162,14 +162,7 @@ export function tempBundle(): Bundle {
                   }
                 ],
                 name: "PHARMACY 2 U LTD",
-                resourceType: "Organization",
-                telecom: [
-                  {
-                    system: "url",
-                    use: "work",
-                    value: "www.pharmacy2u.co.uk"
-                  }
-                ]
+                resourceType: "Organization"
               }
             }
           ]
