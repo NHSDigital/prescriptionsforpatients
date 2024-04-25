@@ -28,16 +28,7 @@
             "Content-Type": "application/fhir+json",
             "Cache-Control": "no-cache"
           },
-          "body": {
-            "resourceType":"OperationOutcome",
-            "issue":[
-              {
-                "severity":"error",
-                "code":"processing",
-                "diagnostics":"System error"
-              }
-            ]
-          }
+          "body": "{\"resourceType\":\"OperationOutcome\",\"issue\":[{\"severity\":\"error\",\"code\":\"processing\",\"diagnostics\":\"System error\"}]}"
         }
       },
       "End": true

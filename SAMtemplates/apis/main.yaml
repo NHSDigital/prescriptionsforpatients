@@ -218,7 +218,7 @@ Resources:
                     #set($context.responseOverride.header[$headerName] = $allHeaders.get($headerName))
                 #end
 
-                $util.toJson($payload.Payload.body)
+                $payload.Payload.body
       MethodResponses:
         - StatusCode: "200"    
 
