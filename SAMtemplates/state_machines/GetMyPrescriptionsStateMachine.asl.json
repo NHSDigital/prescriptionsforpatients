@@ -69,7 +69,7 @@
         {
           "Not": {
             "Variable": "$.StatusUpdates.Payload.isSuccess",
-            "StringEquals": "true"
+            "BooleanEquals": true
           },
           "Next": "Catch All Error"
         }
