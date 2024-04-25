@@ -50,7 +50,7 @@ describe("Unit tests for handler", function () {
     expect(actualResponse).toEqual(expectedResponse)
   })
 
-  it("when no status update data, no updates are applied", async () => {
+  it("when no status update data (call to GetStatusUpdates toggled-off), no updates are applied", async () => {
     const {event, expectedResponse} = noUpdateDataEventAndResponse()
     const actualResponse = await lambdaHandler(event)
 
