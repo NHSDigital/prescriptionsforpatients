@@ -51,7 +51,7 @@ export async function eventHandler(event: APIGatewayProxyEvent): Promise<APIGate
     "x-request-id": xRequestId,
     "nhsd-request-id": event.headers["nhsd-request-id"],
     "x-correlation-id": event.headers["x-correlation-id"],
-    "apigw-request-id": event.requestContext.requestId || event.headers["x-correlation-id"] || "unknown"
+    "apigw-request-id": event.requestContext.requestId || event.headers["apigw-request-id"] || "unknown"
   })
   const spineClient = createSpineClient(logger)
 
