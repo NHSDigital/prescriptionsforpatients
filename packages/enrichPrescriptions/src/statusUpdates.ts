@@ -71,36 +71,32 @@ function updateMedicationRequest(medicationRequest: MedicationRequest, updateIte
 }
 
 export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: StatusUpdates) {
-  if (statusUpdates.isSuccess) {
-    isolatePrescriptions(searchsetBundle).forEach(prescription => {
-      const medicationRequests = isolateMedicationRequests(prescription)
-      const prescriptionID = medicationRequests![0].groupIdentifier!.value
-      logger.info(`Applying updates for prescription ${prescriptionID}`)
+  isolatePrescriptions(searchsetBundle).forEach(prescription => {
+    const medicationRequests = isolateMedicationRequests(prescription)
+    const prescriptionID = medicationRequests![0].groupIdentifier!.value
+    logger.info(`Applying updates for prescription ${prescriptionID}`)
 
-      const prescriptionUpdate = statusUpdates.prescriptions.filter(p => p.prescriptionID === prescriptionID)[0]
-      if (!prescriptionUpdate || !prescriptionUpdate.onboarded) {
-        logger.info(`Supplier of prescription ${prescriptionID} not onboarded. Applying default updates.`)
-        medicationRequests?.forEach(medicationRequest =>
-          updateMedicationRequest(medicationRequest, defaultUpdate(false))
-        )
-        return
+    const prescriptionUpdate = statusUpdates.prescriptions.filter(p => p.prescriptionID === prescriptionID)[0]
+    if (!prescriptionUpdate || !prescriptionUpdate.onboarded) {
+      logger.info(`Supplier of prescription ${prescriptionID} not onboarded. Applying default updates.`)
+      medicationRequests?.forEach(medicationRequest =>
+        updateMedicationRequest(medicationRequest, defaultUpdate(false))
+      )
+      return
+    }
+
+    medicationRequests?.forEach(medicationRequest => {
+      const medicationRequestID = medicationRequest.identifier?.[0].value
+      logger.info(`Updating MedicationRequest with id ${medicationRequestID}`)
+
+      const itemUpdates = prescriptionUpdate.items.filter(item => item.itemId === medicationRequestID)
+      if (itemUpdates.length > 0) {
+        logger.info(`Update found for MedicationRequest with id ${medicationRequestID}. Applying.`)
+        updateMedicationRequest(medicationRequest, itemUpdates[0])
+      } else {
+        logger.info(`No update found for MedicationRequest with id ${medicationRequestID}. Applying default.`)
+        updateMedicationRequest(medicationRequest, defaultUpdate())
       }
-
-      medicationRequests?.forEach(medicationRequest => {
-        const medicationRequestID = medicationRequest.identifier?.[0].value
-        logger.info(`Updating MedicationRequest with id ${medicationRequestID}`)
-
-        const itemUpdates = prescriptionUpdate.items.filter(item => item.itemId === medicationRequestID)
-        if (itemUpdates.length > 0) {
-          logger.info(`Update found for MedicationRequest with id ${medicationRequestID}. Applying.`)
-          updateMedicationRequest(medicationRequest, itemUpdates[0])
-        } else {
-          logger.info(`No update found for MedicationRequest with id ${medicationRequestID}. Applying default.`)
-          updateMedicationRequest(medicationRequest, defaultUpdate())
-        }
-      })
     })
-  } else {
-    logger.info("Status updates flagged as unsuccessful. Skipping.")
-  }
+  })
 }

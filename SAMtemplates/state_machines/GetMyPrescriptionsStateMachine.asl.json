@@ -60,8 +60,21 @@
         "FunctionName": "${GetStatusUpdatesFunctionArn}"
       },
       "InputPath": "$.Payload.body.statusUpdateData",
-      "Next": "Enrich Prescriptions",
+      "Next": "Get Status Updates Result",
       "ResultPath": "$.StatusUpdates"
+    },
+    "Get Status Updates Result": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Not": {
+            "Variable": "$.StatusUpdates.Payload.isSuccess",
+            "StringEquals": "true"
+          },
+          "Next": "Catch All Error"
+        }
+      ],
+      "Default": "Enrich Prescriptions"
     },
     "Enrich Prescriptions": {
       "Type": "Task",
