@@ -61,7 +61,7 @@ jobs:
       STACK_NAME: pfp-pr-${{needs.get_issue_number.outputs.issue_number}}
       ARTIFACT_BUCKET_PREFIX: PR-${{needs.get_issue_number.outputs.issue_number}}
       TARGET_ENVIRONMENT: dev-pr
-      ENABLE_MUTUAL_TLS: false
+      ENABLE_MUTUAL_TLS: true
       DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: pfp-truststore.pem
