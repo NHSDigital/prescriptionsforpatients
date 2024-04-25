@@ -11,8 +11,7 @@ import {
   defaultExtension,
   noUpdateDataEventAndResponse,
   richEventAndResponse,
-  simpleEventAndResponse,
-  unsuccessfulEventAndResponse
+  simpleEventAndResponse
 } from "./utils"
 import {Bundle, MedicationRequest} from "fhir/r4"
 import {lambdaHandler} from "../src/enrichPrescriptions"
@@ -36,7 +35,7 @@ describe("Unit tests for handler", function () {
     expect(actualResponse).toEqual(expectedResponse)
   })
 
-  it("when no prescriptions in status update data, the default update is applied", async () => {
+  it("when no prescriptions in status update data, the not-onboarded update is applied", async () => {
     const {event, expectedResponse} = simpleEventAndResponse()
 
     event.StatusUpdates!.Payload.prescriptions = []
@@ -44,15 +43,8 @@ describe("Unit tests for handler", function () {
     const searchSetBundle = expectedResponse.body as Bundle
     const collectionBundle = searchSetBundle.entry![0].resource! as Bundle
     const medicationRequest = collectionBundle.entry![0].resource as MedicationRequest
-    medicationRequest.extension = defaultExtension()
+    medicationRequest.extension = defaultExtension(false)
 
-    const actualResponse = await lambdaHandler(event)
-
-    expect(actualResponse).toEqual(expectedResponse)
-  })
-
-  it("when status update data is flagged as unsuccessful, no updates are applied", async () => {
-    const {event, expectedResponse} = unsuccessfulEventAndResponse()
     const actualResponse = await lambdaHandler(event)
 
     expect(actualResponse).toEqual(expectedResponse)

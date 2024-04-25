@@ -7,27 +7,34 @@ import {HEADERS, StateMachineFunctionResponse} from "../src/responses"
 import {
   DEFAULT_EXTENSION_STATUS,
   EXTENSION_URL,
+  NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS,
   StatusUpdates,
   VALUE_CODING_SYSTEM
 } from "../src/statusUpdates"
 
-import simpleRequestBundle from "./data/simple/requestBundle.json"
+import simpleRequest from "./data/simple/requestBundle.json"
 import simpleStatusUpdates from "./data/simple/statusUpdates.json"
-import simpleResponseBundle from "./data/simple/responseBundle.json"
+import simpleResponse from "./data/simple/responseBundle.json"
 
-import richRequestBundle from "./data/rich/requestBundle.json"
+import richRequest from "./data/rich/requestBundle.json"
 import richStatusUpdates from "./data/rich/statusUpdates.json"
-import richResponseBundle from "./data/rich/responseBundle.json"
-import unalteredResponseBundle from "./data/unalteredResponseBundle.json"
+import richResponse from "./data/rich/responseBundle.json"
 
-const simpleRequestBundleString = JSON.stringify(simpleRequestBundle)
+const simpleRequestString = JSON.stringify(simpleRequest)
 const simpleStatusUpdatesString = JSON.stringify(simpleStatusUpdates)
-const simpleResponseBundleString = JSON.stringify(simpleResponseBundle)
+const simpleResponseString = JSON.stringify(simpleResponse)
 
-const richRequestBundleString = JSON.stringify(richRequestBundle)
+const richRequestString = JSON.stringify(richRequest)
 const richStatusUpdatesString = JSON.stringify(richStatusUpdates)
-const richResponseBundleString = JSON.stringify(richResponseBundle)
-const unalteredResponseBundleString = JSON.stringify(unalteredResponseBundle)
+const richResponseString = JSON.stringify(richResponse)
+
+export const simpleRequestBundle = () => JSON.parse(simpleRequestString) as Bundle
+export const simpleStatusUpdatesPayload = () => JSON.parse(simpleStatusUpdatesString) as StatusUpdates
+export const simpleResponseBundle = () => JSON.parse(simpleResponseString) as Bundle
+
+export const richRequestBundle = () => JSON.parse(richRequestString) as Bundle
+export const richStatusUpdatesPayload = () => JSON.parse(richStatusUpdatesString) as StatusUpdates
+export const richResponseBundle = () => JSON.parse(richResponseString) as Bundle
 
 type RequestAndResponse = {
   event: EnrichPrescriptionsEvent
@@ -61,39 +68,39 @@ function eventAndResponse(
 
 export function simpleEventAndResponse(): RequestAndResponse {
   return eventAndResponse(
-    JSON.parse(simpleRequestBundleString),
-    JSON.parse(simpleResponseBundleString),
-    JSON.parse(simpleStatusUpdatesString)
+    simpleRequestBundle(),
+    simpleResponseBundle(),
+    simpleStatusUpdatesPayload()
   )
 }
 
 export function richEventAndResponse(): RequestAndResponse {
   return eventAndResponse(
-    JSON.parse(richRequestBundleString),
-    JSON.parse(richResponseBundleString),
-    JSON.parse(richStatusUpdatesString)
+    richRequestBundle(),
+    richResponseBundle(),
+    richStatusUpdatesPayload()
   )
 }
 
 export function unsuccessfulEventAndResponse(): RequestAndResponse {
-  const unsuccessfulStatusUpdates = JSON.parse(simpleStatusUpdatesString)
+  const unsuccessfulStatusUpdates = simpleStatusUpdatesPayload()
   unsuccessfulStatusUpdates.isSuccess = false
 
   return eventAndResponse(
-    JSON.parse(simpleRequestBundleString),
-    JSON.parse(unalteredResponseBundleString),
+    simpleRequestBundle(),
+    simpleRequestBundle(),
     unsuccessfulStatusUpdates
   )
 }
 
 export function noUpdateDataEventAndResponse(): RequestAndResponse {
   return eventAndResponse(
-    JSON.parse(simpleRequestBundleString),
-    JSON.parse(unalteredResponseBundleString)
+    simpleRequestBundle(),
+    simpleRequestBundle()
   )
 }
 
-export function defaultExtension(): Array<Extension> {
+export function defaultExtension(onboarded: boolean = true): Array<Extension> {
   return [{
     url: EXTENSION_URL,
     extension: [
@@ -101,7 +108,7 @@ export function defaultExtension(): Array<Extension> {
         url: "status",
         valueCoding: {
           system: VALUE_CODING_SYSTEM,
-          code: DEFAULT_EXTENSION_STATUS
+          code: onboarded ? DEFAULT_EXTENSION_STATUS : NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS
         }
       },
       {
