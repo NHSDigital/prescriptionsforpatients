@@ -32,7 +32,7 @@ Resources:
       Role: !GetAtt GetMyPrescriptionsStateMachineResources.Outputs.StateMachineRoleArn
       DefinitionUri: GetMyPrescriptionsStateMachine.asl.json
       DefinitionSubstitutions:
-        UpdatePrescriptionStatusFunctionArn: !Sub ${GetMyPrescriptionsFunctionArn}:$LATEST
+        GetMyPrescriptionsFunctionArn: !Sub ${GetMyPrescriptionsFunctionArn}:$LATEST
       Logging:
         Destinations:
           - CloudWatchLogsLogGroup:

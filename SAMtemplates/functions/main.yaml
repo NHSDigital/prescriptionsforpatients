@@ -22,7 +22,7 @@ Globals:
         SpineCAChainARN: !ImportValue account-resources:SpineCAChain
         ServiceSearchApiKeyARN: !ImportValue account-resources:ServiceSearchApiKey
     Layers:
-      - !Sub arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:49
+      - !Sub arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:52
 
 Parameters:
   StackName:
