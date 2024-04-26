@@ -12,13 +12,13 @@
 			"name": "packages/distanceSelling",
 			"path": "../packages/distanceSelling"
 		},
+    {
+      "name": "packages/enrichPrescriptions",
+      "path": "../packages/enrichPrescriptions"
+    },
 		{
 			"name": "packages/getMyPrescriptions",
 			"path": "../packages/getMyPrescriptions"
-		},
-		{
-			"name": "packages/enrichPrescriptions",
-			"path": "../packages/enrichPrescriptions"
 		},
 		{
 			"name": "packages/sandbox",
