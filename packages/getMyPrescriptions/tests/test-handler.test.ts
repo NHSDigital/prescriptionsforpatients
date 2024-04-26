@@ -1,4 +1,3 @@
-import {APIGatewayProxyEvent} from "aws-lambda"
 import {
   expect,
   describe,
@@ -12,7 +11,7 @@ import MockAdapter from "axios-mock-adapter"
 import axios from "axios"
 import {OperationOutcome} from "fhir/r4"
 import {
-  mockAPIGatewayProxyEvent,
+  mockStateMachineInputEvent,
   mockAPIResponseBody,
   mockInteractionResponseBody,
   mockPharmacy2uResponse,
@@ -27,17 +26,21 @@ import {
 import {SERVICE_SEARCH_PARAMS, mockInternalDependency} from "./utils"
 
 import * as statusUpdate from "../src/statusUpdate"
+
+import {GetMyPrescriptionsEvent} from "../src/getMyPrescriptions"
 mockInternalDependency("../src/statusUpdate", statusUpdate, "buildStatusUpdateData")
 const {handler} = await import("../src/getMyPrescriptions")
 
 const dummyContext = helloworldContext
 const mock = new MockAdapter(axios)
 
-const exampleEvent = JSON.stringify(mockAPIGatewayProxyEvent)
+const exampleEvent = JSON.stringify(mockStateMachineInputEvent)
 const exampleInteractionResponse = JSON.stringify(mockInteractionResponseBody)
 
 const pharmacy2uResponse = JSON.stringify(mockPharmacy2uResponse)
 const pharmicaResponse = JSON.stringify(mockPharmicaResponse)
+
+const APIGW_REQUEST_ID = "test-apigw-request-id"
 
 const responseStatus400: OperationOutcome = {
   resourceType: "OperationOutcome",
@@ -59,7 +62,7 @@ const responseStatus400: OperationOutcome = {
 }
 
 const responseStatus500: OperationOutcome = {
-  id: "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
+  id: APIGW_REQUEST_ID,
   resourceType: "OperationOutcome",
   issue: [
     {
@@ -124,11 +127,11 @@ describe("Unit test for app handler", function () {
   it("verifies successful response", async () => {
     mock.onGet("https://live/mm/patientfacingprescriptions").reply(200, {resourceType: "Bundle"})
 
-    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+    const event: GetMyPrescriptionsEvent = JSON.parse(exampleEvent)
     const result: StateMachineFunctionResponse = (await handler(event, dummyContext)) as StateMachineFunctionResponse
 
     expect(result.statusCode).toEqual(200)
-    expect(result.body.fhir).not.toEqual({resourceType: "Bundle", id: "test-request-id"})
+    expect(result.body.fhir).not.toEqual({resourceType: "Bundle", id: "test-x-request-id"})
     expect(result.headers).toEqual(HEADERS)
   })
 
@@ -201,8 +204,8 @@ describe("Unit test for app handler", function () {
     "return error when $scenarioDescription",
     async ({httpResponseCode, spineStatusCode, nhsdLoginUser, errorResponse, expectedHttpResponse}) => {
       mock.onGet("https://live/mm/patientfacingprescriptions").reply(httpResponseCode, {statusCode: spineStatusCode})
-      const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
-      event.headers = {"nhsd-nhslogin-user": nhsdLoginUser}
+      const event: GetMyPrescriptionsEvent = JSON.parse(exampleEvent)
+      event.headers = {"nhsd-nhslogin-user": nhsdLoginUser, "apigw-request-id": APIGW_REQUEST_ID}
       const result: StateMachineFunctionResponse = (await handler(event, dummyContext)) as StateMachineFunctionResponse
       expect(result.statusCode).toBe(expectedHttpResponse)
       expect(result.headers).toEqual(HEADERS)
@@ -212,7 +215,7 @@ describe("Unit test for app handler", function () {
 
   it("return error when spine responds with network error", async () => {
     mock.onGet("https://live/mm/patientfacingprescriptions").networkError()
-    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+    const event: GetMyPrescriptionsEvent = JSON.parse(exampleEvent)
     const result: StateMachineFunctionResponse = (await handler(event, dummyContext)) as StateMachineFunctionResponse
 
     expect(result.statusCode).toBe(500)
@@ -225,21 +228,21 @@ describe("Unit test for app handler", function () {
 
     mock.onGet("https://live/mm/patientfacingprescriptions").reply(200, {statusCode: "0"})
 
-    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+    const event: GetMyPrescriptionsEvent = JSON.parse(exampleEvent)
     await handler(event, dummyContext)
 
     expect(mockAppendKeys).toHaveBeenCalledWith({
-      "nhsd-correlation-id": "test-request-id.test-correlation-id.rrt-5789322914740101037-b-aet2-20145-482635-2",
-      "x-request-id": "test-request-id",
-      "nhsd-request-id": "test-request-id",
-      "x-correlation-id": "test-correlation-id",
-      "apigw-request-id": "c6af9ac6-7b61-11e6-9a41-93e8deadbeef"
+      "apigw-request-id": "test-apigw-request-id",
+      "nhsd-correlation-id": "test-nhsd-correlation-id",
+      "nhsd-request-id": "test-nhsd-request-id",
+      "x-correlation-id": "test-x-correlation-id",
+      "x-request-id": "test-x-request-id"
     })
   })
 
   it("return error when spine does not respond in time", async () => {
     mock.onGet("https://live/mm/patientfacingprescriptions").timeout()
-    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+    const event: GetMyPrescriptionsEvent = JSON.parse(exampleEvent)
     const result: StateMachineFunctionResponse = (await handler(event, dummyContext)) as StateMachineFunctionResponse
 
     expect(result.statusCode).toBe(500)
@@ -253,7 +256,7 @@ describe("Unit test for app handler", function () {
     process.env.SpineCAChain = "ChangeMe"
 
     mock.onGet("https://live/mm/patientfacingprescriptions").reply(500, {resourceType: "Bundle"})
-    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+    const event: GetMyPrescriptionsEvent = JSON.parse(exampleEvent)
     const result: StateMachineFunctionResponse = await handler(event, dummyContext)
 
     expect(result.statusCode).toBe(500)
@@ -266,7 +269,7 @@ describe("Unit test for app handler", function () {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     mock.onGet("https://live/mm/patientfacingprescriptions").reply((_config) => delayedResponse)
 
-    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+    const event: GetMyPrescriptionsEvent = JSON.parse(exampleEvent)
     const eventHandler: Promise<StateMachineFunctionResponse> = handler(event, dummyContext)
 
     await jest.advanceTimersByTimeAsync(11_000)
@@ -295,7 +298,7 @@ describe("Unit tests for app handler including service search", function () {
   })
 
   it("local cache is used to reduce calls to service search", async () => {
-    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+    const event: GetMyPrescriptionsEvent = JSON.parse(exampleEvent)
 
     mock.onGet(
       "https://service-search/service-search", {params: {...SERVICE_SEARCH_PARAMS, search: "flm49"}}
@@ -333,7 +336,7 @@ describe("Unit tests for app handler including service search", function () {
       "https://service-search/service-search", {params: {...SERVICE_SEARCH_PARAMS, search: "few08"}}
     ).reply(200, JSON.parse(pharmicaResponse))
 
-    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+    const event: GetMyPrescriptionsEvent = JSON.parse(exampleEvent)
     const result: StateMachineFunctionResponse = (await handler(event, dummyContext)) as StateMachineFunctionResponse
 
     expect(result.statusCode).toEqual(200)
@@ -349,7 +352,7 @@ describe("Unit tests for app handler including service search", function () {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     mock.onGet("https://service-search/service-search").reply((_config) => delayedResponse)
 
-    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+    const event: GetMyPrescriptionsEvent = JSON.parse(exampleEvent)
     const eventHandler: Promise<StateMachineFunctionResponse> = handler(event, dummyContext)
 
     await jest.advanceTimersByTimeAsync(8_000)
@@ -357,7 +360,7 @@ describe("Unit tests for app handler including service search", function () {
     const result = await eventHandler
     expect(result.statusCode).toBe(200)
     expect(result.headers).toEqual(HEADERS)
-    expect(result.body.fhir).not.toEqual({...exampleResponse, id: "test-request-id"})
+    expect(result.body.fhir).not.toEqual({...exampleResponse, id: "test-x-request-id"})
   })
 })
 
@@ -366,40 +369,19 @@ it("logs the correct apigw-request-id on multiple calls", async () => {
 
   mock.onGet("https://live/mm/patientfacingprescriptions").reply(200, {statusCode: "0"})
 
-  const event_one: APIGatewayProxyEvent = JSON.parse(exampleEvent)
-  const event_two: APIGatewayProxyEvent = JSON.parse(exampleEvent)
-  event_two.requestContext.requestId = "d6af9ac6-7b61-11e6-9a41-93e8deadbeef"
+  const event_one: GetMyPrescriptionsEvent = JSON.parse(exampleEvent)
+  const event_two: GetMyPrescriptionsEvent = JSON.parse(exampleEvent)
+  event_two.headers["apigw-request-id"] = "test-apigw-request-id-two"
+
   await handler(event_one, dummyContext)
   await handler(event_two, dummyContext)
 
-  // should have logged event.requestContext.requestId but not apigw-request-id
   expect(mockLoggerInfo).toHaveBeenCalledWith(
-    expect.toMatchJsonLogMessage("event.requestContext.requestId",
-      "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
-      "apigw-request-id"
-    )
+    expect.toMatchJsonLogMessage("apigw-request-id", "test-apigw-request-id", "")
   )
 
   expect(mockLoggerInfo).toHaveBeenCalledWith(
-    expect.toMatchJsonLogMessage("event.requestContext.requestId",
-      "d6af9ac6-7b61-11e6-9a41-93e8deadbeef",
-      "apigw-request-id"
-    )
-  )
-
-  // should have logged apigw-request-id on some messages
-  expect(mockLoggerInfo).toHaveBeenCalledWith(
-    expect.toMatchJsonLogMessage("apigw-request-id",
-      "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
-      ""
-    )
-  )
-
-  expect(mockLoggerInfo).toHaveBeenCalledWith(
-    expect.toMatchJsonLogMessage("apigw-request-id",
-      "d6af9ac6-7b61-11e6-9a41-93e8deadbeef",
-      ""
-    )
+    expect.toMatchJsonLogMessage("apigw-request-id", "test-apigw-request-id-two", "")
   )
 })
 

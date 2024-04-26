@@ -22,9 +22,8 @@ export const HEADERS = {
   "Cache-Control": "no-cache"
 }
 
-export function generalError(responseBodyId: string): OperationOutcome {
-  return {
-    id: responseBodyId,
+export function generalError(responseBodyId?: string): OperationOutcome {
+  const operationOutcome: OperationOutcome = {
     resourceType: "OperationOutcome",
     issue: [
       {
@@ -42,6 +41,10 @@ export function generalError(responseBodyId: string): OperationOutcome {
       }
     ]
   }
+  if (responseBodyId) {
+    operationOutcome.id = responseBodyId
+  }
+  return operationOutcome
 }
 
 export const TIMEOUT_RESPONSE: OperationOutcome = {

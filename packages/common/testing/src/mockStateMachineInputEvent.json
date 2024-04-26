@@ -1,0 +1,13 @@
+{
+  "body": {},
+  "headers": {
+    "apigw-request-id": "test-apigw-request-id",
+    "nhsd-correlation-id": "test-nhsd-correlation-id",
+    "nhsd-nhslogin-user": "P9:9912003071",
+    "nhsd-request-id": "test-nhsd-request-id",
+    "x-correlation-id": "test-x-correlation-id",
+    "x-request-id": "test-x-request-id"
+  },
+  "querystring": {},
+  "path": {}
+}

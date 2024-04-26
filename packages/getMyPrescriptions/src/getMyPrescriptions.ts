@@ -1,4 +1,3 @@
-import {APIGatewayProxyEvent} from "aws-lambda"
 import {Logger} from "@aws-lambda-powertools/logger"
 import {injectLambdaContext} from "@aws-lambda-powertools/logger/middleware"
 import {LogLevel} from "@aws-lambda-powertools/logger/types"
@@ -29,6 +28,10 @@ const LAMBDA_TIMEOUT_MS = 10_000
 const SPINE_TIMEOUT_MS = 9_000
 const SERVICE_SEARCH_TIMEOUT_MS = 5_000
 
+export type GetMyPrescriptionsEvent = {
+  headers: Record<string, string | undefined>
+}
+
 /* eslint-disable  max-len */
 
 /**
@@ -41,7 +44,7 @@ const SERVICE_SEARCH_TIMEOUT_MS = 5_000
  *
  */
 
-const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<StateMachineFunctionResponse> => {
+const lambdaHandler = async (event: GetMyPrescriptionsEvent): Promise<StateMachineFunctionResponse> => {
   const handlerResponse = await jobWithTimeout(LAMBDA_TIMEOUT_MS, eventHandler(event))
   if (hasTimedOut(handlerResponse)){
     return lambdaResponse(408, TIMEOUT_RESPONSE)
@@ -49,16 +52,16 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<StateMachineF
   return handlerResponse
 }
 
-export async function eventHandler(event: APIGatewayProxyEvent): Promise<StateMachineFunctionResponse> {
+export async function eventHandler(event: GetMyPrescriptionsEvent): Promise<StateMachineFunctionResponse> {
   const xRequestId = event.headers["x-request-id"]
-  const requestId = event.requestContext?.requestId ?? null
+  const requestId = event.headers["apigw-request-id"]
 
   logger.appendKeys({
     "nhsd-correlation-id": event.headers["nhsd-correlation-id"],
     "x-request-id": xRequestId,
     "nhsd-request-id": event.headers["nhsd-request-id"],
     "x-correlation-id": event.headers["x-correlation-id"],
-    "apigw-request-id": event.requestContext.requestId
+    "apigw-request-id": requestId
   })
   const spineClient = createSpineClient(logger)
 
