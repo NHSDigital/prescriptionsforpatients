@@ -9,6 +9,9 @@ import {
 export type Entry = BundleEntry<FhirResource>
 export type StatusUpdateData = {odsCode: string, prescriptionID: string}
 
+// This function is to be used when splitting-out DistanceSelling to run in parallel with the call to GetStatusUpdates.
+// The data given to DistanceSelling can be kept simple and built using this common fhirUtils code.
+// The output of this function can be passed straight into DistanceSelling.processOdsCodes.
 export function isolatePerformerOrganisations(searchsetBundle: Bundle): Array<Organization> {
   const performerOrganisations: Array<Organization> = []
   isolatePrescriptions(searchsetBundle).forEach(prescription => {
