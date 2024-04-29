@@ -132,6 +132,7 @@ Resources:
         Variables:
           AWS_LAMBDA_EXEC_WRAPPER: /opt/get-secrets-layer
           LOG_LEVEL: !Ref LogLevel
+          GET_STATUS_UPDATES: !Ref ToggleGetStatusUpdates
       Layers:
         - !Ref GetSecretsLayer
     Metadata: # Manage esbuild properties

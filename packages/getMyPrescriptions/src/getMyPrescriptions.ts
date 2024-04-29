@@ -11,7 +11,6 @@ import {
   FhirBody,
   INVALID_NHS_NUMBER_RESPONSE,
   SPINE_CERT_NOT_CONFIGURED_RESPONSE,
-  StateMachineFunctionResponse,
   TIMEOUT_RESPONSE,
   generalError,
   stateMachineLambdaResponse,
@@ -23,6 +22,7 @@ import {tempBundle} from "./tempBundle"
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
 import {StatusUpdateData} from "./fhirUtils"
 
+const GET_STATUS_UPDATES = process.env.GET_STATUS_UPDATES === "true"
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
 const servicesCache: ServicesCache = {}
@@ -37,7 +37,9 @@ export type GetMyPrescriptionsEvent = {
   headers: EventHeaders
 }
 
-type ResponseFunc<T> = (statusCode: number, fhirBody: FhirBody, statusUpdateData?: Array<StatusUpdateData>) => T
+type ResponseFunc = (
+  statusCode: number, fhirBody: FhirBody, statusUpdateData?: Array<StatusUpdateData>
+) => APIGatewayProxyResult
 
 /* eslint-disable  max-len */
 
@@ -51,10 +53,10 @@ type ResponseFunc<T> = (statusCode: number, fhirBody: FhirBody, statusUpdateData
  *
  */
 
-export const stateMachineEventHandler = async (event: GetMyPrescriptionsEvent): Promise<StateMachineFunctionResponse> => {
+export const stateMachineEventHandler = async (event: GetMyPrescriptionsEvent): Promise<APIGatewayProxyResult> => {
   const handlerResponse = await jobWithTimeout(
     LAMBDA_TIMEOUT_MS,
-    eventHandler<StateMachineFunctionResponse>(event.headers, stateMachineLambdaResponse)
+    eventHandler(event.headers, stateMachineLambdaResponse)
   )
 
   if (hasTimedOut(handlerResponse)){
@@ -67,7 +69,7 @@ export const apiGatewayEventHandler = async (event: APIGatewayProxyEvent): Promi
   event.headers["apigw-request-id"] = event.requestContext.requestId
   const handlerResponse = await jobWithTimeout(
     LAMBDA_TIMEOUT_MS,
-    eventHandler<APIGatewayProxyResult>(event.headers, apiGatewayLambdaResponse)
+    eventHandler(event.headers, apiGatewayLambdaResponse)
   )
 
   if (hasTimedOut(handlerResponse)){
@@ -76,7 +78,7 @@ export const apiGatewayEventHandler = async (event: APIGatewayProxyEvent): Promi
   return handlerResponse
 }
 
-async function eventHandler<T>(headers: EventHeaders, createResponse: ResponseFunc<T>): Promise<T> {
+async function eventHandler(headers: EventHeaders, createResponse: ResponseFunc): Promise<APIGatewayProxyResult> {
   const xRequestId = headers["x-request-id"]
   const requestId = headers["apigw-request-id"]
 
@@ -107,7 +109,7 @@ async function eventHandler<T>(headers: EventHeaders, createResponse: ResponseFu
     const searchsetBundle: Bundle = tempBundle()
     searchsetBundle.id = xRequestId
 
-    const statusUpdateData = buildStatusUpdateData(searchsetBundle)
+    const statusUpdateData = GET_STATUS_UPDATES ? buildStatusUpdateData(searchsetBundle) : undefined
 
     const distanceSellingBundle = deepCopy(searchsetBundle)
     const distanceSelling = new DistanceSelling(servicesCache, logger)

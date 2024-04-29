@@ -22,7 +22,7 @@ import {
 } from "@prescriptionsforpatients_common/testing"
 import {
   HEADERS,
-  StateMachineFunctionResponse,
+  StateMachineFunctionResponseBody,
   TIMEOUT_RESPONSE,
   stateMachineLambdaResponse
 } from "../src/responses"
@@ -133,10 +133,12 @@ describe("Unit test for app handler", function () {
     mock.onGet("https://live/mm/patientfacingprescriptions").reply(200, {resourceType: "Bundle"})
 
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
-    const result: StateMachineFunctionResponse = (await stateMachineHandler(event, dummyContext))
+
+    const result: APIGatewayProxyResult = (await stateMachineHandler(event, dummyContext))
+    const resultBody: StateMachineFunctionResponseBody = JSON.parse(result.body)
 
     expect(result.statusCode).toEqual(200)
-    expect(result.body.fhir).not.toEqual({resourceType: "Bundle", id: "test-x-request-id"})
+    expect(resultBody.fhir).not.toEqual({resourceType: "Bundle", id: "test-x-request-id"})
     expect(result.headers).toEqual(HEADERS)
   })
 
@@ -222,21 +224,26 @@ describe("Unit test for app handler", function () {
       mock.onGet("https://live/mm/patientfacingprescriptions").reply(httpResponseCode, {statusCode: spineStatusCode})
       const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
       event.headers = {"nhsd-nhslogin-user": nhsdLoginUser, "apigw-request-id": APIGW_REQUEST_ID}
-      const result: StateMachineFunctionResponse = (await stateMachineHandler(event, dummyContext)) as StateMachineFunctionResponse
+
+      const result: APIGatewayProxyResult = (await stateMachineHandler(event, dummyContext))
+      const resultBody: StateMachineFunctionResponseBody = JSON.parse(result.body)
+
       expect(result.statusCode).toBe(expectedHttpResponse)
       expect(result.headers).toEqual(HEADERS)
-      expect(result.body.fhir).toEqual(errorResponse)
+      expect(resultBody.fhir).toEqual(errorResponse)
     }
   )
 
   it("return error when spine responds with network error", async () => {
     mock.onGet("https://live/mm/patientfacingprescriptions").networkError()
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
-    const result: StateMachineFunctionResponse = (await stateMachineHandler(event, dummyContext)) as StateMachineFunctionResponse
+
+    const result: APIGatewayProxyResult = (await stateMachineHandler(event, dummyContext))
+    const resultBody: StateMachineFunctionResponseBody = JSON.parse(result.body)
 
     expect(result.statusCode).toBe(500)
     expect(result.headers).toEqual(HEADERS)
-    expect(result.body.fhir).toEqual(responseStatus500)
+    expect(resultBody.fhir).toEqual(responseStatus500)
   })
 
   it("appends trace id's to the logger", async () => {
@@ -259,11 +266,13 @@ describe("Unit test for app handler", function () {
   it("return error when spine does not respond in time", async () => {
     mock.onGet("https://live/mm/patientfacingprescriptions").timeout()
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
-    const result: StateMachineFunctionResponse = (await stateMachineHandler(event, dummyContext)) as StateMachineFunctionResponse
+
+    const result: APIGatewayProxyResult = (await stateMachineHandler(event, dummyContext))
+    const resultBody: StateMachineFunctionResponseBody = JSON.parse(result.body)
 
     expect(result.statusCode).toBe(500)
     expect(result.headers).toEqual(HEADERS)
-    expect(result.body.fhir).toEqual(responseStatus500)
+    expect(resultBody.fhir).toEqual(responseStatus500)
   })
 
   it("return error when the certificate is not configured", async () => {
@@ -273,11 +282,13 @@ describe("Unit test for app handler", function () {
 
     mock.onGet("https://live/mm/patientfacingprescriptions").reply(500, {resourceType: "Bundle"})
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
-    const result: StateMachineFunctionResponse = await stateMachineHandler(event, dummyContext)
+
+    const result: APIGatewayProxyResult = await stateMachineHandler(event, dummyContext)
+    const resultBody: StateMachineFunctionResponseBody = JSON.parse(result.body)
 
     expect(result.statusCode).toBe(500)
     expect(result.headers).toEqual(HEADERS)
-    expect(result.body.fhir).toEqual(responseNotConfCertStatus500)
+    expect(resultBody.fhir).toEqual(responseNotConfCertStatus500)
   })
 
   it("timeout if spine call takes too long", async () => {
@@ -286,7 +297,7 @@ describe("Unit test for app handler", function () {
     mock.onGet("https://live/mm/patientfacingprescriptions").reply((_config) => delayedResponse)
 
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
-    const eventHandler: Promise<StateMachineFunctionResponse> = stateMachineHandler(event, dummyContext)
+    const eventHandler: Promise<APIGatewayProxyResult> = stateMachineHandler(event, dummyContext)
 
     await jest.advanceTimersByTimeAsync(11_000)
 
@@ -325,14 +336,15 @@ describe("Unit tests for app handler including service search", function () {
     ).reply(200, JSON.parse(pharmicaResponse))
 
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, JSON.parse(exampleInteractionResponse))
-    const resultA: StateMachineFunctionResponse = (await stateMachineHandler(event, dummyContext)) as StateMachineFunctionResponse
+    const resultA: APIGatewayProxyResult = (await stateMachineHandler(event, dummyContext))
 
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, JSON.parse(exampleInteractionResponse))
-    const resultB: StateMachineFunctionResponse = (await stateMachineHandler(event, dummyContext)) as StateMachineFunctionResponse
+    const resultB: APIGatewayProxyResult = (await stateMachineHandler(event, dummyContext))
 
     for (const result of [resultA, resultB]) {
+      const resultBody: StateMachineFunctionResponseBody = JSON.parse(result.body)
       expect(result.statusCode).toEqual(200)
-      expect(result.body.fhir).not.toEqual(mockAPIResponseBody)
+      expect(resultBody.fhir).not.toEqual(mockAPIResponseBody)
       expect(result.headers).toEqual(HEADERS)
     }
 
@@ -353,10 +365,12 @@ describe("Unit tests for app handler including service search", function () {
     ).reply(200, JSON.parse(pharmicaResponse))
 
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
-    const result: StateMachineFunctionResponse = (await stateMachineHandler(event, dummyContext)) as StateMachineFunctionResponse
+
+    const result: APIGatewayProxyResult = (await stateMachineHandler(event, dummyContext))
+    const resultBody: StateMachineFunctionResponseBody = JSON.parse(result.body)
 
     expect(result.statusCode).toEqual(200)
-    expect(result.body.fhir).not.toEqual(mockAPIResponseBody)
+    expect(resultBody.fhir).not.toEqual(mockAPIResponseBody)
     expect(result.headers).toEqual(HEADERS)
   })
 
@@ -369,14 +383,16 @@ describe("Unit tests for app handler including service search", function () {
     mock.onGet("https://service-search/service-search").reply((_config) => delayedResponse)
 
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
-    const eventHandler: Promise<StateMachineFunctionResponse> = stateMachineHandler(event, dummyContext)
+    const eventHandler: Promise<APIGatewayProxyResult> = stateMachineHandler(event, dummyContext)
 
     await jest.advanceTimersByTimeAsync(8_000)
 
     const result = await eventHandler
+    const resultBody: StateMachineFunctionResponseBody = JSON.parse(result.body)
+
     expect(result.statusCode).toBe(200)
     expect(result.headers).toEqual(HEADERS)
-    expect(result.body.fhir).not.toEqual({...exampleResponse, id: "test-x-request-id"})
+    expect(resultBody.fhir).not.toEqual({...exampleResponse, id: "test-x-request-id"})
   })
 })
 

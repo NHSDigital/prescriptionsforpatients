@@ -3,7 +3,7 @@
 import "jest"
 import axios from "axios"
 import {Bundle} from "fhir/r4"
-import {APIGatewayProxyEvent} from "aws-lambda"
+import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
 import MockAdapter from "axios-mock-adapter"
 
 import {
@@ -15,7 +15,7 @@ import {
 } from "@prescriptionsforpatients_common/testing"
 
 import {buildStatusUpdateData} from "../src/statusUpdate"
-import {StateMachineFunctionResponse, stateMachineLambdaResponse} from "../src/responses"
+import {stateMachineLambdaResponse} from "../src/responses"
 import {stateMachineEventHandler} from "../src/getMyPrescriptions"
 import {SERVICE_SEARCH_PARAMS} from "./utils"
 
@@ -59,22 +59,28 @@ describe("Unit tests for handler, including statusUpdate", function () {
     process.env.SpineCAChain = "ca-chain"
   })
 
-  it("when event is processed, statusUpdateData is included in the response", async () => {
-    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+  it.each([
+    {getStatusUpdates: "true", dataExpected: true},
+    {getStatusUpdates: "false", dataExpected: false}
+  ])(
+    "when event is processed, statusUpdateData is included in or excluded from the response", async ({getStatusUpdates, dataExpected}) => {
+      process.env.GET_STATUS_UPDATES = getStatusUpdates
+      const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
 
-    mock.onGet("https://service-search/service-search", {params: {...SERVICE_SEARCH_PARAMS, search: "flm49"}}).reply(200, JSON.parse(pharmacy2uResponse))
-    mock.onGet("https://service-search/service-search", {params: {...SERVICE_SEARCH_PARAMS, search: "few08"}}).reply(200, JSON.parse(pharmicaResponse))
+      mock.onGet("https://service-search/service-search", {params: {...SERVICE_SEARCH_PARAMS, search: "flm49"}}).reply(200, JSON.parse(pharmacy2uResponse))
+      mock.onGet("https://service-search/service-search", {params: {...SERVICE_SEARCH_PARAMS, search: "few08"}}).reply(200, JSON.parse(pharmicaResponse))
 
-    mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, JSON.parse(exampleInteractionResponse))
+      mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, JSON.parse(exampleInteractionResponse))
 
-    const result: StateMachineFunctionResponse = await stateMachineEventHandler(event)
+      const result: APIGatewayProxyResult = await stateMachineEventHandler(event)
 
-    const statusUpdateData = [
-      {odsCode: "FLM49", prescriptionID: "24F5DA-A83008-7EFE6Z"},
-      {odsCode: "FEW08", prescriptionID: "16B2E0-A83008-81C13H"}
-    ]
-    const expected = stateMachineLambdaResponse(200, mockAPIResponseBody as Bundle, statusUpdateData)
+      const statusUpdateData = [
+        {odsCode: "FLM49", prescriptionID: "24F5DA-A83008-7EFE6Z"},
+        {odsCode: "FEW08", prescriptionID: "16B2E0-A83008-81C13H"}
+      ]
+      const expected = stateMachineLambdaResponse(200, mockAPIResponseBody as Bundle, dataExpected ? statusUpdateData : undefined)
 
-    expect(result).not.toEqual(expected)
-  })
+      expect(result).not.toEqual(expected)
+    }
+  )
 })
