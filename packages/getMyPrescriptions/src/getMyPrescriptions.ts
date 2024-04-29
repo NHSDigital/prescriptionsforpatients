@@ -8,17 +8,20 @@ import {extractNHSNumber, NHSNumberValidationError} from "./extractNHSNumber"
 import {DistanceSelling, ServicesCache} from "@prescriptionsforpatients/distanceSelling"
 import type {Bundle} from "fhir/r4"
 import {
+  FhirBody,
   INVALID_NHS_NUMBER_RESPONSE,
   SPINE_CERT_NOT_CONFIGURED_RESPONSE,
   StateMachineFunctionResponse,
   TIMEOUT_RESPONSE,
   generalError,
-  lambdaResponse
+  stateMachineLambdaResponse,
+  apiGatewayLambdaResponse
 } from "./responses"
 import {deepCopy, hasTimedOut, jobWithTimeout} from "./utils"
 import {buildStatusUpdateData} from "./statusUpdate"
 import {tempBundle} from "./tempBundle"
-import {isolatePerformerOrganisations} from "./fhirUtils"
+import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
+import {StatusUpdateData} from "./fhirUtils"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
@@ -28,9 +31,13 @@ const LAMBDA_TIMEOUT_MS = 10_000
 const SPINE_TIMEOUT_MS = 9_000
 const SERVICE_SEARCH_TIMEOUT_MS = 5_000
 
+type EventHeaders = Record<string, string | undefined>
+
 export type GetMyPrescriptionsEvent = {
-  headers: Record<string, string | undefined>
+  headers: EventHeaders
 }
+
+type ResponseFunc<T> = (statusCode: number, fhirBody: FhirBody, statusUpdateData?: Array<StatusUpdateData>) => T
 
 /* eslint-disable  max-len */
 
@@ -44,23 +51,40 @@ export type GetMyPrescriptionsEvent = {
  *
  */
 
-const lambdaHandler = async (event: GetMyPrescriptionsEvent): Promise<StateMachineFunctionResponse> => {
-  const handlerResponse = await jobWithTimeout(LAMBDA_TIMEOUT_MS, eventHandler(event))
+export const stateMachineEventHandler = async (event: GetMyPrescriptionsEvent): Promise<StateMachineFunctionResponse> => {
+  const handlerResponse = await jobWithTimeout(
+    LAMBDA_TIMEOUT_MS,
+    eventHandler<StateMachineFunctionResponse>(event.headers, stateMachineLambdaResponse)
+  )
+
   if (hasTimedOut(handlerResponse)){
-    return lambdaResponse(408, TIMEOUT_RESPONSE)
+    return stateMachineLambdaResponse(408, TIMEOUT_RESPONSE)
   }
   return handlerResponse
 }
 
-export async function eventHandler(event: GetMyPrescriptionsEvent): Promise<StateMachineFunctionResponse> {
-  const xRequestId = event.headers["x-request-id"]
-  const requestId = event.headers["apigw-request-id"]
+export const apiGatewayEventHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  event.headers["apigw-request-id"] = event.requestContext.requestId
+  const handlerResponse = await jobWithTimeout(
+    LAMBDA_TIMEOUT_MS,
+    eventHandler<APIGatewayProxyResult>(event.headers, apiGatewayLambdaResponse)
+  )
+
+  if (hasTimedOut(handlerResponse)){
+    return apiGatewayLambdaResponse(408, TIMEOUT_RESPONSE)
+  }
+  return handlerResponse
+}
+
+async function eventHandler<T>(headers: EventHeaders, createResponse: ResponseFunc<T>): Promise<T> {
+  const xRequestId = headers["x-request-id"]
+  const requestId = headers["apigw-request-id"]
 
   logger.appendKeys({
-    "nhsd-correlation-id": event.headers["nhsd-correlation-id"],
+    "nhsd-correlation-id": headers["nhsd-correlation-id"],
     "x-request-id": xRequestId,
-    "nhsd-request-id": event.headers["nhsd-request-id"],
-    "x-correlation-id": event.headers["x-correlation-id"],
+    "nhsd-request-id": headers["nhsd-request-id"],
+    "x-correlation-id": headers["x-correlation-id"],
     "apigw-request-id": requestId
   })
   const spineClient = createSpineClient(logger)
@@ -68,17 +92,17 @@ export async function eventHandler(event: GetMyPrescriptionsEvent): Promise<Stat
   try {
     const isCertificateConfigured = spineClient.isCertificateConfigured()
     if (!isCertificateConfigured) {
-      return lambdaResponse(500, SPINE_CERT_NOT_CONFIGURED_RESPONSE)
+      return createResponse(500, SPINE_CERT_NOT_CONFIGURED_RESPONSE)
     }
 
-    const nhsNumber = extractNHSNumber(event.headers["nhsd-nhslogin-user"])
+    const nhsNumber = extractNHSNumber(headers["nhsd-nhslogin-user"])
     logger.info(`nhsNumber: ${nhsNumber}`)
-    event.headers["nhsNumber"] = nhsNumber
+    headers["nhsNumber"] = nhsNumber
 
-    const spineCallout = spineClient.getPrescriptions(event.headers)
+    const spineCallout = spineClient.getPrescriptions(headers)
     const response = await jobWithTimeout(SPINE_TIMEOUT_MS, spineCallout)
     if (hasTimedOut(response)){
-      return lambdaResponse(408, TIMEOUT_RESPONSE)
+      return createResponse(408, TIMEOUT_RESPONSE)
     }
     const searchsetBundle: Bundle = tempBundle()
     searchsetBundle.id = xRequestId
@@ -86,27 +110,39 @@ export async function eventHandler(event: GetMyPrescriptionsEvent): Promise<Stat
     const statusUpdateData = buildStatusUpdateData(searchsetBundle)
 
     const distanceSellingBundle = deepCopy(searchsetBundle)
-    const performerOrganisations = isolatePerformerOrganisations(distanceSellingBundle)
-
     const distanceSelling = new DistanceSelling(servicesCache, logger)
-    const distanceSellingCallout = distanceSelling.search(performerOrganisations)
+    const distanceSellingCallout = distanceSelling.search(distanceSellingBundle)
 
     const distanceSellingResponse = await jobWithTimeout(SERVICE_SEARCH_TIMEOUT_MS, distanceSellingCallout)
     if (hasTimedOut(distanceSellingResponse)){
-      return lambdaResponse(200, searchsetBundle, statusUpdateData)
+      return createResponse(200, searchsetBundle, statusUpdateData)
     }
 
-    return lambdaResponse(200, distanceSellingBundle, statusUpdateData)
+    return createResponse(200, distanceSellingBundle, statusUpdateData)
   } catch (error) {
     if (error instanceof NHSNumberValidationError) {
-      return lambdaResponse(400, INVALID_NHS_NUMBER_RESPONSE)
+      return createResponse(400, INVALID_NHS_NUMBER_RESPONSE)
     } else {
-      return lambdaResponse(500, generalError(requestId))
+      return createResponse(500, generalError(requestId))
     }
   }
 }
 
-export const handler = middy(lambdaHandler)
+export const stateMachineHandler = middy(stateMachineEventHandler)
+  .use(injectLambdaContext(logger, {clearState: true}))
+  .use(
+    inputOutputLogger({
+      logger: (request) => {
+        if (request.response) {
+          logger.debug(request)
+        } else {
+          logger.info(request)
+        }
+      }
+    })
+  )
+
+export const apiGatewayHandler = middy(apiGatewayEventHandler)
   .use(injectLambdaContext(logger, {clearState: true}))
   .use(
     inputOutputLogger({

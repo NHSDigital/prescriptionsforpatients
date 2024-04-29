@@ -15,8 +15,8 @@ import {
 } from "@prescriptionsforpatients_common/testing"
 
 import {buildStatusUpdateData} from "../src/statusUpdate"
-import {StateMachineFunctionResponse, lambdaResponse} from "../src/responses"
-import {eventHandler} from "../src/getMyPrescriptions"
+import {StateMachineFunctionResponse, stateMachineLambdaResponse} from "../src/responses"
+import {stateMachineEventHandler} from "../src/getMyPrescriptions"
 import {SERVICE_SEARCH_PARAMS} from "./utils"
 
 const exampleEvent = JSON.stringify(mockAPIGatewayProxyEvent)
@@ -67,13 +67,13 @@ describe("Unit tests for handler, including statusUpdate", function () {
 
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, JSON.parse(exampleInteractionResponse))
 
-    const result: StateMachineFunctionResponse = await eventHandler(event)
+    const result: StateMachineFunctionResponse = await stateMachineEventHandler(event)
 
     const statusUpdateData = [
       {odsCode: "FLM49", prescriptionID: "24F5DA-A83008-7EFE6Z"},
       {odsCode: "FEW08", prescriptionID: "16B2E0-A83008-81C13H"}
     ]
-    const expected = lambdaResponse(200, mockAPIResponseBody as Bundle, statusUpdateData)
+    const expected = stateMachineLambdaResponse(200, mockAPIResponseBody as Bundle, statusUpdateData)
 
     expect(result).not.toEqual(expected)
   })
