@@ -40,10 +40,11 @@ describe("Unit tests for handler", function () {
 
     event.StatusUpdates!.Payload.prescriptions = []
 
-    const searchSetBundle = expectedResponse.body as Bundle
+    const searchSetBundle = JSON.parse(expectedResponse.body) as Bundle
     const collectionBundle = searchSetBundle.entry![0].resource! as Bundle
     const medicationRequest = collectionBundle.entry![0].resource as MedicationRequest
     medicationRequest.extension = defaultExtension(false)
+    expectedResponse.body = JSON.stringify(searchSetBundle)
 
     const actualResponse = await lambdaHandler(event)
 

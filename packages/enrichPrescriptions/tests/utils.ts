@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import {APIGatewayProxyResult} from "aws-lambda"
 import {Bundle, Extension} from "fhir/r4"
 
 import {EnrichPrescriptionsEvent} from "../src/enrichPrescriptions"
-import {HEADERS, StateMachineFunctionResponse} from "../src/responses"
+import {HEADERS} from "../src/responses"
 import {
   DEFAULT_EXTENSION_STATUS,
   EXTENSION_URL,
@@ -38,7 +39,7 @@ export const richResponseBundle = () => JSON.parse(richResponseString) as Bundle
 
 type RequestAndResponse = {
   event: EnrichPrescriptionsEvent
-  expectedResponse: StateMachineFunctionResponse
+  expectedResponse: APIGatewayProxyResult
 }
 
 export const SYSTEM_DATETIME = new Date("2023-09-11T10:11:12.000Z")
@@ -55,7 +56,7 @@ function eventAndResponse(
     expectedResponse: {
       statusCode: 200,
       headers: HEADERS,
-      body: responseBundle
+      body: JSON.stringify(responseBundle)
     }
   }
   if (statusUpdates) {
