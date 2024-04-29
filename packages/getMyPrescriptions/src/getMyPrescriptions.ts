@@ -130,7 +130,7 @@ async function eventHandler(headers: EventHeaders, createResponse: ResponseFunc)
   }
 }
 
-export const stateMachineHandler = middy(stateMachineEventHandler)
+export const handler = middy(stateMachineEventHandler)
   .use(injectLambdaContext(logger, {clearState: true}))
   .use(
     inputOutputLogger({
