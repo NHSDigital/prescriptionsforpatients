@@ -30,7 +30,16 @@
           "Next": "Failed Get My Prescriptions"
         }
       ],
-      "Default": "Get Toggle Get Status Updates Parameter"
+      "Default": "Parse Get My Prescriptions Body"
+    },
+    "Parse Get My Prescriptions Body": {
+      "Type": "Pass",
+      "Next": "Get Toggle Get Status Updates Parameter",
+      "InputPath": "$.Payload.body",
+      "Parameters": {
+        "body.$": "States.StringToJson($)"
+      },
+      "OutputPath": "$.body"
     },
     "Get Toggle Get Status Updates Parameter": {
       "Type": "Task",
@@ -59,7 +68,7 @@
         "Payload.$": "$",
         "FunctionName": "${GetStatusUpdatesFunctionArn}"
       },
-      "InputPath": "$.Payload.body.statusUpdateData",
+      "InputPath": "$.statusUpdateData",
       "Next": "Get Status Updates Result",
       "ResultSelector": {
         "Payload.$": "$.Payload"

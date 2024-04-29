@@ -11,12 +11,12 @@ export const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 const logger = new Logger({serviceName: "enrichPrescriptions", logLevel: LOG_LEVEL})
 
 export type EnrichPrescriptionsEvent = {
-  Payload: {body: {fhir: Bundle}},
+  fhir: Bundle,
   StatusUpdates?: {Payload: StatusUpdates}
 }
 
 export async function lambdaHandler(event: EnrichPrescriptionsEvent) {
-  const searchsetBundle = event.Payload.body.fhir
+  const searchsetBundle = event.fhir
   const statusUpdates = event.StatusUpdates?.Payload
 
   if (statusUpdates) {

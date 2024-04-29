@@ -50,9 +50,7 @@ function eventAndResponse(
 ): RequestAndResponse {
   const requestAndResponse: RequestAndResponse = {
     event: {
-      Payload: {
-        body: {fhir: requestBundle}
-      }
+      fhir: requestBundle
     },
     expectedResponse: {
       statusCode: 200,
