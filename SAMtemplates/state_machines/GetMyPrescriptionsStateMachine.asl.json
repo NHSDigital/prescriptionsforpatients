@@ -9,7 +9,6 @@
         "Payload.$": "$",
         "FunctionName": "${GetMyPrescriptionsFunctionArn}"
       },
-      "OutputPath": "States.StringToJson($.Payload.body)",
       "Next": "Get My Prescriptions Result",
       "Catch": [
         {
