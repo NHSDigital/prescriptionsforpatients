@@ -1,0 +1,304 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: |
+  PFP API's and related resources
+
+Parameters:
+  StackName:
+    Type: String
+    Default: none
+
+  EnableMutualTLS:
+    Type: String
+  
+  TruststoreVersion:
+    Type: String
+  
+  GetMyPrescriptionsStateMachineName:
+    Type: String
+    Default: none
+  
+  GetMyPrescriptionsStateMachineArn:
+    Type: String
+    Default: none
+  
+  CapabilityStatementFunctionName:
+    Type: String
+    Default: none
+  
+  CapabilityStatementFunctionArn:
+    Type: String
+    Default: none
+  
+  StatusFunctionName:
+    Type: String
+    Default: none
+  
+  StatusFunctionArn:
+    Type: String
+    Default: none
+  
+  LogRetentionInDays:
+    Type: Number
+  
+  EnableSplunk:
+    Type: String
+
+Conditions:
+  ShouldUseMutualTLS: !Equals
+    - true
+    - !Ref EnableMutualTLS
+
+Resources:
+  GenerateCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      ValidationMethod: DNS
+      DomainName:
+        Fn::Join:
+          - .
+          - - !Ref StackName
+            - Fn::ImportValue: eps-route53-resources:EPS-domain
+      DomainValidationOptions:
+        - DomainName: !Join
+            - .
+            - - !Ref StackName
+              - !ImportValue eps-route53-resources:EPS-domain
+          HostedZoneId: !ImportValue eps-route53-resources:EPS-ZoneID
+  
+  RestApiGateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: !Sub ${StackName}-apigw
+      DisableExecuteApiEndpoint: !If
+        - ShouldUseMutualTLS
+        - true
+        - !Ref AWS::NoValue
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+  
+  RestApiDomain:
+    Type: AWS::ApiGateway::DomainName
+    Properties:
+      DomainName: !Join
+        - .
+        - - !Ref StackName
+          - !ImportValue eps-route53-resources:EPS-domain
+      RegionalCertificateArn: !Ref GenerateCertificate
+      EndpointConfiguration: 
+        Types:
+          - REGIONAL
+      SecurityPolicy: TLS_1_2
+      MutualTlsAuthentication:
+        TruststoreUri: !If
+          - ShouldUseMutualTLS
+          - !Join
+            - /
+            - - s3:/
+              - !Select
+                - 5
+                - !Split
+                  - ":"
+                  - !ImportValue account-resources:TrustStoreBucket
+              - pfp-truststore.pem
+          - !Ref AWS::NoValue
+        TruststoreVersion: !If
+          - ShouldUseMutualTLS
+          - !Ref TruststoreVersion
+          - !Ref AWS::NoValue
+  
+  RestApiRecordSet:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Name: !Join
+        - .
+        - - !Ref StackName
+          - !ImportValue eps-route53-resources:EPS-domain
+      Type: A
+      HostedZoneId: !ImportValue eps-route53-resources:EPS-ZoneID
+      AliasTarget:
+        DNSName: !GetAtt RestApiDomain.RegionalDomainName
+        HostedZoneId: !GetAtt RestApiDomain.RegionalHostedZoneId
+  
+  GetMyPrescriptionsResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref RestApiGateway
+      ParentId: !GetAtt RestApiGateway.RootResourceId
+      PathPart: Bundle
+
+  GetMyPrescriptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref RestApiGateway
+      ResourceId: !Ref GetMyPrescriptionsResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS
+        Credentials: !GetAtt RestApiGatewayResources.Outputs.ApiGwRoleArn
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:states:action/StartSyncExecution
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: !Sub
+            - |-
+              ## Velocity Template used for API Gateway request mapping template
+              ## "@@" is used here as a placeholder for '"' to avoid using escape characters.
+
+              #set($includeHeaders = true)
+              #set($includeQueryString = true)
+              #set($includePath = true)
+              #set($requestContext = '')
+
+              #set($inputString = '')
+              #set($allParams = $input.params())
+              #set($allParams.header.apigw-request-id = $context.requestId)
+              {
+                  "stateMachineArn": "${stateMachineArn}",
+
+                  #set($inputString = "$inputString,@@body@@: $input.body")
+
+                  #if ($includeHeaders)
+                      #set($inputString = "$inputString, @@headers@@:{")
+                      #foreach($paramName in $allParams.header.keySet())
+                          #set($inputString = "$inputString @@$paramName@@: @@$util.escapeJavaScript($allParams.header.get($paramName))@@")
+                          #if($foreach.hasNext)
+                              #set($inputString = "$inputString,")
+                          #end
+                      #end
+                      #set($inputString = "$inputString }")
+
+                  #end
+
+                  #if ($includeQueryString)
+                      #set($inputString = "$inputString, @@querystring@@:{")
+                      #foreach($paramName in $allParams.querystring.keySet())
+                          #set($inputString = "$inputString @@$paramName@@: @@$util.escapeJavaScript($allParams.querystring.get($paramName))@@")
+                          #if($foreach.hasNext)
+                              #set($inputString = "$inputString,")
+                          #end
+                      #end
+                      #set($inputString = "$inputString }")
+                  #end
+
+                  #if ($includePath)
+                      #set($inputString = "$inputString, @@path@@:{")
+                      #foreach($paramName in $allParams.path.keySet())
+                          #set($inputString = "$inputString @@$paramName@@: @@$util.escapeJavaScript($allParams.path.get($paramName))@@")
+                          #if($foreach.hasNext)
+                              #set($inputString = "$inputString,")
+                          #end
+                      #end
+                      #set($inputString = "$inputString }")
+                  #end
+
+                  ## Check if the request context should be included as part of the execution input
+                  #if($requestContext && !$requestContext.empty)
+                      #set($inputString = "$inputString,")
+                      #set($inputString = "$inputString @@requestContext@@: $requestContext")
+                  #end
+
+                  #set($inputString = "$inputString}")
+                  #set($inputString = $inputString.replaceAll("@@",'"'))
+                  #set($len = $inputString.length() - 1)
+                  "input": "{$util.escapeJavaScript($inputString.substring(1,$len))}"
+              }
+            - stateMachineArn: !Ref GetMyPrescriptionsStateMachineArn
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseTemplates:
+              application/json: |-
+                #set($payload = $util.parseJson($input.path('$.output')))
+                #set($context.responseOverride.status = $payload.Payload.statusCode)
+                #set($allHeaders = $payload.Payload.headers)
+
+                #foreach($headerName in $allHeaders.keySet())
+                    #set($context.responseOverride.header[$headerName] = $allHeaders.get($headerName))
+                #end
+
+                $payload.Payload.body
+      MethodResponses:
+        - StatusCode: "200"    
+
+  CapabilityStatementResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref RestApiGateway
+      ParentId: !GetAtt RestApiGateway.RootResourceId
+      PathPart: metadata
+
+  CapabilityStatementMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref RestApiGateway
+      ResourceId: !Ref CapabilityStatementResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        Credentials: !GetAtt RestApiGatewayResources.Outputs.ApiGwRoleArn
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CapabilityStatementFunctionArn}/invocations
+
+  StatusStatementResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref RestApiGateway
+      ParentId: !GetAtt RestApiGateway.RootResourceId
+      PathPart: _status
+  
+  StatusMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref RestApiGateway
+      ResourceId: !Ref StatusStatementResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        Credentials: !GetAtt RestApiGatewayResources.Outputs.ApiGwRoleArn
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StatusFunctionArn}/invocations
+
+  RestApiGatewayDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - GetMyPrescriptionsMethod
+      - CapabilityStatementMethod
+      - StatusMethod
+    Properties:
+      RestApiId: !Ref RestApiGateway
+  
+  RestApiGatewayStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      RestApiId: !Ref RestApiGateway
+      StageName: prod
+      DeploymentId: !Ref RestApiGatewayDeployment
+      TracingEnabled: true
+      AccessLogSetting:
+        DestinationArn: !GetAtt RestApiGatewayResources.Outputs.ApiGwAccessLogsArn
+        Format: '{ "requestTime": "$context.requestTime", "apiId": "$context.apiId", "accountId": "$context.accountId", "resourcePath": "$context.resourcePath", "stage": "$context.stage", "requestId": "$context.requestId", "extendedRequestId": "$context.extendedRequestId", "status": "$context.status", "httpMethod": "$context.httpMethod", "protocol": "$context.protocol", "path": "$context.path", "responseLatency": "$context.responseLatency", "responseLength": "$context.responseLength", "domainName": "$context.domainName", "identity": { "sourceIp": "$context.identity.sourceIp", "userAgent": "$context.identity.userAgent", "clientCert":{ "subjectDN": "$context.identity.clientCert.subjectDN", "issuerDN": "$context.identity.clientCert.issuerDN", "serialNumber": "$context.identity.clientCert.serialNumber", "validityNotBefore": "$context.identity.clientCert.validity.notBefore", "validityNotAfter": "$context.identity.clientCert.validity.notAfter" }}, "integration":{ "error": "$context.integration.error", "integrationStatus": "$context.integration.integrationStatus", "latency": "$context.integration.latency", "requestId": "$context.integration.requestId", "status": "$context.integration.status" }}'
+  
+  RestApiDomainMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      DomainName: !Ref RestApiDomain
+      RestApiId: !Ref RestApiGateway
+      Stage: !Ref RestApiGatewayStage
+  
+  RestApiGatewayResources:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: api_resources.yaml
+      Parameters:
+        AdditionalPolicies: !Join
+          - ","
+          - - Fn::ImportValue: !Sub ${StackName}:state-machines:${GetMyPrescriptionsStateMachineName}:ExecuteStateMachinePolicyArn
+            - Fn::ImportValue: !Sub ${StackName}:functions:${CapabilityStatementFunctionName}:ExecuteLambdaPolicyArn
+            - Fn::ImportValue: !Sub ${StackName}:functions:${StatusFunctionName}:ExecuteLambdaPolicyArn
+        ApiName: !Sub ${StackName}-apigw
+        LogRetentionInDays: !Ref LogRetentionInDays
+        EnableSplunk: !Ref EnableSplunk
