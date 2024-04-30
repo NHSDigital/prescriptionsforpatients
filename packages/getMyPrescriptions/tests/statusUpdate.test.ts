@@ -74,7 +74,7 @@ describe("Unit tests for statusUpdate, via handler", function () {
       {odsCode: "FLM49", prescriptionID: "24F5DA-A83008-7EFE6Z"},
       {odsCode: "FEW08", prescriptionID: "16B2E0-A83008-81C13H"}
     ]
-    const expected = stateMachineLambdaResponse(200, mockAPIResponseBody as Bundle, statusUpdateData)
+    const expected = stateMachineLambdaResponse(mockAPIResponseBody as Bundle, statusUpdateData)
 
     expect(JSON.parse(result.body)).toEqual(JSON.parse(expected.body))
   })

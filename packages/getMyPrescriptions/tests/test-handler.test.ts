@@ -10,12 +10,12 @@ import {
 } from "@jest/globals"
 
 import {
-  helloworldContext,
   mockAPIGatewayProxyEvent,
   mockAPIResponseBody,
   mockInteractionResponseBody,
   mockPharmacy2uResponse,
   mockPharmicaResponse,
+  helloworldContext,
   mockStateMachineInputEvent
 } from "@prescriptionsforpatients_common/testing"
 
@@ -125,6 +125,7 @@ describe("Unit test for app handler", function () {
 
     expect(result.statusCode).toEqual(200)
     expect(resultBody.fhir).toEqual({resourceType: "Bundle", id: "test-request-id"})
+    expect(resultBody.statusUpdateData).toBeUndefined()
     expect(result.headers).toEqual(HEADERS)
   })
 
@@ -210,7 +211,7 @@ describe("Unit test for app handler", function () {
       mock.onGet("https://live/mm/patientfacingprescriptions").reply(httpResponseCode, {statusCode: spineStatusCode})
       const event: APIGatewayProxyEvent = JSON.parse(exampleApiGatewayEvent)
       event.headers = {"nhsd-nhslogin-user": nhsdLoginUser}
-      const result: APIGatewayProxyResult = (await apiGatewayHandler(event, dummyContext)) as APIGatewayProxyResult
+      const result: APIGatewayProxyResult = (await apiGatewayHandler(event, dummyContext))
       expect(result.statusCode).toBe(expectedHttpResponse)
       expect(result.headers).toEqual(HEADERS)
       expect(JSON.parse(result.body)).toEqual(errorResponse)
@@ -220,7 +221,7 @@ describe("Unit test for app handler", function () {
   it("return error when spine responds with network error", async () => {
     mock.onGet("https://live/mm/patientfacingprescriptions").networkError()
     const event: APIGatewayProxyEvent = JSON.parse(exampleApiGatewayEvent)
-    const result: APIGatewayProxyResult = (await apiGatewayHandler(event, dummyContext)) as APIGatewayProxyResult
+    const result: APIGatewayProxyResult = (await apiGatewayHandler(event, dummyContext))
 
     expect(result.statusCode).toBe(500)
     expect(result.headers).toEqual(HEADERS)
@@ -247,7 +248,7 @@ describe("Unit test for app handler", function () {
   it("return error when spine does not respond in time", async () => {
     mock.onGet("https://live/mm/patientfacingprescriptions").timeout()
     const event: APIGatewayProxyEvent = JSON.parse(exampleApiGatewayEvent)
-    const result: APIGatewayProxyResult = (await apiGatewayHandler(event, dummyContext)) as APIGatewayProxyResult
+    const result: APIGatewayProxyResult = (await apiGatewayHandler(event, dummyContext))
 
     expect(result.statusCode).toBe(500)
     expect(result.headers).toEqual(HEADERS)
@@ -321,10 +322,10 @@ describe("Unit tests for app handler including service search", function () {
     ).reply(200, JSON.parse(pharmicaResponse))
 
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, JSON.parse(exampleInteractionResponse))
-    const resultA: APIGatewayProxyResult = (await apiGatewayHandler(event, dummyContext)) as APIGatewayProxyResult
+    const resultA: APIGatewayProxyResult = (await apiGatewayHandler(event, dummyContext))
 
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, JSON.parse(exampleInteractionResponse))
-    const resultB: APIGatewayProxyResult = (await apiGatewayHandler(event, dummyContext)) as APIGatewayProxyResult
+    const resultB: APIGatewayProxyResult = (await apiGatewayHandler(event, dummyContext))
 
     for (const result of [resultA, resultB]) {
       expect(result.statusCode).toEqual(200)
@@ -349,7 +350,7 @@ describe("Unit tests for app handler including service search", function () {
     ).reply(200, JSON.parse(pharmicaResponse))
 
     const event: APIGatewayProxyEvent = JSON.parse(exampleApiGatewayEvent)
-    const result: APIGatewayProxyResult = (await apiGatewayHandler(event, dummyContext)) as APIGatewayProxyResult
+    const result: APIGatewayProxyResult = (await apiGatewayHandler(event, dummyContext))
 
     expect(result.statusCode).toEqual(200)
     expect(result.body).toEqual(

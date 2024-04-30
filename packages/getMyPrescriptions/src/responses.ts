@@ -88,7 +88,7 @@ export const INVALID_NHS_NUMBER_RESPONSE: APIGatewayProxyResult = {
 }
 
 export function stateMachineLambdaResponse(
-  statusCode: number, fhirBody: FhirBody, statusUpdateData?: Array<StatusUpdateData>
+  fhirBody: FhirBody, statusUpdateData?: Array<StatusUpdateData>
 ): APIGatewayProxyResult {
   const body: StateMachineFunctionResponseBody = {fhir: fhirBody}
   if (statusUpdateData) {
@@ -98,17 +98,15 @@ export function stateMachineLambdaResponse(
     }
   }
   return {
-    statusCode: statusCode,
+    statusCode: 200,
     body: JSON.stringify(body),
     headers: HEADERS
   }
 }
 
-export function apiGatewayLambdaResponse(
-  statusCode: number, fhirBody: FhirBody
-): APIGatewayProxyResult {
+export function apiGatewayLambdaResponse(fhirBody: FhirBody): APIGatewayProxyResult {
   return {
-    statusCode: statusCode,
+    statusCode: 200,
     body: JSON.stringify(fhirBody),
     headers: HEADERS
   }

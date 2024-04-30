@@ -1,3 +1,4 @@
+import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
 import {Logger} from "@aws-lambda-powertools/logger"
 import {injectLambdaContext} from "@aws-lambda-powertools/logger/middleware"
 import {LogLevel} from "@aws-lambda-powertools/logger/types"
@@ -9,19 +10,16 @@ import {extractNHSNumber, NHSNumberValidationError} from "./extractNHSNumber"
 import {DistanceSelling, ServicesCache} from "@prescriptionsforpatients/distanceSelling"
 import type {Bundle} from "fhir/r4"
 import {
-  FhirBody,
   INVALID_NHS_NUMBER_RESPONSE,
   SPINE_CERT_NOT_CONFIGURED_RESPONSE,
   TIMEOUT_RESPONSE,
-  stateMachineLambdaResponse,
-  apiGatewayLambdaResponse
+  apiGatewayLambdaResponse,
+  FhirBody,
+  stateMachineLambdaResponse
 } from "./responses"
 import {deepCopy, hasTimedOut, jobWithTimeout} from "./utils"
 import {buildStatusUpdateData} from "./statusUpdate"
-import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
 import {StatusUpdateData} from "./fhirUtils"
-
-const shouldGetStatusUpdates = () => process.env.GET_STATUS_UPDATES === "true"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
@@ -31,6 +29,8 @@ const LAMBDA_TIMEOUT_MS = 10_000
 const SPINE_TIMEOUT_MS = 9_000
 const SERVICE_SEARCH_TIMEOUT_MS = 5_000
 
+const shouldGetStatusUpdates = () => process.env.GET_STATUS_UPDATES === "true"
+
 type EventHeaders = Record<string, string | undefined>
 
 export type GetMyPrescriptionsEvent = {
@@ -38,7 +38,7 @@ export type GetMyPrescriptionsEvent = {
 }
 
 type ResponseFunc = (
-  statusCode: number, fhirBody: FhirBody, statusUpdateData?: Array<StatusUpdateData>
+  fhirBody: FhirBody, statusUpdateData?: Array<StatusUpdateData>
 ) => APIGatewayProxyResult
 
 /* eslint-disable  max-len */
@@ -78,7 +78,7 @@ export const apiGatewayEventHandler = async (event: APIGatewayProxyEvent): Promi
   return handlerResponse
 }
 
-async function eventHandler(headers: EventHeaders, createResponse: ResponseFunc): Promise<APIGatewayProxyResult> {
+async function eventHandler(headers: EventHeaders, successResponse: ResponseFunc): Promise<APIGatewayProxyResult> {
   const xRequestId = headers["x-request-id"]
   const requestId = headers["apigw-request-id"]
 
@@ -111,16 +111,15 @@ async function eventHandler(headers: EventHeaders, createResponse: ResponseFunc)
 
     const statusUpdateData = shouldGetStatusUpdates() ? buildStatusUpdateData(searchsetBundle) : undefined
 
-    const distanceSellingBundle = deepCopy(searchsetBundle)
     const distanceSelling = new DistanceSelling(servicesCache, logger)
+    const distanceSellingBundle = deepCopy(searchsetBundle)
     const distanceSellingCallout = distanceSelling.search(distanceSellingBundle)
-
     const distanceSellingResponse = await jobWithTimeout(SERVICE_SEARCH_TIMEOUT_MS, distanceSellingCallout)
     if (hasTimedOut(distanceSellingResponse)){
-      return createResponse(200, searchsetBundle, statusUpdateData)
+      return successResponse(searchsetBundle, statusUpdateData)
     }
 
-    return createResponse(200, distanceSellingBundle, statusUpdateData)
+    return successResponse(distanceSellingBundle, statusUpdateData)
   } catch (error) {
     if (error instanceof NHSNumberValidationError) {
       return INVALID_NHS_NUMBER_RESPONSE
