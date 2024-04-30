@@ -7,11 +7,11 @@ import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
 import MockAdapter from "axios-mock-adapter"
 
 import {
-  mockAPIGatewayProxyEvent,
   mockAPIResponseBody,
   mockInteractionResponseBody,
   mockPharmacy2uResponse,
-  mockPharmicaResponse
+  mockPharmicaResponse,
+  mockStateMachineInputEvent
 } from "@prescriptionsforpatients_common/testing"
 
 import {buildStatusUpdateData} from "../src/statusUpdate"
@@ -19,7 +19,7 @@ import {stateMachineLambdaResponse} from "../src/responses"
 import {stateMachineEventHandler} from "../src/getMyPrescriptions"
 import {SERVICE_SEARCH_PARAMS} from "./utils"
 
-const exampleEvent = JSON.stringify(mockAPIGatewayProxyEvent)
+const exampleEvent = JSON.stringify(mockStateMachineInputEvent)
 const exampleInteractionResponse = JSON.stringify(mockInteractionResponseBody)
 
 const pharmacy2uResponse = JSON.stringify(mockPharmacy2uResponse)
@@ -50,37 +50,32 @@ describe("Unit tests for statusUpdate", () => {
   })
 })
 
-describe("Unit tests for handler, including statusUpdate", function () {
+describe("Unit tests for statusUpdate, via handler", function () {
   beforeEach(() => {
     process.env.TargetSpineServer = "spine"
     process.env.TargetServiceSearchServer = "service-search"
     process.env.SpinePublicCertificate = "public-certificate"
     process.env.SpinePrivateKey = "private-key"
     process.env.SpineCAChain = "ca-chain"
+    process.env.GET_STATUS_UPDATES = "true"
   })
 
-  it.each([
-    {getStatusUpdates: "true", dataExpected: true},
-    {getStatusUpdates: "false", dataExpected: false}
-  ])(
-    "when event is processed, statusUpdateData is included in or excluded from the response", async ({getStatusUpdates, dataExpected}) => {
-      process.env.GET_STATUS_UPDATES = getStatusUpdates
-      const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+  it("when event is processed, statusUpdateData is included in the response", async () => {
+    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
 
-      mock.onGet("https://service-search/service-search", {params: {...SERVICE_SEARCH_PARAMS, search: "flm49"}}).reply(200, JSON.parse(pharmacy2uResponse))
-      mock.onGet("https://service-search/service-search", {params: {...SERVICE_SEARCH_PARAMS, search: "few08"}}).reply(200, JSON.parse(pharmicaResponse))
+    mock.onGet("https://service-search/service-search", {params: {...SERVICE_SEARCH_PARAMS, search: "flm49"}}).reply(200, JSON.parse(pharmacy2uResponse))
+    mock.onGet("https://service-search/service-search", {params: {...SERVICE_SEARCH_PARAMS, search: "few08"}}).reply(200, JSON.parse(pharmicaResponse))
 
-      mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, JSON.parse(exampleInteractionResponse))
+    mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, JSON.parse(exampleInteractionResponse))
 
-      const result: APIGatewayProxyResult = await stateMachineEventHandler(event)
+    const result: APIGatewayProxyResult = await stateMachineEventHandler(event)
 
-      const statusUpdateData = [
-        {odsCode: "FLM49", prescriptionID: "24F5DA-A83008-7EFE6Z"},
-        {odsCode: "FEW08", prescriptionID: "16B2E0-A83008-81C13H"}
-      ]
-      const expected = stateMachineLambdaResponse(200, mockAPIResponseBody as Bundle, dataExpected ? statusUpdateData : undefined)
+    const statusUpdateData = [
+      {odsCode: "FLM49", prescriptionID: "24F5DA-A83008-7EFE6Z"},
+      {odsCode: "FEW08", prescriptionID: "16B2E0-A83008-81C13H"}
+    ]
+    const expected = stateMachineLambdaResponse(200, mockAPIResponseBody as Bundle, statusUpdateData)
 
-      expect(result).not.toEqual(expected)
-    }
-  )
+    expect(JSON.parse(result.body)).toEqual(JSON.parse(expected.body))
+  })
 })

@@ -1,12 +1,12 @@
 {
   "body": {},
   "headers": {
-    "apigw-request-id": "test-apigw-request-id",
-    "nhsd-correlation-id": "test-nhsd-correlation-id",
+    "apigw-request-id": "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
+    "nhsd-correlation-id": "test-request-id.test-correlation-id.rrt-5789322914740101037-b-aet2-20145-482635-2",
     "nhsd-nhslogin-user": "P9:9912003071",
-    "nhsd-request-id": "test-nhsd-request-id",
-    "x-correlation-id": "test-x-correlation-id",
-    "x-request-id": "test-x-request-id"
+    "nhsd-request-id": "test-request-id",
+    "x-correlation-id": "test-correlation-id",
+    "x-request-id": "test-request-id"
   },
   "querystring": {},
   "path": {}

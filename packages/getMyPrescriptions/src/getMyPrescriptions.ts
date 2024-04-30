@@ -3,6 +3,7 @@ import {injectLambdaContext} from "@aws-lambda-powertools/logger/middleware"
 import {LogLevel} from "@aws-lambda-powertools/logger/types"
 import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
+import errorHandler from "@nhs/fhir-middy-error-handler"
 import {createSpineClient} from "@nhsdigital/eps-spine-client"
 import {extractNHSNumber, NHSNumberValidationError} from "./extractNHSNumber"
 import {DistanceSelling, ServicesCache} from "@prescriptionsforpatients/distanceSelling"
@@ -12,17 +13,16 @@ import {
   INVALID_NHS_NUMBER_RESPONSE,
   SPINE_CERT_NOT_CONFIGURED_RESPONSE,
   TIMEOUT_RESPONSE,
-  generalError,
   stateMachineLambdaResponse,
   apiGatewayLambdaResponse
 } from "./responses"
 import {deepCopy, hasTimedOut, jobWithTimeout} from "./utils"
 import {buildStatusUpdateData} from "./statusUpdate"
-import {tempBundle} from "./tempBundle"
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
 import {StatusUpdateData} from "./fhirUtils"
 
-const GET_STATUS_UPDATES = process.env.GET_STATUS_UPDATES === "true"
+const shouldGetStatusUpdates = () => process.env.GET_STATUS_UPDATES === "true"
+
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
 const servicesCache: ServicesCache = {}
@@ -60,7 +60,7 @@ export const stateMachineEventHandler = async (event: GetMyPrescriptionsEvent): 
   )
 
   if (hasTimedOut(handlerResponse)){
-    return stateMachineLambdaResponse(408, TIMEOUT_RESPONSE)
+    return TIMEOUT_RESPONSE
   }
   return handlerResponse
 }
@@ -73,7 +73,7 @@ export const apiGatewayEventHandler = async (event: APIGatewayProxyEvent): Promi
   )
 
   if (hasTimedOut(handlerResponse)){
-    return apiGatewayLambdaResponse(408, TIMEOUT_RESPONSE)
+    return TIMEOUT_RESPONSE
   }
   return handlerResponse
 }
@@ -94,7 +94,7 @@ async function eventHandler(headers: EventHeaders, createResponse: ResponseFunc)
   try {
     const isCertificateConfigured = spineClient.isCertificateConfigured()
     if (!isCertificateConfigured) {
-      return createResponse(500, SPINE_CERT_NOT_CONFIGURED_RESPONSE)
+      return SPINE_CERT_NOT_CONFIGURED_RESPONSE
     }
 
     const nhsNumber = extractNHSNumber(headers["nhsd-nhslogin-user"])
@@ -104,12 +104,12 @@ async function eventHandler(headers: EventHeaders, createResponse: ResponseFunc)
     const spineCallout = spineClient.getPrescriptions(headers)
     const response = await jobWithTimeout(SPINE_TIMEOUT_MS, spineCallout)
     if (hasTimedOut(response)){
-      return createResponse(408, TIMEOUT_RESPONSE)
+      return TIMEOUT_RESPONSE
     }
-    const searchsetBundle: Bundle = tempBundle()
+    const searchsetBundle: Bundle = response.data
     searchsetBundle.id = xRequestId
 
-    const statusUpdateData = GET_STATUS_UPDATES ? buildStatusUpdateData(searchsetBundle) : undefined
+    const statusUpdateData = shouldGetStatusUpdates() ? buildStatusUpdateData(searchsetBundle) : undefined
 
     const distanceSellingBundle = deepCopy(searchsetBundle)
     const distanceSelling = new DistanceSelling(servicesCache, logger)
@@ -123,9 +123,9 @@ async function eventHandler(headers: EventHeaders, createResponse: ResponseFunc)
     return createResponse(200, distanceSellingBundle, statusUpdateData)
   } catch (error) {
     if (error instanceof NHSNumberValidationError) {
-      return createResponse(400, INVALID_NHS_NUMBER_RESPONSE)
+      return INVALID_NHS_NUMBER_RESPONSE
     } else {
-      return createResponse(500, generalError(requestId))
+      throw error
     }
   }
 }
@@ -157,3 +157,4 @@ export const apiGatewayHandler = middy(apiGatewayEventHandler)
       }
     })
   )
+  .use(errorHandler({logger: logger}))
