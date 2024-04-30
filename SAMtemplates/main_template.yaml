@@ -106,8 +106,8 @@ Resources:
       ContentUri: ../packages/getSecretLayer/lib/get-secrets-layer.zip
       RetentionPolicy: Retain
 
-  # getMyPrescription lambda
-  GetMyPrescriptionsResources:
+  # getMyPrescription lambda (old - for API Gateway integration)
+  GetMyPrescriptionsResourcesOld:
     Type: AWS::Serverless::Application
     Properties:
       Location: lambda_resources.yaml
@@ -116,25 +116,31 @@ Resources:
         SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
         SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
-        LambdaName: !Sub "${AWS::StackName}-GetMyPrescriptions"
-        LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-GetMyPrescriptions
+        LambdaName: !Sub "${AWS::StackName}-GetMyPrescriptionsOld"
+        LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-GetMyPrescriptionsOld
         StackName: !Ref AWS::StackName
         AccessToSpine: "true"
         LogRetentionInDays: !Ref LogRetentionInDays
-  GetMyPrescriptions:
+  GetMyPrescriptionsOld:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub "${AWS::StackName}-GetMyPrescriptions"
+      FunctionName: !Sub "${AWS::StackName}-GetMyPrescriptionsOld"
       CodeUri: ../packages
-      Handler: getMyPrescriptions.handler
-      Role: !GetAtt GetMyPrescriptionsResources.Outputs.LambdaRoleArn
+      Handler: getMyPrescriptions.apiGatewayHandler
+      Role: !GetAtt GetMyPrescriptionsResourcesOld.Outputs.LambdaRoleArn
       Environment:
         Variables:
           AWS_LAMBDA_EXEC_WRAPPER: /opt/get-secrets-layer
           LOG_LEVEL: !Ref LogLevel
-          GET_STATUS_UPDATES: !Ref ToggleGetStatusUpdates
       Layers:
         - !Ref GetSecretsLayer
+      Events:
+        getMyPrescriptions:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApiGateway
+            Path: /Bundle
+            Method: get
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
       BuildProperties:
@@ -351,6 +357,45 @@ Resources:
   ############
   # AEA-3899 #
   ############
+  GetMyPrescriptionsResources:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: lambda_resources.yaml
+      Parameters:
+        CloudWatchKMSKey: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
+        SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
+        SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
+        EnableSplunk: !Ref EnableSplunk
+        LambdaName: !Sub "${AWS::StackName}-GetMyPrescriptions"
+        LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-GetMyPrescriptions
+        StackName: !Ref AWS::StackName
+        AccessToSpine: "true"
+        LogRetentionInDays: !Ref LogRetentionInDays
+
+  GetMyPrescriptions:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-GetMyPrescriptions"
+      CodeUri: ../packages
+      Handler: getMyPrescriptions.handler
+      Role: !GetAtt GetMyPrescriptionsResources.Outputs.LambdaRoleArn
+      Environment:
+        Variables:
+          AWS_LAMBDA_EXEC_WRAPPER: /opt/get-secrets-layer
+          LOG_LEVEL: !Ref LogLevel
+          GET_STATUS_UPDATES: !Ref ToggleGetStatusUpdates
+      Layers:
+        - !Ref GetSecretsLayer
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        tsconfig: getMyPrescriptions/tsconfig.json
+        EntryPoints:
+          - getMyPrescriptions/src/getMyPrescriptions.ts
+
   EnrichPrescriptionsResources:
     Type: AWS::Serverless::Application
     Properties:

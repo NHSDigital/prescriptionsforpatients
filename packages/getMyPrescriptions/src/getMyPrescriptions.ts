@@ -56,7 +56,7 @@ type ResponseFunc = (
 export const stateMachineEventHandler = async (event: GetMyPrescriptionsEvent): Promise<APIGatewayProxyResult> => {
   const handlerResponse = await jobWithTimeout(
     LAMBDA_TIMEOUT_MS,
-    eventHandler(event.headers, stateMachineLambdaResponse)
+    eventHandler(event.headers, stateMachineLambdaResponse, shouldGetStatusUpdates())
   )
 
   if (hasTimedOut(handlerResponse)){
@@ -78,7 +78,7 @@ export const apiGatewayEventHandler = async (event: APIGatewayProxyEvent): Promi
   return handlerResponse
 }
 
-async function eventHandler(headers: EventHeaders, successResponse: ResponseFunc): Promise<APIGatewayProxyResult> {
+async function eventHandler(headers: EventHeaders, successResponse: ResponseFunc, includeStatusUpdateData: boolean = false): Promise<APIGatewayProxyResult> {
   const xRequestId = headers["x-request-id"]
   const requestId = headers["apigw-request-id"]
 
@@ -109,7 +109,7 @@ async function eventHandler(headers: EventHeaders, successResponse: ResponseFunc
     const searchsetBundle: Bundle = response.data
     searchsetBundle.id = xRequestId
 
-    const statusUpdateData = shouldGetStatusUpdates() ? buildStatusUpdateData(searchsetBundle) : undefined
+    const statusUpdateData = includeStatusUpdateData ? buildStatusUpdateData(searchsetBundle) : undefined
 
     const distanceSelling = new DistanceSelling(servicesCache, logger)
     const distanceSellingBundle = deepCopy(searchsetBundle)
