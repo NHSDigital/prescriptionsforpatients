@@ -107,7 +107,6 @@ jobs:
       STACK_NAME: pfp
       TARGET_ENVIRONMENT: dev
       ENABLE_MUTUAL_TLS: true
-      DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: pfp-truststore.pem
       VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
@@ -133,7 +132,6 @@ jobs:
       STACK_NAME: dev-ci
       TARGET_ENVIRONMENT: dev
       ENABLE_MUTUAL_TLS: true
-      DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code_old
       TRUSTSTORE_FILE: truststore.pem
       VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
@@ -159,7 +157,6 @@ jobs:
       STACK_NAME: pfp-sandbox
       TARGET_ENVIRONMENT: dev
       ENABLE_MUTUAL_TLS: true
-      DEPLOY_SANDBOX: true
       BUILD_ARTIFACT: packaged_sandbox_code
       TRUSTSTORE_FILE: pfp-sandbox-truststore.pem
       VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
@@ -179,7 +176,6 @@ jobs:
       STACK_NAME: dev-sandbox
       TARGET_ENVIRONMENT: dev
       ENABLE_MUTUAL_TLS: true
-      DEPLOY_SANDBOX: true
       BUILD_ARTIFACT: packaged_sandbox_code_old
       TRUSTSTORE_FILE: sandbox-truststore.pem
       VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
@@ -199,7 +195,6 @@ jobs:
       STACK_NAME: pfp
       TARGET_ENVIRONMENT: ref
       ENABLE_MUTUAL_TLS: true
-      DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: pfp-truststore.pem
       VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
@@ -219,7 +214,6 @@ jobs:
       STACK_NAME: ref-ci
       TARGET_ENVIRONMENT: ref
       ENABLE_MUTUAL_TLS: true
-      DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code_old
       TRUSTSTORE_FILE: truststore.pem
       VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
@@ -239,7 +233,6 @@ jobs:
       STACK_NAME: pfp
       TARGET_ENVIRONMENT: qa
       ENABLE_MUTUAL_TLS: true
-      DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: pfp-truststore.pem
       VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
@@ -259,7 +252,6 @@ jobs:
       STACK_NAME: qa-ci
       TARGET_ENVIRONMENT: qa
       ENABLE_MUTUAL_TLS: true
-      DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code_old
       TRUSTSTORE_FILE: truststore.pem
       VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
@@ -279,7 +271,6 @@ jobs:
       STACK_NAME: pfp
       TARGET_ENVIRONMENT: int
       ENABLE_MUTUAL_TLS: true
-      DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: pfp-truststore.pem
       VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
@@ -305,7 +296,6 @@ jobs:
       STACK_NAME: int-ci
       TARGET_ENVIRONMENT: int
       ENABLE_MUTUAL_TLS: true
-      DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code_old
       TRUSTSTORE_FILE: truststore.pem
       VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
@@ -331,7 +321,6 @@ jobs:
       STACK_NAME: int-sandox
       TARGET_ENVIRONMENT: int
       ENABLE_MUTUAL_TLS: true
-      DEPLOY_SANDBOX: true
       BUILD_ARTIFACT: packaged_sandbox_code
       TRUSTSTORE_FILE: sandbox-truststore.pem
       VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
@@ -351,7 +340,6 @@ jobs:
       STACK_NAME: pfp
       TARGET_ENVIRONMENT: prod
       ENABLE_MUTUAL_TLS: true
-      DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: pfp-truststore.pem
       VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
@@ -377,7 +365,6 @@ jobs:
       STACK_NAME: prod-ci
       TARGET_ENVIRONMENT: prod
       ENABLE_MUTUAL_TLS: true
-      DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code_old
       TRUSTSTORE_FILE: truststore.pem
       VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}

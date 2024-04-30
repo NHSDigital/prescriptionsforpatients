@@ -62,7 +62,6 @@ jobs:
       ARTIFACT_BUCKET_PREFIX: PR-${{needs.get_issue_number.outputs.issue_number}}
       TARGET_ENVIRONMENT: dev-pr
       ENABLE_MUTUAL_TLS: false
-      DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: pfp-truststore.pem
       VERSION_NUMBER: PR-${{ needs.get_issue_number.outputs.issue_number }}
@@ -82,7 +81,6 @@ jobs:
       ARTIFACT_BUCKET_PREFIX: PR-${{needs.get_issue_number.outputs.issue_number}}
       TARGET_ENVIRONMENT: dev-pr
       ENABLE_MUTUAL_TLS: false
-      DEPLOY_SANDBOX: false
       BUILD_ARTIFACT: packaged_code_old
       TRUSTSTORE_FILE: truststore.pem
       VERSION_NUMBER: PR-${{ needs.get_issue_number.outputs.issue_number }}
@@ -102,7 +100,6 @@ jobs:
       ARTIFACT_BUCKET_PREFIX: PR-sandbox-${{needs.get_issue_number.outputs.issue_number}}
       TARGET_ENVIRONMENT: dev-pr
       ENABLE_MUTUAL_TLS: false
-      DEPLOY_SANDBOX: true
       BUILD_ARTIFACT: packaged_sandbox_code
       TRUSTSTORE_FILE: pfp-sandbox-truststore.pem
       VERSION_NUMBER: PR-${{ needs.get_issue_number.outputs.issue_number }}
@@ -122,7 +119,6 @@ jobs:
       ARTIFACT_BUCKET_PREFIX: PR-sandbox-${{needs.get_issue_number.outputs.issue_number}}
       TARGET_ENVIRONMENT: dev-pr
       ENABLE_MUTUAL_TLS: false
-      DEPLOY_SANDBOX: true
       BUILD_ARTIFACT: packaged_sandbox_code_old
       TRUSTSTORE_FILE: sandbox-truststore.pem
       VERSION_NUMBER: PR-${{ needs.get_issue_number.outputs.issue_number }}
