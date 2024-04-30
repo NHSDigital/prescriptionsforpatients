@@ -65,6 +65,21 @@ describe("Unit tests for statusUpdate", function () {
     expect(requestBundle).toEqual(simpleResponseBundle())
   })
 
+  it("when a prescription has no performer, no update is applied", async () => {
+    const requestBundle = simpleRequestBundle()
+    const collectionBundle = requestBundle.entry![0].resource as Bundle
+    const medicationRequest = collectionBundle.entry![0].resource as MedicationRequest
+    delete medicationRequest.dispenseRequest?.performer
+
+    const statusUpdates = simpleStatusUpdatesPayload()
+
+    const responseBundle = JSON.parse(JSON.stringify(requestBundle))
+
+    applyStatusUpdates(requestBundle, statusUpdates)
+
+    expect(requestBundle).toEqual(responseBundle)
+  })
+
   it("when updates are present for some items in a prescription, they are applied and the other items receive the default update", async () => {
     const requestBundle = richRequestBundle()
     const statusUpdates = richStatusUpdatesPayload()

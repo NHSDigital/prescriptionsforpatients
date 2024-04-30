@@ -5,8 +5,8 @@ import {LOG_LEVEL} from "./enrichPrescriptions"
 import {isolateMedicationRequests, isolatePrescriptions} from "./fhirUtils"
 
 export const EXTENSION_URL = "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory"
-export const DEFAULT_EXTENSION_STATUS = "With Pharmacy but Tracking not Supported"
-export const NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS = "With Pharmacy"
+export const DEFAULT_EXTENSION_STATUS = "With Pharmacy"
+export const NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS = "With Pharmacy but Tracking not Supported"
 export const VALUE_CODING_SYSTEM = "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt"
 
 const logger = new Logger({serviceName: "statusUpdates", logLevel: LOG_LEVEL})
@@ -74,7 +74,16 @@ export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: Statu
   isolatePrescriptions(searchsetBundle).forEach(prescription => {
     const medicationRequests = isolateMedicationRequests(prescription)
     const prescriptionID = medicationRequests![0].groupIdentifier!.value
-    logger.info(`Applying updates for prescription ${prescriptionID}`)
+
+    const hasPerformer = medicationRequests!.some(
+      medicationRequest => medicationRequest.dispenseRequest?.performer?.reference
+    )
+    if (!hasPerformer) {
+      logger.info(`Prescription ${prescriptionID} has no performer element. Skipping.`)
+      return
+    }
+
+    logger.info(`Applying updates for prescription ${prescriptionID}.`)
 
     const prescriptionUpdate = statusUpdates.prescriptions.filter(p => p.prescriptionID === prescriptionID)[0]
     if (!prescriptionUpdate || !prescriptionUpdate.onboarded) {
