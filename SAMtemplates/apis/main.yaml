@@ -262,9 +262,14 @@ Resources:
         IntegrationHttpMethod: POST
         Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StatusFunctionArn}/invocations
 
+  # *********************************************************************
+  # If you add a new endpoint, then you need to change the name of this resource
+  # You also need to change it in RestApiGatewayStage.Properties.DeploymentId
+  # *********************************************************************
   RestApiGatewayDeployment:
     Type: AWS::ApiGateway::Deployment
     DependsOn:
+      # see note above if you add something in here when you add a new endpoint
       - GetMyPrescriptionsMethod
       - CapabilityStatementMethod
       - StatusMethod
@@ -276,6 +281,7 @@ Resources:
     Properties:
       RestApiId: !Ref RestApiGateway
       StageName: prod
+      # See note above RestApiGatewayDeployment, if a new endpoint is added, then this resource name will need updating
       DeploymentId: !Ref RestApiGatewayDeployment
       TracingEnabled: true
       AccessLogSetting:
