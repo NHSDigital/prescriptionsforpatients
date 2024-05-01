@@ -1,8 +1,8 @@
-import {Bundle, FhirResource, OperationOutcome} from "fhir/r4"
+import {Bundle, OperationOutcome} from "fhir/r4"
 import {StatusUpdateData} from "./statusUpdate"
 import {APIGatewayProxyResult} from "aws-lambda"
 
-export type FhirBody = Bundle<FhirResource> | OperationOutcome
+export type FhirBody = Bundle | OperationOutcome
 
 export type StateMachineFunctionResponseBody = {
   fhir: FhirBody
