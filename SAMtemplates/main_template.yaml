@@ -15,6 +15,10 @@ Parameters:
     Type: String
     Default: none
   
+  TruststoreFile:
+    Type: String
+    Default: none
+  
   TargetSpineServer:
     Type: String
     Default: none
@@ -76,6 +80,7 @@ Resources:
         StackName: !Ref AWS::StackName
         EnableMutualTLS: !Ref EnableMutualTLS
         TruststoreVersion: !Ref TruststoreVersion
+        TruststoreFile: !Ref TruststoreFile
         GetMyPrescriptionsStateMachineName: !GetAtt StateMachines.Outputs.GetMyPrescriptionsStateMachineName
         GetMyPrescriptionsStateMachineArn: !GetAtt StateMachines.Outputs.GetMyPrescriptionsStateMachineArn
         CapabilityStatementFunctionName: !GetAtt Functions.Outputs.CapabilityStatementFunctionName

@@ -13,7 +13,10 @@ Parameters:
   
   TruststoreVersion:
     Type: String
-  
+
+  TruststoreFile:
+    Type: String
+
   GetMyPrescriptionsStateMachineName:
     Type: String
     Default: none
@@ -101,7 +104,7 @@ Resources:
                 - !Split
                   - ":"
                   - !ImportValue account-resources:TrustStoreBucket
-              - pfp-truststore.pem
+              - !Ref TruststoreFile
           - !Ref AWS::NoValue
         TruststoreVersion: !If
           - ShouldUseMutualTLS
