@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 
-ACTIVE_STACKS=$(aws cloudformation list-stacks | jq -r '.StackSummaries[] | select ( .StackStatus != "DELETE_COMPLETE" ) | select( .StackName | capture("^pr-(sandbox-)?(\\d+)$") ) | .StackName ')
+ACTIVE_STACKS=$(aws cloudformation list-stacks | jq -r '.StackSummaries[] | select ( .StackStatus != "DELETE_COMPLETE" ) | select( .StackName | capture("^pfp-pr-(\\d+)(-sandbox)?$") ) | .StackName ')
+OLD_ACTIVE_STACKS=$(aws cloudformation list-stacks | jq -r '.StackSummaries[] | select ( .StackStatus != "DELETE_COMPLETE" ) | select( .StackName | capture("^pr-(sandbox-)?(\\d+)$") ) | .StackName ')
+ALL_STACKS="$ACTIVE_STACKS $OLD_ACTIVE_STACKS"
 
-mapfile -t ACTIVE_STACKS_ARRAY <<< "$ACTIVE_STACKS"
+mapfile -t ACTIVE_STACKS_ARRAY <<< "$ALL_STACKS"
 
 for i in "${ACTIVE_STACKS_ARRAY[@]}"
 do 
   echo "Checking if stack $i has open pull request"
-  PULL_REQUEST=${i//pr-/}
+  PULL_REQUEST=${i//pfp-pr-/}
+  PULL_REQUEST=${PULL_REQUEST//pr-}
   PULL_REQUEST=${PULL_REQUEST//sandbox-/}
   echo "Checking pull request id ${PULL_REQUEST}"
   URL="https://api.github.com/repos/NHSDigital/prescriptionsforpatients/pulls/${PULL_REQUEST}"
