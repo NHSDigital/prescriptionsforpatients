@@ -63,7 +63,7 @@ jobs:
       TARGET_ENVIRONMENT: dev-pr
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_code
-      TRUSTSTORE_FILE: test-pfp-truststore.pem
+      TRUSTSTORE_FILE: test2-pfp-truststore.pem
       VERSION_NUMBER: PR-${{ needs.get_issue_number.outputs.issue_number }}
       COMMIT_ID: ${{ needs.get_commit_id.outputs.commit_id }}
       LOG_LEVEL: DEBUG
@@ -82,7 +82,7 @@ jobs:
       TARGET_ENVIRONMENT: dev-pr
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_code_old
-      TRUSTSTORE_FILE: test-truststore.pem
+      TRUSTSTORE_FILE: test2-truststore.pem
       VERSION_NUMBER: PR-${{ needs.get_issue_number.outputs.issue_number }}
       COMMIT_ID: ${{ needs.get_commit_id.outputs.commit_id }}
       LOG_LEVEL: DEBUG
@@ -101,7 +101,7 @@ jobs:
       TARGET_ENVIRONMENT: dev-pr
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_sandbox_code
-      TRUSTSTORE_FILE: test-pfp-sandbox-truststore.pem
+      TRUSTSTORE_FILE: test2-pfp-sandbox-truststore.pem
       VERSION_NUMBER: PR-${{ needs.get_issue_number.outputs.issue_number }}
       COMMIT_ID: ${{ needs.get_commit_id.outputs.commit_id }}
       LOG_LEVEL: DEBUG
@@ -120,7 +120,7 @@ jobs:
       TARGET_ENVIRONMENT: dev-pr
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_sandbox_code_old
-      TRUSTSTORE_FILE: test-sandbox-truststore.pem
+      TRUSTSTORE_FILE: test2-sandbox-truststore.pem
       VERSION_NUMBER: PR-${{ needs.get_issue_number.outputs.issue_number }}
       COMMIT_ID: ${{ needs.get_commit_id.outputs.commit_id }}
       LOG_LEVEL: DEBUG
