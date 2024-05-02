@@ -20,6 +20,10 @@ install-hooks: install-python
 sam-build: sam-validate compile download-get-secrets-layer
 	sam build --template-file SAMtemplates/main_template.yaml --region eu-west-2
 
+#to be removed
+sam-build-old: sam-validate compile download-get-secrets-layer
+	sam build --template-file SAMtemplates/main_template.old.yaml --region eu-west-2
+
 sam-build-sandbox: sam-validate-sandbox compile download-get-secrets-layer
 	sam build --template-file SAMtemplates/sandbox_template.yaml --region eu-west-2
 
@@ -65,12 +69,19 @@ sam-list-outputs: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam list stack-outputs --stack-name $$stack_name
 
 sam-validate: 
+	sam validate --template-file SAMtemplates/main_template.old.yaml --region eu-west-2
+	sam validate --template-file SAMtemplates/lambda_resources.old.yaml --region eu-west-2
 	sam validate --template-file SAMtemplates/main_template.yaml --region eu-west-2
-	sam validate --template-file SAMtemplates/lambda_resources.yaml --region eu-west-2
+	sam validate --template-file SAMtemplates/apis/main.yaml --region eu-west-2
+	sam validate --template-file SAMtemplates/apis/api_resources.yaml --region eu-west-2
+	sam validate --template-file SAMtemplates/functions/main.yaml --region eu-west-2
+	sam validate --template-file SAMtemplates/functions/lambda_resources.yaml --region eu-west-2
+	sam validate --template-file SAMtemplates/state_machines/main.yaml --region eu-west-2
+	sam validate --template-file SAMtemplates/state_machines/state_machine_resources.yaml --region eu-west-2
+
 
 sam-validate-sandbox: 
 	sam validate --template-file SAMtemplates/sandbox_template.yaml --region eu-west-2
-	sam validate --template-file SAMtemplates/lambda_resources.yaml --region eu-west-2
 
 sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role guard-LATEST_TRUSTSTORE_VERSION guard-enable_mutual_tls guard-VERSION_NUMBER guard-COMMIT_ID guard-LOG_LEVEL guard-LOG_RETENTION_DAYS guard-TARGET_ENVIRONMENT guard-target_spine_server guard-target_service_search_server
 	sam deploy \
@@ -95,7 +106,7 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 			  VersionNumber=$$VERSION_NUMBER \
 			  CommitId=$$COMMIT_ID \
 			  LogLevel=$$LOG_LEVEL \
-			  LogRetentionDays=$$LOG_RETENTION_DAYS \
+			  LogRetentionInDays=$$LOG_RETENTION_DAYS \
 			  Env=$$TARGET_ENVIRONMENT
 
 compile-node:
@@ -117,7 +128,7 @@ lint-node: compile-node
 	npm run lint --workspace packages/distanceSelling
 
 lint-samtemplates:
-	poetry run cfn-lint -t SAMtemplates/*.yaml
+	poetry run cfn-lint -t SAMtemplates/**/*.yaml
 
 lint-python:
 	poetry run flake8 scripts/*.py --config .flake8

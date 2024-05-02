@@ -1,0 +1,72 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: |
+  Resources for an API
+
+Parameters:
+  AdditionalPolicies:
+    Type: CommaDelimitedList
+    Description: A list of additional policies to attach to the API gateway role (comma delimited).
+    Default: none
+  
+  ApiName:
+    Type: String
+    Default: none
+  
+  LogRetentionInDays:
+    Type: Number
+  
+  EnableSplunk:
+    Type: String
+
+Conditions:
+  ShouldUseSplunk: !Equals
+    - true
+    - !Ref EnableSplunk
+
+Resources:
+  ApiGwRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - apigateway.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns: !Split
+        - ','
+        - !Join
+          - ','
+          - - !Join
+              - ','
+              - !Ref AdditionalPolicies
+
+
+  ApiGwAccessLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/apigateway/${ApiName}
+      RetentionInDays: !Ref LogRetentionInDays
+      KmsKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
+  
+  ApiGwAccessLogsSplunkSubscriptionFilter:
+    Condition: ShouldUseSplunk
+    Type: AWS::Logs::SubscriptionFilter
+    Properties:
+      RoleArn: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
+      LogGroupName: !Ref ApiGwAccessLogs
+      FilterPattern: ''
+      DestinationArn: !ImportValue lambda-resources:SplunkDeliveryStream
+
+Outputs:
+  ApiGwRoleArn:
+    Description: The API GW role ARN
+    Value: !GetAtt ApiGwRole.Arn
+  
+  ApiGwAccessLogsArn:
+    Description: The API GW access logs ARN
+    Value: !GetAtt ApiGwAccessLogs.Arn

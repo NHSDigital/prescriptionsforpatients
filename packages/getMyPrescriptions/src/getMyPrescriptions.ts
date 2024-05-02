@@ -5,7 +5,7 @@ import {LogLevel} from "@aws-lambda-powertools/logger/types"
 import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
 import errorHandler from "@nhs/fhir-middy-error-handler"
-import {createSpineClient} from "@nhsdigital/eps-spine-client"
+import {createSpineClient} from "./eps-spine-client"
 import {extractNHSNumber, NHSNumberValidationError} from "./extractNHSNumber"
 import {DistanceSelling, ServicesCache} from "@prescriptionsforpatients/distanceSelling"
 import type {Bundle} from "fhir/r4"
@@ -51,7 +51,7 @@ export async function eventHandler(event: APIGatewayProxyEvent): Promise<APIGate
     "x-request-id": xRequestId,
     "nhsd-request-id": event.headers["nhsd-request-id"],
     "x-correlation-id": event.headers["x-correlation-id"],
-    "apigw-request-id": event.requestContext.requestId
+    "apigw-request-id": event.requestContext?.requestId || event.headers?.["apigw-request-id"] || "unknown"
   })
   const spineClient = createSpineClient(logger)
 

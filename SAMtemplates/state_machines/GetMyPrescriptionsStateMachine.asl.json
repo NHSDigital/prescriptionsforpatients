@@ -1,0 +1,37 @@
+{
+  "Comment": "Get My Prescriptions State Machine",
+  "StartAt": "Get My Prescriptions",
+  "States": {
+    "Get My Prescriptions": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "Payload.$": "$",
+        "FunctionName": "${GetMyPrescriptionsFunctionArn}"
+      },
+      "End": true,
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "CatchAllError"
+        }
+      ]
+    },
+    "CatchAllError": {
+      "Type": "Pass",
+      "Result": {
+        "Payload": {
+          "statusCode": 500,
+          "headers": {
+            "Content-Type": "application/fhir+json",
+            "Cache-Control": "no-cache"
+          },
+          "body": "{\"resourceType\":\"OperationOutcome\",\"issue\":[{\"severity\":\"error\",\"code\":\"processing\",\"diagnostics\":\"System error\"}]}"
+        }
+      },
+      "End": true
+    }
+  }
+}
