@@ -38,7 +38,7 @@ Parameters:
     Description: Whether to use splunk
     Default: false
     AllowedValues: [true, false]
-  LogRetentionInDays:
+  LogRetentionDays:
     Type: Number
     Description: How long to keep logs for
     AllowedValues:
@@ -124,7 +124,7 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Sub "/aws/lambda/${LambdaName}"
-      RetentionInDays: !Ref LogRetentionInDays
+      RetentionInDays: !Ref LogRetentionDays
       KmsKeyId: !Ref CloudWatchKMSKey
 
   LambdaSplunkSubscriptionFilter:

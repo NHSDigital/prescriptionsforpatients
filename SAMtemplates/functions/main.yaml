@@ -133,10 +133,10 @@ Resources:
         LambdaName: !Sub ${StackName}-EnrichPrescriptions
         LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${StackName}-EnrichPrescriptions
         LogRetentionInDays: !Ref LogRetentionInDays
-        CloudWatchKMSKey: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
+        CloudWatchKMSKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
         EnableSplunk: !Ref EnableSplunk
         SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
-        SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
+        SplunkDeliveryStreamArn: !ImportValue lambda-resources:SplunkDeliveryStream
 
   CapabilityStatement:
     Type: AWS::Serverless::Function
