@@ -25,14 +25,6 @@ Parameters:
   LambdaName:
     Type: String
     Description: Name of lambda we are creating for
-  LambdaArn:
-    Type: String
-    Description: Arn of lambda we are creating resources for.
-    Default: none
-  StackName:
-    Type: String
-    Description: The name of the main stack
-    Default: none
   AccessToSpine:
     Type: String
     Description: Whether to use splunk
@@ -72,18 +64,6 @@ Conditions:
   AllowAccessToSpine: !Equals [true, !Ref AccessToSpine]
 
 Resources:
-  ExecuteLambdaManagedPolicy:
-    Type: AWS::IAM::ManagedPolicy
-    Properties:
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Action:
-              - lambda:InvokeFunction
-            Resource:
-              - !Sub ${LambdaArn}:*
-
   LambdaRole:
     Type: AWS::IAM::Role
     Properties:
@@ -140,9 +120,3 @@ Outputs:
   LambdaRoleArn:
     Description: "LambdaRole ARN"
     Value: !GetAtt LambdaRole.Arn
-
-  ExecuteLambdaPolicyArn:
-    Description: Lambda execution policy arn
-    Value: !GetAtt ExecuteLambdaManagedPolicy.PolicyArn
-    Export:
-      Name: !Sub ${StackName}:functions:${LambdaName}:ExecuteLambdaPolicyArn
