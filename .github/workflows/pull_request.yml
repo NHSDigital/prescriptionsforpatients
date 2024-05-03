@@ -68,6 +68,7 @@ jobs:
       COMMIT_ID: ${{ needs.get_commit_id.outputs.commit_id }}
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
+      TOGGLE_GET_STATUS_UPDATES: true
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.DEV_TARGET_SPINE_SERVER }}
@@ -87,7 +88,6 @@ jobs:
       COMMIT_ID: ${{ needs.get_commit_id.outputs.commit_id }}
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
-      TOGGLE_GET_STATUS_UPDATES: true
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.DEV_TARGET_SPINE_SERVER }}
