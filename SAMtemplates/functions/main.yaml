@@ -28,28 +28,31 @@ Parameters:
   StackName:
     Type: String
     Default: none
-  
+
   TargetSpineServer:
     Type: String
-  
+
   TargetServiceSearchServer:
     Type: String
 
   LogLevel:
     Type: String
-  
+
   LogRetentionInDays:
     Type: Number
-  
+
   EnableSplunk:
     Type: String
-  
+
   VersionNumber:
     Type: String
 
   CommitId:
     Type: String
-  
+
+  ToggleGetStatusUpdates:
+    Type: String
+
 Resources:
   GetSecretsLayer:
     Type: AWS::Serverless::LayerVersion
@@ -58,7 +61,7 @@ Resources:
       Description: get secrets layer
       ContentUri: ../../packages/getSecretLayer/lib/get-secrets-layer.zip
       RetentionPolicy: Retain
-  
+
   GetMyPrescriptions:
     Type: AWS::Serverless::Function
     Properties:
@@ -70,6 +73,7 @@ Resources:
         Variables:
           AWS_LAMBDA_EXEC_WRAPPER: /opt/get-secrets-layer
           LOG_LEVEL: !Ref LogLevel
+          GET_STATUS_UPDATES: !Ref ToggleGetStatusUpdates
       Layers:
         - !Ref GetSecretsLayer
     Metadata:
@@ -81,7 +85,7 @@ Resources:
         tsconfig: getMyPrescriptions/tsconfig.json
         EntryPoints:
           - getMyPrescriptions/src/getMyPrescriptions.ts
-  
+
   GetMyPrescriptionsResources:
     Type: AWS::Serverless::Application
     Properties:
@@ -99,7 +103,41 @@ Resources:
         EnableSplunk: !Ref EnableSplunk
         SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
         SplunkDeliveryStreamArn: !ImportValue lambda-resources:SplunkDeliveryStream
-  
+
+  EnrichPrescriptions:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${StackName}-EnrichPrescriptions
+      CodeUri: ../../packages
+      Handler: enrichPrescriptions.handler
+      Role: !GetAtt EnrichPrescriptionsResources.Outputs.LambdaRoleArn
+      Environment:
+        Variables:
+          LOG_LEVEL: !Ref LogLevel
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        tsconfig: enrichPrescriptions/tsconfig.json
+        EntryPoints:
+          - enrichPrescriptions/src/enrichPrescriptions.ts
+
+  EnrichPrescriptionsResources:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: lambda_resources.yaml
+      Parameters:
+        StackName: !Ref StackName
+        LambdaName: !Sub ${StackName}-EnrichPrescriptions
+        LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${StackName}-EnrichPrescriptions
+        LogRetentionInDays: !Ref LogRetentionInDays
+        CloudWatchKMSKey: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
+        EnableSplunk: !Ref EnableSplunk
+        SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
+        SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
+
   CapabilityStatement:
     Type: AWS::Serverless::Function
     Properties:
@@ -116,7 +154,7 @@ Resources:
         tsconfig: capabilityStatement/tsconfig.json
         EntryPoints:
           - capabilityStatement/src/capabilityStatement.ts
-    
+
   CapabilityStatementResources:
     Type: AWS::Serverless::Application
     Properties:
@@ -130,7 +168,7 @@ Resources:
         EnableSplunk: !Ref EnableSplunk
         SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
         SplunkDeliveryStreamArn: !ImportValue lambda-resources:SplunkDeliveryStream
-  
+
   Status:
     Type: AWS::Serverless::Function
     Properties:
@@ -180,20 +218,28 @@ Outputs:
 
   GetMyPrescriptionsFunctionArn:
     Description: The function ARN of the GetMyPrescriptions lambda
-    Value: !GetAtt  GetMyPrescriptions.Arn
+    Value: !GetAtt GetMyPrescriptions.Arn
+
+  EnrichPrescriptionsFunctionName:
+    Description: The function name of the EnrichPrescriptions lambda
+    Value: !Ref EnrichPrescriptions
+
+  EnrichPrescriptionsFunctionArn:
+    Description: The function ARN of the EnrichPrescriptions lambda
+    Value: !GetAtt EnrichPrescriptions.Arn
 
   CapabilityStatementFunctionName:
     Description: The function name of the CapabilityStatement lambda
-    Value: !Ref  CapabilityStatement
-  
+    Value: !Ref CapabilityStatement
+
   CapabilityStatementFunctionArn:
     Description: The function ARN of the CapabilityStatement lambda
-    Value: !GetAtt  CapabilityStatement.Arn
+    Value: !GetAtt CapabilityStatement.Arn
 
   StatusFunctionName:
     Description: The function name of the Status lambda
-    Value: !Ref  Status
-  
+    Value: !Ref Status
+
   StatusFunctionArn:
     Description: The function ARN of the Status lambda
-    Value: !GetAtt  Status.Arn
+    Value: !GetAtt Status.Arn
