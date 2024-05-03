@@ -1,22 +1,19 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
-
-Description: Resources for a state machine
+Description: |
+  Resources for a state machine
 
 Parameters:
   StackName:
     Type: String
-    Description: The name of the main stack
     Default: none
 
   StateMachineName:
     Type: String
-    Description: The name of the state machine
     Default: none
 
   StateMachineArn:
     Type: String
-    Description: The Arn of the state machine
     Default: none
 
   AdditionalPolicies:
@@ -26,25 +23,20 @@ Parameters:
 
   LogRetentionInDays:
     Type: Number
-    Description: How long to keep logs for.
 
   CloudWatchKMSKeyId:
     Type: String
-    Description: The KMS Key ID used for encrypting logs.
     Default: none
 
   EnableSplunk:
     Type: String
-    Description: Whether to use splunk
 
   SplunkSubscriptionFilterRole:
     Type: String
-    Description: Subscription filter role for sending logs to splunk
     Default: none
 
   SplunkDeliveryStreamArn:
     Type: String
-    Description: Splunk delivery stream
     Default: none
 
 Conditions:
@@ -107,14 +99,14 @@ Resources:
               - !Sub ${StateMachineLogGroup.Arn}:log-stream:*
           - Effect: Allow
             Action:
+              - logs:DescribeLogGroups
+              - logs:ListLogDeliveries
               - logs:CreateLogDelivery
               - logs:GetLogDelivery
               - logs:UpdateLogDelivery
               - logs:DeleteLogDelivery
-              - logs:ListLogDeliveries
               - logs:PutResourcePolicy
               - logs:DescribeResourcePolicies
-              - logs:DescribeLogGroups
             Resource: "*"
 
   StateMachineLogGroup:
@@ -138,7 +130,7 @@ Outputs:
     Description: State machine execution policy arn
     Value: !Ref ExecuteStateMachineManagedPolicy
     Export:
-      Name: !Sub ${StackName}:state-machines:${StateMachineName}:ExecuteStateMachinePolicy
+      Name: !Sub ${StackName}:state-machines:${StateMachineName}:ExecuteStateMachinePolicyArn
 
   StateMachineRoleArn:
     Description: State machine role arn

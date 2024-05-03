@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
-
-Description: PFP state machines and related resources
+Description: |
+  PFP state machines and related resources
 
 Parameters:
   StackName:
@@ -61,6 +61,8 @@ Resources:
               LogGroupArn: !GetAtt GetMyPrescriptionsStateMachineResources.Outputs.StateMachineLogGroupArn
         IncludeExecutionData: true
         Level: ALL
+      Tracing:
+        Enabled: true
 
   GetMyPrescriptionsStateMachineResources:
     Type: AWS::Serverless::Application
@@ -84,7 +86,9 @@ Resources:
 
 Outputs:
   GetMyPrescriptionsStateMachineArn:
+    Description: GetMyPrescriptions state machine arn
     Value: !Ref GetMyPrescriptionsStateMachine
 
   GetMyPrescriptionsStateMachineName:
+    Description: GetMyPrescriptions state machine name
     Value: !GetAtt GetMyPrescriptionsStateMachine.Name

@@ -1,446 +1,107 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
-Description: >
-  prescriptions for patients api
-
-# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
-Globals:
-  Function:
-    Timeout: 50
-    MemorySize: 256
-    Architectures:
-      - x86_64
-    Runtime: nodejs18.x
-    Environment:
-      Variables:
-        TargetSpineServer: !Ref TargetSpineServer
-        TargetServiceSearchServer: !Ref TargetServiceSearchServer
-        NODE_OPTIONS: --enable-source-maps
-        SpinePrivateKeyARN: !ImportValue account-resources:SpinePrivateKey
-        SpinePublicCertificateARN: !ImportValue account-resources:SpinePublicCertificate
-        SpineASIDARN: !ImportValue account-resources:SpineASID
-        SpinePartyKeyARN: !ImportValue account-resources:SpinePartyKey
-        SpineCAChainARN: !ImportValue account-resources:SpineCAChain
-        ServiceSearchApiKeyARN: !ImportValue account-resources:ServiceSearchApiKey
-    Layers:
-      - !Sub "arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:38"
+Description: |
+  PFP resources
 
 Parameters:
-  TargetSpineServer:
-    Type: String
-    Description: TargetSpineServer
-    Default: none
-  TargetServiceSearchServer:
-    Type: String
-    Description: TargetServiceSearchServer
-    Default: none
-  TruststoreVersion:
-    Type: String
-    Description: TruststoreVersion
-    Default: none
   EnableMutualTLS:
     Type: String
-    Description: Whether to use mutual TLS
     Default: false
-    AllowedValues: [true, false]
-  EnableSplunk:
+    AllowedValues:
+      - true
+      - false
+
+  TruststoreVersion:
     Type: String
-    Description: Whether to use splunk
-    Default: false
-    AllowedValues: [true, false]
-  VersionNumber:
+    Default: none
+
+  TargetSpineServer:
     Type: String
-    Description: Current release version
-    Default: "xxx"
-  CommitId:
+    Default: none
+
+  TargetServiceSearchServer:
     Type: String
-    Description: Most recent commit hash
-    Default: "xxx"
+    Default: none
+
   LogLevel:
     Type: String
-    Description: The log level to set in the lambda
     Default: "INFO"
+
   LogRetentionInDays:
     Type: Number
-    Description: How long to keep logs for
     Default: 30
     AllowedValues:
-      [
-        1,
-        3,
-        5,
-        7,
-        14,
-        30,
-        60,
-        90,
-        120,
-        150,
-        180,
-        365,
-        400,
-        545,
-        731,
-        1096,
-        1827,
-        2192,
-        2557,
-        2922,
-        3288,
-        3653,
-      ]
+      - 1
+      - 3
+      - 5
+      - 7
+      - 14
+      - 30
+      - 60
+      - 90
+      - 120
+      - 150
+      - 180
+      - 365
+      - 400
+      - 545
+      - 731
+      - 1096
+      - 1827
+      - 2192
+      - 2557
+      - 2922
+      - 3288
+      - 3653
+
+  EnableSplunk:
+    Type: String
+    Default: false
+    AllowedValues: [true, false]
+
+  VersionNumber:
+    Type: String
+    Default: "xxx"
+
+  CommitId:
+    Type: String
+    Default: "xxx"
+
   ToggleGetStatusUpdates:
     Type: String
     Default: false
 
-Conditions:
-  ShouldUseMutualTLS: !Equals [true, !Ref EnableMutualTLS]
-  ShouldUseSplunk: !Equals [true, !Ref EnableSplunk]
-
 Resources:
-  GetSecretsLayer:
-    Type: AWS::Serverless::LayerVersion
-    Properties:
-      LayerName: get-secrets-layer
-      Description: get secrets layer
-      ContentUri: ../packages/getSecretLayer/lib/get-secrets-layer.zip
-      RetentionPolicy: Retain
-
-  # getMyPrescription lambda (old - for API Gateway integration)
-  GetMyPrescriptionsResourcesOld:
+  Apis:
     Type: AWS::Serverless::Application
     Properties:
-      Location: lambda_resources.yaml
+      Location: apis/main.yaml
       Parameters:
-        CloudWatchKMSKey: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
-        SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
-        SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
-        EnableSplunk: !Ref EnableSplunk
-        LambdaName: !Sub "${AWS::StackName}-GetMyPrescriptionsOld"
-        LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-GetMyPrescriptionsOld
         StackName: !Ref AWS::StackName
-        AccessToSpine: "true"
+        EnableMutualTLS: !Ref EnableMutualTLS
+        TruststoreVersion: !Ref TruststoreVersion
+        GetMyPrescriptionsStateMachineName: !GetAtt StateMachines.Outputs.GetMyPrescriptionsStateMachineName
+        GetMyPrescriptionsStateMachineArn: !GetAtt StateMachines.Outputs.GetMyPrescriptionsStateMachineArn
+        CapabilityStatementFunctionName: !GetAtt Functions.Outputs.CapabilityStatementFunctionName
+        CapabilityStatementFunctionArn: !GetAtt Functions.Outputs.CapabilityStatementFunctionArn
+        StatusFunctionName: !GetAtt Functions.Outputs.StatusFunctionName
+        StatusFunctionArn: !GetAtt Functions.Outputs.StatusFunctionArn
         LogRetentionInDays: !Ref LogRetentionInDays
-  GetMyPrescriptionsOld:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub "${AWS::StackName}-GetMyPrescriptionsOld"
-      CodeUri: ../packages
-      Handler: getMyPrescriptions.apiGatewayHandler
-      Role: !GetAtt GetMyPrescriptionsResourcesOld.Outputs.LambdaRoleArn
-      Environment:
-        Variables:
-          AWS_LAMBDA_EXEC_WRAPPER: /opt/get-secrets-layer
-          LOG_LEVEL: !Ref LogLevel
-      Layers:
-        - !Ref GetSecretsLayer
-      Events:
-        getMyPrescriptions:
-          Type: HttpApi
-          Properties:
-            ApiId: !Ref HttpApiGateway
-            Path: /Bundle
-            Method: get
-    Metadata: # Manage esbuild properties
-      BuildMethod: esbuild
-      BuildProperties:
-        Minify: true
-        Target: "es2020"
-        Sourcemap: true
-        tsconfig: getMyPrescriptions/tsconfig.json
-        EntryPoints:
-          - getMyPrescriptions/src/getMyPrescriptions.ts
-
-  # capabilityStatement lambda
-  CapabilityStatementResources:
-    Type: AWS::Serverless::Application
-    Properties:
-      Location: lambda_resources.yaml
-      Parameters:
-        CloudWatchKMSKey: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
-        SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
-        SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
-        LambdaName: !Sub "${AWS::StackName}-CapabilityStatement"
-        LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-CapabilityStatement
-        StackName: !Ref AWS::StackName
-        LogRetentionInDays: !Ref LogRetentionInDays
-  CapabilityStatement:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub "${AWS::StackName}-CapabilityStatement"
-      CodeUri: ../packages
-      Handler: capabilityStatement.handler
-      Role: !GetAtt CapabilityStatementResources.Outputs.LambdaRoleArn
-      Events:
-        capabilityStatement:
-          Type: HttpApi
-          Properties:
-            ApiId: !Ref HttpApiGateway
-            Path: /metadata
-            Method: get
-    Metadata: # Manage esbuild properties
-      BuildMethod: esbuild
-      BuildProperties:
-        Minify: true
-        Target: "es2020"
-        Sourcemap: true
-        tsconfig: capabilityStatement/tsconfig.json
-        EntryPoints:
-          - capabilityStatement/src/capabilityStatement.ts
 
-  # _status endpoint lambda
-  StatusLambdaResources:
+  Functions:
     Type: AWS::Serverless::Application
     Properties:
-      Location: lambda_resources.yaml
+      Location: functions/main.yaml
       Parameters:
-        CloudWatchKMSKey: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
-        SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
-        SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
+        StackName: !Ref AWS::StackName
+        TargetSpineServer: !Ref TargetSpineServer
+        TargetServiceSearchServer: !Ref TargetServiceSearchServer
+        LogLevel: !Ref LogLevel
+        LogRetentionInDays: !Ref LogRetentionInDays
         EnableSplunk: !Ref EnableSplunk
-        LambdaName: !Sub "${AWS::StackName}-statusLambda"
-        LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-StatusLambda
-        StackName: !Ref AWS::StackName
-        AccessToSpine: "true"
-        LogRetentionInDays: !Ref LogRetentionInDays
-  StatusLambda:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub "${AWS::StackName}-statusLambda"
-      CodeUri: ../packages
-      Handler: statusLambda.handler
-      Role: !GetAtt StatusLambdaResources.Outputs.LambdaRoleArn
-      Environment:
-        Variables:
-          VERSION_NUMBER: !Ref VersionNumber
-          COMMIT_ID: !Ref CommitId
-          AWS_LAMBDA_EXEC_WRAPPER: /opt/get-secrets-layer
-      Layers:
-        - !Ref GetSecretsLayer
-      Events:
-        status:
-          Type: HttpApi
-          Properties:
-            ApiId: !Ref HttpApiGateway
-            Path: /_status
-            Method: get
-    Metadata: # Manage esbuild properties
-      BuildMethod: esbuild
-      BuildProperties:
-        Minify: true
-        Target: "es2020"
-        Sourcemap: true
-        tsconfig: statusLambda/tsconfig.json
-        EntryPoints:
-          - statusLambda/src/statusLambda.ts
-
-  # TLS cert for custom domain
-  GenerateCertificate:
-    Type: AWS::CertificateManager::Certificate
-    Properties:
-      ValidationMethod: DNS
-      DomainName:
-        Fn::Join:
-          - "."
-          - - !Ref "AWS::StackName"
-            - Fn::ImportValue: route53-resources:domain
-      DomainValidationOptions:
-        - DomainName:
-            Fn::Join:
-              - "."
-              - - !Ref "AWS::StackName"
-                - Fn::ImportValue: route53-resources:domain
-          HostedZoneId:
-            Fn::ImportValue: route53-resources:ZoneID
-
-  # Http api
-  HttpApiGateway:
-    Type: AWS::Serverless::HttpApi
-    Properties:
-      StageName: Prod
-      DefaultRouteSettings:
-        DetailedMetricsEnabled: true
-      Domain:
-        DomainName:
-          Fn::Join:
-            - "."
-            - - !Ref "AWS::StackName"
-              - Fn::ImportValue: route53-resources:domain
-        CertificateArn: !Ref GenerateCertificate
-        Route53:
-          HostedZoneId:
-            Fn::ImportValue: route53-resources:ZoneID
-        EndpointConfiguration: REGIONAL
-        SecurityPolicy: TLS_1_2
-        MutualTlsAuthentication:
-          TruststoreUri:
-            "Fn::If":
-              - ShouldUseMutualTLS
-              - Fn::Join:
-                  - "/"
-                  - - "s3:/"
-                    - !Select [
-                        5,
-                        !Split [
-                          ":",
-                          Fn::ImportValue: account-resources:TrustStoreBucket,
-                        ],
-                      ]
-                    - "truststore.pem"
-              - !Ref "AWS::NoValue"
-          TruststoreVersion:
-            "Fn::If":
-              - ShouldUseMutualTLS
-              - !Ref TruststoreVersion
-              - !Ref "AWS::NoValue"
-      DisableExecuteApiEndpoint:
-        "Fn::If":
-          - ShouldUseMutualTLS
-          - true
-          - !Ref "AWS::NoValue"
-      AccessLogSettings:
-        DestinationArn: !GetAtt ApiGwAccessLogs.Arn
-        Format: "{ \
-          \"requestTime\": \"$context.requestTime\", \
-          \"apiId\": \"$context.apiId\", \
-          \"accountId\": \"$context.accountId\", \
-          \"resourcePath\": \"$context.resourcePath\", \
-          \"stage\": \"$context.stage\", \
-          \"requestId\": \"$context.requestId\", \
-          \"extendedRequestId\": \"$context.extendedRequestId\", \
-          \"status\": \"$context.status\", \
-          \"httpMethod\": \"$context.httpMethod\", \
-          \"protocol\": \"$context.protocol\", \
-          \"path\": \"$context.path\", \
-          \"responseLatency\": \"$context.responseLatency\", \
-          \"responseLength\": \"$context.responseLength\",
-          \"domainName\": \"$context.domainName\", \
-          \"identity\": { \
-          \"sourceIp\": \"$context.identity.sourceIp\", \
-          \"userAgent\": \"$context.identity.userAgent\", \
-          \"clientCert\":{ \
-          \"subjectDN\": \"$context.identity.clientCert.subjectDN\", \
-          \"issuerDN\": \"$context.identity.clientCert.issuerDN\", \
-          \"serialNumber\": \"$context.identity.clientCert.serialNumber\", \
-          \"validityNotBefore\": \"$context.identity.clientCert.validity.notBefore\", \
-          \"validityNotAfter\": \"$context.identity.clientCert.validity.notAfter\" \
-          }}, \
-          \"integration\":{ \
-          \"error\": \"$context.integration.error\", \
-          \"integrationStatus\": \"$context.integration.integrationStatus\", \
-          \"latency\": \"$context.integration.latency\", \
-          \"requestId\": \"$context.integration.requestId\", \
-          \"status\": \"$context.integration.status\" \
-          }}"
-
-  ApiGwAccessLogs:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName:
-        !Join [
-          "/",
-          ["/aws/apigateway", !Ref "AWS::StackName", !Sub "${HttpApiGateway}"],
-        ]
-      RetentionInDays: !Ref LogRetentionInDays
-      KmsKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
-
-  ApiGwAccessLogsSplunkSubscriptionFilter:
-    Condition: ShouldUseSplunk
-    Type: AWS::Logs::SubscriptionFilter
-    Properties:
-      RoleArn: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
-      LogGroupName: !Ref ApiGwAccessLogs
-      FilterPattern: "" # All logs
-      DestinationArn: !ImportValue lambda-resources:SplunkDeliveryStream
-
-  ############
-  # AEA-3899 #
-  ############
-  GetMyPrescriptionsResources:
-    Type: AWS::Serverless::Application
-    Properties:
-      Location: lambda_resources.yaml
-      Parameters:
-        CloudWatchKMSKey: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
-        SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
-        SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
-        EnableSplunk: !Ref EnableSplunk
-        LambdaName: !Sub "${AWS::StackName}-GetMyPrescriptions"
-        LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-GetMyPrescriptions
-        StackName: !Ref AWS::StackName
-        AccessToSpine: "true"
-        LogRetentionInDays: !Ref LogRetentionInDays
-
-  GetMyPrescriptions:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub "${AWS::StackName}-GetMyPrescriptions"
-      CodeUri: ../packages
-      Handler: getMyPrescriptions.handler
-      Role: !GetAtt GetMyPrescriptionsResources.Outputs.LambdaRoleArn
-      Environment:
-        Variables:
-          AWS_LAMBDA_EXEC_WRAPPER: /opt/get-secrets-layer
-          LOG_LEVEL: !Ref LogLevel
-          GET_STATUS_UPDATES: !Ref ToggleGetStatusUpdates
-      Layers:
-        - !Ref GetSecretsLayer
-    Metadata: # Manage esbuild properties
-      BuildMethod: esbuild
-      BuildProperties:
-        Minify: true
-        Target: "es2020"
-        Sourcemap: true
-        tsconfig: getMyPrescriptions/tsconfig.json
-        EntryPoints:
-          - getMyPrescriptions/src/getMyPrescriptions.ts
-
-  EnrichPrescriptionsResources:
-    Type: AWS::Serverless::Application
-    Properties:
-      Location: lambda_resources.yaml
-      Parameters:
-        CloudWatchKMSKey: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
-        SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
-        SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
-        EnableSplunk: !Ref EnableSplunk
-        LambdaName: !Sub "${AWS::StackName}-EnrichPrescriptions"
-        LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-EnrichPrescriptions
-        StackName: !Ref AWS::StackName
-        AccessToSpine: "true"
-        LogRetentionInDays: !Ref LogRetentionInDays
-
-  EnrichPrescriptions:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub "${AWS::StackName}-EnrichPrescriptions"
-      CodeUri: ../packages
-      Handler: enrichPrescriptions.handler
-      Role: !GetAtt EnrichPrescriptionsResources.Outputs.LambdaRoleArn
-      Environment:
-        Variables:
-          AWS_LAMBDA_EXEC_WRAPPER: /opt/get-secrets-layer
-          LOG_LEVEL: !Ref LogLevel
-      Layers:
-        - !Ref GetSecretsLayer
-    Metadata:
-      BuildMethod: esbuild
-      BuildProperties:
-        Minify: true
-        Target: "es2020"
-        Sourcemap: true
-        tsconfig: enrichPrescriptions/tsconfig.json
-        EntryPoints:
-          - enrichPrescriptions/src/enrichPrescriptions.ts
-
-  Parameters:
-    Type: AWS::Serverless::Application
-    Properties:
-      Location: parameters/main.yaml
-      Parameters:
-        StackName: !Ref AWS::StackName
-        ToggleGetStatusUpdatesParameterValue: !Ref ToggleGetStatusUpdates
+        VersionNumber: !Ref VersionNumber
+        CommitId: !Ref CommitId
 
   StateMachines:
     Type: AWS::Serverless::Application
@@ -448,14 +109,7 @@ Resources:
       Location: state_machines/main.yaml
       Parameters:
         StackName: !Ref AWS::StackName
-        GetMyPrescriptionsFunctionName: !Ref GetMyPrescriptions
-        GetMyPrescriptionsFunctionArn: !GetAtt GetMyPrescriptions.Arn
-        EnrichPrescriptionsFunctionName: !Ref EnrichPrescriptions
-        EnrichPrescriptionsFunctionArn: !GetAtt EnrichPrescriptions.Arn
-        ToggleGetStatusUpdatesParameterName: !GetAtt Parameters.Outputs.ToggleGetStatusUpdatesParameterName
-        ToggleGetStatusUpdatesParameterManagedPolicyArn: !GetAtt Parameters.Outputs.ToggleGetStatusUpdatesParameterManagedPolicyArn
+        GetMyPrescriptionsFunctionName: !GetAtt Functions.Outputs.GetMyPrescriptionsFunctionName
+        GetMyPrescriptionsFunctionArn: !GetAtt Functions.Outputs.GetMyPrescriptionsFunctionArn
         LogRetentionInDays: !Ref LogRetentionInDays
         EnableSplunk: !Ref EnableSplunk
-#############
-# /AEA-3899 #
-#############
