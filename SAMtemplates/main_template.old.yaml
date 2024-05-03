@@ -38,6 +38,10 @@ Parameters:
     Type: String
     Description: TruststoreVersion
     Default: none
+  TruststoreFile:
+    Type: String
+    Description: TruststoreFile
+    Default: none
   EnableMutualTLS:
     Type: String
     Description: Whether to use mutual TLS
@@ -278,7 +282,7 @@ Resources:
                           Fn::ImportValue: account-resources:TrustStoreBucket,
                         ],
                       ]
-                    - "truststore.pem"
+                    - !Ref TruststoreFile
               - !Ref "AWS::NoValue"
           TruststoreVersion:
             "Fn::If":
