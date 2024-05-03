@@ -91,7 +91,6 @@
     "Enrich Prescriptions": {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
-      "OutputPath": "$.Payload",
       "Parameters": {
         "Payload.$": "$",
         "FunctionName": "${EnrichPrescriptionsFunctionArn}"
