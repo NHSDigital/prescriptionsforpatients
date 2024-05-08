@@ -16,6 +16,12 @@ Globals:
         TargetSpineServer: !Ref TargetSpineServer
         TargetServiceSearchServer: !Ref TargetServiceSearchServer
         NODE_OPTIONS: --enable-source-maps
+        SpinePrivateKeyARN: !ImportValue account-resources:SpinePrivateKey
+        SpinePublicCertificateARN: !ImportValue account-resources:SpinePublicCertificate
+        SpineASIDARN: !ImportValue account-resources:SpineASID
+        SpinePartyKeyARN: !ImportValue account-resources:SpinePartyKey
+        SpineCAChainARN: !ImportValue account-resources:SpineCAChain
+        ServiceSearchApiKeyARN: !ImportValue account-resources:ServiceSearchApiKey
     Layers:
       - !Sub "arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:38"
 
