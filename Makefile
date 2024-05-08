@@ -117,7 +117,7 @@ compile: compile-node
 
 download-get-secrets-layer:
 	mkdir -p packages/getSecretLayer/lib
-	curl -LJ https://github.com/NHSDigital/electronic-prescription-service-get-secrets/releases/download/v1.0.197-alpha/get-secrets-layer.zip -o packages/getSecretLayer/lib/get-secrets-layer.zip
+	curl -LJ https://github.com/NHSDigital/electronic-prescription-service-get-secrets/releases/download/v1.0.204-alpha/get-secrets-layer.zip -o packages/getSecretLayer/lib/get-secrets-layer.zip
 
 lint-node: compile-node
 	npm run lint --workspace packages/capabilityStatement
