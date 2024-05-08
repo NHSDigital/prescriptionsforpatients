@@ -61,7 +61,7 @@ Resources:
     Properties:
       FunctionName: !Sub ${StackName}-GetMyPrescriptions
       CodeUri: ../../packages
-      Handler: getMyPrescriptions.handler
+      Handler: getMyPrescriptions.stateMachineHandler
       Role: !GetAtt GetMyPrescriptionsResources.Outputs.LambdaRoleArn
       Environment:
         Variables:
