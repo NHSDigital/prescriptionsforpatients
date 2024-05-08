@@ -38,4 +38,4 @@ Outputs:
   ToggleGetStatusUpdatesParameterManagedPolicyArn:
     Value: !Ref ToggleGetStatusUpdatesParameterManagedPolicy
     Export:
-      Name: !Sub ${StackName}:parameters:${ToggleGetStatusUpdatesParameter}:ManagedPolicyArn
+      Name: !Sub ${StackName}:parameters:${StackName}-ToggleGetStatusUpdates:ManagedPolicyArn
