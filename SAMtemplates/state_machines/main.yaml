@@ -29,10 +29,6 @@ Parameters:
     Type: String
     Default: none
 
-  ToggleGetStatusUpdatesParameterManagedPolicyArn:
-    Type: String
-    Default: none
-
   LogRetentionInDays:
     Type: Number
 
@@ -76,8 +72,8 @@ Resources:
           - ","
           - - Fn::ImportValue: !Sub ${StackName}:functions:${GetMyPrescriptionsFunctionName}:ExecuteLambdaPolicyArn
             - Fn::ImportValue: !Sub ${StackName}:functions:${EnrichPrescriptionsFunctionName}:ExecuteLambdaPolicyArn
-            - !ImportValue psu:functions:psu-GetStatusUpdates:ExecuteLambdaPolicyArn
-            - !Ref ToggleGetStatusUpdatesParameterManagedPolicyArn
+            - Fn::ImportValue: !Sub ${StackName}:parameters:${ToggleGetStatusUpdatesParameterName}:ManagedPolicyArn
+            - Fn::ImportValue: psu:functions:psu-GetStatusUpdates:ExecuteLambdaPolicyArn
         LogRetentionInDays: !Ref LogRetentionInDays
         CloudWatchKMSKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
         EnableSplunk: !Ref EnableSplunk
