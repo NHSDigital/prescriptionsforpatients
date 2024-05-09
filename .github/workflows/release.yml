@@ -115,6 +115,8 @@ jobs:
       LOG_RETENTION_DAYS: 30
       CREATE_INT_RELEASE_NOTES: true
       CREATE_PROD_RELEASE_NOTES: true
+      DOMAIN_NAME_EXPORT: eps-route53-resources:EPS-domain
+      ZONE_ID_EXPORT: eps-route53-resources:EPS-ZoneID
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.DEV_TARGET_SPINE_SERVER }}
@@ -140,6 +142,8 @@ jobs:
       LOG_RETENTION_DAYS: 30
       CREATE_INT_RELEASE_NOTES: true
       CREATE_PROD_RELEASE_NOTES: true
+      DOMAIN_NAME_EXPORT: route53-resources:domain
+      ZONE_ID_EXPORT: route53-resources:ZoneID
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.DEV_TARGET_SPINE_SERVER }}
@@ -205,6 +209,8 @@ jobs:
       COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
+      DOMAIN_NAME_EXPORT: eps-route53-resources:EPS-domain
+      ZONE_ID_EXPORT: eps-route53-resources:EPS-ZoneID
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.REF_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.REF_TARGET_SPINE_SERVER }}
@@ -224,6 +230,8 @@ jobs:
       COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
+      DOMAIN_NAME_EXPORT: route53-resources:domain
+      ZONE_ID_EXPORT: route53-resources:ZoneID
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.REF_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.REF_TARGET_SPINE_SERVER }}
@@ -243,6 +251,8 @@ jobs:
       COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
+      DOMAIN_NAME_EXPORT: eps-route53-resources:EPS-domain
+      ZONE_ID_EXPORT: eps-route53-resources:EPS-ZoneID
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.QA_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.QA_TARGET_SPINE_SERVER }}
@@ -262,6 +272,8 @@ jobs:
       COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
+      DOMAIN_NAME_EXPORT: route53-resources:domain
+      ZONE_ID_EXPORT: route53-resources:ZoneID
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.QA_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.QA_TARGET_SPINE_SERVER }}
@@ -283,6 +295,8 @@ jobs:
       LOG_RETENTION_DAYS: 30
       CREATE_INT_RELEASE_NOTES: true
       CREATE_INT_RC_RELEASE_NOTES: false
+      DOMAIN_NAME_EXPORT: eps-route53-resources:EPS-domain
+      ZONE_ID_EXPORT: eps-route53-resources:EPS-ZoneID
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.INT_TARGET_SPINE_SERVER }}
@@ -308,6 +322,8 @@ jobs:
       LOG_RETENTION_DAYS: 30
       CREATE_INT_RELEASE_NOTES: true
       CREATE_INT_RC_RELEASE_NOTES: true
+      DOMAIN_NAME_EXPORT: route53-resources:domain
+      ZONE_ID_EXPORT: route53-resources:ZoneID
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.INT_TARGET_SPINE_SERVER }}
@@ -375,6 +391,8 @@ jobs:
       LOG_RETENTION_DAYS: 731
       MARK_JIRA_RELEASED: true
       CREATE_PROD_RELEASE_NOTES: true
+      DOMAIN_NAME_EXPORT: eps-route53-resources:EPS-domain
+      ZONE_ID_EXPORT: eps-route53-resources:EPS-ZoneID
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.PROD_TARGET_SPINE_SERVER }}
@@ -400,6 +418,8 @@ jobs:
       LOG_RETENTION_DAYS: 731
       MARK_JIRA_RELEASED: true
       CREATE_PROD_RELEASE_NOTES: true
+      DOMAIN_NAME_EXPORT: route53-resources:domain
+      ZONE_ID_EXPORT: route53-resources:ZoneID
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.PROD_TARGET_SPINE_SERVER }}
