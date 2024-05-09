@@ -46,7 +46,7 @@
       "Choices": [
         {
           "Variable": "$.getStatusUpdates",
-          "BooleanMatches": true,
+          "BooleanEquals": true,
           "Next": "Get Status Updates"
         }
       ],
