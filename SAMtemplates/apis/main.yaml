@@ -47,6 +47,17 @@ Parameters:
   EnableSplunk:
     Type: String
 
+  DomainNameExport:
+    Type: String
+    Description: Which export (.eps or .prescriptionsforpatients) to use for domain name
+    Default: "eps-route53-resources:EPS-domain"
+
+  ZoneIDExport:
+    Type: String
+    Description: Which export (.eps or .prescriptionsforpatients) to use for zone id
+    Default: "eps-route53-resources:EPS-ZoneID"
+
+
 Conditions:
   ShouldUseMutualTLS: !Equals
     - true
@@ -61,13 +72,13 @@ Resources:
         Fn::Join:
           - .
           - - !Ref StackName
-            - Fn::ImportValue: eps-route53-resources:EPS-domain
+            - Fn::ImportValue: !Sub ${DomainNameExport}
       DomainValidationOptions:
         - DomainName: !Join
             - .
             - - !Ref StackName
-              - !ImportValue eps-route53-resources:EPS-domain
-          HostedZoneId: !ImportValue eps-route53-resources:EPS-ZoneID
+              - Fn::ImportValue !Sub ${DomainNameExport}
+          HostedZoneId: Fn::ImportValue ${ZoneIDExport}
   
   RestApiGateway:
     Type: AWS::ApiGateway::RestApi
@@ -87,7 +98,7 @@ Resources:
       DomainName: !Join
         - .
         - - !Ref StackName
-          - !ImportValue eps-route53-resources:EPS-domain
+          - Fn::ImportValue !Sub ${DomainNameExport}
       RegionalCertificateArn: !Ref GenerateCertificate
       EndpointConfiguration: 
         Types:
@@ -117,9 +128,9 @@ Resources:
       Name: !Join
         - .
         - - !Ref StackName
-          - !ImportValue eps-route53-resources:EPS-domain
+          - Fn::ImportValue ${DomainNameExport}
       Type: A
-      HostedZoneId: !ImportValue eps-route53-resources:EPS-ZoneID
+      HostedZoneId: Fn::ImportValue ${ZoneIDExport}
       AliasTarget:
         DNSName: !GetAtt RestApiDomain.RegionalDomainName
         HostedZoneId: !GetAtt RestApiDomain.RegionalHostedZoneId

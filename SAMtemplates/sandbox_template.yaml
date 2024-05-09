@@ -88,7 +88,7 @@ Parameters:
     Default: "route53-resources:domain"
   ZoneIDExport:
     Type: String
-    Description: Which export (.eps or .prescriptionsforpatients) to use for domain name
+    Description: Which export (.eps or .prescriptionsforpatients) to use for zone id
     Default: "route53-resources:ZoneID"
 
 Conditions:
