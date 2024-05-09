@@ -34,7 +34,7 @@
     },
     "Parse Get My Prescriptions Body": {
       "Type": "Pass",
-      "Next": "Get Toggle Get Status Updates Parameter",
+      "Next": "Evaluate Toggle Get Status Updates Parameter",
       "InputPath": "$.Payload.body",
       "Parameters": {
         "body.$": "States.StringToJson($)"
