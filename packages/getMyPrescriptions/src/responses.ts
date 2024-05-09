@@ -1,11 +1,12 @@
 import {Bundle, OperationOutcome} from "fhir/r4"
-import {StatusUpdateData} from "./statusUpdate"
+import {StatusUpdateData, shouldGetStatusUpdates} from "./statusUpdate"
 import {APIGatewayProxyResult} from "aws-lambda"
 
 export type FhirBody = Bundle | OperationOutcome
 
 export type StateMachineFunctionResponseBody = {
   fhir: FhirBody
+  getStatusUpdates: boolean
   statusUpdateData?: {
     schemaVersion: number
     prescriptions: Array<StatusUpdateData>
@@ -90,7 +91,7 @@ export const INVALID_NHS_NUMBER_RESPONSE: APIGatewayProxyResult = {
 export function stateMachineLambdaResponse(
   fhirBody: FhirBody, statusUpdateData?: Array<StatusUpdateData>
 ): APIGatewayProxyResult {
-  const body: StateMachineFunctionResponseBody = {fhir: fhirBody}
+  const body: StateMachineFunctionResponseBody = {fhir: fhirBody, getStatusUpdates: shouldGetStatusUpdates()}
   if (statusUpdateData) {
     body.statusUpdateData = {
       schemaVersion: 1,

@@ -15,7 +15,7 @@ import {
 } from "@prescriptionsforpatients_common/testing"
 
 import {buildStatusUpdateData} from "../src/statusUpdate"
-import {stateMachineLambdaResponse} from "../src/responses"
+import {StateMachineFunctionResponseBody} from "../src/responses"
 import {stateMachineEventHandler} from "../src/getMyPrescriptions"
 import {SERVICE_SEARCH_PARAMS} from "./utils"
 
@@ -70,12 +70,19 @@ describe("Unit tests for statusUpdate, via handler", function () {
 
     const result: APIGatewayProxyResult = await stateMachineEventHandler(event)
 
-    const statusUpdateData = [
-      {odsCode: "FLM49", prescriptionID: "24F5DA-A83008-7EFE6Z"},
-      {odsCode: "FEW08", prescriptionID: "16B2E0-A83008-81C13H"}
-    ]
-    const expected = stateMachineLambdaResponse(mockAPIResponseBody as Bundle, statusUpdateData)
+    const statusUpdateData = {
+      schemaVersion: 1,
+      prescriptions: [
+        {odsCode: "FLM49", prescriptionID: "24F5DA-A83008-7EFE6Z"},
+        {odsCode: "FEW08", prescriptionID: "16B2E0-A83008-81C13H"}
+      ]
+    }
+    const expected: StateMachineFunctionResponseBody = {
+      fhir: mockAPIResponseBody as Bundle,
+      getStatusUpdates: true,
+      statusUpdateData: statusUpdateData
+    }
 
-    expect(JSON.parse(result.body)).toEqual(JSON.parse(expected.body))
+    expect(JSON.parse(result.body)).toEqual(expected)
   })
 })

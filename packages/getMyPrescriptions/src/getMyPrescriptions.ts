@@ -18,7 +18,7 @@ import {
   stateMachineLambdaResponse
 } from "./responses"
 import {deepCopy, hasTimedOut, jobWithTimeout} from "./utils"
-import {buildStatusUpdateData} from "./statusUpdate"
+import {buildStatusUpdateData, shouldGetStatusUpdates} from "./statusUpdate"
 import {StatusUpdateData} from "./fhirUtils"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
@@ -28,8 +28,6 @@ const servicesCache: ServicesCache = {}
 const LAMBDA_TIMEOUT_MS = 10_000
 const SPINE_TIMEOUT_MS = 9_000
 const SERVICE_SEARCH_TIMEOUT_MS = 5_000
-
-const shouldGetStatusUpdates = () => process.env.GET_STATUS_UPDATES === "true"
 
 type EventHeaders = Record<string, string | undefined>
 

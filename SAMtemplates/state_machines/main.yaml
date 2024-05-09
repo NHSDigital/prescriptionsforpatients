@@ -13,10 +13,6 @@ Parameters:
     Type: String
     Default: none
 
-  ToggleGetStatusUpdatesParameterName:
-    Type: String
-    Default: none
-
   EnrichPrescriptionsFunctionArn:
     Type: String
     Default: none
@@ -45,7 +41,6 @@ Resources:
       DefinitionUri: GetMyPrescriptionsStateMachine.asl.json
       DefinitionSubstitutions:
         GetMyPrescriptionsFunctionArn: !Sub ${GetMyPrescriptionsFunctionArn}:stateMachineHandler:$LATEST
-        ToggleGetStatusUpdatesParameterName: !Ref ToggleGetStatusUpdatesParameterName
         GetStatusUpdatesFunctionArn: !Join
           - ":"
           - - !ImportValue psu:functions:GetStatusUpdates:FunctionArn
@@ -72,7 +67,6 @@ Resources:
           - ","
           - - Fn::ImportValue: !Sub ${StackName}:functions:${GetMyPrescriptionsFunctionName}:ExecuteLambdaPolicyArn
             - Fn::ImportValue: !Sub ${StackName}:functions:${EnrichPrescriptionsFunctionName}:ExecuteLambdaPolicyArn
-            - Fn::ImportValue: !Sub ${StackName}:parameters:${ToggleGetStatusUpdatesParameterName}:ManagedPolicyArn
             - Fn::ImportValue: psu:functions:psu-GetStatusUpdates:ExecuteLambdaPolicyArn
         LogRetentionInDays: !Ref LogRetentionInDays
         CloudWatchKMSKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn

@@ -109,14 +109,6 @@ Resources:
         CommitId: !Ref CommitId
         ToggleGetStatusUpdates: !Ref ToggleGetStatusUpdates
 
-  Parameters:
-    Type: AWS::Serverless::Application
-    Properties:
-      Location: parameters/main.yaml
-      Parameters:
-        StackName: !Ref AWS::StackName
-        ToggleGetStatusUpdatesParameterValue: !Ref ToggleGetStatusUpdates
-
   StateMachines:
     Type: AWS::Serverless::Application
     Properties:
@@ -127,6 +119,5 @@ Resources:
         GetMyPrescriptionsFunctionArn: !GetAtt Functions.Outputs.GetMyPrescriptionsFunctionArn
         EnrichPrescriptionsFunctionName: !GetAtt Functions.Outputs.EnrichPrescriptionsFunctionName
         EnrichPrescriptionsFunctionArn: !GetAtt Functions.Outputs.EnrichPrescriptionsFunctionArn
-        ToggleGetStatusUpdatesParameterName: !GetAtt Parameters.Outputs.ToggleGetStatusUpdatesParameterName
         LogRetentionInDays: !Ref LogRetentionInDays
         EnableSplunk: !Ref EnableSplunk

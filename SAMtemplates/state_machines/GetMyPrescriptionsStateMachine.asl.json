@@ -41,21 +41,12 @@
       },
       "OutputPath": "$.body"
     },
-    "Get Toggle Get Status Updates Parameter": {
-      "Type": "Task",
-      "Next": "Evaluate Toggle Get Status Updates Parameter",
-      "Parameters": {
-        "Name": "${ToggleGetStatusUpdatesParameterName}"
-      },
-      "Resource": "arn:aws:states:::aws-sdk:ssm:getParameter",
-      "ResultPath": "$.ToggleGetStatusUpdatesParameter"
-    },
     "Evaluate Toggle Get Status Updates Parameter": {
       "Type": "Choice",
       "Choices": [
         {
-          "Variable": "$.ToggleGetStatusUpdatesParameter.Parameter.Value",
-          "StringMatches": "true",
+          "Variable": "$.getStatusUpdates",
+          "BooleanMatches": true,
           "Next": "Get Status Updates"
         }
       ],

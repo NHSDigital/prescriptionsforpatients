@@ -12,6 +12,8 @@ const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
 export type StatusUpdateData = {odsCode: string, prescriptionID: string}
 
+export const shouldGetStatusUpdates = () => process.env.GET_STATUS_UPDATES === "true"
+
 export function buildStatusUpdateData(searchsetBundle: Bundle): Array<StatusUpdateData> {
   const statusUpdateData: Array<StatusUpdateData> = []
   isolatePrescriptions(searchsetBundle).forEach(prescription => {
