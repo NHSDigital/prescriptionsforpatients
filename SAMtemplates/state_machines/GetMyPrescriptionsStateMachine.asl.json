@@ -73,7 +73,15 @@
       "ResultSelector": {
         "Payload.$": "$.Payload"
       },
-      "ResultPath": "$.StatusUpdates"
+      "ResultPath": "$.StatusUpdates",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "Catch All Error"
+        }
+      ]
     },
     "Get Status Updates Result": {
       "Type": "Choice",
