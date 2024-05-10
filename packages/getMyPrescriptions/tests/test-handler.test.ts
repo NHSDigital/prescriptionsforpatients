@@ -19,7 +19,7 @@ import {
   mockStateMachineInputEvent
 } from "@prescriptionsforpatients_common/testing"
 
-import {GetMyPrescriptionsEvent, apiGatewayHandler, stateMachineHandler} from "../src/getMyPrescriptions"
+import {GetMyPrescriptionsEvent, apiGatewayHandler, handler} from "../src/getMyPrescriptions"
 import {HEADERS, StateMachineFunctionResponseBody, TIMEOUT_RESPONSE} from "../src/responses"
 import "./toMatchJsonLogMessage"
 
@@ -120,7 +120,7 @@ describe("Unit test for app handler", function () {
 
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
 
-    const result: APIGatewayProxyResult = (await stateMachineHandler(event, dummyContext))
+    const result: APIGatewayProxyResult = (await handler(event, dummyContext))
     const resultBody: StateMachineFunctionResponseBody = JSON.parse(result.body)
 
     expect(result.statusCode).toEqual(200)

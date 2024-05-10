@@ -40,7 +40,7 @@ Resources:
       Role: !GetAtt GetMyPrescriptionsStateMachineResources.Outputs.StateMachineRoleArn
       DefinitionUri: GetMyPrescriptionsStateMachine.asl.json
       DefinitionSubstitutions:
-        GetMyPrescriptionsFunctionArn: !Sub ${GetMyPrescriptionsFunctionArn}:stateMachineHandler:$LATEST
+        GetMyPrescriptionsFunctionArn: !Sub ${GetMyPrescriptionsFunctionArn}:$LATEST
         GetStatusUpdatesFunctionArn: !Join
           - ":"
           - - !ImportValue psu:functions:GetStatusUpdates:FunctionArn
