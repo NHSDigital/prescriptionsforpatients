@@ -15,12 +15,12 @@ export LATEST_TRUSTSTORE_VERSION
 
 if [ -z "${DOMAIN_NAME_EXPORT}" ];
 then
-  export DOMAIN_NAME_EXPORT="NOT SET"
+  export DOMAIN_NAME_EXPORT="NOT_SET"
 fi
 
 if [ -z "${ZONE_ID_EXPORT}" ];
 then
-  export ZONE_ID_EXPORT="NOT SET"
+  export ZONE_ID_EXPORT="NOT_SET"
 fi
 
 cd ../../.aws-sam/build || exit
