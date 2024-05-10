@@ -14,15 +14,15 @@ import {
   SPINE_CERT_NOT_CONFIGURED_RESPONSE,
   TIMEOUT_RESPONSE,
   apiGatewayLambdaResponse,
-  FhirBody,
-  stateMachineLambdaResponse
+  stateMachineLambdaResponse,
+  TraceIDs,
+  ResponseFunc
 } from "./responses"
 import {deepCopy, hasTimedOut, jobWithTimeout} from "./utils"
 import {buildStatusUpdateData, shouldGetStatusUpdates} from "./statusUpdate"
-import {StatusUpdateData} from "./fhirUtils"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
-const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
+export const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
 const servicesCache: ServicesCache = {}
 
 const LAMBDA_TIMEOUT_MS = 10_000
@@ -34,10 +34,6 @@ type EventHeaders = Record<string, string | undefined>
 export type GetMyPrescriptionsEvent = {
   headers: EventHeaders
 }
-
-type ResponseFunc = (
-  fhirBody: FhirBody, statusUpdateData?: Array<StatusUpdateData>
-) => APIGatewayProxyResult
 
 /* eslint-disable  max-len */
 
@@ -80,13 +76,15 @@ async function eventHandler(headers: EventHeaders, successResponse: ResponseFunc
   const xRequestId = headers["x-request-id"]
   const requestId = headers["apigw-request-id"]
 
-  logger.appendKeys({
+  const traceIDs: TraceIDs = {
     "nhsd-correlation-id": headers["nhsd-correlation-id"],
     "x-request-id": xRequestId,
     "nhsd-request-id": headers["nhsd-request-id"],
     "x-correlation-id": headers["x-correlation-id"],
     "apigw-request-id": requestId
-  })
+  }
+  logger.appendKeys(traceIDs)
+
   const spineClient = createSpineClient(logger)
 
   try {
@@ -114,10 +112,10 @@ async function eventHandler(headers: EventHeaders, successResponse: ResponseFunc
     const distanceSellingCallout = distanceSelling.search(distanceSellingBundle)
     const distanceSellingResponse = await jobWithTimeout(SERVICE_SEARCH_TIMEOUT_MS, distanceSellingCallout)
     if (hasTimedOut(distanceSellingResponse)){
-      return successResponse(searchsetBundle, statusUpdateData)
+      return successResponse(searchsetBundle, traceIDs, statusUpdateData)
     }
 
-    return successResponse(distanceSellingBundle, statusUpdateData)
+    return successResponse(distanceSellingBundle, traceIDs, statusUpdateData)
   } catch (error) {
     if (error instanceof NHSNumberValidationError) {
       return INVALID_NHS_NUMBER_RESPONSE

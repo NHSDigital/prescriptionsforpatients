@@ -11,7 +11,20 @@ export type StateMachineFunctionResponseBody = {
     schemaVersion: number
     prescriptions: Array<StatusUpdateData>
   }
+  traceIDs: TraceIDs
 }
+
+export type TraceIDs = {
+  "nhsd-correlation-id"?: string
+  "x-request-id"?: string
+  "nhsd-request-id"?: string
+  "x-correlation-id"?: string
+  "apigw-request-id"?: string
+}
+
+export type ResponseFunc = (
+  fhirBody: FhirBody, traceIDs: TraceIDs, statusUpdateData?: Array<StatusUpdateData>
+) => APIGatewayProxyResult
 
 export const HEADERS = {
   "Content-Type": "application/fhir+json",
@@ -89,15 +102,21 @@ export const INVALID_NHS_NUMBER_RESPONSE: APIGatewayProxyResult = {
 }
 
 export function stateMachineLambdaResponse(
-  fhirBody: FhirBody, statusUpdateData?: Array<StatusUpdateData>
+  fhirBody: FhirBody, traceIDs: TraceIDs, statusUpdateData?: Array<StatusUpdateData>
 ): APIGatewayProxyResult {
-  const body: StateMachineFunctionResponseBody = {fhir: fhirBody, getStatusUpdates: shouldGetStatusUpdates()}
+  const body: StateMachineFunctionResponseBody = {
+    fhir: fhirBody,
+    getStatusUpdates: shouldGetStatusUpdates(),
+    traceIDs: traceIDs
+  }
+
   if (statusUpdateData) {
     body.statusUpdateData = {
       schemaVersion: 1,
       prescriptions: statusUpdateData
     }
   }
+
   return {
     statusCode: 200,
     body: JSON.stringify(body),

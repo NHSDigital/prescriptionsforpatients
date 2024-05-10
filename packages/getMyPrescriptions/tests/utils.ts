@@ -1,5 +1,6 @@
 import {jest} from "@jest/globals"
 import {Organization} from "fhir/r4"
+import {TraceIDs} from "../src/responses"
 
 // Uses unstable jest method to enable mocking while using ESM. To be replaced in future.
 export function mockInternalDependency(modulePath: string, module: object, dependency: string) {
@@ -17,6 +18,14 @@ export const SERVICE_SEARCH_PARAMS = {
   "$filter": "OrganisationTypeId eq 'PHA' and OrganisationSubType eq 'DistanceSelling'",
   "$select": "URL,OrganisationSubType",
   "$top": 1
+}
+
+export const EXPECTED_TRACE_IDS: TraceIDs = {
+  "apigw-request-id": "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
+  "nhsd-correlation-id": "test-request-id.test-correlation-id.rrt-5789322914740101037-b-aet2-20145-482635-2",
+  "nhsd-request-id": "test-request-id",
+  "x-correlation-id": "test-correlation-id",
+  "x-request-id": "test-request-id"
 }
 
 export function pharmacy2uOrganisation(): Organization {

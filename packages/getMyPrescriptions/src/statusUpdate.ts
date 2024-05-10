@@ -1,5 +1,3 @@
-import {Logger} from "@aws-lambda-powertools/logger"
-import {LogLevel} from "@aws-lambda-powertools/logger/types"
 import {Bundle} from "fhir/r4"
 import {
   isolateMedicationRequests,
@@ -7,9 +5,8 @@ import {
   isolatePerformerReference,
   isolatePrescriptions
 } from "./fhirUtils"
+import {logger} from "./getMyPrescriptions"
 
-const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
-const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
 export type StatusUpdateData = {odsCode: string, prescriptionID: string}
 
 export const shouldGetStatusUpdates = () => process.env.GET_STATUS_UPDATES === "true"

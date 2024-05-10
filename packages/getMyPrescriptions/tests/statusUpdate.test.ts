@@ -17,7 +17,7 @@ import {
 import {buildStatusUpdateData} from "../src/statusUpdate"
 import {StateMachineFunctionResponseBody} from "../src/responses"
 import {stateMachineEventHandler} from "../src/getMyPrescriptions"
-import {SERVICE_SEARCH_PARAMS} from "./utils"
+import {EXPECTED_TRACE_IDS, SERVICE_SEARCH_PARAMS} from "./utils"
 
 const exampleEvent = JSON.stringify(mockStateMachineInputEvent)
 const exampleInteractionResponse = JSON.stringify(mockInteractionResponseBody)
@@ -80,7 +80,8 @@ describe("Unit tests for statusUpdate, via handler", function () {
     const expected: StateMachineFunctionResponseBody = {
       fhir: mockAPIResponseBody as Bundle,
       getStatusUpdates: true,
-      statusUpdateData: statusUpdateData
+      statusUpdateData: statusUpdateData,
+      traceIDs: EXPECTED_TRACE_IDS
     }
 
     expect(JSON.parse(result.body)).toEqual(expected)

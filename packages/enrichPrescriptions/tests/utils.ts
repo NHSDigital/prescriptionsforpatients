@@ -4,7 +4,7 @@ import {APIGatewayProxyResult} from "aws-lambda"
 import {Bundle, Extension} from "fhir/r4"
 
 import {EnrichPrescriptionsEvent} from "../src/enrichPrescriptions"
-import {HEADERS} from "../src/responses"
+import {HEADERS, TraceIDs} from "../src/responses"
 import {
   DEFAULT_EXTENSION_STATUS,
   EXTENSION_URL,
@@ -44,6 +44,14 @@ type RequestAndResponse = {
 
 export const SYSTEM_DATETIME = new Date("2023-09-11T10:11:12.000Z")
 
+const TRACE_IDS: TraceIDs = {
+  "apigw-request-id": "test-apigw-request-id",
+  "nhsd-correlation-id": "test-nhsd-correlation-id",
+  "nhsd-request-id": "test-nhsd-request-id",
+  "x-correlation-id": "test-x-correlation-id",
+  "x-request-id": "test-x-request-id"
+}
+
 function eventAndResponse(
   requestBundle: Bundle,
   responseBundle: Bundle,
@@ -51,11 +59,12 @@ function eventAndResponse(
 ): RequestAndResponse {
   const requestAndResponse: RequestAndResponse = {
     event: {
-      fhir: requestBundle
+      fhir: requestBundle,
+      traceIDs: TRACE_IDS
     },
     expectedResponse: {
       statusCode: 200,
-      headers: HEADERS,
+      headers: {...HEADERS, ...TRACE_IDS},
       body: JSON.stringify(responseBundle)
     }
   }

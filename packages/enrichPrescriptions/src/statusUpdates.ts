@@ -1,15 +1,12 @@
-import {Logger} from "@aws-lambda-powertools/logger"
 import {Bundle, Extension, MedicationRequest} from "fhir/r4"
 
-import {LOG_LEVEL} from "./enrichPrescriptions"
 import {isolateMedicationRequests, isolatePrescriptions} from "./fhirUtils"
+import {logger} from "./enrichPrescriptions"
 
 export const EXTENSION_URL = "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory"
 export const DEFAULT_EXTENSION_STATUS = "With Pharmacy"
 export const NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS = "With Pharmacy but Tracking not Supported"
 export const VALUE_CODING_SYSTEM = "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt"
-
-const logger = new Logger({serviceName: "statusUpdates", logLevel: LOG_LEVEL})
 
 type UpdateItem = {
   isTerminalState: string

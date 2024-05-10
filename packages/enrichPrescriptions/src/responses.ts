@@ -6,10 +6,18 @@ export const HEADERS = {
   "Cache-Control": "no-cache"
 }
 
-export function lambdaResponse(statusCode: number, body: Bundle): APIGatewayProxyResult {
+export type TraceIDs = {
+  "nhsd-correlation-id": string
+  "x-request-id": string
+  "nhsd-request-id": string
+  "x-correlation-id": string
+  "apigw-request-id": string
+}
+
+export function lambdaResponse(statusCode: number, body: Bundle, traceIDs: TraceIDs): APIGatewayProxyResult {
   return {
     statusCode: statusCode,
     body: JSON.stringify(body),
-    headers: HEADERS
+    headers: {...HEADERS, ...traceIDs}
   }
 }

@@ -22,6 +22,7 @@ import {
 import {GetMyPrescriptionsEvent, apiGatewayHandler, handler} from "../src/getMyPrescriptions"
 import {HEADERS, StateMachineFunctionResponseBody, TIMEOUT_RESPONSE} from "../src/responses"
 import "./toMatchJsonLogMessage"
+import {EXPECTED_TRACE_IDS} from "./utils"
 
 const dummyContext = helloworldContext
 const mock = new MockAdapter(axios)
@@ -126,6 +127,7 @@ describe("Unit test for app handler", function () {
     expect(result.statusCode).toEqual(200)
     expect(resultBody.fhir).toEqual({resourceType: "Bundle", id: "test-request-id"})
     expect(resultBody.statusUpdateData).toBeUndefined()
+    expect(resultBody.traceIDs).toEqual(EXPECTED_TRACE_IDS)
     expect(result.headers).toEqual(HEADERS)
   })
 
@@ -269,7 +271,7 @@ describe("Unit test for app handler", function () {
     expect(JSON.parse(result.body)).toEqual(responseNotConfCertStatus500)
   })
 
-  it("timesout if spine call takes too long", async () => {
+  it("times-out if spine call takes too long", async () => {
     const delayedResponse: Promise<Array<unknown>> = new Promise((resolve) => setTimeout(() => resolve([]), 15_000))
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     mock.onGet("https://live/mm/patientfacingprescriptions").reply((_config) => delayedResponse)
@@ -359,7 +361,7 @@ describe("Unit tests for app handler including service search", function () {
     expect(result.headers).toEqual(HEADERS)
   })
 
-  it("return unenhanced data if service search call takes too long", async () => {
+  it("return un-enhanced data if service search call takes too long", async () => {
     const exampleResponse = {resourceType: "Bundle"}
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, exampleResponse)
 
