@@ -71,16 +71,6 @@ Parameters:
     Type: String
     Default: "xxx"
 
-  DomainNameExport:
-    Type: String
-    Description: Which export (.eps or .prescriptionsforpatients) to use for domain name
-    Default: "eps-route53-resources:EPS-domain"
-
-  ZoneIDExport:
-    Type: String
-    Description: Which export (.eps or .prescriptionsforpatients) to use for zone id
-    Default: "eps-route53-resources:EPS-ZoneID"
-
 Resources:
   Apis:
     Type: AWS::Serverless::Application
@@ -99,8 +89,6 @@ Resources:
         StatusFunctionArn: !GetAtt Functions.Outputs.StatusFunctionArn
         LogRetentionInDays: !Ref LogRetentionInDays
         EnableSplunk: !Ref EnableSplunk
-        DomainNameExport: !Ref DomainNameExport
-        ZoneIDExport: !Ref ZoneIDExport
   
   Functions:
     Type: AWS::Serverless::Application

@@ -93,14 +93,6 @@ Parameters:
         3288,
         3653,
       ]
-  DomainNameExport:
-    Type: String
-    Description: Which export (.eps or .prescriptionsforpatients) to use for domain name
-    Default: "route53-resources:domain"
-  ZoneIDExport:
-    Type: String
-    Description: Which export (.eps or .prescriptionsforpatients) to use for zone id
-    Default: "route53-resources:ZoneID"
 
 Conditions:
   ShouldUseMutualTLS: !Equals [true, !Ref EnableMutualTLS]
@@ -247,15 +239,15 @@ Resources:
         Fn::Join:
           - "."
           - - !Ref "AWS::StackName"
-            - Fn::ImportValue: !Sub ${DomainNameExport}
+            - Fn::ImportValue: route53-resources:domain
       DomainValidationOptions:
         - DomainName:
             Fn::Join:
               - "."
               - - !Ref "AWS::StackName"
-                - Fn::ImportValue: !Sub ${DomainNameExport}
+                - Fn::ImportValue: route53-resources:domain
           HostedZoneId:
-            Fn::ImportValue: !Sub ${ZoneIDExport}
+            Fn::ImportValue: route53-resources:ZoneID
 
   # Http api
   HttpApiGateway:
@@ -269,11 +261,11 @@ Resources:
           Fn::Join:
             - "."
             - - !Ref "AWS::StackName"
-              - Fn::ImportValue: !Sub ${DomainNameExport}
+              - Fn::ImportValue: route53-resources:domain
         CertificateArn: !Ref GenerateCertificate
         Route53:
           HostedZoneId:
-            Fn::ImportValue: !Sub ${ZoneIDExport}
+            Fn::ImportValue: route53-resources:ZoneID
         EndpointConfiguration: REGIONAL
         SecurityPolicy: TLS_1_2
         MutualTlsAuthentication:
