@@ -45,6 +45,12 @@ on:
       MARK_JIRA_RELEASED:
         type: boolean
         default: false
+      DOMAIN_NAME_EXPORT:
+        required: false
+        type: string
+      ZONE_ID_EXPORT:
+        required: false
+        type: string
       TOGGLE_GET_STATUS_UPDATES:
         type: boolean
         default: false
@@ -122,6 +128,8 @@ jobs:
           template_file: template.yaml
           TRUSTSTORE_FILE: ${{ inputs.TRUSTSTORE_FILE }}
           VERSION_NUMBER: ${{ inputs.VERSION_NUMBER }}
+          DOMAIN_NAME_EXPORT: ${{ inputs.DOMAIN_NAME_EXPORT }}
+          ZONE_ID_EXPORT: ${{ inputs.ZONE_ID_EXPORT }}
           TOGGLE_GET_STATUS_UPDATES: ${{ inputs.TOGGLE_GET_STATUS_UPDATES }}
         run: ./release_code.sh
 

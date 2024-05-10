@@ -109,6 +109,8 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 			  LogLevel=$$LOG_LEVEL \
 			  LogRetentionInDays=$$LOG_RETENTION_DAYS \
 			  Env=$$TARGET_ENVIRONMENT \
+				DomainNameExport=$$DOMAIN_NAME_EXPORT \
+				ZoneIDExport=$$ZONE_ID_EXPORT \
 			  ToggleGetStatusUpdates=$$TOGGLE_GET_STATUS_UPDATES
 
 compile-node:
