@@ -61,7 +61,7 @@ function updateMedicationRequest(medicationRequest: MedicationRequest, updateIte
   }
 
   if (medicationRequest.extension) {
-    medicationRequest.extension.push()
+    medicationRequest.extension.push(extension)
   } else {
     medicationRequest.extension = [extension]
   }

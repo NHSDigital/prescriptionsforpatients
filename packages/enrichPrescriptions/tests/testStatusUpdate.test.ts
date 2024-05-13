@@ -65,6 +65,37 @@ describe("Unit tests for statusUpdate", function () {
     expect(requestBundle).toEqual(simpleResponseBundle())
   })
 
+  it("when an update for an item is present and extension exists, the update is added", async () => {
+    const requestBundle = simpleRequestBundle()
+    const statusUpdates = simpleStatusUpdatesPayload()
+
+    const existingExtension = {
+      "url": "https://fhir.nhs.uk/extension",
+      "extension": [
+        {
+          "url": "url",
+          "valueCoding": {
+            "system": "https://fhir.nhs.uk/CodeSystem/system"
+          }
+        }
+      ]
+    }
+
+    const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
+    const medicationRequest = requestCollectionBundle.entry![0].resource as MedicationRequest
+    medicationRequest.extension = [existingExtension]
+
+    const expectedResponseBundle = simpleResponseBundle()
+    const responseCollectionBundle = expectedResponseBundle.entry![0].resource as Bundle
+    const responseMedicationRequest = responseCollectionBundle.entry![0].resource as MedicationRequest
+    responseMedicationRequest.extension!.push(existingExtension)
+    responseMedicationRequest.extension!.reverse()
+
+    applyStatusUpdates(requestBundle, statusUpdates)
+
+    expect(requestBundle).toEqual(expectedResponseBundle)
+  })
+
   it("when a prescription has no performer, no update is applied", async () => {
     const requestBundle = simpleRequestBundle()
     const collectionBundle = requestBundle.entry![0].resource as Bundle
