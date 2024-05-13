@@ -61,9 +61,9 @@ jobs:
       STACK_NAME: pfp-pr-${{needs.get_issue_number.outputs.issue_number}}
       ARTIFACT_BUCKET_PREFIX: PR-${{needs.get_issue_number.outputs.issue_number}}
       TARGET_ENVIRONMENT: dev-pr
-      ENABLE_MUTUAL_TLS: false
+      ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_code
-      TRUSTSTORE_FILE: pfp-truststore.pem
+      TRUSTSTORE_FILE: pr-793-pfp-truststore.pem
       VERSION_NUMBER: PR-${{ needs.get_issue_number.outputs.issue_number }}
       COMMIT_ID: ${{ needs.get_commit_id.outputs.commit_id }}
       LOG_LEVEL: DEBUG
