@@ -4,6 +4,7 @@ import {injectLambdaContext} from "@aws-lambda-powertools/logger/middleware"
 import {LogLevel} from "@aws-lambda-powertools/logger/types"
 import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
+import httpHeaderNormalizer from "@middy/http-header-normalizer"
 import errorHandler from "@nhs/fhir-middy-error-handler"
 import {createSpineClient} from "@nhsdigital/eps-spine-client"
 import {extractNHSNumber, NHSNumberValidationError} from "./extractNHSNumber"
@@ -32,6 +33,7 @@ const SERVICE_SEARCH_TIMEOUT_MS = 5_000
 type EventHeaders = Record<string, string | undefined>
 
 export type GetMyPrescriptionsEvent = {
+  rawHeaders: Record<string, string>
   headers: EventHeaders
 }
 
@@ -127,6 +129,7 @@ async function eventHandler(headers: EventHeaders, successResponse: ResponseFunc
 
 export const handler = middy(stateMachineEventHandler)
   .use(injectLambdaContext(logger, {clearState: true}))
+  .use(httpHeaderNormalizer())
   .use(
     inputOutputLogger({
       logger: (request) => {

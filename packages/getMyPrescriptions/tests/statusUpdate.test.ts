@@ -3,7 +3,7 @@
 import "jest"
 import axios from "axios"
 import {Bundle} from "fhir/r4"
-import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
+import {APIGatewayProxyResult} from "aws-lambda"
 import MockAdapter from "axios-mock-adapter"
 
 import {
@@ -16,7 +16,7 @@ import {
 
 import {buildStatusUpdateData} from "../src/statusUpdate"
 import {StateMachineFunctionResponseBody} from "../src/responses"
-import {stateMachineEventHandler} from "../src/getMyPrescriptions"
+import {GetMyPrescriptionsEvent, stateMachineEventHandler} from "../src/getMyPrescriptions"
 import {EXPECTED_TRACE_IDS, SERVICE_SEARCH_PARAMS} from "./utils"
 
 const exampleEvent = JSON.stringify(mockStateMachineInputEvent)
@@ -61,7 +61,7 @@ describe("Unit tests for statusUpdate, via handler", function () {
   })
 
   it("when event is processed, statusUpdateData is included in the response", async () => {
-    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+    const event: GetMyPrescriptionsEvent = JSON.parse(exampleEvent)
 
     mock.onGet("https://service-search/service-search", {params: {...SERVICE_SEARCH_PARAMS, search: "flm49"}}).reply(200, JSON.parse(pharmacy2uResponse))
     mock.onGet("https://service-search/service-search", {params: {...SERVICE_SEARCH_PARAMS, search: "few08"}}).reply(200, JSON.parse(pharmicaResponse))
