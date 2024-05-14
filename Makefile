@@ -83,7 +83,7 @@ sam-validate:
 sam-validate-sandbox: 
 	sam validate --template-file SAMtemplates/sandbox_template.yaml --region eu-west-2
 
-sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role guard-LATEST_TRUSTSTORE_VERSION guard-TRUSTSTORE_FILE guard-enable_mutual_tls guard-VERSION_NUMBER guard-COMMIT_ID guard-LOG_LEVEL guard-LOG_RETENTION_DAYS guard-TARGET_ENVIRONMENT guard-target_spine_server guard-target_service_search_server
+sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role guard-LATEST_TRUSTSTORE_VERSION guard-TRUSTSTORE_FILE guard-enable_mutual_tls guard-VERSION_NUMBER guard-COMMIT_ID guard-LOG_LEVEL guard-LOG_RETENTION_DAYS guard-TARGET_ENVIRONMENT guard-target_spine_server guard-target_service_search_server guard-TOGGLE_GET_STATUS_UPDATES
 	sam deploy \
 		--template-file $$template_file \
 		--stack-name $$stack_name \
@@ -110,7 +110,8 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 			  LogRetentionInDays=$$LOG_RETENTION_DAYS \
 			  Env=$$TARGET_ENVIRONMENT \
 				DomainNameExport=$$DOMAIN_NAME_EXPORT \
-				ZoneIDExport=$$ZONE_ID_EXPORT
+				ZoneIDExport=$$ZONE_ID_EXPORT \
+			  ToggleGetStatusUpdates=$$TOGGLE_GET_STATUS_UPDATES
 
 compile-node:
 	npx tsc --build tsconfig.build.json
@@ -124,6 +125,7 @@ download-get-secrets-layer:
 lint-node: compile-node
 	npm run lint --workspace packages/capabilityStatement
 	npm run lint --workspace packages/getMyPrescriptions
+	npm run lint --workspace packages/enrichPrescriptions
 	npm run lint --workspace packages/sandbox
 	npm run lint --workspace packages/statusLambda
 	npm run lint --workspace packages/serviceSearchClient
@@ -131,7 +133,7 @@ lint-node: compile-node
 	npm run lint --workspace packages/distanceSelling
 
 lint-samtemplates:
-	poetry run cfn-lint -I  "SAMtemplates/**/*.yaml" 2>&1 |grep "Run scan"
+	poetry run cfn-lint -I "SAMtemplates/**/*.yaml" 2>&1 | grep "Run scan"
 
 lint-python:
 	poetry run flake8 scripts/*.py --config .flake8
@@ -147,6 +149,7 @@ lint: lint-node lint-samtemplates lint-python lint-githubactions lint-githubacti
 test: compile
 	npm run test --workspace packages/capabilityStatement
 	npm run test --workspace packages/getMyPrescriptions
+	npm run test --workspace packages/enrichPrescriptions
 	npm run test --workspace packages/sandbox
 	npm run test --workspace packages/statusLambda
 	npm run test --workspace packages/serviceSearchClient
@@ -155,6 +158,7 @@ test: compile
 clean:
 	rm -rf packages/capabilityStatement/coverage
 	rm -rf packages/getMyPrescriptions/coverage
+	rm -rf packages/enrichPrescriptions/coverage
 	rm -rf packages/sandbox/coverage
 	rm -rf packages/serviceSearchClient/coverage
 	rm -rf packages/distanceSelling/coverage
@@ -162,6 +166,7 @@ clean:
 	rm -rf packages/common/testing/coverage
 	rm -rf packages/capabilityStatement/lib
 	rm -rf packages/getMyPrescriptions/lib
+	rm -rf packages/enrichPrescriptions/lib
 	rm -rf packages/sandbox/lib
 	rm -rf packages/serviceSearchClient/lib
 	rm -rf packages/distanceSelling/lib
@@ -179,6 +184,7 @@ check-licenses: check-licenses-node check-licenses-python
 check-licenses-node:
 	npm run check-licenses
 	npm run check-licenses --workspace packages/getMyPrescriptions
+	npm run check-licenses --workspace packages/enrichPrescriptions
 	npm run check-licenses --workspace packages/capabilityStatement
 	npm run check-licenses --workspace packages/sandbox
 	npm run check-licenses --workspace packages/statusLambda

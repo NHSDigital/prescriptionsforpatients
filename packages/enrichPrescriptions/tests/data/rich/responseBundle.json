@@ -5,7 +5,7 @@
     "lastUpdated": "2022-11-21T14:00:00+00:00"
   },
   "type": "searchset",
-  "total": 2,
+  "total": 3,
   "entry": [
     {
       "fullUrl": "urn:uuid:0cb82cfa-76c8-4fb2-a08e-bf0e326e5487",
@@ -18,8 +18,15 @@
         "type": "collection",
         "entry": [
           {
-            "fullUrl": "urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6",
+            "fullUrl": "urn:uuid:b4e289db-1d7c-45fc-a3d9-e81f2114b5ee",
             "resource": {
+              "id": "b4e289db-1d7c-45fc-a3d9-e81f2114b5ee",
+              "identifier": [
+                {
+                  "system": "https://fhir.nhs.uk/Id/prescription-order-item-number",
+                  "value": "a54219b8-f741-4c47-b662-e4f8dfa49ab6"
+                }
+              ],
               "resourceType": "MedicationRequest",
               "status": "active",
               "intent": "order",
@@ -70,14 +77,39 @@
               },
               "substitution": {
                 "allowedBoolean": false
-              }
+              },
+              "extension": [
+                {
+                  "url": "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory",
+                  "extension": [
+                    {
+                      "url": "status",
+                      "valueCoding": {
+                        "system": "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt",
+                        "code": "Prescriber Approved"
+                      }
+                    },
+                    {
+                      "url": "statusDate",
+                      "valueDateTime": "2023-09-11T10:11:12.000Z"
+                    }
+                  ]
+                }
+              ]
             }
           },
           {
-            "fullUrl": "urn:uuid:6989b7bd-8db6-428c-a593-4022e3044c00",
+            "fullUrl": "urn:uuid:2bf8f0e0-8567-4aef-ad03-c3fbfedaf4b3",
             "resource": {
+              "id": "2bf8f0e0-8567-4aef-ad03-c3fbfedaf4b3",
+              "identifier": [
+                {
+                  "system": "https://fhir.nhs.uk/Id/prescription-order-item-number",
+                  "value": "6989b7bd-8db6-428c-a593-4022e3044c00"
+                }
+              ],
               "resourceType": "MedicationRequest",
-              "status": "active",
+              "status": "completed",
               "intent": "order",
               "medicationCodeableConcept": {
                 "coding": [
@@ -126,12 +158,37 @@
               },
               "substitution": {
                 "allowedBoolean": false
-              }
+              },
+              "extension": [
+                {
+                  "url": "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory",
+                  "extension": [
+                    {
+                      "url": "status",
+                      "valueCoding": {
+                        "system": "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt",
+                        "code": "Prescriber Cancelled"
+                      }
+                    },
+                    {
+                      "url": "statusDate",
+                      "valueDateTime": "2023-09-11T10:11:13.000Z"
+                    }
+                  ]
+                }
+              ]
             }
           },
           {
-            "fullUrl": "urn:uuid:2868554c-5565-4d31-b92a-c5b8dab8b90a",
+            "fullUrl": "urn:uuid:18c20e6c-dc34-4a17-8307-5cfd7efa707b",
             "resource": {
+              "id": "18c20e6c-dc34-4a17-8307-5cfd7efa707b",
+              "identifier": [
+                {
+                  "system": "https://fhir.nhs.uk/Id/prescription-order-item-number",
+                  "value": "2868554c-5565-4d31-b92a-c5b8dab8b90a"
+                }
+              ],
               "resourceType": "MedicationRequest",
               "status": "active",
               "intent": "order",
@@ -182,14 +239,39 @@
               },
               "substitution": {
                 "allowedBoolean": false
-              }
+              },
+              "extension": [
+                {
+                  "url": "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory",
+                  "extension": [
+                    {
+                      "url": "status",
+                      "valueCoding": {
+                        "system": "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt",
+                        "code": "With Pharmacy"
+                      }
+                    },
+                    {
+                      "url": "statusDate",
+                      "valueDateTime": "2023-09-11T10:11:14.000Z"
+                    }
+                  ]
+                }
+              ]
             }
           },
           {
-            "fullUrl": "urn:uuid:5cb17f5a-11ac-4e18-825f-6470467238b3",
+            "fullUrl": "urn:uuid:b7b8c142-7ccb-4d0c-b0a7-25f7fa83f4b4",
             "resource": {
+              "id": "b7b8c142-7ccb-4d0c-b0a7-25f7fa83f4b4",
+              "identifier": [
+                {
+                  "system": "https://fhir.nhs.uk/Id/prescription-order-item-number",
+                  "value": "5cb17f5a-11ac-4e18-825f-6470467238b3"
+                }
+              ],
               "resourceType": "MedicationRequest",
-              "status": "cancelled",
+              "status": "active",
               "intent": "order",
               "medicationCodeableConcept": {
                 "coding": [
@@ -238,7 +320,25 @@
               },
               "substitution": {
                 "allowedBoolean": false
-              }
+              },
+              "extension": [
+                {
+                  "url": "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory",
+                  "extension": [
+                    {
+                      "url": "status",
+                      "valueCoding": {
+                        "system": "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt",
+                        "code": "With Pharmacy - Preparing Remainder"
+                      }
+                    },
+                    {
+                      "url": "statusDate",
+                      "valueDateTime": "2023-09-11T10:11:15.000Z"
+                    }
+                  ]
+                }
+              ]
             }
           },
           {
@@ -359,10 +459,17 @@
         "type": "collection",
         "entry": [
           {
-            "fullUrl": "urn:uuid:ee035711-7aac-48c4-951a-62c07891d37d",
+            "fullUrl": "urn:uuid:7f9fa7aa-a6ef-4d2e-8efc-08fb9098ce34",
             "resource": {
+              "id": "7f9fa7aa-a6ef-4d2e-8efc-08fb9098ce34",
+              "identifier": [
+                {
+                  "system": "https://fhir.nhs.uk/Id/prescription-order-item-number",
+                  "value": "ee035711-7aac-48c4-951a-62c07891d37d"
+                }
+              ],
               "resourceType": "MedicationRequest",
-              "status": "cancelled",
+              "status": "active",
               "intent": "order",
               "medicationCodeableConcept": {
                 "coding": [
@@ -489,8 +596,15 @@
         "type": "collection",
         "entry": [
           {
-            "fullUrl": "urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6",
+            "fullUrl": "urn:uuid:26fe7442-49fc-4600-aae8-658fc7d4c955",
             "resource": {
+              "id": "26fe7442-49fc-4600-aae8-658fc7d4c955",
+              "identifier": [
+                {
+                  "system": "https://fhir.nhs.uk/Id/prescription-order-item-number",
+                  "value": "b6bf7869-9b30-436c-9260-84fc3dbf449b"
+                }
+              ],
               "resourceType": "MedicationRequest",
               "status": "active",
               "intent": "order",
@@ -541,7 +655,25 @@
               },
               "substitution": {
                 "allowedBoolean": false
-              }
+              },
+              "extension": [
+                {
+                  "url": "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory",
+                  "extension": [
+                    {
+                      "url": "status",
+                      "valueCoding": {
+                        "system": "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt",
+                        "code": "Ready to Collect - Partial"
+                      }
+                    },
+                    {
+                      "url": "statusDate",
+                      "valueDateTime": "2023-09-11T10:11:17.000Z"
+                    }
+                  ]
+                }
+              ]
             }
           },
           {
@@ -645,64 +777,6 @@
                 }
               ]
             }
-          }
-        ]
-      }
-    },
-    {
-      "fullUrl": "urn:uuid:1a388581-dbbe-43e3-9054-f5976c0245e5",
-      "search": {
-        "mode": "outcome"
-      },
-      "resource": {
-        "resourceType": "OperationOutcome",
-        "id": "1a388581-dbbe-43e3-9054-f5976c0245e5",
-        "meta": {
-          "lastUpdated": "2023-09-29T10:52:00+00:00"
-        },
-        "issue": [
-          {
-            "code": "business-rule",
-            "severity": "warning",
-            "details": {
-              "coding": [
-                {
-                  "system": "https://fhir.nhs.uk/CodeSystem/Spine-ErrorOrWarningCode",
-                  "code": "INVALIDATED_RESOURCE",
-                  "display": "Invalidated resource"
-                }
-              ]
-            },
-            "diagnostics": "Prescription with short form ID D7AC09-A99968-4BA59C has been invalidated so could not be returned."
-          }
-        ]
-      }
-    },
-    {
-      "fullUrl": "urn:uuid:fedef61e-bc62-452e-91c0-6f44ad2d5c0c",
-      "search": {
-        "mode": "outcome"
-      },
-      "resource": {
-        "resourceType": "OperationOutcome",
-        "id": "fedef61e-bc62-452e-91c0-6f44ad2d5c0c",
-        "meta": {
-          "lastUpdated": "2023-09-29T10:52:00+00:00"
-        },
-        "issue": [
-          {
-            "code": "business-rule",
-            "severity": "warning",
-            "details": {
-              "coding": [
-                {
-                  "system": "https://fhir.nhs.uk/CodeSystem/Spine-ErrorOrWarningCode",
-                  "code": "INVALIDATED_RESOURCE",
-                  "display": "Invalidated resource"
-                }
-              ]
-            },
-            "diagnostics": "Prescription with short form ID CDF34E-A99968-4FF3BQ has been invalidated so could not be returned."
           }
         ]
       }

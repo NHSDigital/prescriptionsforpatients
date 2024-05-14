@@ -125,7 +125,7 @@ Resources:
     Properties:
       FunctionName: !Sub "${AWS::StackName}-GetMyPrescriptions"
       CodeUri: ../packages
-      Handler: getMyPrescriptions.handler
+      Handler: getMyPrescriptions.apiGatewayHandler
       Role: !GetAtt GetMyPrescriptionsResources.Outputs.LambdaRoleArn
       Environment:
         Variables:

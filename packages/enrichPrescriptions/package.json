@@ -1,0 +1,27 @@
+{
+  "name": "enrichPrescriptions",
+  "version": "1.0.0",
+  "main": "enrichPrescriptions.js",
+  "author": "NHS Digital",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "unit": "POWERTOOLS_DEV=true NODE_OPTIONS=--experimental-vm-modules jest --no-cache --coverage",
+    "lint": "eslint . --ext .ts --max-warnings 0 --fix",
+    "compile": "tsc",
+    "test": "npm run compile && npm run unit",
+    "check-licenses": "license-checker --failOn GPL --failOn LGPL --start ../.."
+  },
+  "dependencies": {
+    "@aws-lambda-powertools/commons": "^2.0.2",
+    "@aws-lambda-powertools/logger": "^2.0.3",
+    "@aws-lambda-powertools/parameters": "^2.0.3",
+    "@aws-sdk/client-secrets-manager": "^3.549.0",
+    "@middy/core": "^5.3.2",
+    "@middy/input-output-logger": "^5.3.2",
+    "@types/fhir": "^0.0.41"
+  },
+  "devDependencies": {
+    "@prescriptionsforpatients_common/testing": "^1.0.0"
+  }
+}

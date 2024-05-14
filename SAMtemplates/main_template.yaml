@@ -10,23 +10,23 @@ Parameters:
     AllowedValues:
       - true
       - false
-  
+
   TruststoreVersion:
     Type: String
     Default: none
-  
+
   TruststoreFile:
     Type: String
     Default: none
-  
+
   TargetSpineServer:
     Type: String
     Default: none
-  
+
   TargetServiceSearchServer:
     Type: String
     Default: none
-  
+
   LogLevel:
     Type: String
     Default: "INFO"
@@ -57,12 +57,12 @@ Parameters:
       - 2922
       - 3288
       - 3653
-  
+
   EnableSplunk:
     Type: String
     Default: false
     AllowedValues: [true, false]
-  
+
   VersionNumber:
     Type: String
     Default: "xxx"
@@ -70,6 +70,10 @@ Parameters:
   CommitId:
     Type: String
     Default: "xxx"
+
+  ToggleGetStatusUpdates:
+    Type: String
+    Default: false
 
 Resources:
   Apis:
@@ -89,7 +93,7 @@ Resources:
         StatusFunctionArn: !GetAtt Functions.Outputs.StatusFunctionArn
         LogRetentionInDays: !Ref LogRetentionInDays
         EnableSplunk: !Ref EnableSplunk
-  
+
   Functions:
     Type: AWS::Serverless::Application
     Properties:
@@ -103,6 +107,7 @@ Resources:
         EnableSplunk: !Ref EnableSplunk
         VersionNumber: !Ref VersionNumber
         CommitId: !Ref CommitId
+        ToggleGetStatusUpdates: !Ref ToggleGetStatusUpdates
 
   StateMachines:
     Type: AWS::Serverless::Application
@@ -112,5 +117,7 @@ Resources:
         StackName: !Ref AWS::StackName
         GetMyPrescriptionsFunctionName: !GetAtt Functions.Outputs.GetMyPrescriptionsFunctionName
         GetMyPrescriptionsFunctionArn: !GetAtt Functions.Outputs.GetMyPrescriptionsFunctionArn
+        EnrichPrescriptionsFunctionName: !GetAtt Functions.Outputs.EnrichPrescriptionsFunctionName
+        EnrichPrescriptionsFunctionArn: !GetAtt Functions.Outputs.EnrichPrescriptionsFunctionArn
         LogRetentionInDays: !Ref LogRetentionInDays
         EnableSplunk: !Ref EnableSplunk

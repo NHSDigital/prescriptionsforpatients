@@ -96,7 +96,6 @@ Conditions:
   ShouldUseSplunk: !Equals [true, !Ref EnableSplunk]
 
 Resources:
-
   # sandbox lambda
   SandboxResources:
     Type: AWS::Serverless::Application
@@ -150,7 +149,7 @@ Resources:
         SplunkDeliveryStreamArn: !ImportValue lambda-resources:SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
         LogRetentionInDays: !Ref LogRetentionInDays
-  
+
   CapabilityStatement:
     Type: AWS::Serverless::Function
     Properties:
@@ -189,8 +188,7 @@ Resources:
         SplunkDeliveryStreamArn: !ImportValue lambda-resources:SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
         LogRetentionInDays: !Ref LogRetentionInDays
-  
-  
+
   Status:
     Type: AWS::Serverless::Function
     Properties:

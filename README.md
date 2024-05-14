@@ -6,6 +6,7 @@ This is the AWS layer that provides an API for accessing prescription informatio
 It is called by an Apigee proxy that is defined at https://github.com/NHSDigital/prescriptions-for-patients
 
 - `packages/getMyPrescriptions/` Get prescription details for /Bundle endpoint.
+- `packages/enrichPrescriptions/` Get prescription status updates for prescriptions retrieved by getMyPrescriptions.
 - `packages/sandbox/` Returns [static data](./packages/sandbox/examples/GetMyPrescriptions/Bundle/success.json) from the Sandbox.
 - `packages/statusLambda/` Returns the status of the getMyPrescriptions endpoint.
 - `packages/capabilityStatement/` Returns a static capability statement.

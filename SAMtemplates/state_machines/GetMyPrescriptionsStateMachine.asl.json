@@ -9,17 +9,106 @@
         "Payload.$": "$",
         "FunctionName": "${GetMyPrescriptionsFunctionArn}"
       },
+      "Next": "Get My Prescriptions Result",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "Catch All Error"
+        }
+      ]
+    },
+    "Get My Prescriptions Result": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Not": {
+            "Variable": "$.Payload.statusCode",
+            "NumericEquals": 200
+          },
+          "Next": "Failed Get My Prescriptions"
+        }
+      ],
+      "Default": "Parse Get My Prescriptions Body"
+    },
+    "Parse Get My Prescriptions Body": {
+      "Type": "Pass",
+      "Next": "Evaluate Toggle Get Status Updates Parameter",
+      "InputPath": "$.Payload.body",
+      "Parameters": {
+        "body.$": "States.StringToJson($)"
+      },
+      "OutputPath": "$.body"
+    },
+    "Evaluate Toggle Get Status Updates Parameter": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.getStatusUpdates",
+          "BooleanEquals": true,
+          "Next": "Get Status Updates"
+        }
+      ],
+      "Default": "Enrich Prescriptions"
+    },
+    "Get Status Updates": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "Payload.$": "$",
+        "FunctionName": "${GetStatusUpdatesFunctionArn}"
+      },
+      "InputPath": "$.statusUpdateData",
+      "Next": "Get Status Updates Result",
+      "ResultSelector": {
+        "Payload.$": "$.Payload"
+      },
+      "ResultPath": "$.StatusUpdates",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "Catch All Error"
+        }
+      ]
+    },
+    "Get Status Updates Result": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Not": {
+            "Variable": "$.StatusUpdates.Payload.isSuccess",
+            "BooleanEquals": true
+          },
+          "Next": "Catch All Error"
+        }
+      ],
+      "Default": "Enrich Prescriptions"
+    },
+    "Enrich Prescriptions": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "Payload.$": "$",
+        "FunctionName": "${EnrichPrescriptionsFunctionArn}"
+      },
       "End": true,
       "Catch": [
         {
           "ErrorEquals": [
             "States.ALL"
           ],
-          "Next": "CatchAllError"
+          "Next": "Catch All Error"
         }
       ]
     },
-    "CatchAllError": {
+    "Failed Get My Prescriptions": {
+      "Type": "Pass",
+      "End": true
+    },
+    "Catch All Error": {
       "Type": "Pass",
       "Result": {
         "Payload": {
