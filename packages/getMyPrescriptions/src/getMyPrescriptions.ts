@@ -1,4 +1,4 @@
-import {APIGatewayProxyEvent, APIGatewayProxyResult, Handler as HandlerConfig} from "aws-lambda"
+import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
 import {Logger} from "@aws-lambda-powertools/logger"
 import {injectLambdaContext} from "@aws-lambda-powertools/logger/middleware"
 import {LogLevel} from "@aws-lambda-powertools/logger/types"
@@ -55,6 +55,7 @@ export const stateMachineEventHandler = async (event: GetMyPrescriptionsEvent, p
   )
 
   if (hasTimedOut(handlerResponse)){
+    logger.error("Lambda handler has timed out. Returning error response.")
     return TIMEOUT_RESPONSE
   }
   return handlerResponse
@@ -68,6 +69,7 @@ export const apiGatewayEventHandler = async (event: APIGatewayProxyEvent, params
   )
 
   if (hasTimedOut(handlerResponse)){
+    logger.error("Lambda handler has timed out. Returning error response.")
     return TIMEOUT_RESPONSE
   }
   return handlerResponse
@@ -101,6 +103,7 @@ async function eventHandler(params: HandlerParams, headers: EventHeaders, succes
     const spineCallout = spineClient.getPrescriptions(headers)
     const response = await jobWithTimeout(params.spineTimeoutMs, spineCallout)
     if (hasTimedOut(response)){
+      logger.error("Call to Spine has timed out. Returning error response.")
       return TIMEOUT_RESPONSE
     }
     const searchsetBundle: Bundle = response.data
@@ -128,7 +131,7 @@ async function eventHandler(params: HandlerParams, headers: EventHeaders, succes
 
 type HandlerConfig<T> = {
   handlerFunction: (event: T, config: HandlerParams) => Promise<APIGatewayProxyResult>,
-  middleware: Array<middy.Middleware>,
+  middleware: Array<middy.MiddlewareObj>,
   params: HandlerParams
 }
 
@@ -153,7 +156,7 @@ export const newHandler = <T>(handlerConfig: HandlerConfig<T>) =>{
 
 const MIDDLEWARE = {
   injectLambdaContext: injectLambdaContext(logger, {clearState: true}),
-  httpHeaderNormalizer: httpHeaderNormalizer(),
+  httpHeaderNormalizer: httpHeaderNormalizer() as middy.MiddlewareObj,
   inputOutputLogger: inputOutputLogger({
     logger: (request) => {
       if (request.response) {
@@ -166,22 +169,24 @@ const MIDDLEWARE = {
   errorHandler: errorHandler({logger: logger})
 }
 
+export const stateMachineMiddleware = [
+  MIDDLEWARE.injectLambdaContext,
+  MIDDLEWARE.httpHeaderNormalizer,
+  MIDDLEWARE.inputOutputLogger
+]
 export const handler = newHandler({
   handlerFunction: stateMachineEventHandler,
   params: DEFAULT_HANDLER_PARAMS,
-  middleware: [
-    MIDDLEWARE.injectLambdaContext,
-    MIDDLEWARE.httpHeaderNormalizer,
-    MIDDLEWARE.inputOutputLogger
-  ]
+  middleware: stateMachineMiddleware
 })
 
+const apiGatewayMiddleware = [
+  MIDDLEWARE.injectLambdaContext,
+  MIDDLEWARE.inputOutputLogger,
+  MIDDLEWARE.errorHandler
+]
 export const apiGatewayHandler = newHandler({
   handlerFunction: apiGatewayEventHandler,
   params: DEFAULT_HANDLER_PARAMS,
-  middleware: [
-    MIDDLEWARE.injectLambdaContext,
-    MIDDLEWARE.inputOutputLogger,
-    MIDDLEWARE.errorHandler
-  ]
+  middleware: apiGatewayMiddleware
 })
