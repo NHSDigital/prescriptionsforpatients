@@ -169,7 +169,7 @@ const MIDDLEWARE = {
   errorHandler: errorHandler({logger: logger})
 }
 
-export const stateMachineMiddleware = [
+export const STATE_MACHINE_MIDDLEWARE = [
   MIDDLEWARE.injectLambdaContext,
   MIDDLEWARE.httpHeaderNormalizer,
   MIDDLEWARE.inputOutputLogger
@@ -177,10 +177,10 @@ export const stateMachineMiddleware = [
 export const handler = newHandler({
   handlerFunction: stateMachineEventHandler,
   params: DEFAULT_HANDLER_PARAMS,
-  middleware: stateMachineMiddleware
+  middleware: STATE_MACHINE_MIDDLEWARE
 })
 
-const apiGatewayMiddleware = [
+const API_GATEWAY_MIDDLEWARE = [
   MIDDLEWARE.injectLambdaContext,
   MIDDLEWARE.inputOutputLogger,
   MIDDLEWARE.errorHandler
@@ -188,5 +188,5 @@ const apiGatewayMiddleware = [
 export const apiGatewayHandler = newHandler({
   handlerFunction: apiGatewayEventHandler,
   params: DEFAULT_HANDLER_PARAMS,
-  middleware: apiGatewayMiddleware
+  middleware: API_GATEWAY_MIDDLEWARE
 })
