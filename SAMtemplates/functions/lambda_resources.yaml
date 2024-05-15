@@ -1,0 +1,132 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: |
+  Resources for a lambda
+
+Parameters:
+  StackName:
+    Type: String
+
+  LambdaName:
+    Type: String
+    Default: none
+  
+  LambdaArn:
+    Type: String
+    Default: none
+  
+  IncludeAdditionalPolicies:
+    Type: String
+    Default: false
+  
+  AdditionalPolicies:
+    Type: CommaDelimitedList
+    Description: A list of additional policies to attach the lambdas role (comma delimited).
+    Default: none
+  
+  LogRetentionInDays:
+    Type: Number
+  
+  CloudWatchKMSKeyId:
+    Type: String
+    Default: none
+  
+  EnableSplunk:
+    Type: String
+  
+  SplunkSubscriptionFilterRole:
+    Type: String
+    Default: none
+  
+  SplunkDeliveryStreamArn:
+    Type: String
+    Default: none
+
+Conditions:
+  ShouldUseSplunk: !Equals
+    - true
+    - !Ref EnableSplunk
+  
+  ShouldIncludeAdditionalPolicies: !Equals
+    - true
+    - !Ref IncludeAdditionalPolicies
+
+Resources:
+  ExecuteLambdaManagedPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - lambda:InvokeFunction
+            Resource:
+              - !Sub ${LambdaArn}*
+
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns: !Split
+        - ","
+        - !Join
+          - ","
+          - - !Ref LambdaManagedPolicy
+            - !ImportValue lambda-resources:LambdaInsightsLogGroupPolicy
+            - !ImportValue account-resources:CloudwatchEncryptionKMSPolicyArn
+            - !ImportValue account-resources:LambdaDecryptSecretsKMSPolicy
+            - !If
+              - ShouldIncludeAdditionalPolicies
+              - !Join
+                - ","
+                - !Ref AdditionalPolicies
+              - !Ref AWS::NoValue
+
+  LambdaManagedPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource:
+              - !GetAtt LambdaLogGroup.Arn
+              - !Sub ${LambdaLogGroup.Arn}:log-stream:*
+  
+  LambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${LambdaName}
+      RetentionInDays: !Ref LogRetentionInDays
+      KmsKeyId: !Ref CloudWatchKMSKeyId
+  
+  LambdaSplunkSubscriptionFilter:
+    Condition: ShouldUseSplunk
+    Type: AWS::Logs::SubscriptionFilter
+    Properties:
+      RoleArn: !Ref SplunkSubscriptionFilterRole
+      LogGroupName: !Ref LambdaLogGroup
+      FilterPattern: ''
+      DestinationArn: !Ref SplunkDeliveryStreamArn
+
+Outputs:
+  LambdaRoleArn:
+    Description: LambdaRole ARN
+    Value: !GetAtt LambdaRole.Arn
+
+  ExecuteLambdaPolicyArn:
+    Description: Lambda execution policy arn
+    Value: !GetAtt ExecuteLambdaManagedPolicy.PolicyArn
+    Export:
+      Name: !Sub ${StackName}:functions:${LambdaName}:ExecuteLambdaPolicyArn

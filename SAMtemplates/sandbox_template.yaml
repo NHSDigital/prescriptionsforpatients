@@ -32,6 +32,10 @@ Parameters:
     Type: String
     Description: TruststoreVersion
     Default: none
+  TruststoreFile:
+    Type: String
+    Description: TruststoreFile
+    Default: none
   EnableMutualTLS:
     Type: String
     Description: Whether to use mutual TLS
@@ -50,7 +54,7 @@ Parameters:
     Type: String
     Description: Most recent commit hash
     Default: "xxx"
-  LogRetentionDays:
+  LogRetentionInDays:
     Type: Number
     Description: How long to keep logs for
     AllowedValues:
@@ -78,29 +82,39 @@ Parameters:
         3288,
         3653,
       ]
+  DomainNameExport:
+    Type: String
+    Description: Which export (.eps or .prescriptionsforpatients) to use for domain name
+    Default: "route53-resources:domain"
+  ZoneIDExport:
+    Type: String
+    Description: Which export (.eps or .prescriptionsforpatients) to use for zone id
+    Default: "route53-resources:ZoneID"
 
 Conditions:
   ShouldUseMutualTLS: !Equals [true, !Ref EnableMutualTLS]
   ShouldUseSplunk: !Equals [true, !Ref EnableSplunk]
 
 Resources:
-
   # sandbox lambda
   SandboxResources:
     Type: AWS::Serverless::Application
     Properties:
-      Location: lambda_resources.yaml
+      Location: functions/lambda_resources.yaml
       Parameters:
-        CloudWatchKMSKey: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
+        StackName: AWS::StackName
+        LambdaName: !Sub ${AWS::StackName}-Sandbox
+        LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-Sandbox
+        CloudWatchKMSKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
         SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
-        SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
+        SplunkDeliveryStreamArn: !ImportValue lambda-resources:SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
-        LambdaName: !Sub "${AWS::StackName}-Sandbox"
-        LogRetentionDays: !Ref LogRetentionDays
+        LogRetentionInDays: !Ref LogRetentionInDays
+
   Sandbox:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub "${AWS::StackName}-Sandbox"
+      FunctionName: !Sub ${AWS::StackName}-Sandbox
       CodeUri: ../packages
       Handler: sandbox.handler
       Role: !GetAtt SandboxResources.Outputs.LambdaRoleArn
@@ -115,7 +129,7 @@ Resources:
       BuildMethod: esbuild
       BuildProperties:
         Minify: true
-        Target: "es2020"
+        Target: es2020
         Sourcemap: true
         tsconfig: sandbox/tsconfig.json
         EntryPoints:
@@ -125,18 +139,21 @@ Resources:
   CapabilityStatementResources:
     Type: AWS::Serverless::Application
     Properties:
-      Location: lambda_resources.yaml
+      Location: functions/lambda_resources.yaml
       Parameters:
-        CloudWatchKMSKey: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
+        StackName: AWS::StackName
+        LambdaName: !Sub ${AWS::StackName}-CapabilityStatement
+        LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-CapabilityStatement
+        CloudWatchKMSKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
         SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
-        SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
+        SplunkDeliveryStreamArn: !ImportValue lambda-resources:SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
-        LambdaName: !Sub "${AWS::StackName}-CapabilityStatement"
-        LogRetentionDays: !Ref LogRetentionDays
+        LogRetentionInDays: !Ref LogRetentionInDays
+
   CapabilityStatement:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub "${AWS::StackName}-CapabilityStatement"
+      FunctionName: !Sub ${AWS::StackName}-CapabilityStatement
       CodeUri: ../packages
       Handler: capabilityStatement.handler
       Role: !GetAtt CapabilityStatementResources.Outputs.LambdaRoleArn
@@ -151,31 +168,34 @@ Resources:
       BuildMethod: esbuild
       BuildProperties:
         Minify: true
-        Target: "es2020"
+        Target: es2020
         Sourcemap: true
         tsconfig: capabilityStatement/tsconfig.json
         EntryPoints:
           - capabilityStatement/src/capabilityStatement.ts
 
   # _status endpoint lambda
-  StatusLambdaResources:
+  StatusResources:
     Type: AWS::Serverless::Application
     Properties:
-      Location: lambda_resources.yaml
+      Location: functions/lambda_resources.yaml
       Parameters:
-        CloudWatchKMSKey: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
+        StackName: AWS::StackName
+        LambdaName: !Sub ${AWS::StackName}-status
+        LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-status
+        CloudWatchKMSKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
         SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
-        SplunkDeliveryStream: !ImportValue lambda-resources:SplunkDeliveryStream
+        SplunkDeliveryStreamArn: !ImportValue lambda-resources:SplunkDeliveryStream
         EnableSplunk: !Ref EnableSplunk
-        LambdaName: !Sub "${AWS::StackName}-statusLambda"
-        LogRetentionDays: !Ref LogRetentionDays
-  StatusLambda:
+        LogRetentionInDays: !Ref LogRetentionInDays
+
+  Status:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub "${AWS::StackName}-statusLambda"
+      FunctionName: !Sub ${AWS::StackName}-status
       CodeUri: ../packages
       Handler: statusLambda.handler
-      Role: !GetAtt StatusLambdaResources.Outputs.LambdaRoleArn
+      Role: !GetAtt StatusResources.Outputs.LambdaRoleArn
       Environment:
         Variables:
           VERSION_NUMBER: !Ref VersionNumber
@@ -206,15 +226,15 @@ Resources:
         Fn::Join:
           - "."
           - - !Ref "AWS::StackName"
-            - Fn::ImportValue: route53-resources:domain
+            - Fn::ImportValue: !Sub ${DomainNameExport}
       DomainValidationOptions:
         - DomainName:
             Fn::Join:
               - "."
               - - !Ref "AWS::StackName"
-                - Fn::ImportValue: route53-resources:domain
+                - Fn::ImportValue: !Sub ${DomainNameExport}
           HostedZoneId:
-            Fn::ImportValue: route53-resources:ZoneID
+            Fn::ImportValue: !Sub ${ZoneIDExport}
 
   # Http api
   HttpApiGateway:
@@ -226,11 +246,11 @@ Resources:
           Fn::Join:
             - "."
             - - !Ref "AWS::StackName"
-              - Fn::ImportValue: route53-resources:domain
+              - Fn::ImportValue: !Sub ${DomainNameExport}
         CertificateArn: !Ref GenerateCertificate
         Route53:
           HostedZoneId:
-            Fn::ImportValue: route53-resources:ZoneID
+            Fn::ImportValue: !Sub ${ZoneIDExport}
         EndpointConfiguration: REGIONAL
         SecurityPolicy: TLS_1_2
         MutualTlsAuthentication:
@@ -247,7 +267,7 @@ Resources:
                           Fn::ImportValue: account-resources:TrustStoreBucket,
                         ],
                       ]
-                    - "sandbox-truststore.pem"
+                    - !Ref TruststoreFile
               - !Ref "AWS::NoValue"
           TruststoreVersion:
             "Fn::If":
@@ -302,7 +322,7 @@ Resources:
           "/",
           ["/aws/apigateway", !Ref "AWS::StackName", !Sub "${HttpApiGateway}"],
         ]
-      RetentionInDays: !Ref LogRetentionDays
+      RetentionInDays: !Ref LogRetentionInDays
       KmsKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
 
   ApiGwAccessLogsSplunkSubscriptionFilter:

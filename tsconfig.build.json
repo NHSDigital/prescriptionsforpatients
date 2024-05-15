@@ -7,6 +7,7 @@
     { "path": "packages/serviceSearchClient" },
     { "path": "packages/capabilityStatement" },
     { "path": "packages/getMyPrescriptions" },
+    { "path": "packages/enrichPrescriptions" },
     { "path": "packages/sandbox" },
     { "path": "packages/statusLambda" },
     { "path": "packages/common/testing" },

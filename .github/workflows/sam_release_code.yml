@@ -18,9 +18,6 @@ on:
       BUILD_ARTIFACT:
         required: true
         type: string
-      DEPLOY_SANDBOX:
-        required: true
-        type: boolean
       TRUSTSTORE_FILE:
         required: true
         type: string
@@ -46,6 +43,15 @@ on:
         type: boolean
         default: false
       MARK_JIRA_RELEASED:
+        type: boolean
+        default: false
+      DOMAIN_NAME_EXPORT:
+        required: false
+        type: string
+      ZONE_ID_EXPORT:
+        required: false
+        type: string
+      TOGGLE_GET_STATUS_UPDATES:
         type: boolean
         default: false
     secrets:
@@ -112,7 +118,6 @@ jobs:
         env:
           artifact_bucket_prefix: prescriptions_for_patients/${{ inputs.ARTIFACT_BUCKET_PREFIX }}
           COMMIT_ID: ${{ inputs.COMMIT_ID }}
-          deploy_sandbox: ${{ inputs.DEPLOY_SANDBOX }}
           enable_mutual_tls: ${{ inputs.ENABLE_MUTUAL_TLS }}
           LOG_LEVEL: ${{ inputs.LOG_LEVEL }}
           LOG_RETENTION_DAYS: ${{ inputs.LOG_RETENTION_DAYS }}
@@ -123,6 +128,9 @@ jobs:
           template_file: template.yaml
           TRUSTSTORE_FILE: ${{ inputs.TRUSTSTORE_FILE }}
           VERSION_NUMBER: ${{ inputs.VERSION_NUMBER }}
+          DOMAIN_NAME_EXPORT: ${{ inputs.DOMAIN_NAME_EXPORT }}
+          ZONE_ID_EXPORT: ${{ inputs.ZONE_ID_EXPORT }}
+          TOGGLE_GET_STATUS_UPDATES: ${{ inputs.TOGGLE_GET_STATUS_UPDATES }}
         run: ./release_code.sh
 
       - name: create_int_release_notes

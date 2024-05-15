@@ -6,6 +6,7 @@ This is the AWS layer that provides an API for accessing prescription informatio
 It is called by an Apigee proxy that is defined at https://github.com/NHSDigital/prescriptions-for-patients
 
 - `packages/getMyPrescriptions/` Get prescription details for /Bundle endpoint.
+- `packages/enrichPrescriptions/` Get prescription status updates for prescriptions retrieved by getMyPrescriptions.
 - `packages/sandbox/` Returns [static data](./packages/sandbox/examples/GetMyPrescriptions/Bundle/success.json) from the Sandbox.
 - `packages/statusLambda/` Returns the status of the getMyPrescriptions endpoint.
 - `packages/capabilityStatement/` Returns a static capability statement.
@@ -116,8 +117,8 @@ To work with the GitHub Package Registry, you need to generate a [personal acces
 Follow these steps:
 
 - [Generate a personal access token (classic)](https://docs.github.com/en/enterprise-cloud@latest/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic)
-   - Go to your GitHub account settings and navigate to "Developer settings" > "Personal access tokens".
-   - Click "Generate new token" and select the `read:packages` scope. Ensure the token has no expiration.
+   - Go to your GitHub account settings and navigate to "Developer settings" > "Personal access tokens". Select the "Tokens(classic)" from the left bar.
+   - Click on the "Generate a personal access token" link and select the `read:packages` scope. Ensure the token has no expiration.
 
 
 - [Authorize a personal access token for use with SAML single sign-on](https://docs.github.com/en/enterprise-cloud@latest/authentication/authenticating-with-saml-single-sign-on/authorizing-a-personal-access-token-for-use-with-saml-single-sign-on)

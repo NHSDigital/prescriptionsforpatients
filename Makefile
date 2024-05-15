@@ -20,6 +20,10 @@ install-hooks: install-python
 sam-build: sam-validate compile download-get-secrets-layer
 	sam build --template-file SAMtemplates/main_template.yaml --region eu-west-2
 
+#to be removed
+sam-build-old: sam-validate compile download-get-secrets-layer
+	sam build --template-file SAMtemplates/main_template.old.yaml --region eu-west-2
+
 sam-build-sandbox: sam-validate-sandbox compile download-get-secrets-layer
 	sam build --template-file SAMtemplates/sandbox_template.yaml --region eu-west-2
 
@@ -65,14 +69,21 @@ sam-list-outputs: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam list stack-outputs --stack-name $$stack_name
 
 sam-validate: 
+	sam validate --template-file SAMtemplates/main_template.old.yaml --region eu-west-2
+	sam validate --template-file SAMtemplates/lambda_resources.old.yaml --region eu-west-2
 	sam validate --template-file SAMtemplates/main_template.yaml --region eu-west-2
-	sam validate --template-file SAMtemplates/lambda_resources.yaml --region eu-west-2
+	sam validate --template-file SAMtemplates/apis/main.yaml --region eu-west-2
+	sam validate --template-file SAMtemplates/apis/api_resources.yaml --region eu-west-2
+	sam validate --template-file SAMtemplates/functions/main.yaml --region eu-west-2
+	sam validate --template-file SAMtemplates/functions/lambda_resources.yaml --region eu-west-2
+	sam validate --template-file SAMtemplates/state_machines/main.yaml --region eu-west-2
+	sam validate --template-file SAMtemplates/state_machines/state_machine_resources.yaml --region eu-west-2
+
 
 sam-validate-sandbox: 
 	sam validate --template-file SAMtemplates/sandbox_template.yaml --region eu-west-2
-	sam validate --template-file SAMtemplates/lambda_resources.yaml --region eu-west-2
 
-sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role guard-LATEST_TRUSTSTORE_VERSION guard-enable_mutual_tls guard-VERSION_NUMBER guard-COMMIT_ID guard-LOG_LEVEL guard-LOG_RETENTION_DAYS guard-TARGET_ENVIRONMENT guard-target_spine_server guard-target_service_search_server
+sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role guard-LATEST_TRUSTSTORE_VERSION guard-TRUSTSTORE_FILE guard-enable_mutual_tls guard-VERSION_NUMBER guard-COMMIT_ID guard-LOG_LEVEL guard-LOG_RETENTION_DAYS guard-TARGET_ENVIRONMENT guard-target_spine_server guard-target_service_search_server guard-TOGGLE_GET_STATUS_UPDATES
 	sam deploy \
 		--template-file $$template_file \
 		--stack-name $$stack_name \
@@ -88,6 +99,7 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 		--tags "version=$$VERSION_NUMBER" \
 		--parameter-overrides \
 			  TruststoreVersion=$$LATEST_TRUSTSTORE_VERSION \
+				TruststoreFile=$$TRUSTSTORE_FILE \
 			  EnableMutualTLS=$$enable_mutual_tls \
 			  TargetSpineServer=$$target_spine_server \
 			  TargetServiceSearchServer=$$target_service_search_server \
@@ -95,8 +107,11 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 			  VersionNumber=$$VERSION_NUMBER \
 			  CommitId=$$COMMIT_ID \
 			  LogLevel=$$LOG_LEVEL \
-			  LogRetentionDays=$$LOG_RETENTION_DAYS \
-			  Env=$$TARGET_ENVIRONMENT
+			  LogRetentionInDays=$$LOG_RETENTION_DAYS \
+			  Env=$$TARGET_ENVIRONMENT \
+				DomainNameExport=$$DOMAIN_NAME_EXPORT \
+				ZoneIDExport=$$ZONE_ID_EXPORT \
+			  ToggleGetStatusUpdates=$$TOGGLE_GET_STATUS_UPDATES
 
 compile-node:
 	npx tsc --build tsconfig.build.json
@@ -105,11 +120,12 @@ compile: compile-node
 
 download-get-secrets-layer:
 	mkdir -p packages/getSecretLayer/lib
-	curl -LJ https://github.com/NHSDigital/electronic-prescription-service-get-secrets/releases/download/v1.0.175-alpha/get-secrets-layer.zip -o packages/getSecretLayer/lib/get-secrets-layer.zip
+	curl -LJ https://github.com/NHSDigital/electronic-prescription-service-get-secrets/releases/download/v1.0.206-alpha/get-secrets-layer.zip -o packages/getSecretLayer/lib/get-secrets-layer.zip
 
 lint-node: compile-node
 	npm run lint --workspace packages/capabilityStatement
 	npm run lint --workspace packages/getMyPrescriptions
+	npm run lint --workspace packages/enrichPrescriptions
 	npm run lint --workspace packages/sandbox
 	npm run lint --workspace packages/statusLambda
 	npm run lint --workspace packages/serviceSearchClient
@@ -117,7 +133,7 @@ lint-node: compile-node
 	npm run lint --workspace packages/distanceSelling
 
 lint-samtemplates:
-	poetry run cfn-lint -t SAMtemplates/*.yaml
+	poetry run cfn-lint -I "SAMtemplates/**/*.yaml" 2>&1 | grep "Run scan"
 
 lint-python:
 	poetry run flake8 scripts/*.py --config .flake8
@@ -133,6 +149,7 @@ lint: lint-node lint-samtemplates lint-python lint-githubactions lint-githubacti
 test: compile
 	npm run test --workspace packages/capabilityStatement
 	npm run test --workspace packages/getMyPrescriptions
+	npm run test --workspace packages/enrichPrescriptions
 	npm run test --workspace packages/sandbox
 	npm run test --workspace packages/statusLambda
 	npm run test --workspace packages/serviceSearchClient
@@ -141,6 +158,7 @@ test: compile
 clean:
 	rm -rf packages/capabilityStatement/coverage
 	rm -rf packages/getMyPrescriptions/coverage
+	rm -rf packages/enrichPrescriptions/coverage
 	rm -rf packages/sandbox/coverage
 	rm -rf packages/serviceSearchClient/coverage
 	rm -rf packages/distanceSelling/coverage
@@ -148,6 +166,7 @@ clean:
 	rm -rf packages/common/testing/coverage
 	rm -rf packages/capabilityStatement/lib
 	rm -rf packages/getMyPrescriptions/lib
+	rm -rf packages/enrichPrescriptions/lib
 	rm -rf packages/sandbox/lib
 	rm -rf packages/serviceSearchClient/lib
 	rm -rf packages/distanceSelling/lib
@@ -165,6 +184,7 @@ check-licenses: check-licenses-node check-licenses-python
 check-licenses-node:
 	npm run check-licenses
 	npm run check-licenses --workspace packages/getMyPrescriptions
+	npm run check-licenses --workspace packages/enrichPrescriptions
 	npm run check-licenses --workspace packages/capabilityStatement
 	npm run check-licenses --workspace packages/sandbox
 	npm run check-licenses --workspace packages/statusLambda

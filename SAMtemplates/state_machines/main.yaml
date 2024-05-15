@@ -1,0 +1,84 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: |
+  PFP state machines and related resources
+
+Parameters:
+  StackName:
+    Type: String
+    Description: The name of the main stack
+    Default: none
+
+  GetMyPrescriptionsFunctionArn:
+    Type: String
+    Default: none
+
+  EnrichPrescriptionsFunctionArn:
+    Type: String
+    Default: none
+
+  GetMyPrescriptionsFunctionName:
+    Type: String
+    Default: none
+
+  EnrichPrescriptionsFunctionName:
+    Type: String
+    Default: none
+
+  LogRetentionInDays:
+    Type: Number
+
+  EnableSplunk:
+    Type: String
+
+Resources:
+  GetMyPrescriptionsStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      Name: !Sub ${StackName}-GetMyPrescriptions
+      Type: EXPRESS
+      Role: !GetAtt GetMyPrescriptionsStateMachineResources.Outputs.StateMachineRoleArn
+      DefinitionUri: GetMyPrescriptionsStateMachine.asl.json
+      DefinitionSubstitutions:
+        GetMyPrescriptionsFunctionArn: !Sub ${GetMyPrescriptionsFunctionArn}:$LATEST
+        GetStatusUpdatesFunctionArn: !Join
+          - ":"
+          - - !ImportValue psu:functions:GetStatusUpdates:FunctionArn
+            - $LATEST
+        EnrichPrescriptionsFunctionArn: !Sub ${EnrichPrescriptionsFunctionArn}:$LATEST
+      Logging:
+        Destinations:
+          - CloudWatchLogsLogGroup:
+              LogGroupArn: !GetAtt GetMyPrescriptionsStateMachineResources.Outputs.StateMachineLogGroupArn
+        IncludeExecutionData: true
+        Level: ALL
+      Tracing:
+        Enabled: true
+
+  GetMyPrescriptionsStateMachineResources:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: state_machine_resources.yaml
+      Parameters:
+        StackName: !Ref StackName
+        StateMachineName: !Sub ${StackName}-GetMyPrescriptions
+        StateMachineArn: !Sub arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${StackName}-GetMyPrescriptions
+        AdditionalPolicies: !Join
+          - ","
+          - - Fn::ImportValue: !Sub ${StackName}:functions:${GetMyPrescriptionsFunctionName}:ExecuteLambdaPolicyArn
+            - Fn::ImportValue: !Sub ${StackName}:functions:${EnrichPrescriptionsFunctionName}:ExecuteLambdaPolicyArn
+            - Fn::ImportValue: psu:functions:psu-GetStatusUpdates:ExecuteLambdaPolicyArn
+        LogRetentionInDays: !Ref LogRetentionInDays
+        CloudWatchKMSKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
+        EnableSplunk: !Ref EnableSplunk
+        SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
+        SplunkDeliveryStreamArn: !ImportValue lambda-resources:SplunkDeliveryStream
+
+Outputs:
+  GetMyPrescriptionsStateMachineArn:
+    Description: GetMyPrescriptions state machine arn
+    Value: !Ref GetMyPrescriptionsStateMachine
+
+  GetMyPrescriptionsStateMachineName:
+    Description: GetMyPrescriptions state machine name
+    Value: !GetAtt GetMyPrescriptionsStateMachine.Name

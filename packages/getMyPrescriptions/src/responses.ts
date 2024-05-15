@@ -1,5 +1,30 @@
+import {Bundle, OperationOutcome} from "fhir/r4"
+import {StatusUpdateData, shouldGetStatusUpdates} from "./statusUpdate"
 import {APIGatewayProxyResult} from "aws-lambda"
-import {Bundle, FhirResource} from "fhir/r4"
+
+export type FhirBody = Bundle | OperationOutcome
+
+export type StateMachineFunctionResponseBody = {
+  fhir: FhirBody
+  getStatusUpdates: boolean
+  statusUpdateData?: {
+    schemaVersion: number
+    prescriptions: Array<StatusUpdateData>
+  }
+  traceIDs: TraceIDs
+}
+
+export type TraceIDs = {
+  "nhsd-correlation-id"?: string
+  "x-request-id"?: string
+  "nhsd-request-id"?: string
+  "x-correlation-id"?: string
+  "apigw-request-id"?: string
+}
+
+export type ResponseFunc = (
+  fhirBody: FhirBody, traceIDs: TraceIDs, statusUpdateData?: Array<StatusUpdateData>
+) => APIGatewayProxyResult
 
 export const HEADERS = {
   "Content-Type": "application/fhir+json",
@@ -76,10 +101,33 @@ export const INVALID_NHS_NUMBER_RESPONSE: APIGatewayProxyResult = {
   headers: HEADERS
 }
 
-export function successResponse(searchsetBundle: Bundle<FhirResource>): APIGatewayProxyResult {
+export function stateMachineLambdaResponse(
+  fhirBody: FhirBody, traceIDs: TraceIDs, statusUpdateData?: Array<StatusUpdateData>
+): APIGatewayProxyResult {
+  const body: StateMachineFunctionResponseBody = {
+    fhir: fhirBody,
+    getStatusUpdates: shouldGetStatusUpdates(),
+    traceIDs: traceIDs
+  }
+
+  if (statusUpdateData) {
+    body.statusUpdateData = {
+      schemaVersion: 1,
+      prescriptions: statusUpdateData
+    }
+  }
+
   return {
     statusCode: 200,
-    body: JSON.stringify(searchsetBundle),
+    body: JSON.stringify(body),
+    headers: HEADERS
+  }
+}
+
+export function apiGatewayLambdaResponse(fhirBody: FhirBody): APIGatewayProxyResult {
+  return {
+    statusCode: 200,
+    body: JSON.stringify(fhirBody),
     headers: HEADERS
   }
 }

@@ -7,6 +7,9 @@ import {helloworldContext} from "./helloWorldContext"
 import _mockAPIGatewayProxyEvent from "./mockAPIGatewayProxyEvent.json"
 const mockAPIGatewayProxyEvent: APIGatewayProxyEvent = _mockAPIGatewayProxyEvent
 
+import _mockStateMachineInputEvent from "./mockStateMachineInputEvent.json"
+const mockStateMachineInputEvent = _mockStateMachineInputEvent
+
 import _mockServiceSearchResponseBodyPharmacy2u from "./mockServiceSearchResponseBodyPharmacy2u.json"
 const mockPharmacy2uResponse = _mockServiceSearchResponseBodyPharmacy2u
 
@@ -21,6 +24,7 @@ const mockAPIResponseBody = _mockAPIResponseBody
 
 export {
   mockAPIGatewayProxyEvent,
+  mockStateMachineInputEvent,
   mockPharmacy2uResponse,
   mockPharmicaResponse,
   mockInteractionResponseBody,

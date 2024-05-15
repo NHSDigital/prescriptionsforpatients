@@ -58,12 +58,31 @@ jobs:
     needs: [get_issue_number, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
+      STACK_NAME: pfp-pr-${{needs.get_issue_number.outputs.issue_number}}
+      ARTIFACT_BUCKET_PREFIX: PR-${{needs.get_issue_number.outputs.issue_number}}
+      TARGET_ENVIRONMENT: dev-pr
+      ENABLE_MUTUAL_TLS: false
+      BUILD_ARTIFACT: packaged_code
+      TRUSTSTORE_FILE: pfp-truststore.pem
+      VERSION_NUMBER: PR-${{ needs.get_issue_number.outputs.issue_number }}
+      COMMIT_ID: ${{ needs.get_commit_id.outputs.commit_id }}
+      LOG_LEVEL: DEBUG
+      LOG_RETENTION_DAYS: 30
+      TOGGLE_GET_STATUS_UPDATES: true
+    secrets:
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_SPINE_SERVER: ${{ secrets.DEV_TARGET_SPINE_SERVER }}
+      TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.DEV_TARGET_SERVICE_SEARCH_SERVER }}
+  
+  release_code_old:
+    needs: [get_issue_number, package_code, get_commit_id]
+    uses: ./.github/workflows/sam_release_code.yml
+    with:
       STACK_NAME: pr-${{needs.get_issue_number.outputs.issue_number}}
       ARTIFACT_BUCKET_PREFIX: PR-${{needs.get_issue_number.outputs.issue_number}}
       TARGET_ENVIRONMENT: dev-pr
       ENABLE_MUTUAL_TLS: false
-      DEPLOY_SANDBOX: false
-      BUILD_ARTIFACT: packaged_code
+      BUILD_ARTIFACT: packaged_code_old
       TRUSTSTORE_FILE: truststore.pem
       VERSION_NUMBER: PR-${{ needs.get_issue_number.outputs.issue_number }}
       COMMIT_ID: ${{ needs.get_commit_id.outputs.commit_id }}
@@ -78,17 +97,39 @@ jobs:
     needs: [get_issue_number, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
+      STACK_NAME: pfp-pr-${{needs.get_issue_number.outputs.issue_number}}-sandbox
+      ARTIFACT_BUCKET_PREFIX: PR-sandbox-${{needs.get_issue_number.outputs.issue_number}}
+      TARGET_ENVIRONMENT: dev-pr
+      ENABLE_MUTUAL_TLS: false
+      BUILD_ARTIFACT: packaged_sandbox_code
+      TRUSTSTORE_FILE: pfp-sandbox-truststore.pem
+      VERSION_NUMBER: PR-${{ needs.get_issue_number.outputs.issue_number }}
+      COMMIT_ID: ${{ needs.get_commit_id.outputs.commit_id }}
+      LOG_LEVEL: DEBUG
+      LOG_RETENTION_DAYS: 30
+      DOMAIN_NAME_EXPORT: eps-route53-resources:EPS-domain
+      ZONE_ID_EXPORT: eps-route53-resources:EPS-ZoneID
+    secrets:
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_SPINE_SERVER: sandbox
+      TARGET_SERVICE_SEARCH_SERVER: sandbox
+  
+  release_sandbox_code_old:
+    needs: [get_issue_number, package_code, get_commit_id]
+    uses: ./.github/workflows/sam_release_code.yml
+    with:
       STACK_NAME: pr-sandbox-${{needs.get_issue_number.outputs.issue_number}}
       ARTIFACT_BUCKET_PREFIX: PR-sandbox-${{needs.get_issue_number.outputs.issue_number}}
       TARGET_ENVIRONMENT: dev-pr
       ENABLE_MUTUAL_TLS: false
-      DEPLOY_SANDBOX: true
-      BUILD_ARTIFACT: packaged_sandbox_code
+      BUILD_ARTIFACT: packaged_sandbox_code_old
       TRUSTSTORE_FILE: sandbox-truststore.pem
       VERSION_NUMBER: PR-${{ needs.get_issue_number.outputs.issue_number }}
       COMMIT_ID: ${{ needs.get_commit_id.outputs.commit_id }}
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
+      DOMAIN_NAME_EXPORT: route53-resources:domain
+      ZONE_ID_EXPORT: route53-resources:ZoneID
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: sandbox
