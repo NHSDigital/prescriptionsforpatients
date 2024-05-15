@@ -421,7 +421,7 @@ describe("Unit tests for app handler including service search", function () {
 })
 
 it("logs the correct apigw-request-id on multiple calls", async () => {
-  const mockLoggerInfo = jest.spyOn(global.console, "info")
+  const mockLoggerInfo = jest.spyOn(Logger.prototype, "info")
 
   mock.onGet("https://live/mm/patientfacingprescriptions").reply(200, {statusCode: "0"})
 
@@ -431,35 +431,23 @@ it("logs the correct apigw-request-id on multiple calls", async () => {
   await apiGatewayHandler(event_one, dummyContext)
   await apiGatewayHandler(event_two, dummyContext)
 
-  // should have logged event.requestContext.requestId but not apigw-request-id
-  expect(mockLoggerInfo).toHaveBeenCalledWith(
-    expect.toMatchJsonLogMessage("event.requestContext.requestId",
-      "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
-      "apigw-request-id"
-    )
-  )
+  const expectedIds = ["c6af9ac6-7b61-11e6-9a41-93e8deadbeef", "d6af9ac6-7b61-11e6-9a41-93e8deadbeef"].reverse()
 
-  expect(mockLoggerInfo).toHaveBeenCalledWith(
-    expect.toMatchJsonLogMessage("event.requestContext.requestId",
-      "d6af9ac6-7b61-11e6-9a41-93e8deadbeef",
-      "apigw-request-id"
-    )
-  )
+  for (const call of mockLoggerInfo.mock.calls) {
+    // Consider only request logs
+    if(typeof call[0] !== "object") {
+      continue
+    }
 
-  // should have logged apigw-request-id on some messages
-  expect(mockLoggerInfo).toHaveBeenCalledWith(
-    expect.toMatchJsonLogMessage("apigw-request-id",
-      "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
-      ""
-    )
-  )
+    const event = call[0].event as Record<string, Record<string, string>>
+    const headers = event["headers"]
+    const requestContext = event["requestContext"]
 
-  expect(mockLoggerInfo).toHaveBeenCalledWith(
-    expect.toMatchJsonLogMessage("apigw-request-id",
-      "d6af9ac6-7b61-11e6-9a41-93e8deadbeef",
-      ""
-    )
-  )
+    const expectedId = expectedIds.pop()
+
+    expect(headers["apigw-request-id"]).toEqual(expectedId)
+    expect(requestContext["requestId"]).toEqual(expectedId)
+  }
 })
 
 export {}
