@@ -1,5 +1,12 @@
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
-import {DEFAULT_HANDLER_PARAMS, handler, newHandler} from "../src/getMyPrescriptions"
+import {
+  DEFAULT_HANDLER_PARAMS,
+  handler,
+  newHandler,
+  GetMyPrescriptionsEvent,
+  apiGatewayHandler,
+  apiGatewayEventHandler
+} from "../src/getMyPrescriptions"
 import {Logger} from "@aws-lambda-powertools/logger"
 import axios from "axios"
 import MockAdapter from "axios-mock-adapter"
@@ -20,7 +27,6 @@ import {
   mockStateMachineInputEvent
 } from "@prescriptionsforpatients_common/testing"
 
-import {GetMyPrescriptionsEvent, apiGatewayHandler, handler} from "../src/getMyPrescriptions"
 import {HEADERS, StateMachineFunctionResponseBody, TIMEOUT_RESPONSE} from "../src/responses"
 import "./toMatchJsonLogMessage"
 import {EXPECTED_TRACE_IDS} from "./utils"
@@ -273,7 +279,7 @@ describe("Unit test for app handler", function () {
   })
 
   it("times-out if spine call takes too long", async () => {
-    const mockErrorLogger = jest.spyOn(global.console, "error")
+    const mockErrorLogger = jest.spyOn(Logger.prototype, "error")
     const delayedResponse: Promise<Array<unknown>> = new Promise((resolve) => setTimeout(() => resolve([]), 15_000))
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     mock.onGet("https://live/mm/patientfacingprescriptions").reply((_config) => delayedResponse)
@@ -289,26 +295,24 @@ describe("Unit test for app handler", function () {
     expect(JSON.parse(result.body)).toEqual(JSON.parse(TIMEOUT_RESPONSE.body))
 
     // Assert error level log was produced
-    expect(mockErrorLogger).toHaveBeenCalledWith(
-      expect.toMatchJsonLogMessage("message",
-        "Call to Spine has timed out. Returning error response.", "")
-    )
-    expect(mockErrorLogger).toHaveBeenCalledWith(
-      expect.toMatchJsonLogMessage("level",
-        "ERROR", "")
-    )
+    expect(mockErrorLogger).toHaveBeenCalledWith("Call to Spine has timed out. Returning error response.")
   })
 
-  it("timesout if lambda handler takes too long", async () => {
-    const mockErrorLogger = jest.spyOn(global.console, "error")
+  it("times-out if lambda handler takes too long", async () => {
+    const mockErrorLogger = jest.spyOn(Logger.prototype, "error")
 
     // delaying spine response to trigger lambda timeout
-    const handler = newHandler({...DEFAULT_HANDLER_PARAMS, lambdaTimeoutMs: 1_000})
+    const handlerParams = {...DEFAULT_HANDLER_PARAMS, lambdaTimeoutMs: 1_000}
+    const handler = newHandler({
+      handlerFunction: apiGatewayEventHandler,
+      params: handlerParams,
+      middleware: []
+    })
     const delayedResponse: Promise<Array<unknown>> = new Promise((resolve) => setTimeout(() => resolve([]), 5_000))
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     mock.onGet("https://live/mm/patientfacingprescriptions").reply((_config) => delayedResponse)
 
-    const event: APIGatewayProxyEvent = JSON.parse(exampleEvent)
+    const event: APIGatewayProxyEvent = JSON.parse(exampleApiGatewayEvent)
     const eventHandler: Promise<APIGatewayProxyResult> = handler(event, dummyContext)
 
     await jest.advanceTimersByTimeAsync(2_000)
@@ -319,14 +323,7 @@ describe("Unit test for app handler", function () {
     expect(JSON.parse(result.body)).toEqual(JSON.parse(TIMEOUT_RESPONSE.body))
 
     // Assert error level log was produced
-    expect(mockErrorLogger).toHaveBeenCalledWith(
-      expect.toMatchJsonLogMessage("message",
-        "Lambda handler has timed out. Returning error response.", "")
-    )
-    expect(mockErrorLogger).toHaveBeenCalledWith(
-      expect.toMatchJsonLogMessage("level",
-        "ERROR", "")
-    )
+    expect(mockErrorLogger).toHaveBeenCalledWith("Lambda handler has timed out. Returning error response.")
   })
 })
 
