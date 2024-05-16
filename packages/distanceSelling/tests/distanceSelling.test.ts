@@ -22,16 +22,16 @@ describe("ServiceSearch tests", function () {
   })
 
   it("isolatePrescriptions returns prescription resources", async () => {
-    expect(mockInteractionResponseBody.entry.length).toEqual(5)
+    expect(mockInteractionResponseBody.entry.length).toEqual(6)
     const distanceSelling = new DistanceSelling({}, logger)
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
     const result = distanceSelling.isolatePrescriptions(searchsetBundle)
 
-    expect(result.length).toEqual(3)
+    expect(result.length).toEqual(4)
     expect(result.filter((r) =>
       r.resourceType === "Bundle"
-    ).length).toEqual(3)
+    ).length).toEqual(4)
   })
 
   it("getPerformerReferences returns performer references from prescription resources", async () => {
