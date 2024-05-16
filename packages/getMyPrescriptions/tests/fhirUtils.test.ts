@@ -20,12 +20,12 @@ const mockBundleString = JSON.stringify(mockInteractionResponseBody)
 
 describe("Unit tests for fhirUtils", function () {
   it("isolatePrescriptions returns prescription resources", async () => {
-    expect(mockInteractionResponseBody.entry.length).toEqual(5)
+    expect(mockInteractionResponseBody.entry.length).toEqual(6)
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
     const result = isolatePrescriptions(searchsetBundle)
 
-    expect(result.length).toEqual(3)
+    expect(result.length).toEqual(4)
     result.forEach(r => expect(r.resourceType === "Bundle"))
   })
 
@@ -35,7 +35,7 @@ describe("Unit tests for fhirUtils", function () {
     const prescriptions = isolatePrescriptions(searchsetBundle)
     const result = prescriptions.flatMap(p => isolateMedicationRequests(p))
 
-    expect(result.length).toEqual(6)
+    expect(result.length).toEqual(7)
     result.forEach(r => expect(r.resourceType === "MedicationRequest"))
   })
 
@@ -84,7 +84,7 @@ describe("Unit tests for fhirUtils", function () {
 
   it("isolatePerformerOrganisations returns relevant organisations when same organisation across prescriptions", async () => {
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
-    const pharmicaPrescription = searchsetBundle.entry![2].resource! as Bundle
+    const pharmicaPrescription = searchsetBundle.entry![3].resource! as Bundle
     pharmicaPrescription.entry![4].resource! = pharmacy2uOrganisation()
 
     const result = isolatePerformerOrganisations(searchsetBundle)

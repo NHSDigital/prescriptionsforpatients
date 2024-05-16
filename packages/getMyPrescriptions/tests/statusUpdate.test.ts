@@ -48,6 +48,12 @@ describe("Unit tests for statusUpdate", () => {
     const result = buildStatusUpdateData(bundle)
     expect(result).toEqual([])
   })
+
+  test("when a bundle is passed-in, all items have a status of either Prescriber Approved or Cancelled", async () => {
+    const bundle = mockInteractionResponseBody as Bundle
+    const result = buildStatusUpdateData(bundle)
+    expect(result.length).toBe(2)
+  })
 })
 
 describe("Unit tests for statusUpdate, via handler", function () {
