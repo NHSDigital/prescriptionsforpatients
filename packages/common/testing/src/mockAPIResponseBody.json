@@ -70,7 +70,25 @@
               },
               "substitution": {
                 "allowedBoolean": false
-              }
+              },
+              "extension": [
+                {
+                  "url": "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory",
+                  "extension": [
+                    {
+                      "url": "status",
+                      "valueCoding": {
+                        "system": "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt",
+                        "code": "Prescriber Approved"
+                      }
+                    },
+                    {
+                      "url": "statusDate",
+                      "valueDateTime": "2023-09-11T10:11:12.000Z"
+                    }
+                  ]
+                }
+              ]
             }
           },
           {
@@ -126,7 +144,25 @@
               },
               "substitution": {
                 "allowedBoolean": false
-              }
+              },
+              "extension": [
+                {
+                  "url": "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory",
+                  "extension": [
+                    {
+                      "url": "status",
+                      "valueCoding": {
+                        "system": "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt",
+                        "code": "Prescriber Approved"
+                      }
+                    },
+                    {
+                      "url": "statusDate",
+                      "valueDateTime": "2023-09-11T10:11:12.000Z"
+                    }
+                  ]
+                }
+              ]
             }
           },
           {
