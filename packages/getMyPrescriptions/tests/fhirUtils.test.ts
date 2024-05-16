@@ -35,7 +35,7 @@ describe("Unit tests for fhirUtils", function () {
     const prescriptions = isolatePrescriptions(searchsetBundle)
     const result = prescriptions.flatMap(p => isolateMedicationRequests(p))
 
-    expect(result.length).toEqual(7)
+    expect(result.length).toEqual(10)
     result.forEach(r => expect(r.resourceType === "MedicationRequest"))
   })
 
@@ -49,7 +49,8 @@ describe("Unit tests for fhirUtils", function () {
 
     const expectedPerformers = [
       "urn:uuid:afb07f8b-e8d7-4cad-895d-494e6b35b2a1",
-      "urn:uuid:154dcc4a-0006-4272-9758-9dcb8d95ce8b"
+      "urn:uuid:154dcc4a-0006-4272-9758-9dcb8d95ce8b",
+      "urn:uuid:afb07f8b-e8d7-4cad-895d-494e6b35b2a1"
     ]
 
     expect(result).toEqual(expectedPerformers)
@@ -75,26 +76,28 @@ describe("Unit tests for fhirUtils", function () {
 
     const expectedOrganisations: Array<Organization> = [
       pharmacy2uOrganisation(),
-      pharmicaOrganisation()
+      pharmicaOrganisation(),
+      pharmacy2uOrganisation()
     ]
 
-    expect(result.length).toEqual(2)
+    expect(result.length).toEqual(3)
     expect(result).toEqual(expectedOrganisations)
   })
 
   it("isolatePerformerOrganisations returns relevant organisations when same organisation across prescriptions", async () => {
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
     const pharmicaPrescription = searchsetBundle.entry![3].resource! as Bundle
-    pharmicaPrescription.entry![4].resource! = pharmacy2uOrganisation()
+    pharmicaPrescription.entry![2].resource! = pharmacy2uOrganisation()
 
     const result = isolatePerformerOrganisations(searchsetBundle)
 
     const expectedOrganisations: Array<Organization> = [
       pharmacy2uOrganisation(),
+      pharmicaOrganisation(),
       pharmacy2uOrganisation()
     ]
 
-    expect(result.length).toEqual(2)
+    expect(result.length).toEqual(3)
     expect(result).toEqual(expectedOrganisations)
   })
 

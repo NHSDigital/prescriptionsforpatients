@@ -42,8 +42,8 @@ describe("ServiceSearch tests", function () {
     const result = distanceSelling.getPerformerReferences(prescriptions)
 
     const expectedPerformers = new Set<string>()
-    expectedPerformers.add("urn:uuid:afb07f8b-e8d7-4cad-895d-494e6b35b2a1")
     expectedPerformers.add("urn:uuid:154dcc4a-0006-4272-9758-9dcb8d95ce8b")
+    expectedPerformers.add("urn:uuid:afb07f8b-e8d7-4cad-895d-494e6b35b2a1")
 
     expect(result).toEqual(expectedPerformers)
   })
@@ -115,6 +115,37 @@ describe("ServiceSearch tests", function () {
             city: "LONDON",
             district: "GREATER LONDON",
             postalCode: "EC1M 5PA"
+          }
+        ]
+      },
+      {
+        resourceType: "Organization",
+        id: "afb07f8b-e8d7-4cad-895d-494e6b35b2a1",
+        identifier: [
+          {
+            system: "https://fhir.nhs.uk/Id/ods-organization-code",
+            value: "FLM49"
+          }
+        ],
+        name: "Pharmacy2u",
+        telecom: [
+          {
+            system: "phone",
+            use: "work",
+            value: "0113 2650222"
+          }
+        ],
+        address: [
+          {
+            use: "work",
+            type: "both",
+            line: [
+              "Unit 4B",
+              "Victoria Road"
+            ],
+            city: "LEEDS",
+            district: "WEST YORKSHIRE",
+            postalCode: "LS14 2LA"
           }
         ]
       }

@@ -27,7 +27,7 @@ export function buildStatusUpdateData(searchsetBundle: Bundle): Array<StatusUpda
 
     const performerReference = isolatePerformerReference(medicationRequests)
     if (performerReference) {
-      if (allItemsApprovedOrCancelled) {
+      if (!allItemsApprovedOrCancelled) {
         const performer = isolatePerformerOrganisation(performerReference, prescription)
         const odsCode = performer.identifier![0].value!
         logger.info(
@@ -35,12 +35,12 @@ export function buildStatusUpdateData(searchsetBundle: Bundle): Array<StatusUpda
           ` Adding to status update data.`
         )
         logger.info(
-          `All items for prescription ${prescriptionID} are 'Prescriber Approved' or 'Cancelled'.`
+          `Not all items for prescription ${prescriptionID} are 'Prescriber Approved' or 'Cancelled'.`
         )
         statusUpdateData.push({odsCode: odsCode, prescriptionID: prescriptionID})
       } else {
         logger.info(
-          `Not all items for prescription ${prescriptionID} are 'Prescriber Approved' or 'Cancelled'.`
+          `All items for prescription ${prescriptionID} are 'Prescriber Approved' or 'Cancelled'.`
         )
       }
     } else {
