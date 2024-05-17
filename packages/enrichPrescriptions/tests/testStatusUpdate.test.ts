@@ -13,8 +13,11 @@ import {
   richResponseBundle,
   richStatusUpdatesPayload,
   simpleRequestBundle,
+  simpleRequestBundlePA,
   simpleResponseBundle,
-  simpleStatusUpdatesPayload
+  simpleResponseBundlePA,
+  simpleStatusUpdatesPayload,
+  simpleStatusUpdatesPayloadPA
 } from "./utils"
 import {applyStatusUpdates} from "../src/statusUpdates"
 import {Bundle, MedicationRequest} from "fhir/r4"
@@ -63,6 +66,15 @@ describe("Unit tests for statusUpdate", function () {
     applyStatusUpdates(requestBundle, statusUpdates)
 
     expect(requestBundle).toEqual(simpleResponseBundle())
+  })
+
+  it("when an update for an item is present with status Prescriber Approved or Cancelled, the update is not applied", async () => {
+    const requestBundle = simpleRequestBundlePA()
+    const statusUpdates = simpleStatusUpdatesPayloadPA()
+
+    applyStatusUpdates(requestBundle, statusUpdates)
+
+    expect(requestBundle).toEqual(simpleResponseBundlePA())
   })
 
   it("when an update for an item is present and extension exists, the update is added", async () => {

@@ -14,24 +14,33 @@ import {
 } from "../src/statusUpdates"
 
 import simpleRequest from "./data/simple/requestBundle.json"
+import simpleRequestPA from "./data/simple/requestBundlePA.json"
 import simpleStatusUpdates from "./data/simple/statusUpdates.json"
+import simpleStatusUpdatesPA from "./data/simple/statusUpdatesPA.json"
 import simpleResponse from "./data/simple/responseBundle.json"
+import simpleResponsePA from "./data/simple/responseBundlePA.json"
 
 import richRequest from "./data/rich/requestBundle.json"
 import richStatusUpdates from "./data/rich/statusUpdates.json"
 import richResponse from "./data/rich/responseBundle.json"
 
 const simpleRequestString = JSON.stringify(simpleRequest)
+const simpleRequestStringPA = JSON.stringify(simpleRequestPA)
 const simpleStatusUpdatesString = JSON.stringify(simpleStatusUpdates)
+const simpleStatusUpdatesStringPA = JSON.stringify(simpleStatusUpdatesPA)
 const simpleResponseString = JSON.stringify(simpleResponse)
+const simpleResponseStringPA = JSON.stringify(simpleResponsePA)
 
 const richRequestString = JSON.stringify(richRequest)
 const richStatusUpdatesString = JSON.stringify(richStatusUpdates)
 const richResponseString = JSON.stringify(richResponse)
 
 export const simpleRequestBundle = () => JSON.parse(simpleRequestString) as Bundle
+export const simpleRequestBundlePA = () => JSON.parse(simpleRequestStringPA) as Bundle
 export const simpleStatusUpdatesPayload = () => JSON.parse(simpleStatusUpdatesString) as StatusUpdates
+export const simpleStatusUpdatesPayloadPA = () => JSON.parse(simpleStatusUpdatesStringPA) as StatusUpdates
 export const simpleResponseBundle = () => JSON.parse(simpleResponseString) as Bundle
+export const simpleResponseBundlePA = () => JSON.parse(simpleResponseStringPA) as Bundle
 
 export const richRequestBundle = () => JSON.parse(richRequestString) as Bundle
 export const richStatusUpdatesPayload = () => JSON.parse(richStatusUpdatesString) as StatusUpdates

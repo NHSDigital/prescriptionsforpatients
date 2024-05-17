@@ -38,6 +38,16 @@ function defaultUpdate(onboarded: boolean = true): UpdateItem {
 
 function updateMedicationRequest(medicationRequest: MedicationRequest, updateItem: UpdateItem) {
   const status = updateItem.isTerminalState.toLowerCase() === "true" ? "completed" : "active"
+
+  if (
+    medicationRequest.identifier?.[0]?.value === updateItem.itemId &&
+    medicationRequest.extension?.[0]?.extension?.[0]?.valueCoding?.code &&
+    (medicationRequest.extension[0].extension[0].valueCoding.code === "Prescriber Approved" ||
+      medicationRequest.extension[0].extension[0].valueCoding.code === "Cancelled")
+  ) {
+    return
+  }
+
   medicationRequest.status = status
 
   const extensionStatus = updateItem.latestStatus
