@@ -40,11 +40,14 @@ function updateMedicationRequest(medicationRequest: MedicationRequest, updateIte
   const status = updateItem.isTerminalState.toLowerCase() === "true" ? "completed" : "active"
 
   if (
-    medicationRequest.identifier?.[0]?.value === updateItem.itemId &&
     medicationRequest.extension?.[0]?.extension?.[0]?.valueCoding?.code &&
     (medicationRequest.extension[0].extension[0].valueCoding.code === "Prescriber Approved" ||
       medicationRequest.extension[0].extension[0].valueCoding.code === "Cancelled")
   ) {
+    logger.info(
+      `Status update for prescription ${updateItem.itemId} has been skipped because the current status is already ` +
+      `${medicationRequest.extension[0].extension[0].valueCoding.code}.`
+    )
     return
   }
 
