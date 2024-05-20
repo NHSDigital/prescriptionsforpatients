@@ -7,6 +7,9 @@ export const EXTENSION_URL = "https://fhir.nhs.uk/StructureDefinition/Extension-
 export const DEFAULT_EXTENSION_STATUS = "With Pharmacy"
 export const NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS = "With Pharmacy but Tracking not Supported"
 export const VALUE_CODING_SYSTEM = "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt"
+export const ONE_WEEK_IN_MS = 604800000
+
+type MedicationRequestStatus = "completed" | "active"
 
 type UpdateItem = {
   isTerminalState: string
@@ -36,8 +39,21 @@ function defaultUpdate(onboarded: boolean = true): UpdateItem {
   }
 }
 
+function determineStatus(updateItem: UpdateItem): MedicationRequestStatus {
+  const isTerminalState = updateItem.isTerminalState.toLowerCase() === "true"
+  if (!isTerminalState) {
+    return "active"
+  }
+
+  const lastUpdateDateTime = new Date(updateItem.lastUpdateDateTime)
+  const now = new Date()
+  const updatedOverSevenDaysAgo = now.valueOf() - lastUpdateDateTime.valueOf() > ONE_WEEK_IN_MS
+
+  return updatedOverSevenDaysAgo ? "completed" : "active"
+}
+
 function updateMedicationRequest(medicationRequest: MedicationRequest, updateItem: UpdateItem) {
-  const status = updateItem.isTerminalState.toLowerCase() === "true" ? "completed" : "active"
+  const status = determineStatus(updateItem)
   medicationRequest.status = status
 
   const extensionStatus = updateItem.latestStatus
