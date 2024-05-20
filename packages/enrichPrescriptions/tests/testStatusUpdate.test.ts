@@ -14,10 +14,13 @@ import {
   richStatusUpdatesPayload,
   simpleRequestBundle,
   simpleRequestBundlePA,
+  simpleRequestBundleCancelled,
   simpleResponseBundle,
   simpleResponseBundlePA,
+  simpleResponseBundleCancelled,
   simpleStatusUpdatesPayload,
-  simpleStatusUpdatesPayloadPA
+  simpleStatusUpdatesPayloadPA,
+  simpleStatusUpdatesPayloadCancelled
 } from "./utils"
 import {applyStatusUpdates} from "../src/statusUpdates"
 import {Bundle, MedicationRequest} from "fhir/r4"
@@ -68,7 +71,7 @@ describe("Unit tests for statusUpdate", function () {
     expect(requestBundle).toEqual(simpleResponseBundle())
   })
 
-  it("when an update for an item is present with status Prescriber Approved or Cancelled, the update is not applied", async () => {
+  it("when an update for an item is present with status Prescriber Approved, the update is not applied", async () => {
     const requestBundle = simpleRequestBundlePA()
     const statusUpdates = simpleStatusUpdatesPayloadPA()
 
@@ -80,6 +83,20 @@ describe("Unit tests for statusUpdate", function () {
     expect(medicationRequest.extension![0].extension![0].valueCoding!.code).toEqual("Prescriber Approved")
     expect(medicationRequest.extension![0].extension![1].valueDateTime).toEqual("2023-09-11T10:11:12.000Z")
     expect(requestBundle).toEqual(simpleResponseBundlePA())
+  })
+
+  it("when an update for an item is present with status Cancelled, the update is not applied", async () => {
+    const requestBundle = simpleRequestBundleCancelled()
+    const statusUpdates = simpleStatusUpdatesPayloadCancelled()
+
+    applyStatusUpdates(requestBundle, statusUpdates)
+
+    const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
+    const medicationRequest = requestCollectionBundle.entry![0].resource as MedicationRequest
+
+    expect(medicationRequest.extension![0].extension![0].valueCoding!.code).toEqual("Cancelled")
+    expect(medicationRequest.extension![0].extension![1].valueDateTime).toEqual("2023-09-11T10:11:12.000Z")
+    expect(requestBundle).toEqual(simpleResponseBundleCancelled())
   })
 
   it("when an update for an item is present and extension exists, the update is added", async () => {
