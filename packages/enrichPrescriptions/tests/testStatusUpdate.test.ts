@@ -74,6 +74,11 @@ describe("Unit tests for statusUpdate", function () {
 
     applyStatusUpdates(requestBundle, statusUpdates)
 
+    const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
+    const medicationRequest = requestCollectionBundle.entry![0].resource as MedicationRequest
+
+    expect(medicationRequest.extension![0].extension![0].valueCoding!.code).toEqual("Prescriber Approved")
+    expect(medicationRequest.extension![0].extension![1].valueDateTime).toEqual("2023-09-11T10:11:12.000Z")
     expect(requestBundle).toEqual(simpleResponseBundlePA())
   })
 
