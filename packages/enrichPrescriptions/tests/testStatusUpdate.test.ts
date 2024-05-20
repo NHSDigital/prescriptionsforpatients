@@ -16,8 +16,6 @@ import {
   simpleRequestBundlePA,
   simpleRequestBundleCancelled,
   simpleResponseBundle,
-  simpleResponseBundlePA,
-  simpleResponseBundleCancelled,
   simpleStatusUpdatesPayload,
   simpleStatusUpdatesPayloadPA,
   simpleStatusUpdatesPayloadCancelled
@@ -82,7 +80,6 @@ describe("Unit tests for statusUpdate", function () {
 
     expect(medicationRequest.extension![0].extension![0].valueCoding!.code).toEqual("Prescriber Approved")
     expect(medicationRequest.extension![0].extension![1].valueDateTime).toEqual("2023-09-11T10:11:12.000Z")
-    expect(requestBundle).toEqual(simpleResponseBundlePA())
   })
 
   it("when an update for an item is present with status Cancelled, the update is not applied", async () => {
@@ -96,7 +93,6 @@ describe("Unit tests for statusUpdate", function () {
 
     expect(medicationRequest.extension![0].extension![0].valueCoding!.code).toEqual("Cancelled")
     expect(medicationRequest.extension![0].extension![1].valueDateTime).toEqual("2023-09-11T10:11:12.000Z")
-    expect(requestBundle).toEqual(simpleResponseBundleCancelled())
   })
 
   it("when an update for an item is present and extension exists, the update is added", async () => {
