@@ -37,18 +37,16 @@ export function buildStatusUpdateData(searchsetBundle: Bundle): Array<StatusUpda
           `Performer organisation ${odsCode} found for prescription ${prescriptionID}.` +
           ` Adding to status update data.`
         )
-        logger.info(
-          `Not all items for prescription ${prescriptionID} are 'Prescriber Approved' or 'Cancelled'.`
-        )
         statusUpdateData.push({odsCode: odsCode, prescriptionID: prescriptionID})
       } else {
         logger.info(
           `All items for prescription ${prescriptionID} are 'Prescriber Approved' or 'Cancelled'.`
         )
+        logger.info(`Ignoring prescription.`)
       }
     } else {
       logger.info(
-        `No performer organisation found for for prescription ${prescriptionID}.`
+        `No performer organisation found for prescription ${prescriptionID}.`
       )
     }
   })
