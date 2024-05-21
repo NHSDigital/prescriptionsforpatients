@@ -29,26 +29,22 @@ export function buildStatusUpdateData(searchsetBundle: Bundle): Array<StatusUpda
     const prescriptionID = medicationRequests[0].groupIdentifier!.value!
     logger.info(`Building status update data for prescription ${prescriptionID}.`)
 
+    if (allItemsApprovedOrCancelled) {
+      logger.info(`All items for prescription ${prescriptionID} are 'Prescriber Approved' or 'Cancelled'.`)
+      logger.info(`Ignoring prescription.`)
+      return
+    }
+
     const performerReference = isolatePerformerReference(medicationRequests)
     if (performerReference) {
-      if (!allItemsApprovedOrCancelled) {
-        const performer = isolatePerformerOrganisation(performerReference, prescription)
-        const odsCode = performer.identifier![0].value!
-        logger.info(
-          `Performer organisation ${odsCode} found for prescription ${prescriptionID}.` +
-          ` Adding to status update data.`
-        )
-        statusUpdateData.push({odsCode: odsCode, prescriptionID: prescriptionID})
-      } else {
-        logger.info(
-          `All items for prescription ${prescriptionID} are 'Prescriber Approved' or 'Cancelled'.`
-        )
-        logger.info(`Ignoring prescription.`)
-      }
-    } else {
+      const performer = isolatePerformerOrganisation(performerReference, prescription)
+      const odsCode = performer.identifier![0].value!
       logger.info(
-        `No performer organisation found for prescription ${prescriptionID}.`
+        `Performer organisation ${odsCode} found for prescription ${prescriptionID}. Adding to status update data.`
       )
+      statusUpdateData.push({odsCode: odsCode, prescriptionID: prescriptionID})
+    } else {
+      logger.info(`No performer organisation found for prescription ${prescriptionID}.`)
     }
   })
 
