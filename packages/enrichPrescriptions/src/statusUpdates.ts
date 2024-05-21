@@ -38,7 +38,6 @@ function defaultUpdate(onboarded: boolean = true): UpdateItem {
 
 function updateMedicationRequest(medicationRequest: MedicationRequest, updateItem: UpdateItem) {
   const status = updateItem.isTerminalState.toLowerCase() === "true" ? "completed" : "active"
-
   const relevantExtension = medicationRequest.extension?.find(ext => ext.url === EXTENSION_URL)
   const statusCoding = relevantExtension?.extension?.find(innerExt => innerExt.url === "status")?.valueCoding?.code
 
