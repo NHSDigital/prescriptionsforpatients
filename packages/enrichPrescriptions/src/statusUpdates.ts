@@ -39,14 +39,13 @@ function defaultUpdate(onboarded: boolean = true): UpdateItem {
 function updateMedicationRequest(medicationRequest: MedicationRequest, updateItem: UpdateItem) {
   const status = updateItem.isTerminalState.toLowerCase() === "true" ? "completed" : "active"
 
-  if (
-    medicationRequest.extension?.[0]?.extension?.[0]?.valueCoding?.code &&
-    (medicationRequest.extension[0].extension[0].valueCoding.code === "Prescriber Approved" ||
-      medicationRequest.extension[0].extension[0].valueCoding.code === "Cancelled")
-  ) {
+  const relevantExtension = medicationRequest.extension?.find(ext => ext.url === EXTENSION_URL)
+  const statusCoding = relevantExtension?.extension?.find(innerExt => innerExt.url === "status")?.valueCoding?.code
+
+  if (statusCoding && (statusCoding === "Prescriber Approved" || statusCoding === "Cancelled")) {
     logger.info(
       `Status update for prescription ${updateItem.itemId} has been skipped because the current status is already ` +
-      `${medicationRequest.extension[0].extension[0].valueCoding.code}.`
+      `${statusCoding}.`
     )
     return
   }
