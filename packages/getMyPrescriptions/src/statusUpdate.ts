@@ -17,9 +17,12 @@ export function buildStatusUpdateData(searchsetBundle: Bundle): Array<StatusUpda
     const medicationRequests = isolateMedicationRequests(prescription)
 
     const hasApprovedOrCancelledStatus = (medicationRequest: MedicationRequest) => {
-      const valueCodingCode = medicationRequest.extension?.[0]?.extension?.[0]?.valueCoding?.code
+      const relevantExtension = medicationRequest.extension?.find(ext => ext.url === EXTENSION_URL)
+      const statusExtension = relevantExtension?.extension?.find(innerExt => innerExt.url === "status")
+      const valueCodingCode = statusExtension?.valueCoding?.code
       return valueCodingCode === "Prescriber Approved" || valueCodingCode === "Cancelled"
     }
+
     const allItemsApprovedOrCancelled = medicationRequests.every(hasApprovedOrCancelledStatus)
 
     const prescriptionID = medicationRequests[0].groupIdentifier!.value!
