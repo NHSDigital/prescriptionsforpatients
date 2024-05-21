@@ -7,6 +7,8 @@ import {
 } from "./fhirUtils"
 import {logger} from "./getMyPrescriptions"
 
+export const EXTENSION_URL = "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory"
+
 export type StatusUpdateData = {odsCode: string, prescriptionID: string}
 
 export const shouldGetStatusUpdates = () => process.env.GET_STATUS_UPDATES === "true"
