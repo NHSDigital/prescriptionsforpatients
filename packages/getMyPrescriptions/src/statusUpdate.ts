@@ -8,10 +8,9 @@ import {
 import {logger} from "./getMyPrescriptions"
 
 export const EXTENSION_URL = "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory"
+export const shouldGetStatusUpdates = () => process.env.GET_STATUS_UPDATES === "true"
 
 export type StatusUpdateData = {odsCode: string, prescriptionID: string}
-
-export const shouldGetStatusUpdates = () => process.env.GET_STATUS_UPDATES === "true"
 
 export function buildStatusUpdateData(searchsetBundle: Bundle): Array<StatusUpdateData> {
   const statusUpdateData: Array<StatusUpdateData> = []
