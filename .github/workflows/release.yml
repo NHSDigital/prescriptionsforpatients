@@ -330,7 +330,7 @@ jobs:
       TARGET_ENVIRONMENT: int
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_sandbox_code
-      TRUSTSTORE_FILE: sandbox-truststore.pem
+      TRUSTSTORE_FILE: pfp-sandbox-truststore.pem
       VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
       COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
       LOG_LEVEL: DEBUG
