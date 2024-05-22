@@ -1,7 +1,8 @@
+// tests/utils.ts
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import {APIGatewayProxyResult} from "aws-lambda"
-import {Bundle, Extension} from "fhir/r4"
+import {Bundle, Extension, MedicationRequest} from "fhir/r4"
 
 import {EnrichPrescriptionsEvent} from "../src/enrichPrescriptions"
 import {HEADERS, TraceIDs} from "../src/responses"
@@ -14,11 +15,7 @@ import {
 } from "../src/statusUpdates"
 
 import simpleRequest from "./data/simple/requestBundle.json"
-import simpleRequestPA from "./data/simple/requestBundlePA.json"
-import simpleRequestCancelled from "./data/simple/requestBundleCancelled.json"
 import simpleStatusUpdates from "./data/simple/statusUpdates.json"
-import simpleStatusUpdatesPA from "./data/simple/statusUpdatesPA.json"
-import simpleStatusUpdatesCancelled from "./data/simple/statusUpdatesCancelled.json"
 import simpleResponse from "./data/simple/responseBundle.json"
 
 import richRequest from "./data/rich/requestBundle.json"
@@ -26,11 +23,7 @@ import richStatusUpdates from "./data/rich/statusUpdates.json"
 import richResponse from "./data/rich/responseBundle.json"
 
 const simpleRequestString = JSON.stringify(simpleRequest)
-const simpleRequestStringPA = JSON.stringify(simpleRequestPA)
-const simpleRequestStringCancelled = JSON.stringify(simpleRequestCancelled)
 const simpleStatusUpdatesString = JSON.stringify(simpleStatusUpdates)
-const simpleStatusUpdatesStringPA = JSON.stringify(simpleStatusUpdatesPA)
-const simpleStatusUpdatesStringCancelled = JSON.stringify(simpleStatusUpdatesCancelled)
 const simpleResponseString = JSON.stringify(simpleResponse)
 
 const richRequestString = JSON.stringify(richRequest)
@@ -38,11 +31,7 @@ const richStatusUpdatesString = JSON.stringify(richStatusUpdates)
 const richResponseString = JSON.stringify(richResponse)
 
 export const simpleRequestBundle = () => JSON.parse(simpleRequestString) as Bundle
-export const simpleRequestBundlePA = () => JSON.parse(simpleRequestStringPA) as Bundle
-export const simpleRequestBundleCancelled = () => JSON.parse(simpleRequestStringCancelled) as Bundle
 export const simpleStatusUpdatesPayload = () => JSON.parse(simpleStatusUpdatesString) as StatusUpdates
-export const simpleStatusUpdatesPayloadPA = () => JSON.parse(simpleStatusUpdatesStringPA) as StatusUpdates
-export const simpleStatusUpdatesPayloadCancelled = () => JSON.parse(simpleStatusUpdatesStringCancelled) as StatusUpdates
 export const simpleResponseBundle = () => JSON.parse(simpleResponseString) as Bundle
 
 export const richRequestBundle = () => JSON.parse(richRequestString) as Bundle
@@ -134,6 +123,26 @@ export function defaultExtension(onboarded: boolean = true): Array<Extension> {
       {
         url: "statusDate",
         valueDateTime: SYSTEM_DATETIME.toISOString()
+      }
+    ]
+  }]
+}
+
+export function addExtensionToMedicationRequest(bundle: Bundle, status: string, statusDate: string) {
+  const medicationRequest = ((bundle.entry![0].resource as Bundle).entry![0].resource as MedicationRequest)
+  medicationRequest.extension = [{
+    url: "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory",
+    extension: [
+      {
+        url: "status",
+        valueCoding: {
+          system: "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt",
+          code: status
+        }
+      },
+      {
+        url: "statusDate",
+        valueDateTime: statusDate
       }
     ]
   }]

@@ -13,12 +13,9 @@ import {
   richResponseBundle,
   richStatusUpdatesPayload,
   simpleRequestBundle,
-  simpleRequestBundlePA,
-  simpleRequestBundleCancelled,
   simpleResponseBundle,
   simpleStatusUpdatesPayload,
-  simpleStatusUpdatesPayloadPA,
-  simpleStatusUpdatesPayloadCancelled
+  addExtensionToMedicationRequest
 } from "./utils"
 import {applyStatusUpdates} from "../src/statusUpdates"
 import {Bundle, MedicationRequest} from "fhir/r4"
@@ -70,8 +67,9 @@ describe("Unit tests for statusUpdate", function () {
   })
 
   it("when an update for an item is present with status Prescriber Approved, the update is not applied", async () => {
-    const requestBundle = simpleRequestBundlePA()
-    const statusUpdates = simpleStatusUpdatesPayloadPA()
+    const requestBundle = simpleRequestBundle()
+    addExtensionToMedicationRequest(requestBundle, "Prescriber Approved", "2023-09-11T10:11:12.000Z")
+    const statusUpdates = simpleStatusUpdatesPayload()
 
     applyStatusUpdates(requestBundle, statusUpdates)
 
@@ -83,8 +81,9 @@ describe("Unit tests for statusUpdate", function () {
   })
 
   it("when an update for an item is present with status Cancelled, the update is not applied", async () => {
-    const requestBundle = simpleRequestBundleCancelled()
-    const statusUpdates = simpleStatusUpdatesPayloadCancelled()
+    const requestBundle = simpleRequestBundle()
+    addExtensionToMedicationRequest(requestBundle, "Cancelled", "2023-09-11T10:11:12.000Z")
+    const statusUpdates = simpleStatusUpdatesPayload()
 
     applyStatusUpdates(requestBundle, statusUpdates)
 
