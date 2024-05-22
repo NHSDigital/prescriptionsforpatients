@@ -128,8 +128,11 @@ export function defaultExtension(onboarded: boolean = true): Array<Extension> {
   }]
 }
 
-export function addExtensionToMedicationRequest(bundle: Bundle, status: string, statusDate: string) {
-  const medicationRequest = ((bundle.entry![0].resource as Bundle).entry![0].resource as MedicationRequest)
+export function addExtensionToMedicationRequest(
+  medicationRequest: MedicationRequest,
+  status: string,
+  statusDate: string
+) {
   medicationRequest.extension = [{
     url: "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory",
     extension: [

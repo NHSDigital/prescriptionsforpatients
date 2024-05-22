@@ -68,28 +68,32 @@ describe("Unit tests for statusUpdate", function () {
 
   it("when an update for an item is present with status Prescriber Approved, the update is not applied", async () => {
     const requestBundle = simpleRequestBundle()
-    addExtensionToMedicationRequest(requestBundle, "Prescriber Approved", "2023-09-11T10:11:12.000Z")
-    const statusUpdates = simpleStatusUpdatesPayload()
-
-    applyStatusUpdates(requestBundle, statusUpdates)
-
     const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
     const medicationRequest = requestCollectionBundle.entry![0].resource as MedicationRequest
 
+    // Add the initial extension
+    addExtensionToMedicationRequest(medicationRequest, "Prescriber Approved", "2023-09-11T10:11:12.000Z")
+
+    const statusUpdates = simpleStatusUpdatesPayload()
+    applyStatusUpdates(requestBundle, statusUpdates)
+
+    // Check that the original extension is still present and unchanged
     expect(medicationRequest.extension![0].extension![0].valueCoding!.code).toEqual("Prescriber Approved")
     expect(medicationRequest.extension![0].extension![1].valueDateTime).toEqual("2023-09-11T10:11:12.000Z")
   })
 
   it("when an update for an item is present with status Cancelled, the update is not applied", async () => {
     const requestBundle = simpleRequestBundle()
-    addExtensionToMedicationRequest(requestBundle, "Cancelled", "2023-09-11T10:11:12.000Z")
-    const statusUpdates = simpleStatusUpdatesPayload()
-
-    applyStatusUpdates(requestBundle, statusUpdates)
-
     const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
     const medicationRequest = requestCollectionBundle.entry![0].resource as MedicationRequest
 
+    // Add the initial extension
+    addExtensionToMedicationRequest(medicationRequest, "Cancelled", "2023-09-11T10:11:12.000Z")
+
+    const statusUpdates = simpleStatusUpdatesPayload()
+    applyStatusUpdates(requestBundle, statusUpdates)
+
+    // Check that the original extension is still present and unchanged
     expect(medicationRequest.extension![0].extension![0].valueCoding!.code).toEqual("Cancelled")
     expect(medicationRequest.extension![0].extension![1].valueDateTime).toEqual("2023-09-11T10:11:12.000Z")
   })
