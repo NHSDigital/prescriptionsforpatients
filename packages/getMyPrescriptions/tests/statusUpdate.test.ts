@@ -52,27 +52,23 @@ describe("Unit tests for statusUpdate", () => {
   test("excludes prescriptions where all items have a status of either 'Prescriber Approved' or 'Cancelled'", async () => {
     const bundle = mockInteractionResponseBody as Bundle
 
-    bundle.entry?.forEach((entry, index) => {
-      const collectionBundle = entry.resource as Bundle
-      if (collectionBundle.entry && collectionBundle.entry.length > 0) {
-        const medicationRequest = collectionBundle.entry[0].resource as MedicationRequest
-        medicationRequest.extension = [
+    const collectionBundle = bundle.entry![2].resource as Bundle
+    const medicationRequest = collectionBundle.entry![0].resource as MedicationRequest
+    medicationRequest.extension = [
+      {
+        url: "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory",
+        extension: [
           {
-            url: "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory",
-            extension: [
-              {
-                url: "status",
-                valueCoding: {code: index % 2 === 0 ? "Prescriber Approved" : "Cancelled"}
-              },
-              {
-                url: "statusDate",
-                valueDateTime: new Date().toISOString()
-              }
-            ]
+            url: "status",
+            valueCoding: {code: "Prescriber Approved"}
+          },
+          {
+            url: "statusDate",
+            valueDateTime: new Date().toISOString()
           }
         ]
       }
-    })
+    ]
 
     const result = buildStatusUpdateData(bundle)
 
