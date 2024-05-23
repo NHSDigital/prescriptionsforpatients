@@ -14,7 +14,8 @@ import {
   richStatusUpdatesPayload,
   simpleRequestBundle,
   simpleResponseBundle,
-  simpleStatusUpdatesPayload
+  simpleStatusUpdatesPayload,
+  addExtensionToMedicationRequest
 } from "./utils"
 import {ONE_WEEK_IN_MS, applyStatusUpdates} from "../src/statusUpdates"
 import {Bundle, MedicationRequest} from "fhir/r4"
@@ -135,6 +136,29 @@ describe("Unit tests for statusUpdate", function () {
     applyStatusUpdates(requestBundle, statusUpdates)
 
     expect(requestBundle).toEqual(expectedResponseBundle)
+  })
+
+  const testCases = [
+    {status: "Prescriber Approved", expectedCode: "Prescriber Approved"},
+    {status: "Cancelled", expectedCode: "Cancelled"}
+  ]
+
+  testCases.forEach(({status, expectedCode}) => {
+    it(`when an update for an item is present with status ${status}, the update is not applied`, async () => {
+      const requestBundle = simpleRequestBundle()
+      const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
+      const medicationRequest = requestCollectionBundle.entry![0].resource as MedicationRequest
+
+      // Add the initial extension
+      addExtensionToMedicationRequest(medicationRequest, status, "2023-09-11T10:11:12.000Z")
+
+      const statusUpdates = simpleStatusUpdatesPayload()
+      applyStatusUpdates(requestBundle, statusUpdates)
+
+      // Check that the original extension is still present and unchanged
+      expect(medicationRequest.extension![0].extension![0].valueCoding!.code).toEqual(expectedCode)
+      expect(medicationRequest.extension![0].extension![1].valueDateTime).toEqual("2023-09-11T10:11:12.000Z")
+    })
   })
 
   it("when a prescription has no performer, no update is applied", async () => {

@@ -1,12 +1,18 @@
 /* eslint-disable max-len */
 
-import "jest"
+import {
+  expect,
+  describe,
+  it,
+  jest
+} from "@jest/globals"
 import axios from "axios"
-import {Bundle} from "fhir/r4"
+import {Bundle, MedicationRequest} from "fhir/r4"
 import {APIGatewayProxyResult} from "aws-lambda"
 import MockAdapter from "axios-mock-adapter"
 
 import {
+  helloworldContext,
   mockAPIResponseBody,
   mockInteractionResponseBody,
   mockPharmacy2uResponse,
@@ -16,7 +22,7 @@ import {
 
 import {buildStatusUpdateData} from "../src/statusUpdate"
 import {StateMachineFunctionResponseBody} from "../src/responses"
-import {GetMyPrescriptionsEvent, stateMachineEventHandler} from "../src/getMyPrescriptions"
+import {GetMyPrescriptionsEvent, handler} from "../src/getMyPrescriptions"
 import {EXPECTED_TRACE_IDS, SERVICE_SEARCH_PARAMS} from "./utils"
 
 const exampleEvent = JSON.stringify(mockStateMachineInputEvent)
@@ -25,6 +31,7 @@ const exampleInteractionResponse = JSON.stringify(mockInteractionResponseBody)
 const pharmacy2uResponse = JSON.stringify(mockPharmacy2uResponse)
 const pharmicaResponse = JSON.stringify(mockPharmicaResponse)
 
+const dummyContext = helloworldContext
 const mock = new MockAdapter(axios)
 
 describe("Unit tests for statusUpdate", () => {
@@ -48,6 +55,33 @@ describe("Unit tests for statusUpdate", () => {
     const result = buildStatusUpdateData(bundle)
     expect(result).toEqual([])
   })
+
+  test("excludes prescriptions where all items have a status of either 'Prescriber Approved' or 'Cancelled'", async () => {
+    const bundle = mockInteractionResponseBody as Bundle
+
+    const collectionBundle = bundle.entry![2].resource as Bundle
+    const medicationRequest = collectionBundle.entry![0].resource as MedicationRequest
+    medicationRequest.extension = [
+      {
+        url: "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory",
+        extension: [
+          {
+            url: "status",
+            valueCoding: {code: "Prescriber Approved"}
+          },
+          {
+            url: "statusDate",
+            valueDateTime: new Date().toISOString()
+          }
+        ]
+      }
+    ]
+
+    const result = buildStatusUpdateData(bundle)
+
+    // Expect result length to be 1, since only one prescription should be processed for status updates
+    expect(result.length).toBe(1)
+  })
 })
 
 describe("Unit tests for statusUpdate, via handler", function () {
@@ -58,6 +92,7 @@ describe("Unit tests for statusUpdate, via handler", function () {
     process.env.SpinePrivateKey = "private-key"
     process.env.SpineCAChain = "ca-chain"
     process.env.GET_STATUS_UPDATES = "true"
+    jest.useFakeTimers()
   })
 
   it("when event is processed, statusUpdateData is included in the response", async () => {
@@ -68,7 +103,7 @@ describe("Unit tests for statusUpdate, via handler", function () {
 
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, JSON.parse(exampleInteractionResponse))
 
-    const result: APIGatewayProxyResult = await stateMachineEventHandler(event)
+    const result: APIGatewayProxyResult = await handler(event, dummyContext)
 
     const statusUpdateData = {
       schemaVersion: 1,

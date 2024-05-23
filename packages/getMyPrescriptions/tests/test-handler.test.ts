@@ -1,4 +1,12 @@
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
+import {
+  DEFAULT_HANDLER_PARAMS,
+  handler,
+  newHandler,
+  GetMyPrescriptionsEvent,
+  apiGatewayHandler,
+  apiGatewayEventHandler
+} from "../src/getMyPrescriptions"
 import {Logger} from "@aws-lambda-powertools/logger"
 import axios from "axios"
 import MockAdapter from "axios-mock-adapter"
@@ -19,7 +27,6 @@ import {
   mockStateMachineInputEvent
 } from "@prescriptionsforpatients_common/testing"
 
-import {GetMyPrescriptionsEvent, apiGatewayHandler, handler} from "../src/getMyPrescriptions"
 import {HEADERS, StateMachineFunctionResponseBody, TIMEOUT_RESPONSE} from "../src/responses"
 import "./toMatchJsonLogMessage"
 import {EXPECTED_TRACE_IDS} from "./utils"
@@ -272,6 +279,7 @@ describe("Unit test for app handler", function () {
   })
 
   it("times-out if spine call takes too long", async () => {
+    const mockErrorLogger = jest.spyOn(Logger.prototype, "error")
     const delayedResponse: Promise<Array<unknown>> = new Promise((resolve) => setTimeout(() => resolve([]), 15_000))
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     mock.onGet("https://live/mm/patientfacingprescriptions").reply((_config) => delayedResponse)
@@ -285,6 +293,37 @@ describe("Unit test for app handler", function () {
     expect(result.statusCode).toBe(408)
     expect(result.headers).toEqual(HEADERS)
     expect(JSON.parse(result.body)).toEqual(JSON.parse(TIMEOUT_RESPONSE.body))
+
+    // Assert error level log was produced
+    expect(mockErrorLogger).toHaveBeenCalledWith("Call to Spine has timed out. Returning error response.")
+  })
+
+  it("times-out if lambda handler takes too long", async () => {
+    const mockErrorLogger = jest.spyOn(Logger.prototype, "error")
+
+    // delaying spine response to trigger lambda timeout
+    const handlerParams = {...DEFAULT_HANDLER_PARAMS, lambdaTimeoutMs: 1_000}
+    const handler = newHandler({
+      handlerFunction: apiGatewayEventHandler,
+      params: handlerParams,
+      middleware: []
+    })
+    const delayedResponse: Promise<Array<unknown>> = new Promise((resolve) => setTimeout(() => resolve([]), 5_000))
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    mock.onGet("https://live/mm/patientfacingprescriptions").reply((_config) => delayedResponse)
+
+    const event: APIGatewayProxyEvent = JSON.parse(exampleApiGatewayEvent)
+    const eventHandler: Promise<APIGatewayProxyResult> = handler(event, dummyContext)
+
+    await jest.advanceTimersByTimeAsync(2_000)
+
+    const result = await eventHandler
+    expect(result.statusCode).toBe(408)
+    expect(result.headers).toEqual(HEADERS)
+    expect(JSON.parse(result.body)).toEqual(JSON.parse(TIMEOUT_RESPONSE.body))
+
+    // Assert error level log was produced
+    expect(mockErrorLogger).toHaveBeenCalledWith("Lambda handler has timed out. Returning error response.")
   })
 })
 
@@ -382,7 +421,7 @@ describe("Unit tests for app handler including service search", function () {
 })
 
 it("logs the correct apigw-request-id on multiple calls", async () => {
-  const mockLoggerInfo = jest.spyOn(global.console, "info")
+  const mockLoggerInfo = jest.spyOn(Logger.prototype, "info")
 
   mock.onGet("https://live/mm/patientfacingprescriptions").reply(200, {statusCode: "0"})
 
@@ -392,35 +431,23 @@ it("logs the correct apigw-request-id on multiple calls", async () => {
   await apiGatewayHandler(event_one, dummyContext)
   await apiGatewayHandler(event_two, dummyContext)
 
-  // should have logged event.requestContext.requestId but not apigw-request-id
-  expect(mockLoggerInfo).toHaveBeenCalledWith(
-    expect.toMatchJsonLogMessage("event.requestContext.requestId",
-      "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
-      "apigw-request-id"
-    )
-  )
+  const expectedIds = ["c6af9ac6-7b61-11e6-9a41-93e8deadbeef", "d6af9ac6-7b61-11e6-9a41-93e8deadbeef"].reverse()
 
-  expect(mockLoggerInfo).toHaveBeenCalledWith(
-    expect.toMatchJsonLogMessage("event.requestContext.requestId",
-      "d6af9ac6-7b61-11e6-9a41-93e8deadbeef",
-      "apigw-request-id"
-    )
-  )
+  for (const call of mockLoggerInfo.mock.calls) {
+    // Consider only request logs
+    if(typeof call[0] !== "object") {
+      continue
+    }
 
-  // should have logged apigw-request-id on some messages
-  expect(mockLoggerInfo).toHaveBeenCalledWith(
-    expect.toMatchJsonLogMessage("apigw-request-id",
-      "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
-      ""
-    )
-  )
+    const event = call[0].event as Record<string, Record<string, string>>
+    const headers = event["headers"]
+    const requestContext = event["requestContext"]
 
-  expect(mockLoggerInfo).toHaveBeenCalledWith(
-    expect.toMatchJsonLogMessage("apigw-request-id",
-      "d6af9ac6-7b61-11e6-9a41-93e8deadbeef",
-      ""
-    )
-  )
+    const expectedId = expectedIds.pop()
+
+    expect(headers["apigw-request-id"]).toEqual(expectedId)
+    expect(requestContext["requestId"]).toEqual(expectedId)
+  }
 })
 
 export {}
