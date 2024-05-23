@@ -172,7 +172,7 @@
                     },
                     {
                       "url": "statusDate",
-                      "valueDateTime": "2023-09-11T10:11:13.000Z"
+                      "valueDateTime": "2023-09-04T10:11:11.000Z"
                     }
                   ]
                 }
@@ -248,12 +248,12 @@
                       "url": "status",
                       "valueCoding": {
                         "system": "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt",
-                        "code": "With Pharmacy"
+                        "code": "Prescriber Cancelled"
                       }
                     },
                     {
                       "url": "statusDate",
-                      "valueDateTime": "2023-09-11T10:11:14.000Z"
+                      "valueDateTime": "2023-09-04T10:11:12.000Z"
                     }
                   ]
                 }
