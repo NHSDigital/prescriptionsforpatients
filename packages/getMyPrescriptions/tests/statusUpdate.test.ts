@@ -7,7 +7,7 @@ import {
   jest
 } from "@jest/globals"
 import axios from "axios"
-import {Bundle} from "fhir/r4"
+import {Bundle, MedicationRequest} from "fhir/r4"
 import {APIGatewayProxyResult} from "aws-lambda"
 import MockAdapter from "axios-mock-adapter"
 
@@ -54,6 +54,33 @@ describe("Unit tests for statusUpdate", () => {
     const bundle: Bundle = {resourceType: "Bundle", type: "searchset"}
     const result = buildStatusUpdateData(bundle)
     expect(result).toEqual([])
+  })
+
+  test("excludes prescriptions where all items have a status of either 'Prescriber Approved' or 'Cancelled'", async () => {
+    const bundle = mockInteractionResponseBody as Bundle
+
+    const collectionBundle = bundle.entry![2].resource as Bundle
+    const medicationRequest = collectionBundle.entry![0].resource as MedicationRequest
+    medicationRequest.extension = [
+      {
+        url: "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory",
+        extension: [
+          {
+            url: "status",
+            valueCoding: {code: "Prescriber Approved"}
+          },
+          {
+            url: "statusDate",
+            valueDateTime: new Date().toISOString()
+          }
+        ]
+      }
+    ]
+
+    const result = buildStatusUpdateData(bundle)
+
+    // Expect result length to be 1, since only one prescription should be processed for status updates
+    expect(result.length).toBe(1)
   })
 })
 

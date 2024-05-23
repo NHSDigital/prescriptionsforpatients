@@ -1,7 +1,8 @@
+// tests/utils.ts
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import {APIGatewayProxyResult} from "aws-lambda"
-import {Bundle, Extension} from "fhir/r4"
+import {Bundle, Extension, MedicationRequest} from "fhir/r4"
 
 import {EnrichPrescriptionsEvent} from "../src/enrichPrescriptions"
 import {HEADERS, TraceIDs} from "../src/responses"
@@ -122,6 +123,29 @@ export function defaultExtension(onboarded: boolean = true): Array<Extension> {
       {
         url: "statusDate",
         valueDateTime: SYSTEM_DATETIME.toISOString()
+      }
+    ]
+  }]
+}
+
+export function addExtensionToMedicationRequest(
+  medicationRequest: MedicationRequest,
+  status: string,
+  statusDate: string
+) {
+  medicationRequest.extension = [{
+    url: "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory",
+    extension: [
+      {
+        url: "status",
+        valueCoding: {
+          system: "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt",
+          code: status
+        }
+      },
+      {
+        url: "statusDate",
+        valueDateTime: statusDate
       }
     ]
   }]
