@@ -24,6 +24,8 @@ import {buildStatusUpdateData, shouldGetStatusUpdates} from "./statusUpdate"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 export const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
+export const spineClient = createSpineClient(logger)
+
 const servicesCache: ServicesCache = {}
 
 const LAMBDA_TIMEOUT_MS = 10_000
@@ -87,8 +89,6 @@ async function eventHandler(params: HandlerParams, headers: EventHeaders, succes
     "apigw-request-id": requestId
   }
   logger.appendKeys(traceIDs)
-
-  const spineClient = createSpineClient(logger)
 
   try {
     const isCertificateConfigured = spineClient.isCertificateConfigured()

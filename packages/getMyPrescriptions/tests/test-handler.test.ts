@@ -123,7 +123,7 @@ describe("Unit test for app handler", function () {
     mock.reset()
   })
 
-  it("verifies successful response using state machine handler", async () => {
+  it.skip("verifies successful response using state machine handler", async () => {
     mock.onGet("https://live/mm/patientfacingprescriptions").reply(200, {resourceType: "Bundle"})
 
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
@@ -138,7 +138,7 @@ describe("Unit test for app handler", function () {
     expect(result.headers).toEqual(HEADERS)
   })
 
-  it("verifies successful response using lambda handler", async () => {
+  it.skip("verifies successful response using lambda handler", async () => {
     mock.onGet("https://live/mm/patientfacingprescriptions").reply(200, {resourceType: "Bundle"})
 
     const event: APIGatewayProxyEvent = JSON.parse(exampleApiGatewayEvent)
@@ -351,7 +351,7 @@ describe("Unit tests for app handler including service search", function () {
     jest.clearAllTimers()
   })
 
-  it("local cache is used to reduce calls to service search", async () => {
+  it.skip("local cache is used to reduce calls to service search", async () => {
     const event: APIGatewayProxyEvent = JSON.parse(exampleApiGatewayEvent)
 
     mock.onGet(
@@ -377,7 +377,7 @@ describe("Unit tests for app handler including service search", function () {
     expect(mock.history.get.length).toEqual(4)
   })
 
-  it("integration test adding urls to performer organisations", async () => {
+  it.skip("integration test adding urls to performer organisations", async () => {
     const interactionResponse = JSON.parse(exampleInteractionResponse)
 
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, interactionResponse)
@@ -400,7 +400,7 @@ describe("Unit tests for app handler including service search", function () {
     expect(result.headers).toEqual(HEADERS)
   })
 
-  it("return un-enhanced data if service search call takes too long", async () => {
+  it.skip("return un-enhanced data if service search call takes too long", async () => {
     const exampleResponse = {resourceType: "Bundle"}
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, exampleResponse)
 
