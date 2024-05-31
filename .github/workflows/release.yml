@@ -245,7 +245,7 @@ jobs:
       COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
-      TOGGLE_GET_STATUS_UPDATES: true
+      TOGGLE_GET_STATUS_UPDATES: false
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.QA_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.QA_TARGET_SPINE_SERVER }}
@@ -286,7 +286,7 @@ jobs:
       LOG_RETENTION_DAYS: 30
       CREATE_INT_RELEASE_NOTES: true
       CREATE_INT_RC_RELEASE_NOTES: false
-      TOGGLE_GET_STATUS_UPDATES: true
+      TOGGLE_GET_STATUS_UPDATES: false
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.INT_TARGET_SPINE_SERVER }}
