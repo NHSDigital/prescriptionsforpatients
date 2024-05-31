@@ -1,11 +1,13 @@
-import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
+/* eslint-disable max-len */
+import {APIGatewayProxyEvent, APIGatewayProxyResult, Context} from "aws-lambda"
 import {
   DEFAULT_HANDLER_PARAMS,
-  handler,
   newHandler,
   GetMyPrescriptionsEvent,
-  apiGatewayHandler,
-  apiGatewayEventHandler
+  apiGatewayEventHandler,
+  stateMachineEventHandler,
+  STATE_MACHINE_MIDDLEWARE,
+  API_GATEWAY_MIDDLEWARE
 } from "../src/getMyPrescriptions"
 import {Logger} from "@aws-lambda-powertools/logger"
 import axios from "axios"
@@ -30,6 +32,9 @@ import {
 import {HEADERS, StateMachineFunctionResponseBody, TIMEOUT_RESPONSE} from "../src/responses"
 import "./toMatchJsonLogMessage"
 import {EXPECTED_TRACE_IDS} from "./utils"
+import {LogLevel} from "@aws-lambda-powertools/logger/types"
+import {createSpineClient} from "@nhsdigital/eps-spine-client"
+import {MiddyfiedHandler} from "@middy/core"
 
 const dummyContext = helloworldContext
 const mock = new MockAdapter(axios)
@@ -111,10 +116,29 @@ type spineFailureTestData = {
 
 describe("Unit test for app handler", function () {
   const ENV = process.env
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let handler: MiddyfiedHandler<GetMyPrescriptionsEvent, APIGatewayProxyResult, Error, Context, any>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let apiGatewayHandler: MiddyfiedHandler<APIGatewayProxyEvent, APIGatewayProxyResult, Error, Context, any>
 
   beforeEach(() => {
     process.env = {...ENV}
+    mock.reset()
     process.env.TargetSpineServer = "live"
+    const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
+    const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
+    const _spineClient = createSpineClient(logger)
+    const handlerParams = {...DEFAULT_HANDLER_PARAMS, spineClient: _spineClient}
+    handler = newHandler({
+      handlerFunction: stateMachineEventHandler,
+      params: handlerParams,
+      middleware: STATE_MACHINE_MIDDLEWARE
+    })
+    apiGatewayHandler = newHandler({
+      handlerFunction: apiGatewayEventHandler,
+      params: handlerParams,
+      middleware: API_GATEWAY_MIDDLEWARE
+    })
     jest.useFakeTimers()
   })
   afterEach(() => {
@@ -123,7 +147,7 @@ describe("Unit test for app handler", function () {
     mock.reset()
   })
 
-  it.skip("verifies successful response using state machine handler", async () => {
+  it("verifies successful response using state machine handler", async () => {
     mock.onGet("https://live/mm/patientfacingprescriptions").reply(200, {resourceType: "Bundle"})
 
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
@@ -138,7 +162,7 @@ describe("Unit test for app handler", function () {
     expect(result.headers).toEqual(HEADERS)
   })
 
-  it.skip("verifies successful response using lambda handler", async () => {
+  it("verifies successful response using lambda handler", async () => {
     mock.onGet("https://live/mm/patientfacingprescriptions").reply(200, {resourceType: "Bundle"})
 
     const event: APIGatewayProxyEvent = JSON.parse(exampleApiGatewayEvent)
@@ -302,7 +326,11 @@ describe("Unit test for app handler", function () {
     const mockErrorLogger = jest.spyOn(Logger.prototype, "error")
 
     // delaying spine response to trigger lambda timeout
-    const handlerParams = {...DEFAULT_HANDLER_PARAMS, lambdaTimeoutMs: 1_000}
+    const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
+    const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
+    const _spineClient = createSpineClient(logger)
+
+    const handlerParams = {...DEFAULT_HANDLER_PARAMS, lambdaTimeoutMs: 1_000, spineClient: _spineClient}
     const handler = newHandler({
       handlerFunction: apiGatewayEventHandler,
       params: handlerParams,
@@ -328,6 +356,9 @@ describe("Unit test for app handler", function () {
 })
 
 describe("Unit tests for app handler including service search", function () {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let apiGatewayHandler: MiddyfiedHandler<APIGatewayProxyEvent, APIGatewayProxyResult, Error, Context, any>
+
   const queryParams = {
     "api-version": 2,
     "searchFields": "ODSCode",
@@ -345,13 +376,22 @@ describe("Unit tests for app handler including service search", function () {
     process.env.SpinePublicCertificate = "public-certificate"
     process.env.SpinePrivateKey = "private-key"
     process.env.SpineCAChain = "ca-chain"
+    const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
+    const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
+    const _spineClient = createSpineClient(logger)
+    const handlerParams = {...DEFAULT_HANDLER_PARAMS, spineClient: _spineClient}
+    apiGatewayHandler = newHandler({
+      handlerFunction: apiGatewayEventHandler,
+      params: handlerParams,
+      middleware: API_GATEWAY_MIDDLEWARE
+    })
   })
 
   afterEach(() => {
     jest.clearAllTimers()
   })
 
-  it.skip("local cache is used to reduce calls to service search", async () => {
+  it("local cache is used to reduce calls to service search", async () => {
     const event: APIGatewayProxyEvent = JSON.parse(exampleApiGatewayEvent)
 
     mock.onGet(
@@ -377,7 +417,7 @@ describe("Unit tests for app handler including service search", function () {
     expect(mock.history.get.length).toEqual(4)
   })
 
-  it.skip("integration test adding urls to performer organisations", async () => {
+  it("integration test adding urls to performer organisations", async () => {
     const interactionResponse = JSON.parse(exampleInteractionResponse)
 
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, interactionResponse)
@@ -400,7 +440,7 @@ describe("Unit tests for app handler including service search", function () {
     expect(result.headers).toEqual(HEADERS)
   })
 
-  it.skip("return un-enhanced data if service search call takes too long", async () => {
+  it("return un-enhanced data if service search call takes too long", async () => {
     const exampleResponse = {resourceType: "Bundle"}
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, exampleResponse)
 
@@ -421,6 +461,18 @@ describe("Unit tests for app handler including service search", function () {
 })
 
 it("logs the correct apigw-request-id on multiple calls", async () => {
+  mock.reset()
+  mock.resetHistory()
+  const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
+  const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
+  const _spineClient = createSpineClient(logger)
+  const handlerParams = {...DEFAULT_HANDLER_PARAMS, spineClient: _spineClient}
+  const apiGatewayHandler = newHandler({
+    handlerFunction: apiGatewayEventHandler,
+    params: handlerParams,
+    middleware: API_GATEWAY_MIDDLEWARE
+  })
+
   const mockLoggerInfo = jest.spyOn(Logger.prototype, "info")
 
   mock.onGet("https://live/mm/patientfacingprescriptions").reply(200, {statusCode: "0"})
