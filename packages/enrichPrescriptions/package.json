@@ -16,7 +16,7 @@
     "@aws-lambda-powertools/commons": "^2.0.2",
     "@aws-lambda-powertools/logger": "^2.1.1",
     "@aws-lambda-powertools/parameters": "^2.1.1",
-    "@aws-sdk/client-secrets-manager": "^3.583.0",
+    "@aws-sdk/client-secrets-manager": "^3.587.0",
     "@middy/core": "^5.3.5",
     "@middy/input-output-logger": "^5.3.5",
     "@types/fhir": "^0.0.41"
