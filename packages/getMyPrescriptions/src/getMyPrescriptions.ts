@@ -21,9 +21,12 @@ import {
 } from "./responses"
 import {deepCopy, hasTimedOut, jobWithTimeout} from "./utils"
 import {buildStatusUpdateData, shouldGetStatusUpdates} from "./statusUpdate"
+import {SpineClient} from "@nhsdigital/eps-spine-client/lib/spine-client"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 export const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
+const _spineClient = createSpineClient(logger)
+
 const servicesCache: ServicesCache = {}
 
 const LAMBDA_TIMEOUT_MS = 10_000
@@ -78,6 +81,7 @@ export const apiGatewayEventHandler = async (event: APIGatewayProxyEvent, params
 async function eventHandler(params: HandlerParams, headers: EventHeaders, successResponse: ResponseFunc, includeStatusUpdateData: boolean = false): Promise<APIGatewayProxyResult> {
   const xRequestId = headers["x-request-id"]
   const requestId = headers["apigw-request-id"]
+  const spineClient = params.spineClient
 
   const traceIDs: TraceIDs = {
     "nhsd-correlation-id": headers["nhsd-correlation-id"],
@@ -87,8 +91,6 @@ async function eventHandler(params: HandlerParams, headers: EventHeaders, succes
     "apigw-request-id": requestId
   }
   logger.appendKeys(traceIDs)
-
-  const spineClient = createSpineClient(logger)
 
   try {
     const isCertificateConfigured = spineClient.isCertificateConfigured()
@@ -138,12 +140,14 @@ type HandlerConfig<T> = {
 type HandlerParams = {
   lambdaTimeoutMs: number,
   spineTimeoutMs: number,
-  serviceSearchTimeoutMs: number
+  serviceSearchTimeoutMs: number,
+  spineClient: SpineClient
 }
 export const DEFAULT_HANDLER_PARAMS = {
   lambdaTimeoutMs: LAMBDA_TIMEOUT_MS,
   spineTimeoutMs: SPINE_TIMEOUT_MS,
-  serviceSearchTimeoutMs: SERVICE_SEARCH_TIMEOUT_MS
+  serviceSearchTimeoutMs: SERVICE_SEARCH_TIMEOUT_MS,
+  spineClient: _spineClient
 }
 
 export const newHandler = <T>(handlerConfig: HandlerConfig<T>) =>{
@@ -180,7 +184,7 @@ export const handler = newHandler({
   middleware: STATE_MACHINE_MIDDLEWARE
 })
 
-const API_GATEWAY_MIDDLEWARE = [
+export const API_GATEWAY_MIDDLEWARE = [
   MIDDLEWARE.injectLambdaContext,
   MIDDLEWARE.inputOutputLogger,
   MIDDLEWARE.errorHandler
