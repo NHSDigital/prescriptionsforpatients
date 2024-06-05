@@ -33,7 +33,7 @@ requests = "^2.32.3"
 boto3 = "^1.34.118"
 argparse = "^1.4.0"
 pre-commit = "^3.5.0"
-pytest = "^8.2.1"
+pytest = "^8.2.2"
 cfn-lint = "^0.87.4"
 
 [tool.poetry.dev-dependencies]
