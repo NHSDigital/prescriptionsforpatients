@@ -87,10 +87,18 @@ function updateMedicationRequest(medicationRequest: MedicationRequest, updateIte
     ]
   }
 
-  if (medicationRequest.extension) {
+  // Add extension if non present
+  if (!medicationRequest.extension) {
+    medicationRequest.extension = [extension]
+    return
+  }
+
+  // Replace existing status update extension if present, push otherwise
+  const existingStatusExtensionIndex = medicationRequest.extension.findIndex((ext) => ext.url === EXTENSION_URL)
+  if (existingStatusExtensionIndex === -1) {
     medicationRequest.extension.push(extension)
   } else {
-    medicationRequest.extension = [extension]
+    medicationRequest.extension[existingStatusExtensionIndex] = extension
   }
 }
 
@@ -112,9 +120,22 @@ export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: Statu
     const prescriptionUpdate = statusUpdates.prescriptions.filter(p => p.prescriptionID === prescriptionID)[0]
     if (!prescriptionUpdate || !prescriptionUpdate.onboarded) {
       logger.info(`Supplier of prescription ${prescriptionID} not onboarded. Applying default updates.`)
-      medicationRequests?.forEach(medicationRequest =>
+      medicationRequests?.forEach((medicationRequest) => {
+        if (delayWithPharmacyStatus(medicationRequest)) {
+          // If the prescription has been in "With Pharmacy" status for less than an hour,
+          // set status as Prescriber Approved
+          const update: UpdateItem = {
+            isTerminalState: "false",
+            itemId: "",
+            //Placeholder now datetime
+            lastUpdateDateTime: new Date().toISOString(),
+            latestStatus: "Prescriber Approved"
+          }
+          updateMedicationRequest(medicationRequest, update)
+          return
+        }
         updateMedicationRequest(medicationRequest, defaultUpdate(false))
-      )
+      })
       return
     }
 
@@ -132,4 +153,45 @@ export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: Statu
       }
     })
   })
+}
+
+function delayWithPharmacyStatus(medicationRequest: MedicationRequest): boolean {
+  const statusExtension = getStatusHistoryExtension(medicationRequest)
+  if (!statusExtension) {
+    return false
+  }
+
+  const updateTime = getStatusDate(statusExtension)?.valueOf()
+  const status = getStatus(statusExtension)
+
+  if (!updateTime || !status || status !== "With Pharmacy but Tracking not Supported") {
+    return false
+  }
+
+  const now = new Date().valueOf()
+  const sixtyMinutes = 60 * 60 * 1000
+
+  return now - updateTime < sixtyMinutes
+}
+
+function getStatusHistoryExtension(medicationRequest: MedicationRequest): Extension | undefined {
+  const STATUS_HISTORY_EXTENSION_URL = "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory"
+  return medicationRequest.extension?.find((extension) => extension.url === STATUS_HISTORY_EXTENSION_URL)
+}
+
+function getStatusDate(statusExtension: Extension): Date | undefined {
+  const dateTime = statusExtension?.extension?.find((extension) => extension?.url === "statusDate")?.valueDateTime
+
+  return dateTime ? new Date(dateTime) : undefined
+}
+
+function getStatus(statusExtension: Extension): string | undefined {
+  const VALUE_CODING_SYSTEM = "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt"
+
+  return statusExtension?.extension
+    ?.filter((extension) => extension.url === "status")
+    .map((extension) => extension.valueCoding)
+    .filter((coding) => coding?.system === VALUE_CODING_SYSTEM)
+    .map((coding) => coding?.code)
+    .pop()
 }
