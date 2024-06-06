@@ -19,6 +19,7 @@ import {
 } from "./utils"
 import {ONE_WEEK_IN_MS, applyStatusUpdates} from "../src/statusUpdates"
 import {Bundle, MedicationRequest} from "fhir/r4"
+import {Logger} from "@aws-lambda-powertools/logger"
 
 describe("Unit tests for statusUpdate", function () {
   beforeEach(() => {
@@ -193,6 +194,8 @@ describe("Unit tests for statusUpdate", function () {
 
   describe("Delay WithPharmacy status", () => {
     it("when the last update is '0002 - With Dispenser', updated less than an hour ago, and missing NPPT updates, set status as 'Prescriber Approved'", async () => {
+      const mockLogger = jest.spyOn(Logger.prototype, "info")
+
       const requestBundle = simpleRequestBundle()
       const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
       const medicationRequest = requestCollectionBundle.entry![0].resource as MedicationRequest
@@ -214,6 +217,10 @@ describe("Unit tests for statusUpdate", function () {
       // Check that the status has been updated to 'Prescriber Approved'
       expect(medicationRequest.extension![0].extension![0].valueCoding!.code).toEqual("Prescriber Approved")
       expect(medicationRequest.extension![0].extension![1].valueDateTime).toEqual(SYSTEM_DATETIME.toISOString())
+
+      expect(mockLogger).toHaveBeenCalledWith(
+        `Delaying 'With Pharamcy' status for prescription ${medicationRequest?.groupIdentifier?.value}`
+      )
     })
 
     it("when the last update is '0002 - With Dispenser', updated less than an hour ago, and NPPT updates are present, set status as 'With Pharmacy'", async () => {
