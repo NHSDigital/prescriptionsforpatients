@@ -190,4 +190,97 @@ describe("Unit tests for statusUpdate", function () {
 
     expect(requestBundle).toEqual(expectedResponseBundle)
   })
+
+  describe("Delay WithPharmacy status", () => {
+    it("when the last update is '0002 - With Dispenser', updated less than an hour ago, and missing NPPT updates, set status as 'Prescriber Approved'", async () => {
+      const requestBundle = simpleRequestBundle()
+      const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
+      const medicationRequest = requestCollectionBundle.entry![0].resource as MedicationRequest
+
+      // Add the initial extension
+      // Status comes in as 'With Pharmacy but Tracking not Supported'
+      // Last update 30 minutes ago
+      const updateTime = new Date(SYSTEM_DATETIME.valueOf() - 1000 * 60 * 30).toISOString()
+      addExtensionToMedicationRequest(medicationRequest, "With Pharmacy but Tracking not Supported", updateTime)
+
+      const statusUpdates = {
+        schemaVersion: 1,
+        isSuccess: true,
+        prescriptions: []
+      }
+
+      applyStatusUpdates(requestBundle, statusUpdates)
+
+      // Check that the status has been updated to 'Prescriber Approved'
+      expect(medicationRequest.extension![0].extension![0].valueCoding!.code).toEqual("Prescriber Approved")
+      expect(medicationRequest.extension![0].extension![1].valueDateTime).toEqual(SYSTEM_DATETIME.toISOString())
+    })
+
+    it("when the last update is '0002 - With Dispenser', updated less than an hour ago, and NPPT updates are present, set status as 'With Pharmacy'", async () => {
+      const requestBundle = simpleRequestBundle()
+      const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
+      const medicationRequest = requestCollectionBundle.entry![0].resource as MedicationRequest
+
+      // Add the initial extension
+      // Status comes in as 'With Pharmacy but Tracking not Supported'
+      // Last update 30 minutes ago
+      const updateTime = new Date(SYSTEM_DATETIME.valueOf() - 1000 * 60 * 30).toISOString()
+      addExtensionToMedicationRequest(medicationRequest, "With Pharmacy but Tracking not Supported", updateTime)
+
+      const statusUpdates = simpleStatusUpdatesPayload()
+      statusUpdates.prescriptions[0].items[0].latestStatus = "With Pharmacy"
+
+      applyStatusUpdates(requestBundle, statusUpdates)
+
+      // Check that the status has been updated to 'Prescriber Approved'
+      expect(medicationRequest.extension![0].extension![0].valueCoding!.code).toEqual("With Pharmacy")
+      expect(medicationRequest.extension![0].extension![1].valueDateTime).toEqual("2023-09-11T10:11:12.000Z")
+    })
+
+    it("when the last update is '0002 - With Dispenser', updated less than an hour ago, and NPPT updates are present (other than 'With Pharmacy'), set status to latest update", async () => {
+      const requestBundle = simpleRequestBundle()
+      const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
+      const medicationRequest = requestCollectionBundle.entry![0].resource as MedicationRequest
+
+      // Add the initial extension
+      // Status comes in as 'With Pharmacy but Tracking not Supported'
+      // Last update 30 minutes ago
+      const updateTime = new Date(SYSTEM_DATETIME.valueOf() - 1000 * 60 * 30).toISOString()
+      addExtensionToMedicationRequest(medicationRequest, "With Pharmacy but Tracking not Supported", updateTime)
+
+      const statusUpdates = simpleStatusUpdatesPayload()
+
+      applyStatusUpdates(requestBundle, statusUpdates)
+
+      // Check that the status has been updated to 'Ready to Collect'
+      expect(medicationRequest.extension![0].extension![0].valueCoding!.code).toEqual("Ready to Collect")
+      expect(medicationRequest.extension![0].extension![1].valueDateTime).toEqual("2023-09-11T10:11:12.000Z")
+    })
+
+    it("when the last update is '0002 - With Dispenser', updated more than an hour ago, and missing NPPT updates, set status as 'With Pharmacy but Tracking not Supported'", async () => {
+      const requestBundle = simpleRequestBundle()
+      const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
+      const medicationRequest = requestCollectionBundle.entry![0].resource as MedicationRequest
+
+      // Add the initial extension
+      // Status comes in as 'With Pharmacy but Tracking not Supported'
+      // Last update 30 minutes ago
+      const updateTime = new Date(SYSTEM_DATETIME.valueOf() - 1000 * 60 * 75).toISOString()
+      addExtensionToMedicationRequest(medicationRequest, "With Pharmacy but Tracking not Supported", updateTime)
+
+      const statusUpdates = {
+        schemaVersion: 1,
+        isSuccess: true,
+        prescriptions: []
+      }
+
+      applyStatusUpdates(requestBundle, statusUpdates)
+
+      // Check that the status has been updated to 'With Pharmacy but Tracking not Supported'
+      expect(medicationRequest.extension![0].extension![0].valueCoding!.code).toEqual(
+        "With Pharmacy but Tracking not Supported"
+      )
+      expect(medicationRequest.extension![0].extension![1].valueDateTime).toEqual(SYSTEM_DATETIME.toISOString())
+    })
+  })
 })
