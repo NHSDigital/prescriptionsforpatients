@@ -200,9 +200,7 @@ describe("Unit tests for statusUpdate", function () {
       const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
       const medicationRequest = requestCollectionBundle.entry![0].resource as MedicationRequest
 
-      // Add the initial extension
-      // Status comes in as 'With Pharmacy but Tracking not Supported'
-      // Last update 30 minutes ago
+      // Add the initial extension for prescription released 75 minutes ago
       const updateTime = new Date(SYSTEM_DATETIME.valueOf() - 1000 * 60 * 30).toISOString()
       addExtensionToMedicationRequest(medicationRequest, "With Pharmacy but Tracking not Supported", updateTime)
 
@@ -228,9 +226,7 @@ describe("Unit tests for statusUpdate", function () {
       const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
       const medicationRequest = requestCollectionBundle.entry![0].resource as MedicationRequest
 
-      // Add the initial extension
-      // Status comes in as 'With Pharmacy but Tracking not Supported'
-      // Last update 30 minutes ago
+      // Add the initial extension for prescription released 75 minutes ago
       const updateTime = new Date(SYSTEM_DATETIME.valueOf() - 1000 * 60 * 30).toISOString()
       addExtensionToMedicationRequest(medicationRequest, "With Pharmacy but Tracking not Supported", updateTime)
 
@@ -249,9 +245,7 @@ describe("Unit tests for statusUpdate", function () {
       const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
       const medicationRequest = requestCollectionBundle.entry![0].resource as MedicationRequest
 
-      // Add the initial extension
-      // Status comes in as 'With Pharmacy but Tracking not Supported'
-      // Last update 30 minutes ago
+      // Add the initial extension for prescription released 75 minutes ago
       const updateTime = new Date(SYSTEM_DATETIME.valueOf() - 1000 * 60 * 30).toISOString()
       addExtensionToMedicationRequest(medicationRequest, "With Pharmacy but Tracking not Supported", updateTime)
 
@@ -269,9 +263,7 @@ describe("Unit tests for statusUpdate", function () {
       const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
       const medicationRequest = requestCollectionBundle.entry![0].resource as MedicationRequest
 
-      // Add the initial extension
-      // Status comes in as 'With Pharmacy but Tracking not Supported'
-      // Last update 30 minutes ago
+      // Add the initial extension for prescription released 75 minutes ago
       const updateTime = new Date(SYSTEM_DATETIME.valueOf() - 1000 * 60 * 75).toISOString()
       addExtensionToMedicationRequest(medicationRequest, "With Pharmacy but Tracking not Supported", updateTime)
 
