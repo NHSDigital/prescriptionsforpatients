@@ -54,13 +54,13 @@ function determineStatus(updateItem: UpdateItem): MedicationRequestStatus {
 
 function updateMedicationRequest(medicationRequest: MedicationRequest, updateItem: UpdateItem) {
   const status = determineStatus(updateItem)
-  const relevantExtension = medicationRequest.extension?.find(ext => ext.url === EXTENSION_URL)
-  const statusCoding = relevantExtension?.extension?.find(innerExt => innerExt.url === "status")?.valueCoding?.code
+  const relevantExtension = medicationRequest.extension?.find((ext) => ext.url === EXTENSION_URL)
+  const statusCoding = relevantExtension?.extension?.find((innerExt) => innerExt.url === "status")?.valueCoding?.code
 
   if (statusCoding && (statusCoding === "Prescriber Approved" || statusCoding === "Cancelled")) {
     logger.info(
       `Status update for prescription ${updateItem.itemId} has been skipped because the current status is already ` +
-      `${statusCoding}.`
+        `${statusCoding}.`
     )
     return
   }
@@ -103,12 +103,12 @@ function updateMedicationRequest(medicationRequest: MedicationRequest, updateIte
 }
 
 export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: StatusUpdates) {
-  isolatePrescriptions(searchsetBundle).forEach(prescription => {
+  isolatePrescriptions(searchsetBundle).forEach((prescription) => {
     const medicationRequests = isolateMedicationRequests(prescription)
     const prescriptionID = medicationRequests![0].groupIdentifier!.value
 
     const hasPerformer = medicationRequests!.some(
-      medicationRequest => medicationRequest.dispenseRequest?.performer?.reference
+      (medicationRequest) => medicationRequest.dispenseRequest?.performer?.reference
     )
     if (!hasPerformer) {
       logger.info(`Prescription ${prescriptionID} has no performer element. Skipping.`)
@@ -117,7 +117,7 @@ export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: Statu
 
     logger.info(`Applying updates for prescription ${prescriptionID}.`)
 
-    const prescriptionUpdate = statusUpdates.prescriptions.filter(p => p.prescriptionID === prescriptionID)[0]
+    const prescriptionUpdate = statusUpdates.prescriptions.filter((p) => p.prescriptionID === prescriptionID)[0]
     if (!prescriptionUpdate || !prescriptionUpdate.onboarded) {
       logger.info(`Supplier of prescription ${prescriptionID} not onboarded. Applying default updates.`)
       medicationRequests?.forEach((medicationRequest) => {
@@ -139,11 +139,11 @@ export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: Statu
       return
     }
 
-    medicationRequests?.forEach(medicationRequest => {
+    medicationRequests?.forEach((medicationRequest) => {
       const medicationRequestID = medicationRequest.identifier?.[0].value
       logger.info(`Updating MedicationRequest with id ${medicationRequestID}`)
 
-      const itemUpdates = prescriptionUpdate.items.filter(item => item.itemId === medicationRequestID)
+      const itemUpdates = prescriptionUpdate.items.filter((item) => item.itemId === medicationRequestID)
       if (itemUpdates.length > 0) {
         logger.info(`Update found for MedicationRequest with id ${medicationRequestID}. Applying.`)
         updateMedicationRequest(medicationRequest, itemUpdates[0])

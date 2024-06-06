@@ -44,7 +44,7 @@ describe("Unit tests for statusUpdate", function () {
   it("when an update for a prescription is flagged as not-onboarded, the not-onboarded update is applied", async () => {
     const requestBundle = simpleRequestBundle()
     const statusUpdates = simpleStatusUpdatesPayload()
-    statusUpdates.prescriptions.forEach(p => p.onboarded = false)
+    statusUpdates.prescriptions.forEach((p) => (p.onboarded = false))
 
     const expectedResponseBundle = simpleRequestBundle()
     const prescription = expectedResponseBundle.entry![0].resource as Bundle
@@ -112,12 +112,12 @@ describe("Unit tests for statusUpdate", function () {
     const statusUpdates = simpleStatusUpdatesPayload()
 
     const existingExtension = {
-      "url": "https://fhir.nhs.uk/extension",
-      "extension": [
+      url: "https://fhir.nhs.uk/extension",
+      extension: [
         {
-          "url": "url",
-          "valueCoding": {
-            "system": "https://fhir.nhs.uk/CodeSystem/system"
+          url: "url",
+          valueCoding: {
+            system: "https://fhir.nhs.uk/CodeSystem/system"
           }
         }
       ]
