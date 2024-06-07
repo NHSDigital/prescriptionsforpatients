@@ -326,7 +326,7 @@ jobs:
     uses: ./.github/workflows/sam_release_code.yml
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
-      STACK_NAME: pfp-sandox
+      STACK_NAME: pfp-sandbox
       TARGET_ENVIRONMENT: int
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_sandbox_code
@@ -347,7 +347,7 @@ jobs:
     uses: ./.github/workflows/sam_release_code.yml
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
-      STACK_NAME: int-sandox
+      STACK_NAME: int-sandbox
       TARGET_ENVIRONMENT: int
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_sandbox_code
