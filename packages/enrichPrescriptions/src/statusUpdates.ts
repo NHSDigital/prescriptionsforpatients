@@ -156,7 +156,7 @@ export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: Statu
   })
 }
 
-function delayWithPharmacyStatus(medicationRequest: MedicationRequest): boolean {
+export function delayWithPharmacyStatus(medicationRequest: MedicationRequest): boolean {
   const statusExtension = getStatusHistoryExtension(medicationRequest)
   if (!statusExtension) {
     return false
@@ -180,7 +180,7 @@ function getStatusHistoryExtension(medicationRequest: MedicationRequest): Extens
   return medicationRequest.extension?.find((extension) => extension.url === STATUS_HISTORY_EXTENSION_URL)
 }
 
-function getStatusDate(statusExtension: Extension): Date | undefined {
+export function getStatusDate(statusExtension: Extension): Date | undefined {
   const dateTime = statusExtension?.extension?.find((extension) => extension?.url === "statusDate")?.valueDateTime
 
   return dateTime ? new Date(dateTime) : undefined

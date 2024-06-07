@@ -17,7 +17,12 @@ import {
   simpleStatusUpdatesPayload,
   addExtensionToMedicationRequest
 } from "./utils"
-import {ONE_WEEK_IN_MS, applyStatusUpdates} from "../src/statusUpdates"
+import {
+  ONE_WEEK_IN_MS,
+  applyStatusUpdates,
+  delayWithPharmacyStatus,
+  getStatusDate
+} from "../src/statusUpdates"
 import {Bundle, MedicationRequest} from "fhir/r4"
 import {Logger} from "@aws-lambda-powertools/logger"
 
@@ -280,6 +285,25 @@ describe("Unit tests for statusUpdate", function () {
         "With Pharmacy but Tracking not Supported"
       )
       expect(medicationRequest.extension![0].extension![1].valueDateTime).toEqual(SYSTEM_DATETIME.toISOString())
+    })
+
+    it("If the status is not 'With Pharmacy but Tracking not Supported', delayWithPharmacyStatus returns false", async () => {
+      const requestBundle = simpleRequestBundle()
+      const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
+      const medicationRequest = requestCollectionBundle.entry![0].resource as MedicationRequest
+
+      // Add the initial extension for prescription released 75 minutes ago
+      const updateTime = new Date(SYSTEM_DATETIME.valueOf() - 1000 * 60 * 30).toISOString()
+      addExtensionToMedicationRequest(medicationRequest, "Ready to Collect", updateTime)
+
+      expect(delayWithPharmacyStatus(medicationRequest)).toEqual(false)
+    })
+
+    it("getting statusDate from extension can handle missing date", async () => {
+      const incomplete_extension = defaultExtension()[0]
+      delete incomplete_extension.extension![1].valueDateTime
+
+      expect(getStatusDate(incomplete_extension)).toEqual(undefined)
     })
   })
 })
