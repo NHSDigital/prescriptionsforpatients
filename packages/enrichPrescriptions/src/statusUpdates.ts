@@ -122,7 +122,9 @@ export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: Statu
       logger.info(`Supplier of prescription ${prescriptionID} not onboarded. Applying default updates.`)
       medicationRequests?.forEach((medicationRequest) => {
         if (delayWithPharmacyStatus(medicationRequest)) {
-          logger.info(`Delaying 'With Pharamcy' status for prescription ${prescriptionID}`)
+          logger.info(
+            `Delaying 'With Pharamcy' status for prescription ${prescriptionID} line item id ${medicationRequest.id}`
+          )
           // If the prescription has been in "With Pharmacy" status for less than an hour,
           // set status as Prescriber Approved
           const update: UpdateItem = {
