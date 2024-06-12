@@ -183,7 +183,7 @@ function getStatusHistoryExtension(medicationRequest: MedicationRequest): Extens
 }
 
 export function getStatusDate(statusExtension: Extension): Date | undefined {
-  const dateTime = statusExtension?.extension?.find((extension) => extension?.url === "statusDate")?.valueDateTime
+  const dateTime = statusExtension.extension?.find((extension) => extension?.url === "statusDate")?.valueDateTime
 
   return dateTime ? new Date(dateTime) : undefined
 }
@@ -191,7 +191,7 @@ export function getStatusDate(statusExtension: Extension): Date | undefined {
 function getStatus(statusExtension: Extension): string | undefined {
   const VALUE_CODING_SYSTEM = "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt"
 
-  return statusExtension?.extension
+  return statusExtension.extension
     ?.filter((extension) => extension.url === "status")
     .map((extension) => extension.valueCoding)
     .filter((coding) => coding?.system === VALUE_CODING_SYSTEM)
