@@ -1,96 +1,833 @@
 {
 	"info": {
-		"_postman_id": "32259d1e-5ebc-4b24-adb7-381736dbc5e2",
+		"_postman_id": "53baab19-cdbd-45ed-beda-2ba288c73c20",
 		"name": "prescriptions for patients",
-		"description": "This contains a collection for interacting with the prescriptions for patients API\n\nTo use it you should define environments with the following variables\n\n- host\n- cilent_id\n- client_secret\n    \n\nTo use the PULL REQUEST calls, you should create a variable called pull_request_id that is the number of the pull request\n\nThe endpoints are secured using oauth2. In dev environments, you can go to the authorization tab of the request and select get new access token. This will open a new window where you can put in one of the test NHS numbers",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"description": "This contains a collection for interacting with the prescriptions for patients API\n\nTo use it you should define the following variables at a global level\n\n- status_api_key\n    \n- host\n    \n\nTo use the requests in the AWS pull request folder, you should create a variable called aws_pull_request_id that is the number of the pull request\n\nTo use the requests in the Apigee pull request folder, you should create a variable called apigee_pull_request_id that is the number of the pull request\n\nTo use the requests in the custom stack folder, you should create a variable called custom_stack_name that is the name of the stack you have defined\n\nThe apigee get my prescription endpoint is secured using oauth2. There are two requests for this - one requires a seperate auth and one uses a pre-request script to automate it.\n\nIf you use the seperate auth one you must go to the authorisation tab and scroll down to the bottom and click generate new token This will open a new window where you can put in one of the test NHS numbers\n\nYou must set the following variables at an environment level\n\n- host\n    \n- client_id\n    \n- client_secret\n    \n- auth_url\n    \n- auth_token_url\n    \n\nhost should be set to the base apigee url - one of\n\n- internal-dev.api.service.nhs.uk\n    \n- internal-dev-sandbox.api.service.nhs.uk\n    \n- int.api.service.nhs.uk\n    \n- sandbox.api.service.nhs.uk\n    \n- internal-qa.api.service.nhs.uk\n    \n\nclient_id and client_secret should be set to the apigee api key and secret for your application",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "69771"
 	},
 	"item": [
 		{
-			"name": "Bundle",
-			"request": {
-				"auth": {
-					"type": "oauth2",
-					"oauth2": [
-						{
-							"key": "tokenName",
-							"value": "nhs identity token",
-							"type": "string"
+			"name": "custom stack",
+			"item": [
+				{
+					"name": "AWS custom stack getMyPrescriptions",
+					"request": {
+						"auth": {
+							"type": "noauth"
 						},
-						{
-							"key": "clientId",
-							"value": "{{client_id}}",
-							"type": "string"
-						},
-						{
-							"key": "clientSecret",
-							"value": "{{client_secret}}",
-							"type": "string"
-						},
-						{
-							"key": "scope",
-							"value": "nhs-login",
-							"type": "string"
-						},
-						{
-							"key": "redirect_uri",
-							"value": "https://example.org/",
-							"type": "string"
-						},
-						{
-							"key": "useBrowser",
-							"value": false,
-							"type": "boolean"
-						},
-						{
-							"key": "state",
-							"value": "{{$randomUUID}}",
-							"type": "string"
-						},
-						{
-							"key": "accessTokenUrl",
-							"value": "https://internal-dev.api.service.nhs.uk/oauth2-mock/token",
-							"type": "string"
-						},
-						{
-							"key": "authUrl",
-							"value": "https://internal-dev.api.service.nhs.uk/oauth2-mock/authorize",
-							"type": "string"
-						},
-						{
-							"key": "client_authentication",
-							"value": "body",
-							"type": "string"
-						},
-						{
-							"key": "addTokenTo",
-							"value": "header",
-							"type": "string"
+						"method": "GET",
+						"header": [
+							{
+								"key": "nhsd-nhslogin-user",
+								"value": "P9:9912003071"
+							},
+							{
+								"key": "x-request-id",
+								"value": "{{$guid}}"
+							},
+							{
+								"key": "x-correlation-id",
+								"value": "{{$guid}}"
+							}
+						],
+						"url": {
+							"raw": "https://{{custom_stack_name}}.dev.eps.national.nhs.uk/Bundle",
+							"protocol": "https",
+							"host": [
+								"{{custom_stack_name}}",
+								"dev",
+								"eps",
+								"national",
+								"nhs",
+								"uk"
+							],
+							"path": [
+								"Bundle"
+							]
 						}
-					]
+					},
+					"response": []
 				},
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "https://{{host}}/prescriptions-for-patients/Bundle",
-					"protocol": "https",
-					"host": [
-						"{{host}}"
-					],
-					"path": [
-						"prescriptions-for-patients",
-						"Bundle"
-					]
+				{
+					"name": "AWS custom stack capabilityStatement",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-request-id",
+								"value": "{{$guid}}",
+								"type": "text"
+							},
+							{
+								"key": "x-correlation-id",
+								"value": "{{$guid}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://{{custom_stack_name}}.dev.eps.national.nhs.uk/metadata",
+							"protocol": "https",
+							"host": [
+								"{{custom_stack_name}}",
+								"dev",
+								"eps",
+								"national",
+								"nhs",
+								"uk"
+							],
+							"path": [
+								"metadata"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AWS custom stack _status",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{custom_stack_name}}.dev.eps.national.nhs.uk/_status",
+							"protocol": "https",
+							"host": [
+								"{{custom_stack_name}}",
+								"dev",
+								"eps",
+								"national",
+								"nhs",
+								"uk"
+							],
+							"path": [
+								"_status"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		},
 		{
-			"name": "_status",
+			"name": "APIGEE pull request",
+			"item": [
+				{
+					"name": "APIGEE PULL REQUEST getMyPrescriptions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-nhs-number",
+								"value": "5623367550"
+							},
+							{
+								"key": "x-request-id",
+								"value": "{{$guid}}"
+							}
+						],
+						"url": {
+							"raw": "https://{{host}}/prescriptions-for-patients-pr-{{apigee_pull_request_id}}/Bundle",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"prescriptions-for-patients-pr-{{apigee_pull_request_id}}",
+								"Bundle"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "APIGEE PULL REQUEEST getMyPrescriptions with pre-request",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const uuid = require('uuid')",
+									"",
+									"const client_id = pm.environment.get('client_id')",
+									"const client_secret = pm.environment.get('client_secret')",
+									"const auth_url = pm.environment.get('auth_url')",
+									"const auth_token_url = pm.environment.get('auth_token_url')",
+									"const callback_url = \"https://example.org/\"",
+									"const user_id = \"9446041481\"",
+									"",
+									"function getAuthQueryString() {",
+									"    params = {",
+									"        \"client_id\": client_id,",
+									"        \"client_secret\": client_secret,",
+									"        \"redirect_uri\": callback_url,",
+									"        \"state\": uuid.v4(),",
+									"        \"response_type\": \"code\",",
+									"        \"scope\": \"nhs-login\"",
+									"    }",
+									"    return Object.keys(params).map((key) => `${key}=${params[key]}`).join('&');",
+									"}",
+									"",
+									"function getLocationAfterRedirects(response, requestUrl) {",
+									"    return new Promise((resolve) => {",
+									"        if (!isResponseRedirect(response)) {",
+									"            return resolve({",
+									"                response: response,",
+									"                redirectUrl: requestUrl",
+									"            });",
+									"        }",
+									"",
+									"        const redirectUrl = response.headers.find(h => h[\"key\"] === \"Location\")[\"value\"];",
+									"",
+									"        pm.sendRequest(redirectUrl, (err, res) => {",
+									"            getLocationAfterRedirects(res, redirectUrl)",
+									"                .then((response) => {",
+									"                    return resolve({",
+									"                        response: res,",
+									"                        redirectUrl: response.redirectUrl",
+									"                    });",
+									"                });",
+									"        });",
+									"    });",
+									"}",
+									"",
+									"function isResponseRedirect(response) {",
+									"    return response.code > 300 && response.code < 400;",
+									"}",
+									"",
+									"function parseAuthForm(htmlResponse) {",
+									"    var $ = cheerio.load(htmlResponse)",
+									"    const formSection = $(\"#kc-form-login\")",
+									"    const formAction = formSection.attr(\"action\")",
+									"    const formMethod = formSection.attr(\"method\")",
+									"    const formInputs = $(\"#kc-form-login input\")",
+									"    const inputs = []",
+									"",
+									"    for (let i = 0; i < formInputs.length; i++) {",
+									"        const name = formInputs[i][\"attribs\"][\"name\"]",
+									"        let value",
+									"        if (name === \"username\") {",
+									"            value = user_id",
+									"        } else {",
+									"            value = formInputs[i][\"attribs\"][\"value\"]",
+									"        }",
+									"        inputs.push({",
+									"            key: name,",
+									"            value: value",
+									"        })",
+									"    }",
+									"    return {",
+									"        action: formAction,",
+									"        method: formMethod,",
+									"        data: inputs",
+									"    }",
+									"}",
+									"",
+									"function sendPostRequest(targetUrl, formData) {",
+									"    return new Promise((resolve, reject) => {",
+									"        pm.sendRequest({",
+									"            method: \"POST\",",
+									"            url: targetUrl,",
+									"            header: {",
+									"                \"Content-Type\": \"application/x-www-form-urlencoded\"",
+									"            },",
+									"            body: {",
+									"                mode: \"urlencoded\",",
+									"                urlencoded: formData",
+									"            }",
+									"        }, function(err, res) {",
+									"            if (err) {",
+									"                return reject(err);",
+									"            }",
+									"            getLocationAfterRedirects(res, targetUrl)",
+									"                .then((response) => {",
+									"                    return resolve({",
+									"                        response: response.response,",
+									"                        redirectUrl: response.redirectUrl",
+									"                    });",
+									"                })",
+									"        })",
+									"    })",
+									"}",
+									"",
+									"const initialUrl = `${auth_url}?${getAuthQueryString()}`",
+									"",
+									"",
+									"return new Promise((resolve, reject) => {",
+									"    pm.sendRequest({",
+									"        url: initialUrl",
+									"    }, function(err, res) {",
+									"        if (err) {",
+									"            return reject(err);",
+									"        }",
+									"        getLocationAfterRedirects(res, initialUrl)",
+									"            .then((response) => {",
+									"                return resolve({",
+									"                    response: response.response,",
+									"                    redirectUrl: response.redirectUrl",
+									"                });",
+									"            })",
+									"    })",
+									"}).then((response) => {",
+									"    const res = response.response",
+									"    const url = response.redirectUrl",
+									"    const authFormData = parseAuthForm(res.text())",
+									"",
+									"    return sendPostRequest(authFormData.action, authFormData.data)",
+									"}).then((response) => {",
+									"    const res = response.response",
+									"    const url = response.redirectUrl",
+									"    const regex = /[?&]code=([^&]+)/",
+									"    const match = url.match(regex)",
+									"    const code = match ? match[1] : null",
+									"    const token_data = [",
+									"        {key: \"grant_type\", value: \"authorization_code\"},",
+									"        {key: \"code\", value: code},",
+									"        {key: \"client_id\", value: client_id},",
+									"        {key: \"client_secret\", value: client_secret},",
+									"        {key: \"redirect_uri\", value: callback_url}",
+									"    ]",
+									"    return sendPostRequest(auth_token_url, token_data)",
+									"}).then((response) => {",
+									"    const res = response.response",
+									"    const url = response.redirectUrl",
+									"    const json_response = res.json()",
+									"    const access_token = json_response.access_token",
+									"    console.log(`access token : ${access_token}`)",
+									"    pm.environment.set(\"access_token\", access_token)",
+									"}).catch((err) => {",
+									"    console.error(err)",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"followRedirects": false
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-nhs-number",
+								"value": "9931691018"
+							},
+							{
+								"key": "x-request-id",
+								"value": "{{$guid}}"
+							},
+							{
+								"key": "x-Correlation-ID",
+								"value": "{{$guid}}"
+							}
+						],
+						"url": {
+							"raw": "https://{{host}}/prescriptions-for-patients-pr-{{apigee_pull_request_id}}/Bundle",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"prescriptions-for-patients-pr-{{apigee_pull_request_id}}",
+								"Bundle"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "APIGEE PULL REQUEST capability statement",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-request-id",
+								"value": "{{$guid}}",
+								"type": "text"
+							},
+							{
+								"key": "x-nhs-number",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "https://{{host}}/prescriptions-for-patients-pr-{{apigee_pull_request_id}}/metadata",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"prescriptions-for-patients-pr-{{apigee_pull_request_id}}",
+								"metadata"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "APIGEE PULL REQUEST status",
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{status_api_key}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "apikey",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-NHS-NUMBER",
+								"value": "9449306028",
+								"type": "text"
+							},
+							{
+								"key": "x-request-id",
+								"value": "{{$guid}}",
+								"type": "text"
+							},
+							{
+								"key": "Apikey",
+								"value": "3fed41a7-1de3-4e03-980b-5945a4c06c86",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://{{host}}/prescriptions-for-patients-pr-{{apigee_pull_request_id}}/_status",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"prescriptions-for-patients-pr-{{apigee_pull_request_id}}",
+								"_status"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "AWS pull request - old stack",
+			"item": [
+				{
+					"name": "AWS PULL REQUEST old stack getMyPrescriptions",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "nhsd-nhslogin-user",
+								"value": "P9:9912003071",
+								"type": "text"
+							},
+							{
+								"key": "x-request-id",
+								"value": "{{$guid}}",
+								"type": "text"
+							},
+							{
+								"key": "x-correlation-id",
+								"value": "{{$guid}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://pr-{{aws_pull_request_id}}.dev.prescriptionsforpatients.national.nhs.uk/Bundle",
+							"protocol": "https",
+							"host": [
+								"pr-{{aws_pull_request_id}}",
+								"dev",
+								"prescriptionsforpatients",
+								"national",
+								"nhs",
+								"uk"
+							],
+							"path": [
+								"Bundle"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AWS PULL REQUEST old stack capability statement",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pr-{{aws_pull_request_id}}.dev.prescriptionsforpatients.national.nhs.uk/metadata",
+							"protocol": "https",
+							"host": [
+								"pr-{{aws_pull_request_id}}",
+								"dev",
+								"prescriptionsforpatients",
+								"national",
+								"nhs",
+								"uk"
+							],
+							"path": [
+								"metadata"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AWS PULL REQUEST old stack _status",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pr-{{aws_pull_request_id}}.dev.prescriptionsforpatients.national.nhs.uk/_status",
+							"protocol": "https",
+							"host": [
+								"pr-{{aws_pull_request_id}}",
+								"dev",
+								"prescriptionsforpatients",
+								"national",
+								"nhs",
+								"uk"
+							],
+							"path": [
+								"_status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AWS SANDBOX PULL REQUEST old stack getMyPrescriptions",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pr-sandbox-{{aws_pull_request_id}}.dev.prescriptionsforpatients.national.nhs.uk/Bundle",
+							"protocol": "https",
+							"host": [
+								"pr-sandbox-{{aws_pull_request_id}}",
+								"dev",
+								"prescriptionsforpatients",
+								"national",
+								"nhs",
+								"uk"
+							],
+							"path": [
+								"Bundle"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AWS SANDBOX PULL REQUEST old stack status",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pr-sandbox-{{aws_pull_request_id}}.dev.prescriptionsforpatients.national.nhs.uk/_status",
+							"protocol": "https",
+							"host": [
+								"pr-sandbox-{{aws_pull_request_id}}",
+								"dev",
+								"prescriptionsforpatients",
+								"national",
+								"nhs",
+								"uk"
+							],
+							"path": [
+								"_status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AWS SANDBOX PULL REQUEST old stack capability statement",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pr-sandbox-{{aws_pull_request_id}}.dev.prescriptionsforpatients.national.nhs.uk/metadata",
+							"protocol": "https",
+							"host": [
+								"pr-sandbox-{{aws_pull_request_id}}",
+								"dev",
+								"prescriptionsforpatients",
+								"national",
+								"nhs",
+								"uk"
+							],
+							"path": [
+								"metadata"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "AWS pull request - new stack",
+			"item": [
+				{
+					"name": "AWS PULL REQUEST new stack getMyPrescriptions",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "nhsd-nhslogin-user",
+								"value": "P9:9912003071"
+							},
+							{
+								"key": "x-request-id",
+								"value": "{{$guid}}"
+							},
+							{
+								"key": "x-correlation-id",
+								"value": "{{$guid}}"
+							}
+						],
+						"url": {
+							"raw": "https://pfp-pr-{{aws_pull_request_id}}.dev.eps.national.nhs.uk/Bundle",
+							"protocol": "https",
+							"host": [
+								"pfp-pr-{{aws_pull_request_id}}",
+								"dev",
+								"eps",
+								"national",
+								"nhs",
+								"uk"
+							],
+							"path": [
+								"Bundle"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AWS PULL REQUEST new stack capability statement",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pfp-pr-{{aws_pull_request_id}}.dev.eps.national.nhs.uk/metadata",
+							"protocol": "https",
+							"host": [
+								"pfp-pr-{{aws_pull_request_id}}",
+								"dev",
+								"eps",
+								"national",
+								"nhs",
+								"uk"
+							],
+							"path": [
+								"metadata"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AWS PULL REQUEST new stack _status",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pfp-pr-{{aws_pull_request_id}}.dev.eps.national.nhs.uk/_status",
+							"protocol": "https",
+							"host": [
+								"pfp-pr-{{aws_pull_request_id}}",
+								"dev",
+								"eps",
+								"national",
+								"nhs",
+								"uk"
+							],
+							"path": [
+								"_status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AWS SANDBOX PULL REQUEST new stack getMyPrescriptions",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pfp-pr-{{aws_pull_request_id}}-sandbox.dev.eps.national.nhs.uk/Bundle",
+							"protocol": "https",
+							"host": [
+								"pfp-pr-{{aws_pull_request_id}}-sandbox",
+								"dev",
+								"eps",
+								"national",
+								"nhs",
+								"uk"
+							],
+							"path": [
+								"Bundle"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AWS SANDBOX PULL REQUEST new stack capablitiy statement",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pfp-pr-{{aws_pull_request_id}}-sandbox.dev.eps.national.nhs.uk/metadata",
+							"protocol": "https",
+							"host": [
+								"pfp-pr-{{aws_pull_request_id}}-sandbox",
+								"dev",
+								"eps",
+								"national",
+								"nhs",
+								"uk"
+							],
+							"path": [
+								"metadata"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AWS SANDBOX PULL REQUEST new stack status",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pfp-pr-{{aws_pull_request_id}}-sandbox.dev.eps.national.nhs.uk/_status",
+							"protocol": "https",
+							"host": [
+								"pfp-pr-{{aws_pull_request_id}}-sandbox",
+								"dev",
+								"eps",
+								"national",
+								"nhs",
+								"uk"
+							],
+							"path": [
+								"_status"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "APIGEE getMyPrescriptions with seperate auth",
 			"request": {
 				"auth": {
 					"type": "oauth2",
 					"oauth2": [
+						{
+							"key": "authRequestParams",
+							"value": [
+								{
+									"key": "client_id",
+									"value": "{{client_id}}",
+									"enabled": true,
+									"send_as": "request_url"
+								},
+								{
+									"key": "client_secret",
+									"value": "{{client_secret}}",
+									"enabled": true,
+									"send_as": "request_url"
+								}
+							],
+							"type": "any"
+						},
+						{
+							"key": "refreshTokenUrl",
+							"value": "{{auth_token_url}}",
+							"type": "string"
+						},
+						{
+							"key": "accessTokenUrl",
+							"value": "{{auth_token_url}}",
+							"type": "string"
+						},
+						{
+							"key": "authUrl",
+							"value": "{{auth_url}}",
+							"type": "string"
+						},
 						{
 							"key": "tokenName",
 							"value": "nhs identity token",
@@ -124,16 +861,6 @@
 						{
 							"key": "state",
 							"value": "{{$randomUUID}}",
-							"type": "string"
-						},
-						{
-							"key": "accessTokenUrl",
-							"value": "https://internal-dev.api.service.nhs.uk/oauth2-mock/token",
-							"type": "string"
-						},
-						{
-							"key": "authUrl",
-							"value": "https://internal-dev.api.service.nhs.uk/oauth2-mock/authorize",
 							"type": "string"
 						},
 						{
@@ -151,92 +878,244 @@
 				"method": "GET",
 				"header": [
 					{
-						"key": "apikey",
-						"value": "{{apikey}}",
-						"type": "default"
+						"key": "x-nhs-number",
+						"value": "9931691018"
+					},
+					{
+						"key": "x-request-id",
+						"value": "{{$guid}}"
+					},
+					{
+						"key": "x-Correlation-ID",
+						"value": "{{$guid}}"
 					}
 				],
 				"url": {
-					"raw": "https://{{host}}/prescriptions-for-patients/_status",
+					"raw": "https://{{host}}/prescriptions-for-patients/Bundle",
 					"protocol": "https",
 					"host": [
 						"{{host}}"
 					],
 					"path": [
 						"prescriptions-for-patients",
-						"_status"
+						"Bundle"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "capability statement",
+			"name": "APIGEE getMyPrescriptions with pre-request auth",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const uuid = require('uuid')",
+							"",
+							"const client_id = pm.environment.get('client_id')",
+							"const client_secret = pm.environment.get('client_secret')",
+							"const auth_url = pm.environment.get('auth_url')",
+							"const auth_token_url = pm.environment.get('auth_token_url')",
+							"const callback_url = \"https://example.org/\"",
+							"const user_id = \"9446041481\"",
+							"",
+							"function getAuthQueryString() {",
+							"    params = {",
+							"        \"client_id\": client_id,",
+							"        \"client_secret\": client_secret,",
+							"        \"redirect_uri\": callback_url,",
+							"        \"state\": uuid.v4(),",
+							"        \"response_type\": \"code\",",
+							"        \"scope\": \"nhs-login\"",
+							"    }",
+							"    return Object.keys(params).map((key) => `${key}=${params[key]}`).join('&');",
+							"}",
+							"",
+							"function getLocationAfterRedirects(response, requestUrl) {",
+							"    return new Promise((resolve) => {",
+							"        if (!isResponseRedirect(response)) {",
+							"            return resolve({",
+							"                response: response,",
+							"                redirectUrl: requestUrl",
+							"            });",
+							"        }",
+							"",
+							"        const redirectUrl = response.headers.find(h => h[\"key\"] === \"Location\")[\"value\"];",
+							"",
+							"        pm.sendRequest(redirectUrl, (err, res) => {",
+							"            getLocationAfterRedirects(res, redirectUrl)",
+							"                .then((response) => {",
+							"                    return resolve({",
+							"                        response: res,",
+							"                        redirectUrl: response.redirectUrl",
+							"                    });",
+							"                });",
+							"        });",
+							"    });",
+							"}",
+							"",
+							"function isResponseRedirect(response) {",
+							"    return response.code > 300 && response.code < 400;",
+							"}",
+							"",
+							"function parseAuthForm(htmlResponse) {",
+							"    var $ = cheerio.load(htmlResponse)",
+							"    const formSection = $(\"#kc-form-login\")",
+							"    const formAction = formSection.attr(\"action\")",
+							"    const formMethod = formSection.attr(\"method\")",
+							"    const formInputs = $(\"#kc-form-login input\")",
+							"    const inputs = []",
+							"",
+							"    for (let i = 0; i < formInputs.length; i++) {",
+							"        const name = formInputs[i][\"attribs\"][\"name\"]",
+							"        let value",
+							"        if (name === \"username\") {",
+							"            value = user_id",
+							"        } else {",
+							"            value = formInputs[i][\"attribs\"][\"value\"]",
+							"        }",
+							"        inputs.push({",
+							"            key: name,",
+							"            value: value",
+							"        })",
+							"    }",
+							"    return {",
+							"        action: formAction,",
+							"        method: formMethod,",
+							"        data: inputs",
+							"    }",
+							"}",
+							"",
+							"function sendPostRequest(targetUrl, formData) {",
+							"    return new Promise((resolve, reject) => {",
+							"        pm.sendRequest({",
+							"            method: \"POST\",",
+							"            url: targetUrl,",
+							"            header: {",
+							"                \"Content-Type\": \"application/x-www-form-urlencoded\"",
+							"            },",
+							"            body: {",
+							"                mode: \"urlencoded\",",
+							"                urlencoded: formData",
+							"            }",
+							"        }, function(err, res) {",
+							"            if (err) {",
+							"                return reject(err);",
+							"            }",
+							"            getLocationAfterRedirects(res, targetUrl)",
+							"                .then((response) => {",
+							"                    return resolve({",
+							"                        response: response.response,",
+							"                        redirectUrl: response.redirectUrl",
+							"                    });",
+							"                })",
+							"        })",
+							"    })",
+							"}",
+							"",
+							"const initialUrl = `${auth_url}?${getAuthQueryString()}`",
+							"",
+							"",
+							"return new Promise((resolve, reject) => {",
+							"    pm.sendRequest({",
+							"        url: initialUrl",
+							"    }, function(err, res) {",
+							"        if (err) {",
+							"            return reject(err);",
+							"        }",
+							"        getLocationAfterRedirects(res, initialUrl)",
+							"            .then((response) => {",
+							"                return resolve({",
+							"                    response: response.response,",
+							"                    redirectUrl: response.redirectUrl",
+							"                });",
+							"            })",
+							"    })",
+							"}).then((response) => {",
+							"    const res = response.response",
+							"    const url = response.redirectUrl",
+							"    const authFormData = parseAuthForm(res.text())",
+							"",
+							"    return sendPostRequest(authFormData.action, authFormData.data)",
+							"}).then((response) => {",
+							"    const res = response.response",
+							"    const url = response.redirectUrl",
+							"    const regex = /[?&]code=([^&]+)/",
+							"    const match = url.match(regex)",
+							"    const code = match ? match[1] : null",
+							"    const token_data = [",
+							"        {key: \"grant_type\", value: \"authorization_code\"},",
+							"        {key: \"code\", value: code},",
+							"        {key: \"client_id\", value: client_id},",
+							"        {key: \"client_secret\", value: client_secret},",
+							"        {key: \"redirect_uri\", value: callback_url}",
+							"    ]",
+							"    return sendPostRequest(auth_token_url, token_data)",
+							"}).then((response) => {",
+							"    const res = response.response",
+							"    const url = response.redirectUrl",
+							"    const json_response = res.json()",
+							"    const access_token = json_response.access_token",
+							"    console.log(`access token : ${access_token}`)",
+							"    pm.environment.set(\"access_token\", access_token)",
+							"}).catch((err) => {",
+							"    console.error(err)",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
 			"request": {
 				"auth": {
-					"type": "oauth2",
-					"oauth2": [
+					"type": "bearer",
+					"bearer": [
 						{
-							"key": "tokenName",
-							"value": "nhs identity token",
-							"type": "string"
-						},
-						{
-							"key": "refreshTokenUrl",
-							"value": "https://internal-dev.api.service.nhs.uk/oauth2-mock/refresh",
-							"type": "string"
-						},
-						{
-							"key": "clientId",
-							"value": "{{client_id}}",
-							"type": "string"
-						},
-						{
-							"key": "clientSecret",
-							"value": "{{client_secret}}",
-							"type": "string"
-						},
-						{
-							"key": "scope",
-							"value": "nhs-login",
-							"type": "string"
-						},
-						{
-							"key": "redirect_uri",
-							"value": "https://example.org/",
-							"type": "string"
-						},
-						{
-							"key": "useBrowser",
-							"value": false,
-							"type": "boolean"
-						},
-						{
-							"key": "state",
-							"value": "{{$randomUUID}}",
-							"type": "string"
-						},
-						{
-							"key": "accessTokenUrl",
-							"value": "https://internal-dev.api.service.nhs.uk/oauth2-mock/token",
-							"type": "string"
-						},
-						{
-							"key": "authUrl",
-							"value": "https://internal-dev.api.service.nhs.uk/oauth2-mock/authorize",
-							"type": "string"
-						},
-						{
-							"key": "client_authentication",
-							"value": "body",
-							"type": "string"
-						},
-						{
-							"key": "addTokenTo",
-							"value": "header",
+							"key": "token",
+							"value": "{{access_token}}",
 							"type": "string"
 						}
 					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-nhs-number",
+						"value": "9931691018"
+					},
+					{
+						"key": "x-request-id",
+						"value": "{{$guid}}"
+					},
+					{
+						"key": "x-Correlation-ID",
+						"value": "{{$guid}}"
+					}
+				],
+				"url": {
+					"raw": "https://{{host}}/prescriptions-for-patients/Bundle",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"prescriptions-for-patients",
+						"Bundle"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "APIGEE capability statement",
+			"request": {
+				"auth": {
+					"type": "noauth"
 				},
 				"method": "GET",
 				"header": [],
@@ -255,158 +1134,62 @@
 			"response": []
 		},
 		{
-			"name": "PULL REQUEST Bundle",
+			"name": "APIGEE _status",
 			"request": {
 				"auth": {
-					"type": "oauth2",
-					"oauth2": [
+					"type": "apikey",
+					"apikey": [
 						{
-							"key": "tokenName",
-							"value": "nhs identity token",
+							"key": "value",
+							"value": "{{status_api_key}}",
 							"type": "string"
 						},
 						{
-							"key": "clientId",
-							"value": "{{client_id}}",
-							"type": "string"
-						},
-						{
-							"key": "clientSecret",
-							"value": "{{client_secret}}",
-							"type": "string"
-						},
-						{
-							"key": "scope",
-							"value": "nhs-login",
-							"type": "string"
-						},
-						{
-							"key": "redirect_uri",
-							"value": "https://example.org/",
-							"type": "string"
-						},
-						{
-							"key": "useBrowser",
-							"value": false,
-							"type": "boolean"
-						},
-						{
-							"key": "state",
-							"value": "{{$randomUUID}}",
-							"type": "string"
-						},
-						{
-							"key": "accessTokenUrl",
-							"value": "https://internal-dev.api.service.nhs.uk/oauth2-mock/token",
-							"type": "string"
-						},
-						{
-							"key": "authUrl",
-							"value": "https://internal-dev.api.service.nhs.uk/oauth2-mock/authorize",
-							"type": "string"
-						},
-						{
-							"key": "client_authentication",
-							"value": "body",
-							"type": "string"
-						},
-						{
-							"key": "addTokenTo",
-							"value": "header",
+							"key": "key",
+							"value": "apikey",
 							"type": "string"
 						}
 					]
 				},
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "Apikey",
+						"value": "3fed41a7-1de3-4e03-980b-5945a4c06c86",
+						"type": "text"
+					}
+				],
 				"url": {
-					"raw": "https://{{host}}/prescriptions-for-patients-pr-{{pull_request_id}}/Bundle",
+					"raw": "https://{{host}}/prescriptions-for-patients/_status",
 					"protocol": "https",
 					"host": [
 						"{{host}}"
 					],
 					"path": [
-						"prescriptions-for-patients-pr-{{pull_request_id}}",
-						"Bundle"
+						"prescriptions-for-patients",
+						"_status"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "PULL REQUEST capability statement",
+			"name": "APIGEE ping",
 			"request": {
 				"auth": {
-					"type": "oauth2",
-					"oauth2": [
-						{
-							"key": "tokenName",
-							"value": "nhs identity token",
-							"type": "string"
-						},
-						{
-							"key": "clientId",
-							"value": "{{client_id}}",
-							"type": "string"
-						},
-						{
-							"key": "clientSecret",
-							"value": "{{client_secret}}",
-							"type": "string"
-						},
-						{
-							"key": "scope",
-							"value": "nhs-login",
-							"type": "string"
-						},
-						{
-							"key": "redirect_uri",
-							"value": "https://example.org/",
-							"type": "string"
-						},
-						{
-							"key": "useBrowser",
-							"value": false,
-							"type": "boolean"
-						},
-						{
-							"key": "state",
-							"value": "{{$randomUUID}}",
-							"type": "string"
-						},
-						{
-							"key": "accessTokenUrl",
-							"value": "https://internal-dev.api.service.nhs.uk/oauth2-mock/token",
-							"type": "string"
-						},
-						{
-							"key": "authUrl",
-							"value": "https://internal-dev.api.service.nhs.uk/oauth2-mock/authorize",
-							"type": "string"
-						},
-						{
-							"key": "client_authentication",
-							"value": "body",
-							"type": "string"
-						},
-						{
-							"key": "addTokenTo",
-							"value": "header",
-							"type": "string"
-						}
-					]
+					"type": "noauth"
 				},
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{host}}/prescriptions-for-patients-pr-{{pull_request_id}}/metadata",
+					"raw": "https://{{host}}/prescriptions-for-patients/_ping",
 					"protocol": "https",
 					"host": [
 						"{{host}}"
 					],
 					"path": [
-						"prescriptions-for-patients-pr-{{pull_request_id}}",
-						"metadata"
+						"prescriptions-for-patients",
+						"_ping"
 					]
 				}
 			},
