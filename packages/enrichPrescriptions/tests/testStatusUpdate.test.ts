@@ -222,7 +222,7 @@ describe("Unit tests for statusUpdate", function () {
       expect(medicationRequest.extension![0].extension![1].valueDateTime).toEqual(SYSTEM_DATETIME.toISOString())
 
       expect(mockLogger).toHaveBeenCalledWith(
-        `Delaying 'With Pharamcy' status for prescription ${medicationRequest?.groupIdentifier?.value} line item id ${medicationRequest.id}`
+        `Delaying 'With Pharmacy' status for prescription ${medicationRequest?.groupIdentifier?.value} line item id ${medicationRequest.id}`
       )
     })
 

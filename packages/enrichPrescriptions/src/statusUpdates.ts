@@ -123,7 +123,7 @@ export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: Statu
       medicationRequests?.forEach((medicationRequest) => {
         if (delayWithPharmacyStatus(medicationRequest)) {
           logger.info(
-            `Delaying 'With Pharamcy' status for prescription ${prescriptionID} line item id ${medicationRequest.id}`
+            `Delaying 'With Pharmacy' status for prescription ${prescriptionID} line item id ${medicationRequest.id}`
           )
           // If the prescription has been in "With Pharmacy" status for less than an hour,
           // set status as Prescriber Approved
