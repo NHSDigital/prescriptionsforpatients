@@ -30,7 +30,7 @@ sam-build-sandbox: sam-validate-sandbox compile download-get-secrets-layer
 sam-run-local: sam-build
 	sam local start-api
 
-sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name compile download-get-secrets-layer
+sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name compile download-get-secrets-layer guard-TARGET_SERVICE_SEARCH_SERVER guard-TARGET_SPINE_SERVER
 	sam sync \
 		--stack-name $$stack_name \
 		--watch \

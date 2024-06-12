@@ -195,7 +195,7 @@ These are used to do common commands
 
 - `sam-build` prepares the lambdas and SAM definition file to be used in subsequent steps
 - `sam-run-local` run the API and lambdas locally
-- `sam-sync` sync the API and lambda to AWS. This keeps running and automatically uploads any changes to lambda code made locally. Needs AWS_DEFAULT_PROFILE and stack_name environment variables set.
+- `sam-sync` sync the API and lambda to AWS. This keeps running and automatically uploads any changes to lambda code made locally. Needs AWS_DEFAULT_PROFILE, stack_name, TARGET_SERVICE_SEARCH_SERVER and TARGET_SPINE_SERVER environment variables set.
 - `sam-sync-sandbox` sync the API and lambda to AWS. This keeps running and automatically uploads any changes to lambda code made locally. Needs stack_name environment variables set, the path and file name where the AWS SAM template is located.
 - `sam-deploy` deploys the compiled SAM template from sam-build to AWS. Needs AWS_DEFAULT_PROFILE and stack_name environment variables set.
 - `sam-delete` deletes the deployed SAM cloud formation stack and associated resources. Needs AWS_DEFAULT_PROFILE and stack_name environment variables set.
