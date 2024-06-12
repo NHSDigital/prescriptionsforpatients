@@ -19,7 +19,8 @@
     "@aws-sdk/client-secrets-manager": "^3.592.0",
     "@middy/core": "^5.4.0",
     "@middy/input-output-logger": "^5.4.0",
-    "@types/fhir": "^0.0.41"
+    "@types/fhir": "^0.0.41",
+    "moment": "^2.30.1"
   },
   "devDependencies": {
     "@prescriptionsforpatients_common/testing": "^1.0.0"

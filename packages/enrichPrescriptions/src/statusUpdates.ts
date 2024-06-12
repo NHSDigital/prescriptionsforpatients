@@ -1,5 +1,5 @@
 import {Bundle, Extension, MedicationRequest} from "fhir/r4"
-
+import moment, {Moment} from "moment"
 import {isolateMedicationRequests, isolatePrescriptions} from "./fhirUtils"
 import {logger} from "./enrichPrescriptions"
 
@@ -34,7 +34,7 @@ function defaultUpdate(onboarded: boolean = true): UpdateItem {
   return {
     isTerminalState: "false",
     latestStatus: onboarded ? DEFAULT_EXTENSION_STATUS : NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS,
-    lastUpdateDateTime: new Date().toISOString(),
+    lastUpdateDateTime: moment().utc().toISOString(),
     itemId: ""
   }
 }
@@ -45,9 +45,9 @@ function determineStatus(updateItem: UpdateItem): MedicationRequestStatus {
     return "active"
   }
 
-  const lastUpdateDateTime = new Date(updateItem.lastUpdateDateTime)
-  const now = new Date()
-  const updatedOverSevenDaysAgo = now.valueOf() - lastUpdateDateTime.valueOf() > ONE_WEEK_IN_MS
+  const lastUpdateDateTime = moment(updateItem.lastUpdateDateTime).valueOf()
+  const now = moment().valueOf()
+  const updatedOverSevenDaysAgo = now - lastUpdateDateTime > ONE_WEEK_IN_MS
 
   return updatedOverSevenDaysAgo ? "completed" : "active"
 }
@@ -134,7 +134,7 @@ export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: Statu
             isTerminalState: "false",
             itemId: "",
             //Placeholder now datetime
-            lastUpdateDateTime: new Date().toISOString(),
+            lastUpdateDateTime: moment().utc().toISOString(),
             latestStatus: "Prescriber Approved"
           }
           updateMedicationRequest(medicationRequest, update)
@@ -174,7 +174,7 @@ export function delayWithPharmacyStatus(medicationRequest: MedicationRequest): b
     return false
   }
 
-  const now = new Date().valueOf()
+  const now = moment().valueOf()
   const sixtyMinutes = 60 * 60 * 1000
 
   return now - updateTime < sixtyMinutes
@@ -185,10 +185,10 @@ function getStatusHistoryExtension(medicationRequest: MedicationRequest): Extens
   return medicationRequest.extension?.find((extension) => extension.url === STATUS_HISTORY_EXTENSION_URL)
 }
 
-export function getStatusDate(statusExtension: Extension): Date | undefined {
+export function getStatusDate(statusExtension: Extension): Moment | undefined {
   const dateTime = statusExtension.extension?.find((extension) => extension?.url === "statusDate")?.valueDateTime
 
-  return dateTime ? new Date(dateTime) : undefined
+  return dateTime ? moment(dateTime) : undefined
 }
 
 function getStatus(statusExtension: Extension): string | undefined {
