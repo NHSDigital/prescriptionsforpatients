@@ -45,8 +45,8 @@ function determineStatus(updateItem: UpdateItem): MedicationRequestStatus {
     return "active"
   }
 
-  const lastUpdateDateTime = moment(updateItem.lastUpdateDateTime).valueOf()
-  const now = moment().valueOf()
+  const lastUpdateDateTime = moment(updateItem.lastUpdateDateTime).utc().valueOf()
+  const now = moment().utc().valueOf()
   const updatedOverSevenDaysAgo = now - lastUpdateDateTime > ONE_WEEK_IN_MS
 
   return updatedOverSevenDaysAgo ? "completed" : "active"
@@ -174,7 +174,7 @@ export function delayWithPharmacyStatus(medicationRequest: MedicationRequest): b
     return false
   }
 
-  const now = moment().valueOf()
+  const now = moment().utc().valueOf()
   const sixtyMinutes = 60 * 60 * 1000
 
   return now - updateTime < sixtyMinutes
@@ -188,7 +188,7 @@ function getStatusHistoryExtension(medicationRequest: MedicationRequest): Extens
 export function getStatusDate(statusExtension: Extension): Moment | undefined {
   const dateTime = statusExtension.extension?.find((extension) => extension?.url === "statusDate")?.valueDateTime
 
-  return dateTime ? moment(dateTime) : undefined
+  return dateTime ? moment(dateTime).utc() : undefined
 }
 
 function getStatus(statusExtension: Extension): string | undefined {
