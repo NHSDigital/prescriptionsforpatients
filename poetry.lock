@@ -111,17 +111,17 @@ uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
 name = "boto3"
-version = "1.34.124"
+version = "1.34.125"
 description = "The AWS SDK for Python"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "boto3-1.34.124-py3-none-any.whl", hash = "sha256:549d9735bbb7cf8e1a2f4b3b676be32946717c59f33c47234586835dc904d04e"},
-    {file = "boto3-1.34.124.tar.gz", hash = "sha256:a91ee58fa54b170f17b2e144f038e155f92cf515f1c073ac2595e9ee45f125a8"},
+    {file = "boto3-1.34.125-py3-none-any.whl", hash = "sha256:116d9eb3c26cf313a2e1e44ef704d1f98f9eb18e7628695d07b01b44a8683544"},
+    {file = "boto3-1.34.125.tar.gz", hash = "sha256:31c4a5e4d6f9e6116be61ff654b424ddbd1afcdefe0e8b870c4796f9108eb1c6"},
 ]
 
 [package.dependencies]
-botocore = ">=1.34.124,<1.35.0"
+botocore = ">=1.34.125,<1.35.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.10.0,<0.11.0"
 
@@ -130,13 +130,13 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.34.124"
+version = "1.34.125"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "botocore-1.34.124-py3-none-any.whl", hash = "sha256:fede092c7f8f414f78f3e7991e47cb0cf2279d90c027606ad7cba79fa370b827"},
-    {file = "botocore-1.34.124.tar.gz", hash = "sha256:3f0bf79c17d656acdfdb53581224f6a38867ff2829f7428c586198f67a90ea26"},
+    {file = "botocore-1.34.125-py3-none-any.whl", hash = "sha256:71e97e7d2c088f1188ba6976441b5857a5425acd4aaa31b45d13119c9cb86424"},
+    {file = "botocore-1.34.125.tar.gz", hash = "sha256:d2882be011ad5b16e7ab4a96360b5b66a0a7e175c1ea06dbf2de473c0a0a33d8"},
 ]
 
 [package.dependencies]
@@ -174,13 +174,13 @@ files = [
 
 [[package]]
 name = "cfn-lint"
-version = "0.87.6"
+version = "0.87.7"
 description = "Checks CloudFormation templates for practices and behaviour that could potentially be improved"
 optional = false
 python-versions = "!=4.0,<=4.0,>=3.8"
 files = [
-    {file = "cfn_lint-0.87.6-py3-none-any.whl", hash = "sha256:ee889cdc0f76a419efd1c20105ae8675b8af1de8e689928d59ffec33a141c1a6"},
-    {file = "cfn_lint-0.87.6.tar.gz", hash = "sha256:aba311b0dae2be77422e8152974da2047f048d24a287b16d9c78b234d0714592"},
+    {file = "cfn_lint-0.87.7-py3-none-any.whl", hash = "sha256:ac6ac86dde1ba3d0fb0e217a4d329239a98f00af7862e4fa5ace6c416c4e056c"},
+    {file = "cfn_lint-0.87.7.tar.gz", hash = "sha256:85f6b7f32cf155a74d670d53f86b39f99cfc282b02158d98fdab9fc1dba0809e"},
 ]
 
 [package.dependencies]
@@ -1607,4 +1607,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "87bc5c886169f2ce52e6af94a78017b5b79545c1ccaef510e9b0089d3e760751"
+content-hash = "a540c2dd725fa5c217683228c6fb92741179890282ffae77db6aa773cb522606"
