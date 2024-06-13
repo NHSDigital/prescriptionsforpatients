@@ -15,7 +15,8 @@ import {
   simpleRequestBundle,
   simpleResponseBundle,
   simpleStatusUpdatesPayload,
-  addExtensionToMedicationRequest
+  addExtensionToMedicationRequest,
+  getStatusExtensions
 } from "./utils"
 import {
   ONE_WEEK_IN_MS,
@@ -240,6 +241,9 @@ describe("Unit tests for statusUpdate", function () {
       expect(mockLogger).toHaveBeenCalledWith(
         `Delaying 'With Pharmacy but Tracking not Supported' status for prescription ${medicationRequest?.groupIdentifier?.value} line item id ${medicationRequest.id}`
       )
+
+      const statusExtensions = getStatusExtensions(medicationRequest)
+      expect(statusExtensions).toHaveLength(1)
     })
 
     it("when PfP returns 'With Pharmacy but Tracking not Supported' less than 1 hour ago, and NPPT updates are present, set status as 'With Pharmacy'", async () => {
@@ -259,6 +263,9 @@ describe("Unit tests for statusUpdate", function () {
       // Check that the status has been updated to 'Prescriber Approved'
       expect(medicationRequest.extension![0].extension![0].valueCoding!.code).toEqual("With Pharmacy")
       expect(medicationRequest.extension![0].extension![1].valueDateTime).toEqual("2023-09-11T10:11:12.000Z")
+
+      const statusExtensions = getStatusExtensions(medicationRequest)
+      expect(statusExtensions).toHaveLength(1)
     })
 
     it("when PfP returns 'With Pharmacy but Tracking not Supported' less than 1 hour ago, and NPPT updates are present (other than 'With Pharmacy'), set status to latest update", async () => {
@@ -277,6 +284,9 @@ describe("Unit tests for statusUpdate", function () {
       // Check that the status has been updated to 'Ready to Collect'
       expect(medicationRequest.extension![0].extension![0].valueCoding!.code).toEqual("Ready to Collect")
       expect(medicationRequest.extension![0].extension![1].valueDateTime).toEqual("2023-09-11T10:11:12.000Z")
+
+      const statusExtensions = getStatusExtensions(medicationRequest)
+      expect(statusExtensions).toHaveLength(1)
     })
 
     it("when PfP returns 'With Pharmacy but Tracking not Supported' more than 1 hour ago, and NPPT has no updates, set status as 'With Pharmacy but Tracking not Supported'", async () => {
@@ -301,6 +311,9 @@ describe("Unit tests for statusUpdate", function () {
         "With Pharmacy but Tracking not Supported"
       )
       expect(medicationRequest.extension![0].extension![1].valueDateTime).toEqual(SYSTEM_DATETIME.toISOString())
+
+      const statusExtensions = getStatusExtensions(medicationRequest)
+      expect(statusExtensions).toHaveLength(1)
     })
 
     it("If the status is not 'With Pharmacy but Tracking not Supported', delayWithPharmacyStatus returns false", async () => {

@@ -150,3 +150,7 @@ export function addExtensionToMedicationRequest(
     ]
   }]
 }
+
+export function getStatusExtensions(medicationRequest: MedicationRequest): Array<Extension> {
+  return medicationRequest.extension?.filter((ext) => ext.url === EXTENSION_URL) || []
+}
