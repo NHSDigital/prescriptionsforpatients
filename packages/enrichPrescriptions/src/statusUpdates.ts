@@ -57,7 +57,7 @@ function updateMedicationRequest(medicationRequest: MedicationRequest, updateIte
   const relevantExtension = medicationRequest.extension?.find((ext) => ext.url === EXTENSION_URL)
   const statusCoding = relevantExtension?.extension?.find((innerExt) => innerExt.url === "status")?.valueCoding?.code
 
-  if (statusCoding && (statusCoding === "Prescriber Approved" || statusCoding === "Cancelled")) {
+  if (statusCoding && (statusCoding === "Prescriber Approved" || statusCoding === "Prescriber Cancelled")) {
     logger.info(
       `Status update for prescription ${updateItem.itemId} has been skipped because the current status is already ` +
         `${statusCoding}.`
