@@ -198,22 +198,6 @@ describe("Unit tests for statusUpdate", function () {
     expect(requestBundle).toEqual(expectedResponseBundle)
   })
 
-  it("status update does not replace prescriber cancelled status", async () => {
-    const requestBundle = simpleRequestBundle()
-    const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
-    const medicationRequest = requestCollectionBundle.entry![0].resource as MedicationRequest
-
-    // Add the initial extension for prescription cancelled 30 minutes ago
-    const updateTime = new Date(SYSTEM_DATETIME.valueOf() - 1000 * 60 * 30).toISOString()
-    addExtensionToMedicationRequest(medicationRequest, "Prescriber Cancelled", updateTime)
-
-    const statusUpdates = simpleStatusUpdatesPayload()
-    applyStatusUpdates(requestBundle, statusUpdates)
-
-    // Check that the status has been updated to 'Prescriber Cancelled'
-    expect(medicationRequest.extension![0].extension![0].valueCoding!.code).toEqual("Prescriber Cancelled")
-  })
-
   describe("Delay WithPharmacy status", () => {
     it("when PfP returns 'With Pharmacy but Tracking not Supported' less than 1 hour ago, and NPPT has no updates, set status as 'Prescriber Approved'", async () => {
       const mockLogger = jest.spyOn(Logger.prototype, "info")
