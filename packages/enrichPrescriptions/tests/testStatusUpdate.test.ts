@@ -214,7 +214,7 @@ describe("Unit tests for statusUpdate", function () {
   })
 
   describe("Delay WithPharmacy status", () => {
-    it("when the last update is '0002 - With Dispenser', updated less than an hour ago, and missing NPPT updates, set status as 'Prescriber Approved'", async () => {
+    it("when PfP returns 'With Pharmacy but Tracking not Supported' less than 1 hour ago, and NPPT has no updates, set status as 'Prescriber Approved'", async () => {
       const mockLogger = jest.spyOn(Logger.prototype, "info")
 
       const requestBundle = simpleRequestBundle()
@@ -242,7 +242,7 @@ describe("Unit tests for statusUpdate", function () {
       )
     })
 
-    it("when the last update is '0002 - With Dispenser', updated less than an hour ago, and NPPT updates are present, set status as 'With Pharmacy'", async () => {
+    it("when PfP returns 'With Pharmacy but Tracking not Supported' less than 1 hour ago, and NPPT updates are present, set status as 'With Pharmacy'", async () => {
       const requestBundle = simpleRequestBundle()
       const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
       const medicationRequest = requestCollectionBundle.entry![0].resource as MedicationRequest
@@ -261,7 +261,7 @@ describe("Unit tests for statusUpdate", function () {
       expect(medicationRequest.extension![0].extension![1].valueDateTime).toEqual("2023-09-11T10:11:12.000Z")
     })
 
-    it("when the last update is '0002 - With Dispenser', updated less than an hour ago, and NPPT updates are present (other than 'With Pharmacy'), set status to latest update", async () => {
+    it("when PfP returns 'With Pharmacy but Tracking not Supported' less than 1 hour ago, and NPPT updates are present (other than 'With Pharmacy'), set status to latest update", async () => {
       const requestBundle = simpleRequestBundle()
       const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
       const medicationRequest = requestCollectionBundle.entry![0].resource as MedicationRequest
@@ -279,7 +279,7 @@ describe("Unit tests for statusUpdate", function () {
       expect(medicationRequest.extension![0].extension![1].valueDateTime).toEqual("2023-09-11T10:11:12.000Z")
     })
 
-    it("when the last update is '0002 - With Dispenser', updated more than an hour ago, and missing NPPT updates, set status as 'With Pharmacy but Tracking not Supported'", async () => {
+    it("when PfP returns 'With Pharmacy but Tracking not Supported' more than 1 hour ago, and NPPT has no updates, set status as 'With Pharmacy but Tracking not Supported'", async () => {
       const requestBundle = simpleRequestBundle()
       const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
       const medicationRequest = requestCollectionBundle.entry![0].resource as MedicationRequest
