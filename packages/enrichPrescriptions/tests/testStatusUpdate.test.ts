@@ -202,7 +202,6 @@ describe("Unit tests for statusUpdate", function () {
 
   describe("Delay WithPharmacy status", () => {
     type TestCase = {
-      // scenarioDescription: string
       pfpStatus: string
       pfpUpdateDelay: number
       npptUpdates: StatusUpdates | undefined
