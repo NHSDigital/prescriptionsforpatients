@@ -76,56 +76,43 @@ function eventAndResponse(
 }
 
 export function simpleEventAndResponse(): RequestAndResponse {
-  return eventAndResponse(
-    simpleRequestBundle(),
-    simpleResponseBundle(),
-    simpleStatusUpdatesPayload()
-  )
+  return eventAndResponse(simpleRequestBundle(), simpleResponseBundle(), simpleStatusUpdatesPayload())
 }
 
 export function richEventAndResponse(): RequestAndResponse {
-  return eventAndResponse(
-    richRequestBundle(),
-    richResponseBundle(),
-    richStatusUpdatesPayload()
-  )
+  return eventAndResponse(richRequestBundle(), richResponseBundle(), richStatusUpdatesPayload())
 }
 
 export function unsuccessfulEventAndResponse(): RequestAndResponse {
   const unsuccessfulStatusUpdates = simpleStatusUpdatesPayload()
   unsuccessfulStatusUpdates.isSuccess = false
 
-  return eventAndResponse(
-    simpleRequestBundle(),
-    simpleRequestBundle(),
-    unsuccessfulStatusUpdates
-  )
+  return eventAndResponse(simpleRequestBundle(), simpleRequestBundle(), unsuccessfulStatusUpdates)
 }
 
 export function noUpdateDataEventAndResponse(): RequestAndResponse {
-  return eventAndResponse(
-    simpleRequestBundle(),
-    simpleRequestBundle()
-  )
+  return eventAndResponse(simpleRequestBundle(), simpleRequestBundle())
 }
 
 export function defaultExtension(onboarded: boolean = true): Array<Extension> {
-  return [{
-    url: EXTENSION_URL,
-    extension: [
-      {
-        url: "status",
-        valueCoding: {
-          system: VALUE_CODING_SYSTEM,
-          code: onboarded ? DEFAULT_EXTENSION_STATUS : NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS
+  return [
+    {
+      url: EXTENSION_URL,
+      extension: [
+        {
+          url: "status",
+          valueCoding: {
+            system: VALUE_CODING_SYSTEM,
+            code: onboarded ? DEFAULT_EXTENSION_STATUS : NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS
+          }
+        },
+        {
+          url: "statusDate",
+          valueDateTime: SYSTEM_DATETIME.toISOString()
         }
-      },
-      {
-        url: "statusDate",
-        valueDateTime: SYSTEM_DATETIME.toISOString()
-      }
-    ]
-  }]
+      ]
+    }
+  ]
 }
 
 export function addExtensionToMedicationRequest(
@@ -133,24 +120,32 @@ export function addExtensionToMedicationRequest(
   status: string,
   statusDate: string
 ) {
-  medicationRequest.extension = [{
-    url: "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory",
-    extension: [
-      {
-        url: "status",
-        valueCoding: {
-          system: "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt",
-          code: status
+  medicationRequest.extension = [
+    {
+      url: "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory",
+      extension: [
+        {
+          url: "status",
+          valueCoding: {
+            system: "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt",
+            code: status
+          }
+        },
+        {
+          url: "statusDate",
+          valueDateTime: statusDate
         }
-      },
-      {
-        url: "statusDate",
-        valueDateTime: statusDate
-      }
-    ]
-  }]
+      ]
+    }
+  ]
 }
 
 export function getStatusExtensions(medicationRequest: MedicationRequest): Array<Extension> {
   return medicationRequest.extension?.filter((ext) => ext.url === EXTENSION_URL) || []
+}
+
+export function simpleUpdateWithStatus(status: string): StatusUpdates {
+  const update = simpleStatusUpdatesPayload()
+  update.prescriptions[0].items[0].latestStatus = status
+  return update
 }
