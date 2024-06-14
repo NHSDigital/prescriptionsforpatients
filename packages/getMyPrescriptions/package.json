@@ -14,14 +14,14 @@
     "check-licenses": "license-checker --failOn GPL --failOn LGPL --start ../.."
   },
   "dependencies": {
-    "@aws-lambda-powertools/commons": "^2.0.4",
-    "@aws-lambda-powertools/logger": "^2.1.1",
-    "@aws-lambda-powertools/parameters": "^2.1.1",
-    "@aws-sdk/client-secrets-manager": "^3.592.0",
+    "@aws-lambda-powertools/commons": "^2.2.0",
+    "@aws-lambda-powertools/logger": "^2.2.0",
+    "@aws-lambda-powertools/parameters": "^2.2.0",
+    "@aws-sdk/client-secrets-manager": "^3.596.0",
     "@middy/core": "^5.4.0",
     "@middy/http-header-normalizer": "^5.4.0",
     "@middy/input-output-logger": "^5.4.0",
-    "@nhs/fhir-middy-error-handler": "^2.0.7",
+    "@nhs/fhir-middy-error-handler": "^2.0.8",
     "@nhsdigital/eps-spine-client": "npm:@NHSDigital/eps-spine-client@^2.0.6",
     "@prescriptionsforpatients/distanceSelling": "^1.0.0",
     "@types/fhir": "^0.0.41"
