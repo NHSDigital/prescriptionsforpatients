@@ -202,6 +202,7 @@ describe("Unit tests for statusUpdate", function () {
 
   describe("Delay WithPharmacy status", () => {
     type TestCase = {
+      // scenarioDescription: string
       pfpStatus: string
       pfpUpdateDelay: number
       npptUpdates: StatusUpdates | undefined
@@ -210,10 +211,10 @@ describe("Unit tests for statusUpdate", function () {
       expectDelayLog?: boolean
     }
 
-    it.each([
+    it.each<TestCase>([
       {
         pfpStatus: "With Pharmacy but Tracking not Supported",
-        pfpUpdateDelay: 1000 * 60 * 30,
+        pfpUpdateDelay: 30,
         npptUpdates: {
           schemaVersion: 1,
           isSuccess: true,
@@ -225,21 +226,21 @@ describe("Unit tests for statusUpdate", function () {
       },
       {
         pfpStatus: "With Pharmacy but Tracking not Supported",
-        pfpUpdateDelay: 1000 * 60 * 30,
+        pfpUpdateDelay: 30,
         npptUpdates: simpleUpdateWithStatus("With Pharmacy"),
         expectedStatus: "With Pharmacy",
         expectedStatusDate: "2023-09-11T10:11:12.000Z"
       },
       {
         pfpStatus: "With Pharmacy but Tracking not Supported",
-        pfpUpdateDelay: 1000 * 60 * 30,
+        pfpUpdateDelay: 30,
         npptUpdates: simpleStatusUpdatesPayload(),
         expectedStatus: "Ready to Collect",
         expectedStatusDate: "2023-09-11T10:11:12.000Z"
       },
       {
         pfpStatus: "With Pharmacy but Tracking not Supported",
-        pfpUpdateDelay: 1000 * 60 * 75,
+        pfpUpdateDelay: 75,
         npptUpdates: {
           schemaVersion: 1,
           isSuccess: true,
@@ -249,7 +250,7 @@ describe("Unit tests for statusUpdate", function () {
         expectedStatusDate: SYSTEM_DATETIME.toISOString()
       }
     ])(
-      "when PfP returns '%s' %d minutes ago, and NPPT updates are %s, set status as '%s'",
+      "when PfP returns '$pfpStatus' $pfpUpdateDelay minutes ago, and NPPT updates are $npptUpdates, set status as '$expectedStatus'",
       async ({
         pfpStatus,
         pfpUpdateDelay,
@@ -264,7 +265,7 @@ describe("Unit tests for statusUpdate", function () {
         const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
         const medicationRequest = requestCollectionBundle.entry![0].resource as MedicationRequest
 
-        const updateTime = new Date(SYSTEM_DATETIME.valueOf() - pfpUpdateDelay).toISOString()
+        const updateTime = new Date(SYSTEM_DATETIME.valueOf() - 1000 * 60 * pfpUpdateDelay).toISOString()
         addExtensionToMedicationRequest(medicationRequest, pfpStatus, updateTime)
 
         if (npptUpdates) {
