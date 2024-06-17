@@ -10,6 +10,8 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    commit-message:
+      prefix: "Upgrade: [dependabot] - "
 
   ###################################
   # NPM workspace  ##################
@@ -20,6 +22,8 @@ updates:
       interval: "daily"
     versioning-strategy: increase
     open-pull-requests-limit: 20
+    commit-message:
+      prefix: "Upgrade: [dependabot] - "
 
   ###################################
   # Poetry  #########################
@@ -29,3 +33,5 @@ updates:
     schedule:
       interval: "daily"
     versioning-strategy: increase
+    commit-message:
+      prefix: "Upgrade: [dependabot] - "
