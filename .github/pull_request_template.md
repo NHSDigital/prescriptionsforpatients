@@ -36,7 +36,7 @@ If the current release is x.y.z then
 - a minor release increases y by 1
 - a major release increases x by 1
 
-Correct tagging is necessary for our automated versioning and release process ([Release](./RELEASE.md)).
+Correct tagging is necessary for our automated versioning and release process.
 
 The description of your pull request will be used as the commit message for the merge, and also be included in the changelog. Please ensure that your title is sufficiently descriptive.
 
