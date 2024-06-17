@@ -125,9 +125,12 @@ export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: Statu
       logger.info(`Supplier of prescription ${prescriptionID} not onboarded. Applying default updates.`)
       medicationRequests?.forEach((medicationRequest) => {
         if (delayWithPharmacyStatus(medicationRequest)) {
+          const lineItemId = medicationRequest.identifier?.find(
+            (identifier) => identifier.system === "https://fhir.nhs.uk/Id/prescription-order-item-number"
+          )?.value
           logger.info(
             `Delaying 'With Pharmacy but Tracking not Supported' status ` +
-              `for prescription ${prescriptionID} line item id ${medicationRequest.id}`
+              `for prescription ${prescriptionID} line item id ${lineItemId}`
           )
           // Prescription has been in "With Pharmacy but Tracking not Supported" status for less than an hour,
           // set status as Prescriber Approved

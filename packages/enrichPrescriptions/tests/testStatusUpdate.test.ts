@@ -276,7 +276,7 @@ describe("Unit tests for statusUpdate", function () {
 
         if (expectDelayLog) {
           expect(mockLogger).toHaveBeenCalledWith(
-            `Delaying 'With Pharmacy but Tracking not Supported' status for prescription ${medicationRequest?.groupIdentifier?.value} line item id ${medicationRequest.id}`
+            `Delaying 'With Pharmacy but Tracking not Supported' status for prescription ${medicationRequest?.groupIdentifier?.value} line item id e76812cf-c893-42ff-ab02-b19ea1fa11b4`
           )
         }
 
