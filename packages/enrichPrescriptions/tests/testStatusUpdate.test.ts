@@ -15,10 +15,19 @@ import {
   simpleRequestBundle,
   simpleResponseBundle,
   simpleStatusUpdatesPayload,
-  addExtensionToMedicationRequest
+  addExtensionToMedicationRequest,
+  getStatusExtensions,
+  simpleUpdateWithStatus
 } from "./utils"
-import {ONE_WEEK_IN_MS, applyStatusUpdates} from "../src/statusUpdates"
+import {
+  ONE_WEEK_IN_MS,
+  StatusUpdates,
+  applyStatusUpdates,
+  delayWithPharmacyStatus,
+  getStatusDate
+} from "../src/statusUpdates"
 import {Bundle, MedicationRequest} from "fhir/r4"
+import {Logger} from "@aws-lambda-powertools/logger"
 
 describe("Unit tests for statusUpdate", function () {
   beforeEach(() => {
@@ -44,7 +53,7 @@ describe("Unit tests for statusUpdate", function () {
   it("when an update for a prescription is flagged as not-onboarded, the not-onboarded update is applied", async () => {
     const requestBundle = simpleRequestBundle()
     const statusUpdates = simpleStatusUpdatesPayload()
-    statusUpdates.prescriptions.forEach(p => p.onboarded = false)
+    statusUpdates.prescriptions.forEach((p) => (p.onboarded = false))
 
     const expectedResponseBundle = simpleRequestBundle()
     const prescription = expectedResponseBundle.entry![0].resource as Bundle
@@ -112,12 +121,12 @@ describe("Unit tests for statusUpdate", function () {
     const statusUpdates = simpleStatusUpdatesPayload()
 
     const existingExtension = {
-      "url": "https://fhir.nhs.uk/extension",
-      "extension": [
+      url: "https://fhir.nhs.uk/extension",
+      extension: [
         {
-          "url": "url",
-          "valueCoding": {
-            "system": "https://fhir.nhs.uk/CodeSystem/system"
+          url: "url",
+          valueCoding: {
+            system: "https://fhir.nhs.uk/CodeSystem/system"
           }
         }
       ]
@@ -189,5 +198,110 @@ describe("Unit tests for statusUpdate", function () {
     applyStatusUpdates(requestBundle, statusUpdates)
 
     expect(requestBundle).toEqual(expectedResponseBundle)
+  })
+
+  describe("Delay WithPharmacy status", () => {
+    type TestCase = {
+      pfpStatus: string
+      pfpUpdateDelay: number
+      npptUpdates: StatusUpdates | undefined
+      expectedStatus: string
+      expectedStatusDate: string
+      expectDelayLog?: boolean
+    }
+
+    it.each<TestCase>([
+      {
+        pfpStatus: "With Pharmacy but Tracking not Supported",
+        pfpUpdateDelay: 30,
+        npptUpdates: {
+          schemaVersion: 1,
+          isSuccess: true,
+          prescriptions: []
+        },
+        expectedStatus: "Prescriber Approved",
+        expectedStatusDate: SYSTEM_DATETIME.toISOString(),
+        expectDelayLog: true
+      },
+      {
+        pfpStatus: "With Pharmacy but Tracking not Supported",
+        pfpUpdateDelay: 30,
+        npptUpdates: simpleUpdateWithStatus("With Pharmacy"),
+        expectedStatus: "With Pharmacy",
+        expectedStatusDate: "2023-09-11T10:11:12.000Z"
+      },
+      {
+        pfpStatus: "With Pharmacy but Tracking not Supported",
+        pfpUpdateDelay: 30,
+        npptUpdates: simpleStatusUpdatesPayload(),
+        expectedStatus: "Ready to Collect",
+        expectedStatusDate: "2023-09-11T10:11:12.000Z"
+      },
+      {
+        pfpStatus: "With Pharmacy but Tracking not Supported",
+        pfpUpdateDelay: 75,
+        npptUpdates: {
+          schemaVersion: 1,
+          isSuccess: true,
+          prescriptions: []
+        },
+        expectedStatus: "With Pharmacy but Tracking not Supported",
+        expectedStatusDate: SYSTEM_DATETIME.toISOString()
+      }
+    ])(
+      "when PfP returns '$pfpStatus' $pfpUpdateDelay minutes ago, and NPPT updates are $npptUpdates, set status as '$expectedStatus'",
+      async ({
+        pfpStatus,
+        pfpUpdateDelay,
+        npptUpdates,
+        expectedStatus,
+        expectedStatusDate,
+        expectDelayLog
+      }: TestCase) => {
+        const mockLogger = jest.spyOn(Logger.prototype, "info")
+
+        const requestBundle = simpleRequestBundle()
+        const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
+        const medicationRequest = requestCollectionBundle.entry![0].resource as MedicationRequest
+
+        const updateTime = new Date(SYSTEM_DATETIME.valueOf() - 1000 * 60 * pfpUpdateDelay).toISOString()
+        addExtensionToMedicationRequest(medicationRequest, pfpStatus, updateTime)
+
+        if (npptUpdates) {
+          applyStatusUpdates(requestBundle, npptUpdates)
+        }
+
+        expect(medicationRequest.extension![0].extension![0].valueCoding!.code).toEqual(expectedStatus)
+        expect(medicationRequest.extension![0].extension![1].valueDateTime).toEqual(expectedStatusDate)
+
+        if (expectDelayLog) {
+          expect(mockLogger).toHaveBeenCalledWith(
+            `Delaying 'With Pharmacy but Tracking not Supported' status for prescription ${medicationRequest?.groupIdentifier?.value} line item id e76812cf-c893-42ff-ab02-b19ea1fa11b4`
+          )
+        }
+
+        const statusExtensions = getStatusExtensions(medicationRequest)
+        expect(statusExtensions).toHaveLength(1)
+      }
+    )
+
+    it("If the status is not 'With Pharmacy but Tracking not Supported', delayWithPharmacyStatus returns false", async () => {
+      const requestBundle = simpleRequestBundle()
+      const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
+      const medicationRequest = requestCollectionBundle.entry![0].resource as MedicationRequest
+
+      // Add the initial extension for prescription released 30 minutes ago
+      const updateTime = new Date(SYSTEM_DATETIME.valueOf() - 1000 * 60 * 30).toISOString()
+      addExtensionToMedicationRequest(medicationRequest, "Ready to Collect", updateTime)
+
+      expect(delayWithPharmacyStatus(medicationRequest)).toEqual(false)
+    })
+
+    it("getting statusDate from extension can handle missing date", async () => {
+      const incomplete_extension = defaultExtension()[0]
+      delete incomplete_extension.extension![1].valueDateTime
+
+      expect(getStatusDate(incomplete_extension)).toEqual(undefined)
+    })
   })
 })

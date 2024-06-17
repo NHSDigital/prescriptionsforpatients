@@ -1,5 +1,5 @@
 import {Bundle, Extension, MedicationRequest} from "fhir/r4"
-
+import moment, {Moment} from "moment"
 import {isolateMedicationRequests, isolatePrescriptions} from "./fhirUtils"
 import {logger} from "./enrichPrescriptions"
 
@@ -34,7 +34,7 @@ function defaultUpdate(onboarded: boolean = true): UpdateItem {
   return {
     isTerminalState: "false",
     latestStatus: onboarded ? DEFAULT_EXTENSION_STATUS : NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS,
-    lastUpdateDateTime: new Date().toISOString(),
+    lastUpdateDateTime: moment().utc().toISOString(),
     itemId: ""
   }
 }
@@ -45,22 +45,22 @@ function determineStatus(updateItem: UpdateItem): MedicationRequestStatus {
     return "active"
   }
 
-  const lastUpdateDateTime = new Date(updateItem.lastUpdateDateTime)
-  const now = new Date()
-  const updatedOverSevenDaysAgo = now.valueOf() - lastUpdateDateTime.valueOf() > ONE_WEEK_IN_MS
+  const lastUpdateDateTime = moment(updateItem.lastUpdateDateTime).utc().valueOf()
+  const now = moment().utc().valueOf()
+  const updatedOverSevenDaysAgo = now - lastUpdateDateTime > ONE_WEEK_IN_MS
 
   return updatedOverSevenDaysAgo ? "completed" : "active"
 }
 
 function updateMedicationRequest(medicationRequest: MedicationRequest, updateItem: UpdateItem) {
   const status = determineStatus(updateItem)
-  const relevantExtension = medicationRequest.extension?.find(ext => ext.url === EXTENSION_URL)
-  const statusCoding = relevantExtension?.extension?.find(innerExt => innerExt.url === "status")?.valueCoding?.code
+  const relevantExtension = medicationRequest.extension?.find((ext) => ext.url === EXTENSION_URL)
+  const statusCoding = relevantExtension?.extension?.find((innerExt) => innerExt.url === "status")?.valueCoding?.code
 
-  if (statusCoding && (statusCoding === "Prescriber Approved" || statusCoding === "Cancelled")) {
+  if (statusCoding && (statusCoding === "Prescriber Approved" || statusCoding === "Prescriber Cancelled")) {
     logger.info(
       `Status update for prescription ${updateItem.itemId} has been skipped because the current status is already ` +
-      `${statusCoding}.`
+        `${statusCoding}.`
     )
     return
   }
@@ -87,20 +87,31 @@ function updateMedicationRequest(medicationRequest: MedicationRequest, updateIte
     ]
   }
 
-  if (medicationRequest.extension) {
+  // Add extension if non present
+  if (!medicationRequest.extension) {
+    medicationRequest.extension = [extension]
+    return
+  }
+
+  // Replace 'With Pharmacy but Tracking not Supported' status update extension if present, push otherwise
+  const trackingNotSupportedStatusIndex = medicationRequest.extension.findIndex(
+    (ext) =>
+      ext.url === EXTENSION_URL && ext.extension?.[0].valueCoding?.code === NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS
+  )
+  if (trackingNotSupportedStatusIndex === -1) {
     medicationRequest.extension.push(extension)
   } else {
-    medicationRequest.extension = [extension]
+    medicationRequest.extension[trackingNotSupportedStatusIndex] = extension
   }
 }
 
 export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: StatusUpdates) {
-  isolatePrescriptions(searchsetBundle).forEach(prescription => {
+  isolatePrescriptions(searchsetBundle).forEach((prescription) => {
     const medicationRequests = isolateMedicationRequests(prescription)
     const prescriptionID = medicationRequests![0].groupIdentifier!.value
 
     const hasPerformer = medicationRequests!.some(
-      medicationRequest => medicationRequest.dispenseRequest?.performer?.reference
+      (medicationRequest) => medicationRequest.dispenseRequest?.performer?.reference
     )
     if (!hasPerformer) {
       logger.info(`Prescription ${prescriptionID} has no performer element. Skipping.`)
@@ -109,20 +120,40 @@ export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: Statu
 
     logger.info(`Applying updates for prescription ${prescriptionID}.`)
 
-    const prescriptionUpdate = statusUpdates.prescriptions.filter(p => p.prescriptionID === prescriptionID)[0]
+    const prescriptionUpdate = statusUpdates.prescriptions.filter((p) => p.prescriptionID === prescriptionID)[0]
     if (!prescriptionUpdate || !prescriptionUpdate.onboarded) {
       logger.info(`Supplier of prescription ${prescriptionID} not onboarded. Applying default updates.`)
-      medicationRequests?.forEach(medicationRequest =>
+      medicationRequests?.forEach((medicationRequest) => {
+        if (delayWithPharmacyStatus(medicationRequest)) {
+          const lineItemId = medicationRequest.identifier?.find(
+            (identifier) => identifier.system === "https://fhir.nhs.uk/Id/prescription-order-item-number"
+          )?.value
+          logger.info(
+            `Delaying 'With Pharmacy but Tracking not Supported' status ` +
+              `for prescription ${prescriptionID} line item id ${lineItemId}`
+          )
+          // Prescription has been in "With Pharmacy but Tracking not Supported" status for less than an hour,
+          // set status as Prescriber Approved
+          const update: UpdateItem = {
+            isTerminalState: "false",
+            itemId: "",
+            //Placeholder now datetime
+            lastUpdateDateTime: moment().utc().toISOString(),
+            latestStatus: "Prescriber Approved"
+          }
+          updateMedicationRequest(medicationRequest, update)
+          return
+        }
         updateMedicationRequest(medicationRequest, defaultUpdate(false))
-      )
+      })
       return
     }
 
-    medicationRequests?.forEach(medicationRequest => {
+    medicationRequests?.forEach((medicationRequest) => {
       const medicationRequestID = medicationRequest.identifier?.[0].value
       logger.info(`Updating MedicationRequest with id ${medicationRequestID}`)
 
-      const itemUpdates = prescriptionUpdate.items.filter(item => item.itemId === medicationRequestID)
+      const itemUpdates = prescriptionUpdate.items.filter((item) => item.itemId === medicationRequestID)
       if (itemUpdates.length > 0) {
         logger.info(`Update found for MedicationRequest with id ${medicationRequestID}. Applying.`)
         updateMedicationRequest(medicationRequest, itemUpdates[0])
@@ -132,4 +163,45 @@ export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: Statu
       }
     })
   })
+}
+
+export function delayWithPharmacyStatus(medicationRequest: MedicationRequest): boolean {
+  const statusExtension = getStatusHistoryExtension(medicationRequest)
+  if (!statusExtension) {
+    return false
+  }
+
+  const updateTime = getStatusDate(statusExtension)?.valueOf()
+  const status = getStatus(statusExtension)
+
+  if (!updateTime || !status || status !== "With Pharmacy but Tracking not Supported") {
+    return false
+  }
+
+  const now = moment().utc().valueOf()
+  const sixtyMinutes = 60 * 60 * 1000
+
+  return now - updateTime < sixtyMinutes
+}
+
+function getStatusHistoryExtension(medicationRequest: MedicationRequest): Extension | undefined {
+  const STATUS_HISTORY_EXTENSION_URL = "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory"
+  return medicationRequest.extension?.find((extension) => extension.url === STATUS_HISTORY_EXTENSION_URL)
+}
+
+export function getStatusDate(statusExtension: Extension): Moment | undefined {
+  const dateTime = statusExtension.extension?.find((extension) => extension?.url === "statusDate")?.valueDateTime
+
+  return dateTime ? moment(dateTime).utc() : undefined
+}
+
+function getStatus(statusExtension: Extension): string | undefined {
+  const VALUE_CODING_SYSTEM = "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt"
+
+  return statusExtension.extension
+    ?.filter((extension) => extension.url === "status")
+    .map((extension) => extension.valueCoding)
+    .filter((coding) => coding?.system === VALUE_CODING_SYSTEM)
+    .map((coding) => coding?.code)
+    .pop()
 }

@@ -61,7 +61,10 @@
         "editor.formatOnSave": true, // optional
         "editor.formatOnSaveMode": "file",
         "editor.tabSize": 2,
-        "cSpell.words": ["fhir", "Formik", "pino", "serialisation"]
+        "cSpell.words": ["fhir", "Formik", "pino", "serialisation"],
+        "[json]": {
+          "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
+        }
       }
     }
   },
