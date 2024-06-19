@@ -94,15 +94,26 @@ function updateMedicationRequest(medicationRequest: MedicationRequest, updateIte
   }
 
   // Replace 'With Pharmacy but Tracking not Supported' status update extension if present, push otherwise
-  const trackingNotSupportedStatusIndex = medicationRequest.extension.findIndex(
-    (ext) =>
-      ext.url === EXTENSION_URL && ext.extension?.[0].valueCoding?.code === NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS
-  )
-  if (trackingNotSupportedStatusIndex === -1) {
-    medicationRequest.extension.push(extension)
+  const replacementIndex = statusHistoryExtensionReplacementIndex(medicationRequest)
+  if (replacementIndex !== -1) {
+    medicationRequest.extension[replacementIndex] = extension
   } else {
-    medicationRequest.extension[trackingNotSupportedStatusIndex] = extension
+    medicationRequest.extension.push(extension)
   }
+}
+
+function statusHistoryExtensionReplacementIndex(medicationRequest: MedicationRequest): number {
+  const extensions = medicationRequest.extension || []
+  return extensions.findIndex((extension) => {
+    if (extension.url !== EXTENSION_URL) {
+      return false
+    }
+
+    const status_extension = extension.extension?.find((ext) => ext.url === "status")
+    const status = status_extension?.valueCoding?.code
+
+    return status === NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS
+  })
 }
 
 export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: StatusUpdates) {
