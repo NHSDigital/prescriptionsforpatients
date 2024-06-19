@@ -200,6 +200,23 @@ describe("Unit tests for statusUpdate", function () {
     expect(requestBundle).toEqual(expectedResponseBundle)
   })
 
+  it("status history extension order does not affect update application", async () => {
+    const requestBundle = simpleRequestBundle()
+
+    // Reverse the order of the status history extensions
+    const prescriptionBundle = requestBundle.entry![0].resource as Bundle
+    const medicationRequest = prescriptionBundle.entry![0].resource as MedicationRequest
+    medicationRequest.extension = defaultExtension(false)
+    const statusHistory = medicationRequest.extension[0].extension
+    statusHistory!.reverse()
+
+    const statusUpdates = simpleStatusUpdatesPayload()
+    applyStatusUpdates(requestBundle, statusUpdates)
+
+    expect(requestBundle).toEqual(simpleResponseBundle())
+    expect(medicationRequest.extension[0].extension!.length).toEqual(2)
+  })
+
   describe("Delay WithPharmacy status", () => {
     type TestCase = {
       pfpStatus: string
