@@ -17,7 +17,7 @@
   "dependencies": {
     "@aws-lambda-powertools/logger": "^2.2.0",
     "axios": "^1.7.2",
-    "axios-retry": "^4.4.0"
+    "axios-retry": "^4.4.1"
   },
   "devDependencies": {
     "@prescriptionsforpatients_common/testing": "^1.0.0",
