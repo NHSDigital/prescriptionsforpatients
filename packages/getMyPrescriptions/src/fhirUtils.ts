@@ -3,18 +3,19 @@ import {
   BundleEntry,
   FhirResource,
   MedicationRequest,
+  OperationOutcome,
   Organization
 } from "fhir/r4"
 
 export type Entry = BundleEntry<FhirResource>
-export type StatusUpdateData = {odsCode: string, prescriptionID: string}
+export type StatusUpdateData = {odsCode: string; prescriptionID: string}
 
 // This function is to be used when splitting-out DistanceSelling to run in parallel with the call to GetStatusUpdates.
 // The data given to DistanceSelling can be kept simple and built using this common fhirUtils code.
 // The output of this function can be passed straight into DistanceSelling.processOdsCodes.
 export function isolatePerformerOrganisations(searchsetBundle: Bundle): Array<Organization> {
   const performerOrganisations: Array<Organization> = []
-  isolatePrescriptions(searchsetBundle).forEach(prescription => {
+  isolatePrescriptions(searchsetBundle).forEach((prescription) => {
     const medicationRequests = isolateMedicationRequests(prescription)
     const performerReference = isolatePerformerReference(medicationRequests)
     if (performerReference) {
@@ -55,4 +56,9 @@ export function filterAndTypeBundleEntries<T>(bundle: Bundle, filter: (entry: En
   } else {
     return []
   }
+}
+
+export function isolateOperationOutcome(prescription: Bundle): Array<OperationOutcome> {
+  const filter = (entry: Entry) => entry.resource?.resourceType === "OperationOutcome"
+  return filterAndTypeBundleEntries<OperationOutcome>(prescription, filter)
 }
