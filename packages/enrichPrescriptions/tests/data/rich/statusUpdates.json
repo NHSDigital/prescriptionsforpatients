@@ -8,25 +8,25 @@
       "items": [
         {
           "isTerminalState": "false",
-          "itemId": "a54219b8-f741-4c47-b662-e4f8dfa49ab6",
+          "itemId": "A54219B8-F741-4C47-B662-E4F8DFA49AB6",
           "lastUpdateDateTime": "2023-09-11T10:11:12.000Z",
           "latestStatus": "Prescriber Approved"
         },
         {
           "isTerminalState": "true",
-          "itemId": "6989b7bd-8db6-428c-a593-4022e3044c00",
+          "itemId": "6989B7BD-8DB6-428C-A593-4022E3044C00",
           "lastUpdateDateTime": "2023-09-04T10:11:11.000Z",
           "latestStatus": "Prescriber Cancelled"
         },
         {
           "isTerminalState": "true",
-          "itemId": "2868554c-5565-4d31-b92a-c5b8dab8b90a",
+          "itemId": "2868554C-5565-4D31-B92A-C5B8DAB8B90A",
           "lastUpdateDateTime": "2023-09-04T10:11:12.000Z",
           "latestStatus": "Prescriber Cancelled"
         },
         {
           "isTerminalState": "false",
-          "itemId": "5cb17f5a-11ac-4e18-825f-6470467238b3",
+          "itemId": "5CB17F5A-11AC-4E18-825F-6470467238B3",
           "lastUpdateDateTime": "2023-09-11T10:11:15.000Z",
           "latestStatus": "With Pharmacy - Preparing Remainder"
         }
@@ -38,7 +38,7 @@
       "items": [
         {
           "isTerminalState": "false",
-          "itemId": "b6bf7869-9b30-436c-9260-84fc3dbf449b",
+          "itemId": "B6BF7869-9B30-436C-9260-84FC3DBF449B",
           "lastUpdateDateTime": "2023-09-11T10:11:17.000Z",
           "latestStatus": "Ready to Collect - Partial"
         }

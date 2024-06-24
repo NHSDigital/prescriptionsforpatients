@@ -119,7 +119,7 @@ function statusHistoryExtensionReplacementIndex(medicationRequest: MedicationReq
 export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: StatusUpdates) {
   isolatePrescriptions(searchsetBundle).forEach((prescription) => {
     const medicationRequests = isolateMedicationRequests(prescription)
-    const prescriptionID = medicationRequests![0].groupIdentifier!.value
+    const prescriptionID = medicationRequests![0].groupIdentifier!.value!.toUpperCase()
 
     const hasPerformer = medicationRequests!.some(
       (medicationRequest) => medicationRequest.dispenseRequest?.performer?.reference
@@ -161,7 +161,7 @@ export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: Statu
     }
 
     medicationRequests?.forEach((medicationRequest) => {
-      const medicationRequestID = medicationRequest.identifier?.[0].value
+      const medicationRequestID = medicationRequest.identifier?.[0].value?.toUpperCase()
       logger.info(`Updating MedicationRequest with id ${medicationRequestID}`)
 
       const itemUpdates = prescriptionUpdate.items.filter((item) => item.itemId === medicationRequestID)
