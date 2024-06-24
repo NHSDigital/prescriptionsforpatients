@@ -61,6 +61,7 @@ function eventAndResponse(
   const requestAndResponse: RequestAndResponse = {
     event: {
       fhir: requestBundle,
+      statusUpdateData: {schemaVersion: 1, prescriptions: []},
       traceIDs: TRACE_IDS
     },
     expectedResponse: {

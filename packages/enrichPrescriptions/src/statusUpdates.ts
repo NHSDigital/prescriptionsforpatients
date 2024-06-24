@@ -6,6 +6,7 @@ import {logger} from "./enrichPrescriptions"
 export const EXTENSION_URL = "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory"
 export const DEFAULT_EXTENSION_STATUS = "With Pharmacy"
 export const NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS = "With Pharmacy but Tracking not Supported"
+export const TEMPORARILY_UNAVAILABLE_STATUS = "Tracking Temporarily Unavailable"
 export const VALUE_CODING_SYSTEM = "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt"
 export const ONE_WEEK_IN_MS = 604800000
 
@@ -13,7 +14,7 @@ type MedicationRequestStatus = "completed" | "active"
 
 type UpdateItem = {
   isTerminalState: string
-  itemId: string
+  itemId?: string
   lastUpdateDateTime: string
   latestStatus: string
 }
@@ -30,12 +31,16 @@ export type StatusUpdates = {
   schemaVersion: number
 }
 
+export type StatusUpdateData = {
+  odsCode: string
+  prescriptionID: string
+}
+
 function defaultUpdate(onboarded: boolean = true): UpdateItem {
   return {
     isTerminalState: "false",
     latestStatus: onboarded ? DEFAULT_EXTENSION_STATUS : NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS,
-    lastUpdateDateTime: moment().utc().toISOString(),
-    itemId: ""
+    lastUpdateDateTime: moment().utc().toISOString()
   }
 }
 
@@ -147,8 +152,6 @@ export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: Statu
           // set status as Prescriber Approved
           const update: UpdateItem = {
             isTerminalState: "false",
-            itemId: "",
-            //Placeholder now datetime
             lastUpdateDateTime: moment().utc().toISOString(),
             latestStatus: "Prescriber Approved"
           }
@@ -215,4 +218,21 @@ function getStatus(statusExtension: Extension): string | undefined {
     .filter((coding) => coding?.system === VALUE_CODING_SYSTEM)
     .map((coding) => coding?.code)
     .pop()
+}
+
+export function applyTemporaryStatusUpdates(searchsetBundle: Bundle, statusUpdateData: Array<StatusUpdateData>) {
+  const update: UpdateItem = {
+    isTerminalState: "false",
+    lastUpdateDateTime: moment().utc().toISOString(),
+    latestStatus: TEMPORARILY_UNAVAILABLE_STATUS
+  }
+  isolatePrescriptions(searchsetBundle).forEach((prescription) => {
+    const medicationRequests = isolateMedicationRequests(prescription)
+    const prescriptionID = medicationRequests![0].groupIdentifier!.value!.toUpperCase()
+    const updates = statusUpdateData.filter((data) => data.prescriptionID.toUpperCase() === prescriptionID)
+    if (updates.length > 0) {
+      logger.info(`Updates expected for medication requests in prescription ${prescriptionID}. Applying temporary.`)
+      medicationRequests?.forEach((medicationRequest) => updateMedicationRequest(medicationRequest, update))
+    }
+  })
 }

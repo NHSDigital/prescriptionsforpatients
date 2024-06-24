@@ -10,18 +10,18 @@ import {logger} from "./getMyPrescriptions"
 export const EXTENSION_URL = "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory"
 export const shouldGetStatusUpdates = () => process.env.GET_STATUS_UPDATES === "true"
 
-export type StatusUpdateData = {odsCode: string, prescriptionID: string}
+export type StatusUpdateData = {odsCode: string; prescriptionID: string}
 
 export function buildStatusUpdateData(searchsetBundle: Bundle): Array<StatusUpdateData> {
   const statusUpdateData: Array<StatusUpdateData> = []
-  isolatePrescriptions(searchsetBundle).forEach(prescription => {
+  isolatePrescriptions(searchsetBundle).forEach((prescription) => {
     const medicationRequests = isolateMedicationRequests(prescription)
 
     const hasApprovedOrCancelledStatus = (medicationRequest: MedicationRequest) => {
-      const relevantExtension = medicationRequest.extension?.find(ext => ext.url === EXTENSION_URL)
-      const statusExtension = relevantExtension?.extension?.find(innerExt => innerExt.url === "status")
+      const relevantExtension = medicationRequest.extension?.find((ext) => ext.url === EXTENSION_URL)
+      const statusExtension = relevantExtension?.extension?.find((innerExt) => innerExt.url === "status")
       const valueCodingCode = statusExtension?.valueCoding?.code
-      return valueCodingCode === "Prescriber Approved" || valueCodingCode === "Cancelled"
+      return valueCodingCode === "Prescriber Approved" || valueCodingCode === "Prescriber Cancelled"
     }
 
     const allItemsApprovedOrCancelled = medicationRequests.every(hasApprovedOrCancelledStatus)

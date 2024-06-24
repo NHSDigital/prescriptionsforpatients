@@ -4,14 +4,20 @@ import {LogLevel} from "@aws-lambda-powertools/logger/types"
 import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
 import {Bundle} from "fhir/r4"
-import {StatusUpdates, applyStatusUpdates} from "./statusUpdates"
+import {
+  StatusUpdateData,
+  StatusUpdates,
+  applyStatusUpdates,
+  applyTemporaryStatusUpdates
+} from "./statusUpdates"
 import {TraceIDs, lambdaResponse} from "./responses"
 
 export const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 export const logger = new Logger({serviceName: "enrichPrescriptions", logLevel: LOG_LEVEL})
 
 export type EnrichPrescriptionsEvent = {
-  fhir: Bundle,
+  fhir: Bundle
+  statusUpdateData: {schemaVersion: number; prescriptions: Array<StatusUpdateData>}
   StatusUpdates?: {Payload: StatusUpdates}
   traceIDs: TraceIDs
 }
@@ -29,9 +35,13 @@ export async function lambdaHandler(event: EnrichPrescriptionsEvent) {
   const searchsetBundle = event.fhir
   const statusUpdates = event.StatusUpdates?.Payload
 
-  if (statusUpdates) {
+  if (statusUpdates && statusUpdates.isSuccess) {
     logger.info("Applying status updates.")
     applyStatusUpdates(searchsetBundle, statusUpdates)
+  } else if (statusUpdates && !statusUpdates.isSuccess) {
+    logger.info("Call to get status updates was unsuccessful. Applying temporary status updates.")
+    const statusUpdateData = event.statusUpdateData!.prescriptions
+    applyTemporaryStatusUpdates(searchsetBundle, statusUpdateData)
   } else {
     logger.info("No status updates to apply.")
   }
