@@ -12,7 +12,8 @@ import {
   isolatePerformerOrganisation,
   isolatePerformerOrganisations,
   isolatePerformerReference,
-  isolatePrescriptions
+  isolatePrescriptions,
+  isolateOperationOutcome
 } from "../src/fhirUtils"
 import {pharmacy2uOrganisation, pharmicaOrganisation} from "./utils"
 
@@ -26,26 +27,36 @@ describe("Unit tests for fhirUtils", function () {
     const result = isolatePrescriptions(searchsetBundle)
 
     expect(result.length).toEqual(3)
-    result.forEach(r => expect(r.resourceType === "Bundle"))
+    result.forEach((r) => expect(r.resourceType === "Bundle"))
   })
 
   it("isolateMedicationRequests returns medication request resources", async () => {
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
     const prescriptions = isolatePrescriptions(searchsetBundle)
-    const result = prescriptions.flatMap(p => isolateMedicationRequests(p))
+    const result = prescriptions.flatMap((p) => isolateMedicationRequests(p))
 
     expect(result.length).toEqual(6)
-    result.forEach(r => expect(r.resourceType === "MedicationRequest"))
+    result.forEach((r) => expect(r.resourceType === "MedicationRequest"))
+  })
+
+  it("isolateOperationOutcome returns operation outcome resources", async () => {
+    expect(mockInteractionResponseBody.entry.length).toEqual(5)
+    const searchsetBundle = JSON.parse(mockBundleString) as Bundle
+
+    const result = isolateOperationOutcome(searchsetBundle)
+
+    expect(result.length).toEqual(2)
+    result.forEach((r) => expect(r.resourceType === "OperationOutcome"))
   })
 
   it("isolatePerformerReference returns performer reference from medication request resource", async () => {
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
     const prescriptions = isolatePrescriptions(searchsetBundle)
-    const medicationRequests = prescriptions.map(p => isolateMedicationRequests(p))
-    const performerReferences = medicationRequests.flatMap(m => isolatePerformerReference(m))
-    const result = performerReferences.filter(p => p !== undefined)
+    const medicationRequests = prescriptions.map((p) => isolateMedicationRequests(p))
+    const performerReferences = medicationRequests.flatMap((m) => isolatePerformerReference(m))
+    const result = performerReferences.filter((p) => p !== undefined)
 
     const expectedPerformers = [
       "urn:uuid:afb07f8b-e8d7-4cad-895d-494e6b35b2a1",
@@ -73,10 +84,7 @@ describe("Unit tests for fhirUtils", function () {
 
     const result = isolatePerformerOrganisations(searchsetBundle)
 
-    const expectedOrganisations: Array<Organization> = [
-      pharmacy2uOrganisation(),
-      pharmicaOrganisation()
-    ]
+    const expectedOrganisations: Array<Organization> = [pharmacy2uOrganisation(), pharmicaOrganisation()]
 
     expect(result.length).toEqual(2)
     expect(result).toEqual(expectedOrganisations)
@@ -89,10 +97,7 @@ describe("Unit tests for fhirUtils", function () {
 
     const result = isolatePerformerOrganisations(searchsetBundle)
 
-    const expectedOrganisations: Array<Organization> = [
-      pharmacy2uOrganisation(),
-      pharmacy2uOrganisation()
-    ]
+    const expectedOrganisations: Array<Organization> = [pharmacy2uOrganisation(), pharmacy2uOrganisation()]
 
     expect(result.length).toEqual(2)
     expect(result).toEqual(expectedOrganisations)

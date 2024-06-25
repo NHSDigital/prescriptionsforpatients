@@ -22,6 +22,7 @@ import {
 import {deepCopy, hasTimedOut, jobWithTimeout} from "./utils"
 import {buildStatusUpdateData, shouldGetStatusUpdates} from "./statusUpdate"
 import {SpineClient} from "@nhsdigital/eps-spine-client/lib/spine-client"
+import {isolateOperationOutcome} from "./fhirUtils"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 export const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
@@ -289,6 +290,11 @@ async function eventHandler(
       ]
     }
     searchsetBundle.id = xRequestId
+
+    const operationOutcomes = isolateOperationOutcome(searchsetBundle)
+    operationOutcomes.forEach((operationOutcome) => {
+      logger.error("Operation outcome returned from spine", {operationOutcome})
+    })
 
     const statusUpdateData = includeStatusUpdateData ? buildStatusUpdateData(searchsetBundle) : undefined
 
