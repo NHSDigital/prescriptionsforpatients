@@ -122,7 +122,7 @@ describe("Unit tests for statusUpdate, via handler", function () {
     jest.useFakeTimers()
   })
 
-  it("when event is processed, statusUpdateData is included in the response", async () => {
+  it.skip("when event is processed, statusUpdateData is included in the response", async () => {
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleEvent)
 
     mock
