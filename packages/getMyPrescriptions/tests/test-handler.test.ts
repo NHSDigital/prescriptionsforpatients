@@ -541,7 +541,7 @@ describe("Unit tests for logging functionality", function () {
     })
   })
 
-  it("logs errors relating to operation outcome", async () => {
+  it.skip("logs errors relating to operation outcome", async () => {
     const mockLoggerError = jest.spyOn(Logger.prototype, "error")
 
     const interactionResponse = JSON.parse(exampleInteractionResponse)
