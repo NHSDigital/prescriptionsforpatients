@@ -22,6 +22,7 @@ import {
 import {deepCopy, hasTimedOut, jobWithTimeout} from "./utils"
 import {buildStatusUpdateData, shouldGetStatusUpdates} from "./statusUpdate"
 import {SpineClient} from "@nhsdigital/eps-spine-client/lib/spine-client"
+import {isolateOperationOutcome} from "./fhirUtils"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 export const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
@@ -51,34 +52,45 @@ export type GetMyPrescriptionsEvent = {
  * @returns {Object} object - API Gateway Lambda Proxy Output Format
  *
  */
-export const stateMachineEventHandler = async (event: GetMyPrescriptionsEvent, params: HandlerParams): Promise<APIGatewayProxyResult> => {
+export const stateMachineEventHandler = async (
+  event: GetMyPrescriptionsEvent,
+  params: HandlerParams
+): Promise<APIGatewayProxyResult> => {
   const handlerResponse = await jobWithTimeout(
     params.lambdaTimeoutMs,
     eventHandler(params, event.headers, stateMachineLambdaResponse, shouldGetStatusUpdates())
   )
 
-  if (hasTimedOut(handlerResponse)){
+  if (hasTimedOut(handlerResponse)) {
     logger.error("Lambda handler has timed out. Returning error response.")
     return TIMEOUT_RESPONSE
   }
   return handlerResponse
 }
 
-export const apiGatewayEventHandler = async (event: APIGatewayProxyEvent, params: HandlerParams): Promise<APIGatewayProxyResult> => {
+export const apiGatewayEventHandler = async (
+  event: APIGatewayProxyEvent,
+  params: HandlerParams
+): Promise<APIGatewayProxyResult> => {
   event.headers["apigw-request-id"] = event.requestContext.requestId
   const handlerResponse = await jobWithTimeout(
     params.lambdaTimeoutMs,
     eventHandler(params, event.headers, apiGatewayLambdaResponse)
   )
 
-  if (hasTimedOut(handlerResponse)){
+  if (hasTimedOut(handlerResponse)) {
     logger.error("Lambda handler has timed out. Returning error response.")
     return TIMEOUT_RESPONSE
   }
   return handlerResponse
 }
 
-async function eventHandler(params: HandlerParams, headers: EventHeaders, successResponse: ResponseFunc, includeStatusUpdateData: boolean = false): Promise<APIGatewayProxyResult> {
+async function eventHandler(
+  params: HandlerParams,
+  headers: EventHeaders,
+  successResponse: ResponseFunc,
+  includeStatusUpdateData: boolean = false
+): Promise<APIGatewayProxyResult> {
   const xRequestId = headers["x-request-id"]
   const requestId = headers["apigw-request-id"]
   const spineClient = params.spineClient
@@ -104,12 +116,17 @@ async function eventHandler(params: HandlerParams, headers: EventHeaders, succes
 
     const spineCallout = spineClient.getPrescriptions(headers)
     const response = await jobWithTimeout(params.spineTimeoutMs, spineCallout)
-    if (hasTimedOut(response)){
+    if (hasTimedOut(response)) {
       logger.error("Call to Spine has timed out. Returning error response.")
       return TIMEOUT_RESPONSE
     }
     const searchsetBundle: Bundle = response.data
     searchsetBundle.id = xRequestId
+
+    const operationOutcomes = isolateOperationOutcome(searchsetBundle)
+    operationOutcomes.forEach((operationOutcome) => {
+      logger.error("Operation outcome returned from spine", {operationOutcome})
+    })
 
     const statusUpdateData = includeStatusUpdateData ? buildStatusUpdateData(searchsetBundle) : undefined
 
@@ -117,7 +134,7 @@ async function eventHandler(params: HandlerParams, headers: EventHeaders, succes
     const distanceSellingBundle = deepCopy(searchsetBundle)
     const distanceSellingCallout = distanceSelling.search(distanceSellingBundle)
     const distanceSellingResponse = await jobWithTimeout(params.serviceSearchTimeoutMs, distanceSellingCallout)
-    if (hasTimedOut(distanceSellingResponse)){
+    if (hasTimedOut(distanceSellingResponse)) {
       return successResponse(searchsetBundle, traceIDs, statusUpdateData)
     }
 
@@ -132,15 +149,15 @@ async function eventHandler(params: HandlerParams, headers: EventHeaders, succes
 }
 
 type HandlerConfig<T> = {
-  handlerFunction: (event: T, config: HandlerParams) => Promise<APIGatewayProxyResult>,
-  middleware: Array<middy.MiddlewareObj>,
+  handlerFunction: (event: T, config: HandlerParams) => Promise<APIGatewayProxyResult>
+  middleware: Array<middy.MiddlewareObj>
   params: HandlerParams
 }
 
 type HandlerParams = {
-  lambdaTimeoutMs: number,
-  spineTimeoutMs: number,
-  serviceSearchTimeoutMs: number,
+  lambdaTimeoutMs: number
+  spineTimeoutMs: number
+  serviceSearchTimeoutMs: number
   spineClient: SpineClient
 }
 export const DEFAULT_HANDLER_PARAMS = {
@@ -150,7 +167,7 @@ export const DEFAULT_HANDLER_PARAMS = {
   spineClient: _spineClient
 }
 
-export const newHandler = <T>(handlerConfig: HandlerConfig<T>) =>{
+export const newHandler = <T>(handlerConfig: HandlerConfig<T>) => {
   const newHandler = middy((event: T) => handlerConfig.handlerFunction(event, handlerConfig.params))
   for (const middleware of handlerConfig.middleware) {
     newHandler.use(middleware)
