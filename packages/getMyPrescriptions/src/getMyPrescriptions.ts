@@ -198,7 +198,22 @@ async function eventHandler(
                   substitution: {
                     allowedBoolean: false
                   },
-                  resourceType: "MedicationRequest"
+                  resourceType: "MedicationRequest",
+                  extension: [
+                    {
+                      url: "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory",
+                      extension: [
+                        {
+                          url: "status",
+                          valueCoding: {code: "With Pharmacy but Tracking not Supported"}
+                        },
+                        {
+                          url: "statusDate",
+                          valueDateTime: new Date().toISOString()
+                        }
+                      ]
+                    }
+                  ]
                 }
               },
               {
