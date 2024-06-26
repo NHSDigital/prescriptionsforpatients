@@ -42,6 +42,9 @@ export const richRequestBundle = () => JSON.parse(richRequestString) as Bundle
 export const richStatusUpdatesPayload = () => JSON.parse(richStatusUpdatesString) as StatusUpdates
 export const richResponseBundle = () => JSON.parse(richResponseString) as Bundle
 
+export const OUTER_EXTENSION_URL = "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory"
+export const INNER_EXTENSION_URL = "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt"
+
 type RequestAndResponse = {
   event: EnrichPrescriptionsEvent
   expectedResponse: APIGatewayProxyResult
@@ -127,12 +130,12 @@ export function addExtensionToMedicationRequest(
 ) {
   medicationRequest.extension = [
     {
-      url: "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory",
+      url: OUTER_EXTENSION_URL,
       extension: [
         {
           url: "status",
           valueCoding: {
-            system: "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt",
+            system: INNER_EXTENSION_URL,
             code: status
           }
         },

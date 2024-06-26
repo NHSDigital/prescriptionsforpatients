@@ -18,11 +18,16 @@ import {
   addExtensionToMedicationRequest,
   getStatusExtensions,
   simpleUpdateWithStatus,
-  simpleStatusUpdateDataPayload
+  simpleStatusUpdateDataPayload,
+  OUTER_EXTENSION_URL
 } from "./utils"
 import {
+  APPROVED_STATUS,
+  CANCELLED_STATUS,
+  NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS,
   ONE_WEEK_IN_MS,
   StatusUpdates,
+  TEMPORARILY_UNAVAILABLE_STATUS,
   applyStatusUpdates,
   applyTemporaryStatusUpdates,
   delayWithPharmacyStatus,
@@ -30,6 +35,7 @@ import {
 } from "../src/statusUpdates"
 import {Bundle, MedicationRequest} from "fhir/r4"
 import {Logger} from "@aws-lambda-powertools/logger"
+import {isolateMedicationRequests, isolatePrescriptions} from "../src/fhirUtils"
 
 describe("Unit tests for statusUpdate", function () {
   beforeEach(() => {
@@ -337,16 +343,16 @@ describe("Unit tests for statusUpdate", function () {
       applyTemporaryStatusUpdates(requestBundle, simpleStatusUpdateDataPayload().prescriptions)
       const statusExtension = medicationRequest.extension![0].extension!.filter((e) => e.url === "status")[0]!
 
-      expect(statusExtension.valueCoding!.code!).toEqual("Tracking Temporarily Unavailable")
+      expect(statusExtension.valueCoding!.code!).toEqual(TEMPORARILY_UNAVAILABLE_STATUS)
     })
 
     it.each([
-      {status: "Prescriber Approved", expectTemporary: false},
-      {status: "Prescriber Cancelled", expectTemporary: false},
-      {status: "With Pharmacy but Tracking not Supported", expectTemporary: true}
+      {status: "Prescriber Approved", shouldUpdate: false},
+      {status: "Prescriber Cancelled", shouldUpdate: false},
+      {status: "With Pharmacy but Tracking not Supported", shouldUpdate: true}
     ])(
       "Item with existing status, that expects an update, is given the temporary update when appropriate",
-      async ({status, expectTemporary}) => {
+      async ({status, shouldUpdate}) => {
         const requestBundle = simpleRequestBundle()
         const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
         const medicationRequest = requestCollectionBundle.entry![0].resource as MedicationRequest
@@ -357,10 +363,36 @@ describe("Unit tests for statusUpdate", function () {
         applyTemporaryStatusUpdates(requestBundle, simpleStatusUpdateDataPayload().prescriptions)
         const statusExtension = medicationRequest.extension![0].extension!.filter((e) => e.url === "status")[0]!
 
-        expect(statusExtension.valueCoding!.code!).toEqual(
-          expectTemporary ? "Tracking Temporarily Unavailable" : status
-        )
+        expect(statusExtension.valueCoding!.code!).toEqual(shouldUpdate ? TEMPORARILY_UNAVAILABLE_STATUS : status)
       }
     )
+  })
+
+  it("One prescription of many, with multiple items, that expects updates, has temporary updates applied to appropriate items", async () => {
+    const requestBundle = richRequestBundle()
+    const prescriptions = isolatePrescriptions(requestBundle)
+
+    const prescriptionToBeUpdated = prescriptions[0]
+
+    const medicationRequests = isolateMedicationRequests(prescriptionToBeUpdated)
+    const updateTime = new Date().toISOString()
+    addExtensionToMedicationRequest(medicationRequests![0], NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS, updateTime)
+    addExtensionToMedicationRequest(medicationRequests![1], NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS, updateTime)
+    addExtensionToMedicationRequest(medicationRequests![2], APPROVED_STATUS, updateTime)
+    addExtensionToMedicationRequest(medicationRequests![3], CANCELLED_STATUS, updateTime)
+
+    const prescriptionID = medicationRequests![0].groupIdentifier!.value!.toUpperCase()
+    const statusUpdateData = {odsCode: "FLM49", prescriptionID: prescriptionID}
+
+    applyTemporaryStatusUpdates(requestBundle, [statusUpdateData])
+
+    const medicationRequestsWithTemporaryUpdates = medicationRequests?.filter((medicationRequest) => {
+      const outerExtension = medicationRequest.extension?.filter(
+        (extension) => extension.url === OUTER_EXTENSION_URL
+      )[0]
+      const innerExtension = outerExtension?.extension?.filter((extension) => extension.url === "status")[0]
+      return innerExtension?.valueCoding!.code === TEMPORARILY_UNAVAILABLE_STATUS
+    })
+    expect(medicationRequestsWithTemporaryUpdates!.length).toEqual(2)
   })
 })

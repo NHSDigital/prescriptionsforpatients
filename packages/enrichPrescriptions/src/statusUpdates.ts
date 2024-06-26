@@ -1,14 +1,22 @@
 import {Bundle, Extension, MedicationRequest} from "fhir/r4"
 import moment, {Moment} from "moment"
-import {isolateMedicationRequests, isolatePrescriptions} from "./fhirUtils"
+import {
+  isolateMedicationRequests,
+  isolatePerformerOrganisation,
+  isolatePerformerReference,
+  isolatePrescriptions
+} from "./fhirUtils"
 import {logger} from "./enrichPrescriptions"
 
 export const EXTENSION_URL = "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory"
+export const VALUE_CODING_SYSTEM = "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt"
+export const ONE_WEEK_IN_MS = 604800000
+
 export const DEFAULT_EXTENSION_STATUS = "With Pharmacy"
 export const NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS = "With Pharmacy but Tracking not Supported"
 export const TEMPORARILY_UNAVAILABLE_STATUS = "Tracking Temporarily Unavailable"
-export const VALUE_CODING_SYSTEM = "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt"
-export const ONE_WEEK_IN_MS = 604800000
+export const APPROVED_STATUS = "Prescriber Approved"
+export const CANCELLED_STATUS = "Prescriber Cancelled"
 
 type MedicationRequestStatus = "completed" | "active"
 
@@ -64,7 +72,7 @@ function updateMedicationRequest(medicationRequest: MedicationRequest, updateIte
   const relevantExtension = medicationRequest.extension?.find((ext) => ext.url === EXTENSION_URL)
   const statusCoding = relevantExtension?.extension?.find((innerExt) => innerExt.url === "status")?.valueCoding?.code
 
-  if (statusCoding && (statusCoding === "Prescriber Approved" || statusCoding === "Prescriber Cancelled")) {
+  if (statusCoding && (statusCoding === APPROVED_STATUS || statusCoding === CANCELLED_STATUS)) {
     logger.info(
       `Status update for prescription ${updateItem.itemId} has been skipped because the current status is already ` +
         `${statusCoding}.`
@@ -155,7 +163,7 @@ export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: Statu
           const update: UpdateItem = {
             isTerminalState: "false",
             lastUpdateDateTime: moment().utc().toISOString(),
-            latestStatus: "Prescriber Approved"
+            latestStatus: APPROVED_STATUS
           }
           updateMedicationRequest(medicationRequest, update)
           return
@@ -231,10 +239,19 @@ export function applyTemporaryStatusUpdates(searchsetBundle: Bundle, statusUpdat
   isolatePrescriptions(searchsetBundle).forEach((prescription) => {
     const medicationRequests = isolateMedicationRequests(prescription)
     const prescriptionID = medicationRequests![0].groupIdentifier!.value!.toUpperCase()
-    const updates = statusUpdateData.filter((data) => data.prescriptionID.toUpperCase() === prescriptionID)
-    if (updates.length > 0) {
-      logger.info(`Updates expected for medication requests in prescription ${prescriptionID}. Applying temporary.`)
-      medicationRequests?.forEach((medicationRequest) => updateMedicationRequest(medicationRequest, update))
+
+    const performerReference = isolatePerformerReference(medicationRequests!)
+    if (performerReference) {
+      const performer = isolatePerformerOrganisation(performerReference, prescription)
+      const odsCode = performer.identifier![0].value!.toUpperCase()
+
+      const updates = statusUpdateData.filter(
+        (data) => data.prescriptionID.toUpperCase() === prescriptionID && data.odsCode.toUpperCase() === odsCode
+      )
+      if (updates.length > 0) {
+        logger.info(`Updates expected for medication requests in prescription ${prescriptionID}. Applying temporary.`)
+        medicationRequests?.forEach((medicationRequest) => updateMedicationRequest(medicationRequest, update))
+      }
     }
   })
 }
