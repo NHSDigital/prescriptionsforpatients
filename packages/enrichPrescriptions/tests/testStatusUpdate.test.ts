@@ -376,8 +376,12 @@ describe("Unit tests for statusUpdate", function () {
 
     const medicationRequests = isolateMedicationRequests(prescriptionToBeUpdated)
     const updateTime = new Date().toISOString()
+
+    // These two will be updated with the temporary update
     addExtensionToMedicationRequest(medicationRequests![0], NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS, updateTime)
     addExtensionToMedicationRequest(medicationRequests![1], NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS, updateTime)
+
+    // These (along with all others in the rich bundle) will not
     addExtensionToMedicationRequest(medicationRequests![2], APPROVED_STATUS, updateTime)
     addExtensionToMedicationRequest(medicationRequests![3], CANCELLED_STATUS, updateTime)
 
@@ -386,13 +390,19 @@ describe("Unit tests for statusUpdate", function () {
 
     applyTemporaryStatusUpdates(requestBundle, [statusUpdateData])
 
-    const medicationRequestsWithTemporaryUpdates = medicationRequests?.filter((medicationRequest) => {
+    const allMedicationRequests = prescriptions.flatMap((prescription) =>
+      isolateMedicationRequests(prescription)
+    ) as Array<MedicationRequest>
+
+    const medicationRequestsWithTemporaryUpdates = allMedicationRequests.filter((medicationRequest) => {
       const outerExtension = medicationRequest.extension?.filter(
         (extension) => extension.url === OUTER_EXTENSION_URL
       )[0]
       const innerExtension = outerExtension?.extension?.filter((extension) => extension.url === "status")[0]
       return innerExtension?.valueCoding!.code === TEMPORARILY_UNAVAILABLE_STATUS
     })
-    expect(medicationRequestsWithTemporaryUpdates!.length).toEqual(2)
+
+    expect(allMedicationRequests.length).toEqual(6)
+    expect(medicationRequestsWithTemporaryUpdates.length).toEqual(2)
   })
 })
