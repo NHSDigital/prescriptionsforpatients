@@ -17,7 +17,7 @@ export const logger = new Logger({serviceName: "enrichPrescriptions", logLevel: 
 
 export type EnrichPrescriptionsEvent = {
   fhir: Bundle
-  statusUpdateData: {schemaVersion: number; prescriptions: Array<StatusUpdateData>}
+  statusUpdateData: StatusUpdateData
   StatusUpdates?: {Payload: StatusUpdates}
   traceIDs: TraceIDs
 }

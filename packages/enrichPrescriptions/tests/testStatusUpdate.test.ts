@@ -17,12 +17,14 @@ import {
   simpleStatusUpdatesPayload,
   addExtensionToMedicationRequest,
   getStatusExtensions,
-  simpleUpdateWithStatus
+  simpleUpdateWithStatus,
+  simpleStatusUpdateDataPayload
 } from "./utils"
 import {
   ONE_WEEK_IN_MS,
   StatusUpdates,
   applyStatusUpdates,
+  applyTemporaryStatusUpdates,
   delayWithPharmacyStatus,
   getStatusDate
 } from "../src/statusUpdates"
@@ -320,5 +322,45 @@ describe("Unit tests for statusUpdate", function () {
 
       expect(getStatusDate(incomplete_extension)).toEqual(undefined)
     })
+  })
+
+  describe("Temporary status updates", () => {
+    beforeEach(() => {
+      jest.useFakeTimers().setSystemTime(SYSTEM_DATETIME)
+    })
+
+    it("Item with no status, that expects an update, is given the temporary update", async () => {
+      const requestBundle = simpleRequestBundle()
+      const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
+      const medicationRequest = requestCollectionBundle.entry![0].resource as MedicationRequest
+
+      applyTemporaryStatusUpdates(requestBundle, simpleStatusUpdateDataPayload().prescriptions)
+      const statusExtension = medicationRequest.extension![0].extension!.filter((e) => e.url === "status")[0]!
+
+      expect(statusExtension.valueCoding!.code!).toEqual("Tracking Temporarily Unavailable")
+    })
+
+    it.each([
+      {status: "Prescriber Approved", expectTemporary: false},
+      {status: "Prescriber Cancelled", expectTemporary: false},
+      {status: "With Pharmacy but Tracking not Supported", expectTemporary: true}
+    ])(
+      "Item with existing status, that expects an update, is given the temporary update when appropriate",
+      async ({status, expectTemporary}) => {
+        const requestBundle = simpleRequestBundle()
+        const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
+        const medicationRequest = requestCollectionBundle.entry![0].resource as MedicationRequest
+
+        const updateTime = new Date().toISOString()
+        addExtensionToMedicationRequest(medicationRequest, status, updateTime)
+
+        applyTemporaryStatusUpdates(requestBundle, simpleStatusUpdateDataPayload().prescriptions)
+        const statusExtension = medicationRequest.extension![0].extension!.filter((e) => e.url === "status")[0]!
+
+        expect(statusExtension.valueCoding!.code!).toEqual(
+          expectTemporary ? "Tracking Temporarily Unavailable" : status
+        )
+      }
+    )
   })
 })

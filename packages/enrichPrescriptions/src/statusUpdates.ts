@@ -31,10 +31,12 @@ export type StatusUpdates = {
   schemaVersion: number
 }
 
-export type StatusUpdateData = {
+export type Prescription = {
   odsCode: string
   prescriptionID: string
 }
+
+export type StatusUpdateData = {schemaVersion: number; prescriptions: Array<Prescription>}
 
 function defaultUpdate(onboarded: boolean = true): UpdateItem {
   return {
@@ -220,7 +222,7 @@ function getStatus(statusExtension: Extension): string | undefined {
     .pop()
 }
 
-export function applyTemporaryStatusUpdates(searchsetBundle: Bundle, statusUpdateData: Array<StatusUpdateData>) {
+export function applyTemporaryStatusUpdates(searchsetBundle: Bundle, statusUpdateData: Array<Prescription>) {
   const update: UpdateItem = {
     isTerminalState: "false",
     lastUpdateDateTime: moment().utc().toISOString(),
