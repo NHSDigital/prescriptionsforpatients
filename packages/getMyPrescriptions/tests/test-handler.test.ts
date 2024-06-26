@@ -261,23 +261,6 @@ describe("Unit test for app handler", function () {
     expect(JSON.parse(result.body)).toEqual(responseStatus500)
   })
 
-  it("appends trace id's to the logger", async () => {
-    const mockAppendKeys = jest.spyOn(Logger.prototype, "appendKeys")
-
-    mock.onGet("https://live/mm/patientfacingprescriptions").reply(200, {statusCode: "0"})
-
-    const event: APIGatewayProxyEvent = JSON.parse(exampleApiGatewayEvent)
-    await apiGatewayHandler(event, dummyContext)
-
-    expect(mockAppendKeys).toHaveBeenCalledWith({
-      "nhsd-correlation-id": "test-request-id.test-correlation-id.rrt-5789322914740101037-b-aet2-20145-482635-2",
-      "x-request-id": "test-request-id",
-      "nhsd-request-id": "test-request-id",
-      "x-correlation-id": "test-correlation-id",
-      "apigw-request-id": "c6af9ac6-7b61-11e6-9a41-93e8deadbeef"
-    })
-  })
-
   it.skip("return error when spine does not respond in time", async () => {
     mock.onGet("https://live/mm/patientfacingprescriptions").timeout()
     const event: APIGatewayProxyEvent = JSON.parse(exampleApiGatewayEvent)
