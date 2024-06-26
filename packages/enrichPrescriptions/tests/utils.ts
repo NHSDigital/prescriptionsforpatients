@@ -10,14 +10,12 @@ import {
   DEFAULT_EXTENSION_STATUS,
   EXTENSION_URL,
   NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS,
-  StatusUpdateData,
   StatusUpdates,
   VALUE_CODING_SYSTEM
 } from "../src/statusUpdates"
 
 import simpleRequest from "./data/simple/requestBundle.json"
 import simpleStatusUpdates from "./data/simple/statusUpdates.json"
-import simpleStatusUpdateData from "./data/simple/statusUpdateData.json"
 import simpleResponse from "./data/simple/responseBundle.json"
 
 import richRequest from "./data/rich/requestBundle.json"
@@ -26,7 +24,6 @@ import richResponse from "./data/rich/responseBundle.json"
 
 const simpleRequestString = JSON.stringify(simpleRequest)
 const simpleStatusUpdatesString = JSON.stringify(simpleStatusUpdates)
-const simpleStatusUpdateDataString = JSON.stringify(simpleStatusUpdateData)
 const simpleResponseString = JSON.stringify(simpleResponse)
 
 const richRequestString = JSON.stringify(richRequest)
@@ -35,7 +32,6 @@ const richResponseString = JSON.stringify(richResponse)
 
 export const simpleRequestBundle = () => JSON.parse(simpleRequestString) as Bundle
 export const simpleStatusUpdatesPayload = () => JSON.parse(simpleStatusUpdatesString) as StatusUpdates
-export const simpleStatusUpdateDataPayload = () => JSON.parse(simpleStatusUpdateDataString) as StatusUpdateData
 export const simpleResponseBundle = () => JSON.parse(simpleResponseString) as Bundle
 
 export const richRequestBundle = () => JSON.parse(richRequestString) as Bundle
