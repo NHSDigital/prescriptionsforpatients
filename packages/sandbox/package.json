@@ -17,7 +17,7 @@
     "@aws-lambda-powertools/logger": "^2.2.0",
     "@middy/core": "^5.4.2",
     "@middy/input-output-logger": "^5.4.2",
-    "@nhs/fhir-middy-error-handler": "^2.0.8"
+    "@nhs/fhir-middy-error-handler": "^2.0.9"
   },
   "devDependencies": {
     "@prescriptionsforpatients_common/testing": "^1.0.0"
