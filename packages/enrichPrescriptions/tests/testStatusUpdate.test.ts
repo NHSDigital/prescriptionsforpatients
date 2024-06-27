@@ -371,7 +371,7 @@ describe("Unit tests for statusUpdate", function () {
       {status: "Prescriber Cancelled", shouldUpdate: false},
       {status: "With Pharmacy but Tracking not Supported", shouldUpdate: true}
     ])(
-      "Item with existing status, that expects an update, is given the temporary update when appropriate",
+      "Item with existing status, that expects an update, is given the temporary update when its existing status is appropriate",
       async ({status, shouldUpdate}) => {
         const requestBundle = simpleRequestBundle()
         const prescriptions = isolatePrescriptions(requestBundle)
@@ -392,27 +392,33 @@ describe("Unit tests for statusUpdate", function () {
     )
   })
 
-  it("One prescription of many, with multiple items, that expects updates, has temporary updates applied to appropriate items", async () => {
+  it("Prescriptions with multiple items, that expect updates, have temporary updates applied to appropriate items", async () => {
+    // The richRequestBundle gives us three prescriptions with a total of six items
     const requestBundle = richRequestBundle()
     const prescriptions = isolatePrescriptions(requestBundle)
 
-    const prescriptionToBeUpdated = prescriptions[0]
+    // We modify one prescription here. One other will get the temporary update without being modified,
+    // and the remaining one will not get the temporary update
+    const prescriptionToBeModified = prescriptions[0]
 
-    const medicationRequests = isolateMedicationRequests(prescriptionToBeUpdated)
+    const medicationRequests = isolateMedicationRequests(prescriptionToBeModified)
     const updateTime = new Date().toISOString()
 
-    // These two will be updated with the temporary update
+    // These two items will be updated with the temporary update
     addExtensionToMedicationRequest(medicationRequests![0], NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS, updateTime)
     addExtensionToMedicationRequest(medicationRequests![1], NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS, updateTime)
 
-    // These (along with all others in the rich bundle) will not
+    // These two items will not
     addExtensionToMedicationRequest(medicationRequests![2], APPROVED_STATUS, updateTime)
     addExtensionToMedicationRequest(medicationRequests![3], CANCELLED_STATUS, updateTime)
 
-    const prescriptionID = medicationRequests![0].groupIdentifier!.value!.toUpperCase()
-    const statusUpdateData = {odsCode: "FLM49", prescriptionID: prescriptionID}
+    // These represent the modified prescription and the one that will update without being modified
+    const statusUpdateData = [
+      {odsCode: "FLM49", prescriptionID: "24F5DA-A83008-7EFE6Z"},
+      {odsCode: "FEW08", prescriptionID: "16B2E0-A83008-81C13H"}
+    ]
 
-    applyTemporaryStatusUpdates(requestBundle, [statusUpdateData])
+    applyTemporaryStatusUpdates(requestBundle, statusUpdateData)
 
     const tempStatusUpdateFilter = (medicationRequest: MedicationRequest) => {
       const outerExtension = medicationRequest.extension?.filter(
@@ -422,16 +428,18 @@ describe("Unit tests for statusUpdate", function () {
       return statusExtension?.valueCoding!.code === TEMPORARILY_UNAVAILABLE_STATUS
     }
 
+    // Checking just the items from the modified prescription
     const medicationRequestsWithTemporaryUpdates = medicationRequests!.filter(tempStatusUpdateFilter)
     expect(medicationRequests!.length).toEqual(4)
     expect(medicationRequestsWithTemporaryUpdates.length).toEqual(2)
 
+    // Checking all items, which will include the single item from the unmodified prescription that we expect to get the temporary update
     const allMedicationRequests = prescriptions.flatMap((prescription) =>
       isolateMedicationRequests(prescription)
     ) as Array<MedicationRequest>
     const allMedicationRequestsWithTemporaryUpdates = allMedicationRequests.filter(tempStatusUpdateFilter)
 
     expect(allMedicationRequests.length).toEqual(6)
-    expect(allMedicationRequestsWithTemporaryUpdates.length).toEqual(2)
+    expect(allMedicationRequestsWithTemporaryUpdates.length).toEqual(3)
   })
 })
