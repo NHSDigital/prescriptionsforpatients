@@ -334,7 +334,7 @@ describe("Unit tests for statusUpdate", function () {
       jest.useFakeTimers().setSystemTime(SYSTEM_DATETIME)
     })
 
-    it("Item with no status, that expects an update, is given the temporary update", async () => {
+    it("Item with no status, that expects an update, is given the temporary update and has its status set as active", async () => {
       const requestBundle = simpleRequestBundle()
       const prescriptions = isolatePrescriptions(requestBundle)
       const medicationRequests = isolateMedicationRequests(prescriptions[0])
@@ -347,6 +347,7 @@ describe("Unit tests for statusUpdate", function () {
       const statusExtension = medicationRequest.extension![0].extension!.filter((e) => e.url === "status")[0]
 
       expect(statusExtension.valueCoding!.code!).toEqual(TEMPORARILY_UNAVAILABLE_STATUS)
+      expect(medicationRequest.status).toEqual("active")
     })
 
     it("No temporary update if ods code or prescription ID doesn't match", async () => {
