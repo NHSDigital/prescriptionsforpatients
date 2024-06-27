@@ -116,6 +116,27 @@ describe("Unit tests for statusUpdate", function () {
     expect(requestBundle).toEqual(expected)
   })
 
+  it("AEA-4189 Test", async () => {
+    const requestBundle = simpleRequestBundle()
+    const statusUpdates = simpleStatusUpdatesPayload()
+    statusUpdates.prescriptions[0].items[0].isTerminalState = "true"
+
+    const overOneWeek = ONE_WEEK_IN_MS + 1000
+    const moreThanOneWeekAgo = new Date(SYSTEM_DATETIME.valueOf() - overOneWeek).toISOString()
+    statusUpdates.prescriptions[0].items[0].lastUpdateDateTime = moreThanOneWeekAgo
+
+    const expected = simpleResponseBundle()
+    const collectionBundle = expected.entry![0].resource as Bundle
+    const medicationRequest = collectionBundle.entry![0].resource as MedicationRequest
+
+    medicationRequest.status = "completed"
+    medicationRequest.extension![0].extension![1].valueDateTime = moreThanOneWeekAgo
+
+    applyStatusUpdates(requestBundle, statusUpdates)
+
+    expect(requestBundle).toEqual(expected)
+  })
+
   it("when an update for an item is present and extension exists, the update is added", async () => {
     const requestBundle = simpleRequestBundle()
     const statusUpdates = simpleStatusUpdatesPayload()
