@@ -10,7 +10,9 @@ import {
   DEFAULT_EXTENSION_STATUS,
   EXTENSION_URL,
   NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS,
+  StatusUpdateData,
   StatusUpdates,
+  TEMPORARILY_UNAVAILABLE_STATUS,
   VALUE_CODING_SYSTEM
 } from "../src/statusUpdates"
 
@@ -59,7 +61,8 @@ const TRACE_IDS: TraceIDs = {
 function eventAndResponse(
   requestBundle: Bundle,
   responseBundle: Bundle,
-  statusUpdates?: StatusUpdates
+  statusUpdates?: StatusUpdates,
+  statusUpdateData?: StatusUpdateData
 ): RequestAndResponse {
   const requestAndResponse: RequestAndResponse = {
     event: {
@@ -75,6 +78,9 @@ function eventAndResponse(
   }
   if (statusUpdates) {
     requestAndResponse.event.StatusUpdates = {Payload: statusUpdates}
+  }
+  if (statusUpdateData) {
+    requestAndResponse.event.statusUpdateData = statusUpdateData
   }
   return requestAndResponse
 }
@@ -96,6 +102,27 @@ export function unsuccessfulEventAndResponse(): RequestAndResponse {
 
 export function noUpdateDataEventAndResponse(): RequestAndResponse {
   return eventAndResponse(simpleRequestBundle(), simpleRequestBundle())
+}
+
+export function getStatusUpdatesFailedEventAndResponse(): RequestAndResponse {
+  const requestBundle = simpleRequestBundle()
+
+  const responseBundle = simpleResponseBundle()
+  const collectionBundle = responseBundle.entry![0].resource as Bundle
+  const medicationRequest = collectionBundle.entry![0].resource as MedicationRequest
+  medicationRequest.extension![0].extension![0].valueCoding!.code = TEMPORARILY_UNAVAILABLE_STATUS
+
+  const statusUpdatesPayload = {
+    schemaVersion: 1,
+    isSuccess: false,
+    prescriptions: []
+  }
+
+  const statusUpdateData = {
+    schemaVersion: 1,
+    prescriptions: [{odsCode: "FLM49", prescriptionID: "727066-A83008-2EFE36"}]
+  }
+  return eventAndResponse(requestBundle, responseBundle, statusUpdatesPayload, statusUpdateData)
 }
 
 export function defaultExtension(onboarded: boolean = true): Array<Extension> {
