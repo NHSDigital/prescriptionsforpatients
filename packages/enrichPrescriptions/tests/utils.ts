@@ -112,11 +112,8 @@ export function getStatusUpdatesFailedEventAndResponse(): RequestAndResponse {
   const medicationRequest = collectionBundle.entry![0].resource as MedicationRequest
   medicationRequest.extension![0].extension![0].valueCoding!.code = TEMPORARILY_UNAVAILABLE_STATUS
 
-  const statusUpdatesPayload = {
-    schemaVersion: 1,
-    isSuccess: false,
-    prescriptions: []
-  }
+  const statusUpdatesPayload = simpleStatusUpdatesPayload()
+  statusUpdatesPayload.isSuccess = false
 
   const statusUpdateData = {
     schemaVersion: 1,

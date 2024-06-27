@@ -413,19 +413,24 @@ describe("Unit tests for statusUpdate", function () {
 
     applyTemporaryStatusUpdates(requestBundle, [statusUpdateData])
 
-    const allMedicationRequests = prescriptions.flatMap((prescription) =>
-      isolateMedicationRequests(prescription)
-    ) as Array<MedicationRequest>
-
-    const medicationRequestsWithTemporaryUpdates = allMedicationRequests.filter((medicationRequest) => {
+    const tempStatusUpdateFilter = (medicationRequest: MedicationRequest) => {
       const outerExtension = medicationRequest.extension?.filter(
         (extension) => extension.url === OUTER_EXTENSION_URL
       )[0]
-      const innerExtension = outerExtension?.extension?.filter((extension) => extension.url === "status")[0]
-      return innerExtension?.valueCoding!.code === TEMPORARILY_UNAVAILABLE_STATUS
-    })
+      const statusExtension = outerExtension?.extension?.filter((extension) => extension.url === "status")[0]
+      return statusExtension?.valueCoding!.code === TEMPORARILY_UNAVAILABLE_STATUS
+    }
+
+    const medicationRequestsWithTemporaryUpdates = medicationRequests!.filter(tempStatusUpdateFilter)
+    expect(medicationRequests!.length).toEqual(4)
+    expect(medicationRequestsWithTemporaryUpdates.length).toEqual(2)
+
+    const allMedicationRequests = prescriptions.flatMap((prescription) =>
+      isolateMedicationRequests(prescription)
+    ) as Array<MedicationRequest>
+    const allMedicationRequestsWithTemporaryUpdates = allMedicationRequests.filter(tempStatusUpdateFilter)
 
     expect(allMedicationRequests.length).toEqual(6)
-    expect(medicationRequestsWithTemporaryUpdates.length).toEqual(2)
+    expect(allMedicationRequestsWithTemporaryUpdates.length).toEqual(2)
   })
 })
