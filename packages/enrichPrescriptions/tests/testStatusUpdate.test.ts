@@ -18,7 +18,8 @@ import {
   addExtensionToMedicationRequest,
   getStatusExtensions,
   simpleUpdateWithStatus,
-  OUTER_EXTENSION_URL
+  OUTER_EXTENSION_URL,
+  createStatusUpdateRequest
 } from "./utils"
 import {
   APPROVED_STATUS,
@@ -341,9 +342,9 @@ describe("Unit tests for statusUpdate", function () {
       const medicationRequest = medicationRequests![0]
 
       const prescriptionID = medicationRequest.groupIdentifier!.value!.toUpperCase()
-      const statusUpdateData = {odsCode: "FLM49", prescriptionID: prescriptionID}
+      const statusUpdateRequest = createStatusUpdateRequest([{odsCode: "FLM49", prescriptionID: prescriptionID}])
 
-      applyTemporaryStatusUpdates(requestBundle, [statusUpdateData])
+      applyTemporaryStatusUpdates(requestBundle, statusUpdateRequest)
       const statusExtension = medicationRequest.extension![0].extension!.filter((e) => e.url === "status")[0]
 
       expect(statusExtension.valueCoding!.code!).toEqual(TEMPORARILY_UNAVAILABLE_STATUS)
@@ -357,12 +358,12 @@ describe("Unit tests for statusUpdate", function () {
       const medicationRequest = medicationRequests![0]
 
       const prescriptionID = medicationRequest.groupIdentifier!.value!.toUpperCase()
-      const statusUpdateData = [
+      const statusUpdateRequest = createStatusUpdateRequest([
         {odsCode: "NOPE", prescriptionID: prescriptionID},
         {odsCode: "FLM49", prescriptionID: "NOPE"}
-      ]
+      ])
 
-      applyTemporaryStatusUpdates(requestBundle, statusUpdateData)
+      applyTemporaryStatusUpdates(requestBundle, statusUpdateRequest)
       expect(medicationRequest.extension).toBeUndefined()
     })
 
@@ -382,9 +383,9 @@ describe("Unit tests for statusUpdate", function () {
         addExtensionToMedicationRequest(medicationRequest, status, updateTime)
 
         const prescriptionID = medicationRequests![0].groupIdentifier!.value!.toUpperCase()
-        const statusUpdateData = {odsCode: "FLM49", prescriptionID: prescriptionID}
+        const statusUpdateRequest = createStatusUpdateRequest([{odsCode: "FLM49", prescriptionID: prescriptionID}])
 
-        applyTemporaryStatusUpdates(requestBundle, [statusUpdateData])
+        applyTemporaryStatusUpdates(requestBundle, statusUpdateRequest)
         const statusExtension = medicationRequest.extension![0].extension!.filter((e) => e.url === "status")[0]!
 
         expect(statusExtension.valueCoding!.code!).toEqual(shouldUpdate ? TEMPORARILY_UNAVAILABLE_STATUS : status)
@@ -413,12 +414,12 @@ describe("Unit tests for statusUpdate", function () {
     addExtensionToMedicationRequest(medicationRequests![3], CANCELLED_STATUS, updateTime)
 
     // These represent the modified prescription and the one that will update without being modified
-    const statusUpdateData = [
+    const statusUpdateRequest = createStatusUpdateRequest([
       {odsCode: "FLM49", prescriptionID: "24F5DA-A83008-7EFE6Z"},
       {odsCode: "FEW08", prescriptionID: "16B2E0-A83008-81C13H"}
-    ]
+    ])
 
-    applyTemporaryStatusUpdates(requestBundle, statusUpdateData)
+    applyTemporaryStatusUpdates(requestBundle, statusUpdateRequest)
 
     const tempStatusUpdateFilter = (medicationRequest: MedicationRequest) => {
       const outerExtension = medicationRequest.extension?.filter(

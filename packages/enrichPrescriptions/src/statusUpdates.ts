@@ -44,7 +44,10 @@ export type Prescription = {
   prescriptionID: string
 }
 
-export type StatusUpdateData = {schemaVersion: number; prescriptions: Array<Prescription>}
+export type StatusUpdateRequest = {
+  schemaVersion: number
+  prescriptions: Array<Prescription>
+}
 
 function defaultUpdate(onboarded: boolean = true): UpdateItem {
   return {
@@ -230,7 +233,7 @@ function getStatus(statusExtension: Extension): string | undefined {
     .pop()
 }
 
-export function applyTemporaryStatusUpdates(searchsetBundle: Bundle, statusUpdateData: Array<Prescription>) {
+export function applyTemporaryStatusUpdates(searchsetBundle: Bundle, statusUpdateRequest: StatusUpdateRequest) {
   const update: UpdateItem = {
     isTerminalState: "false",
     lastUpdateDateTime: moment().utc().toISOString(),
@@ -245,7 +248,7 @@ export function applyTemporaryStatusUpdates(searchsetBundle: Bundle, statusUpdat
       const performer = isolatePerformerOrganisation(performerReference, prescription)
       const odsCode = performer.identifier![0].value!.toUpperCase()
 
-      const updates = statusUpdateData.filter(
+      const updates = statusUpdateRequest.prescriptions.filter(
         (data) => data.prescriptionID.toUpperCase() === prescriptionID && data.odsCode.toUpperCase() === odsCode
       )
       if (updates.length > 0) {

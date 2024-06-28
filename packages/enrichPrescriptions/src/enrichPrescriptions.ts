@@ -5,7 +5,7 @@ import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
 import {Bundle} from "fhir/r4"
 import {
-  StatusUpdateData,
+  StatusUpdateRequest,
   StatusUpdates,
   applyStatusUpdates,
   applyTemporaryStatusUpdates
@@ -17,7 +17,7 @@ export const logger = new Logger({serviceName: "enrichPrescriptions", logLevel: 
 
 export type EnrichPrescriptionsEvent = {
   fhir: Bundle
-  statusUpdateData: StatusUpdateData
+  statusUpdateData: StatusUpdateRequest
   StatusUpdates?: {Payload: StatusUpdates}
   traceIDs: TraceIDs
 }
@@ -40,8 +40,8 @@ export async function lambdaHandler(event: EnrichPrescriptionsEvent) {
     applyStatusUpdates(searchsetBundle, statusUpdates)
   } else if (statusUpdates && !statusUpdates.isSuccess) {
     logger.info("Call to get status updates was unsuccessful. Applying temporary status updates.")
-    const statusUpdateData = event.statusUpdateData!.prescriptions
-    applyTemporaryStatusUpdates(searchsetBundle, statusUpdateData)
+    const statusUpdateRequest = event.statusUpdateData!
+    applyTemporaryStatusUpdates(searchsetBundle, statusUpdateRequest)
   } else {
     logger.info("No status updates to apply.")
   }

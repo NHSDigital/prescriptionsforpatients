@@ -10,7 +10,8 @@ import {
   DEFAULT_EXTENSION_STATUS,
   EXTENSION_URL,
   NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS,
-  StatusUpdateData,
+  Prescription,
+  StatusUpdateRequest,
   StatusUpdates,
   TEMPORARILY_UNAVAILABLE_STATUS,
   VALUE_CODING_SYSTEM
@@ -62,7 +63,7 @@ function eventAndResponse(
   requestBundle: Bundle,
   responseBundle: Bundle,
   statusUpdates?: StatusUpdates,
-  statusUpdateData?: StatusUpdateData
+  statusUpdateRequest?: StatusUpdateRequest
 ): RequestAndResponse {
   const requestAndResponse: RequestAndResponse = {
     event: {
@@ -79,8 +80,8 @@ function eventAndResponse(
   if (statusUpdates) {
     requestAndResponse.event.StatusUpdates = {Payload: statusUpdates}
   }
-  if (statusUpdateData) {
-    requestAndResponse.event.statusUpdateData = statusUpdateData
+  if (statusUpdateRequest) {
+    requestAndResponse.event.statusUpdateData = statusUpdateRequest
   }
   return requestAndResponse
 }
@@ -176,4 +177,11 @@ export function simpleUpdateWithStatus(status: string): StatusUpdates {
   const update = simpleStatusUpdatesPayload()
   update.prescriptions[0].items[0].latestStatus = status
   return update
+}
+
+export function createStatusUpdateRequest(prescriptions: Array<Prescription>): StatusUpdateRequest {
+  return {
+    schemaVersion: 1,
+    prescriptions: prescriptions
+  }
 }
