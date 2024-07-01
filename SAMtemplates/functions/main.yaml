@@ -83,6 +83,7 @@ Resources:
         Target: es2020
         Sourcemap: true
         tsconfig: getMyPrescriptions/tsconfig.json
+        packages: bundle
         EntryPoints:
           - getMyPrescriptions/src/getMyPrescriptions.ts
 
@@ -121,6 +122,7 @@ Resources:
         Target: es2020
         Sourcemap: true
         tsconfig: enrichPrescriptions/tsconfig.json
+        packages: bundle
         EntryPoints:
           - enrichPrescriptions/src/enrichPrescriptions.ts
 
@@ -152,6 +154,7 @@ Resources:
         Target: es2020
         Sourcemap: true
         tsconfig: capabilityStatement/tsconfig.json
+        packages: bundle
         EntryPoints:
           - capabilityStatement/src/capabilityStatement.ts
 
@@ -190,6 +193,7 @@ Resources:
         Target: es2020
         Sourcemap: true
         tsconfig: statusLambda/tsconfig.json
+        packages: bundle
         EntryPoints:
           - statusLambda/src/statusLambda.ts
 
