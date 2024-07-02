@@ -10,7 +10,10 @@ import {
   DEFAULT_EXTENSION_STATUS,
   EXTENSION_URL,
   NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS,
+  Prescription,
+  StatusUpdateRequest,
   StatusUpdates,
+  TEMPORARILY_UNAVAILABLE_STATUS,
   VALUE_CODING_SYSTEM
 } from "../src/statusUpdates"
 
@@ -38,6 +41,9 @@ export const richRequestBundle = () => JSON.parse(richRequestString) as Bundle
 export const richStatusUpdatesPayload = () => JSON.parse(richStatusUpdatesString) as StatusUpdates
 export const richResponseBundle = () => JSON.parse(richResponseString) as Bundle
 
+export const OUTER_EXTENSION_URL = "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory"
+export const INNER_EXTENSION_URL = "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt"
+
 type RequestAndResponse = {
   event: EnrichPrescriptionsEvent
   expectedResponse: APIGatewayProxyResult
@@ -56,11 +62,13 @@ const TRACE_IDS: TraceIDs = {
 function eventAndResponse(
   requestBundle: Bundle,
   responseBundle: Bundle,
-  statusUpdates?: StatusUpdates
+  statusUpdates?: StatusUpdates,
+  statusUpdateRequest?: StatusUpdateRequest
 ): RequestAndResponse {
   const requestAndResponse: RequestAndResponse = {
     event: {
       fhir: requestBundle,
+      statusUpdateData: {schemaVersion: 1, prescriptions: []},
       traceIDs: TRACE_IDS
     },
     expectedResponse: {
@@ -71,6 +79,9 @@ function eventAndResponse(
   }
   if (statusUpdates) {
     requestAndResponse.event.StatusUpdates = {Payload: statusUpdates}
+  }
+  if (statusUpdateRequest) {
+    requestAndResponse.event.statusUpdateData = statusUpdateRequest
   }
   return requestAndResponse
 }
@@ -92,6 +103,24 @@ export function unsuccessfulEventAndResponse(): RequestAndResponse {
 
 export function noUpdateDataEventAndResponse(): RequestAndResponse {
   return eventAndResponse(simpleRequestBundle(), simpleRequestBundle())
+}
+
+export function getStatusUpdatesFailedEventAndResponse(): RequestAndResponse {
+  const requestBundle = simpleRequestBundle()
+
+  const responseBundle = simpleResponseBundle()
+  const collectionBundle = responseBundle.entry![0].resource as Bundle
+  const medicationRequest = collectionBundle.entry![0].resource as MedicationRequest
+  medicationRequest.extension![0].extension![0].valueCoding!.code = TEMPORARILY_UNAVAILABLE_STATUS
+
+  const statusUpdatesPayload = simpleStatusUpdatesPayload()
+  statusUpdatesPayload.isSuccess = false
+
+  const statusUpdateData = {
+    schemaVersion: 1,
+    prescriptions: [{odsCode: "FLM49", prescriptionID: "727066-A83008-2EFE36"}]
+  }
+  return eventAndResponse(requestBundle, responseBundle, statusUpdatesPayload, statusUpdateData)
 }
 
 export function defaultExtension(onboarded: boolean = true): Array<Extension> {
@@ -122,12 +151,12 @@ export function addExtensionToMedicationRequest(
 ) {
   medicationRequest.extension = [
     {
-      url: "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory",
+      url: OUTER_EXTENSION_URL,
       extension: [
         {
           url: "status",
           valueCoding: {
-            system: "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt",
+            system: INNER_EXTENSION_URL,
             code: status
           }
         },
@@ -148,4 +177,11 @@ export function simpleUpdateWithStatus(status: string): StatusUpdates {
   const update = simpleStatusUpdatesPayload()
   update.prescriptions[0].items[0].latestStatus = status
   return update
+}
+
+export function createStatusUpdateRequest(prescriptions: Array<Prescription>): StatusUpdateRequest {
+  return {
+    schemaVersion: 1,
+    prescriptions: prescriptions
+  }
 }

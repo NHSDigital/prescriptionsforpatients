@@ -2,7 +2,8 @@ import {
   Bundle,
   BundleEntry,
   FhirResource,
-  MedicationRequest
+  MedicationRequest,
+  Organization
 } from "fhir/r4"
 
 export type Entry = BundleEntry<FhirResource>
@@ -32,8 +33,23 @@ export function isolatePrescriptions(searchsetBundle: Bundle): Array<Bundle> {
 }
 
 export function isolateMedicationRequests(prescription: Bundle): Array<MedicationRequest> | undefined {
-  return prescription.entry?.filter(entry => entry?.resource?.resourceType === "MedicationRequest")
-    .map(entry => entry?.resource as MedicationRequest)
+  return prescription.entry
+    ?.filter((entry) => entry?.resource?.resourceType === "MedicationRequest")
+    .map((entry) => entry?.resource as MedicationRequest)
+}
+
+export function isolatePerformerReference(medicationRequests: Array<MedicationRequest>): string | undefined {
+  for (const medicationRequest of medicationRequests) {
+    const reference = medicationRequest.dispenseRequest?.performer?.reference
+    if (reference !== undefined) {
+      return reference
+    }
+  }
+}
+
+export function isolatePerformerOrganisation(reference: string, prescription: Bundle): Organization {
+  const filter = (entry: Entry) => entry.fullUrl! === reference
+  return filterAndTypeBundleEntries<Organization>(prescription, filter)[0]
 }
 
 function filterAndTypeBundleEntries<T>(bundle: Bundle, filter: (entry: Entry) => boolean): Array<T> {

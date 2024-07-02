@@ -9,6 +9,7 @@ import {
 import {
   SYSTEM_DATETIME,
   defaultExtension,
+  getStatusUpdatesFailedEventAndResponse,
   noUpdateDataEventAndResponse,
   richEventAndResponse,
   simpleEventAndResponse
@@ -53,6 +54,13 @@ describe("Unit tests for handler", function () {
 
   it("when no status update data (call to GetStatusUpdates toggled-off), no updates are applied", async () => {
     const {event, expectedResponse} = noUpdateDataEventAndResponse()
+    const actualResponse = await lambdaHandler(event)
+
+    expect(actualResponse).toEqual(expectedResponse)
+  })
+
+  it("when status update is unsuccessful (call to GetStatusUpdates fails), temporary updates are applied", async () => {
+    const {event, expectedResponse} = getStatusUpdatesFailedEventAndResponse()
     const actualResponse = await lambdaHandler(event)
 
     expect(actualResponse).toEqual(expectedResponse)
