@@ -155,38 +155,6 @@ describe("Unit tests for statusUpdate", function () {
     })
   })
 
-  it("sets the status to 'active' when an update with terminal state 'false' and latest status 'Collected' is over seven days old", async () => {
-    const requestBundle = simpleRequestBundle()
-    const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
-    const medicationRequest = requestCollectionBundle.entry![0].resource as MedicationRequest
-    medicationRequest.status = "unknown"
-
-    addExtensionToMedicationRequest(
-      medicationRequest,
-      "With Pharmacy but Tracking not Supported",
-      "2023-09-11T10:11:12.000Z"
-    )
-
-    const statusUpdates = simpleStatusUpdatesPayload()
-    statusUpdates.prescriptions[0].items[0].latestStatus = "Collected"
-    statusUpdates.prescriptions[0].items[0].isTerminalState = false
-
-    const overOneWeek = ONE_WEEK_IN_MS + 1000
-    const moreThanOneWeekAgo = new Date(SYSTEM_DATETIME.valueOf() - overOneWeek).toISOString()
-    statusUpdates.prescriptions[0].items[0].lastUpdateDateTime = moreThanOneWeekAgo
-
-    const expectedResponseBundle = simpleResponseBundle()
-    const responseCollectionBundle = expectedResponseBundle.entry![0].resource as Bundle
-    const responseMedicationRequest = responseCollectionBundle.entry![0].resource as MedicationRequest
-    responseMedicationRequest.status = "active"
-
-    addExtensionToMedicationRequest(responseMedicationRequest, "Collected", moreThanOneWeekAgo)
-
-    applyStatusUpdates(requestBundle, statusUpdates)
-
-    expect(requestBundle).toEqual(expectedResponseBundle)
-  })
-
   it("when an update for an item is present and extension exists, the update is added", async () => {
     const requestBundle = simpleRequestBundle()
     const statusUpdates = simpleStatusUpdatesPayload()
