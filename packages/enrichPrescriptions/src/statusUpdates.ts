@@ -40,8 +40,7 @@ function defaultUpdate(onboarded: boolean = true): UpdateItem {
 }
 
 function determineStatus(updateItem: UpdateItem): MedicationRequestStatus {
-  const isTerminalState =
-    updateItem.isTerminalState.toLowerCase() === "true" || updateItem.isTerminalState.toLowerCase() === "completed"
+  const isTerminalState = updateItem.isTerminalState.toLowerCase() === "true"
   if (!isTerminalState) {
     return "active"
   }
