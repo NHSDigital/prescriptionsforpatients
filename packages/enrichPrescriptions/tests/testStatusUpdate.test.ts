@@ -116,36 +116,43 @@ describe("Unit tests for statusUpdate", function () {
     expect(requestBundle).toEqual(expected)
   })
 
-  it("sets the status to 'completed' when an update with terminal state 'true' and latest status 'Collected' is over seven days old", async () => {
-    const requestBundle = simpleRequestBundle()
-    const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
-    const medicationRequest = requestCollectionBundle.entry![0].resource as MedicationRequest
-    medicationRequest.status = "unknown"
+  const testCasesStatus = [
+    {isTerminalState: "true", expectedStatus: "completed" as const},
+    {isTerminalState: "false", expectedStatus: "active" as const}
+  ]
 
-    addExtensionToMedicationRequest(
-      medicationRequest,
-      "With Pharmacy but Tracking not Supported",
-      "2023-09-11T10:11:12.000Z"
-    )
+  testCasesStatus.forEach(({isTerminalState, expectedStatus}) => {
+    it(`sets the status to '${expectedStatus}' when an update with terminal state '${isTerminalState}' and latest status 'Collected' is over seven days old`, async () => {
+      const requestBundle = simpleRequestBundle()
+      const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
+      const medicationRequest = requestCollectionBundle.entry![0].resource as MedicationRequest
+      medicationRequest.status = "unknown"
 
-    const statusUpdates = simpleStatusUpdatesPayload()
-    statusUpdates.prescriptions[0].items[0].latestStatus = "Collected"
-    statusUpdates.prescriptions[0].items[0].isTerminalState = "true"
+      addExtensionToMedicationRequest(
+        medicationRequest,
+        "With Pharmacy but Tracking not Supported",
+        "2023-09-11T10:11:12.000Z"
+      )
 
-    const overOneWeek = ONE_WEEK_IN_MS + 1000
-    const moreThanOneWeekAgo = new Date(SYSTEM_DATETIME.valueOf() - overOneWeek).toISOString()
-    statusUpdates.prescriptions[0].items[0].lastUpdateDateTime = moreThanOneWeekAgo
+      const statusUpdates = simpleStatusUpdatesPayload()
+      statusUpdates.prescriptions[0].items[0].latestStatus = "Collected"
+      statusUpdates.prescriptions[0].items[0].isTerminalState = isTerminalState
 
-    const expectedResponseBundle = simpleResponseBundle()
-    const responseCollectionBundle = expectedResponseBundle.entry![0].resource as Bundle
-    const responseMedicationRequest = responseCollectionBundle.entry![0].resource as MedicationRequest
-    responseMedicationRequest.status = "completed"
+      const overOneWeek = ONE_WEEK_IN_MS + 1000
+      const moreThanOneWeekAgo = new Date(SYSTEM_DATETIME.valueOf() - overOneWeek).toISOString()
+      statusUpdates.prescriptions[0].items[0].lastUpdateDateTime = moreThanOneWeekAgo
 
-    addExtensionToMedicationRequest(responseMedicationRequest, "Collected", moreThanOneWeekAgo)
+      const expectedResponseBundle = simpleResponseBundle()
+      const responseCollectionBundle = expectedResponseBundle.entry![0].resource as Bundle
+      const responseMedicationRequest = responseCollectionBundle.entry![0].resource as MedicationRequest
+      responseMedicationRequest.status = expectedStatus
 
-    applyStatusUpdates(requestBundle, statusUpdates)
+      addExtensionToMedicationRequest(responseMedicationRequest, "Collected", moreThanOneWeekAgo)
 
-    expect(requestBundle).toEqual(expectedResponseBundle)
+      applyStatusUpdates(requestBundle, statusUpdates)
+
+      expect(requestBundle).toEqual(expectedResponseBundle)
+    })
   })
 
   it("sets the status to 'active' when an update with terminal state 'false' and latest status 'Collected' is over seven days old", async () => {
