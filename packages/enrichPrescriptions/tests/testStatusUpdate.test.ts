@@ -78,7 +78,7 @@ describe("Unit tests for statusUpdate", function () {
   it("when an update has a terminal state flag set to true, but is less than seven days old, the status is set as 'active'", async () => {
     const requestBundle = simpleRequestBundle()
     const statusUpdates = simpleStatusUpdatesPayload()
-    statusUpdates.prescriptions[0].items[0].isTerminalState = "true"
+    statusUpdates.prescriptions[0].items[0].isTerminalState = true
 
     const underOneWeek = ONE_WEEK_IN_MS - 1000
     const lessThanOneWeekAgo = new Date(SYSTEM_DATETIME.valueOf() - underOneWeek).toISOString()
@@ -98,7 +98,7 @@ describe("Unit tests for statusUpdate", function () {
   it("when an update has a terminal state flag set to true, and is over seven days old, the status is set as 'complete'", async () => {
     const requestBundle = simpleRequestBundle()
     const statusUpdates = simpleStatusUpdatesPayload()
-    statusUpdates.prescriptions[0].items[0].isTerminalState = "true"
+    statusUpdates.prescriptions[0].items[0].isTerminalState = true
 
     const overOneWeek = ONE_WEEK_IN_MS + 1000
     const moreThanOneWeekAgo = new Date(SYSTEM_DATETIME.valueOf() - overOneWeek).toISOString()
@@ -117,8 +117,8 @@ describe("Unit tests for statusUpdate", function () {
   })
 
   const testCasesStatus = [
-    {isTerminalState: "true", expectedStatus: "completed" as const},
-    {isTerminalState: "false", expectedStatus: "active" as const}
+    {isTerminalState: true, expectedStatus: "completed" as const},
+    {isTerminalState: false, expectedStatus: "active" as const}
   ]
 
   testCasesStatus.forEach(({isTerminalState, expectedStatus}) => {
@@ -169,7 +169,7 @@ describe("Unit tests for statusUpdate", function () {
 
     const statusUpdates = simpleStatusUpdatesPayload()
     statusUpdates.prescriptions[0].items[0].latestStatus = "Collected"
-    statusUpdates.prescriptions[0].items[0].isTerminalState = "false"
+    statusUpdates.prescriptions[0].items[0].isTerminalState = false
 
     const overOneWeek = ONE_WEEK_IN_MS + 1000
     const moreThanOneWeekAgo = new Date(SYSTEM_DATETIME.valueOf() - overOneWeek).toISOString()
