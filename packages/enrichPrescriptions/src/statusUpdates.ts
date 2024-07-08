@@ -21,7 +21,7 @@ export const CANCELLED_STATUS = "Prescriber Cancelled"
 type MedicationRequestStatus = "completed" | "active"
 
 type UpdateItem = {
-  isTerminalState: string
+  isTerminalState: boolean
   itemId?: string
   lastUpdateDateTime: string
   latestStatus: string
@@ -51,15 +51,14 @@ export type StatusUpdateRequest = {
 
 function defaultUpdate(onboarded: boolean = true): UpdateItem {
   return {
-    isTerminalState: "false",
+    isTerminalState: false,
     latestStatus: onboarded ? DEFAULT_EXTENSION_STATUS : NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS,
     lastUpdateDateTime: moment().utc().toISOString()
   }
 }
 
 function determineStatus(updateItem: UpdateItem): MedicationRequestStatus {
-  const isTerminalState = updateItem.isTerminalState.toLowerCase() === "true"
-  if (!isTerminalState) {
+  if (!updateItem.isTerminalState === true) {
     return "active"
   }
 
@@ -164,7 +163,7 @@ export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: Statu
           // Prescription has been in "With Pharmacy but Tracking not Supported" status for less than an hour,
           // set status as Prescriber Approved
           const update: UpdateItem = {
-            isTerminalState: "false",
+            isTerminalState: false,
             lastUpdateDateTime: moment().utc().toISOString(),
             latestStatus: APPROVED_STATUS
           }
@@ -235,7 +234,7 @@ function getStatus(statusExtension: Extension): string | undefined {
 
 export function applyTemporaryStatusUpdates(searchsetBundle: Bundle, statusUpdateRequest: StatusUpdateRequest) {
   const update: UpdateItem = {
-    isTerminalState: "false",
+    isTerminalState: false,
     lastUpdateDateTime: moment().utc().toISOString(),
     latestStatus: TEMPORARILY_UNAVAILABLE_STATUS
   }
