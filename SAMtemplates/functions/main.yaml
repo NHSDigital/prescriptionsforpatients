@@ -115,6 +115,7 @@ Resources:
       Environment:
         Variables:
           LOG_LEVEL: !Ref LogLevel
+          GET_STATUS_UPDATES: !Ref ToggleGetStatusUpdates
     Metadata:
       BuildMethod: esbuild
       BuildProperties:

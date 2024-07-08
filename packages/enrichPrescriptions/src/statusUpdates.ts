@@ -18,6 +18,8 @@ export const TEMPORARILY_UNAVAILABLE_STATUS = "Tracking Temporarily Unavailable"
 export const APPROVED_STATUS = "Prescriber Approved"
 export const CANCELLED_STATUS = "Prescriber Cancelled"
 
+export const expectStatusUpdates = () => process.env.GET_STATUS_UPDATES === "true"
+
 type MedicationRequestStatus = "completed" | "active"
 
 type UpdateItem = {
@@ -230,6 +232,21 @@ function getStatus(statusExtension: Extension): string | undefined {
     .filter((coding) => coding?.system === VALUE_CODING_SYSTEM)
     .map((coding) => coding?.code)
     .pop()
+}
+
+export enum UpdatesScenario {
+  Present,
+  ExpectedButAbsent,
+  NotExpected
+}
+
+export function getUpdatesScenario(statusUpdates: StatusUpdates | undefined): UpdatesScenario {
+  if (expectStatusUpdates() && statusUpdates) {
+    return statusUpdates.isSuccess ? UpdatesScenario.Present : UpdatesScenario.ExpectedButAbsent
+  } else if (expectStatusUpdates() && !statusUpdates) {
+    return UpdatesScenario.ExpectedButAbsent
+  }
+  return UpdatesScenario.NotExpected
 }
 
 export function applyTemporaryStatusUpdates(searchsetBundle: Bundle, statusUpdateRequest: StatusUpdateRequest) {

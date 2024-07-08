@@ -70,7 +70,8 @@
           "ErrorEquals": [
             "States.ALL"
           ],
-          "Next": "Catch All Error"
+          "Next": "Enrich Prescriptions",
+          "ResultPath": "$.error"
         }
       ]
     },

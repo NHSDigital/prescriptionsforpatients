@@ -7,8 +7,10 @@ import {Bundle} from "fhir/r4"
 import {
   StatusUpdateRequest,
   StatusUpdates,
+  UpdatesScenario,
   applyStatusUpdates,
-  applyTemporaryStatusUpdates
+  applyTemporaryStatusUpdates,
+  getUpdatesScenario
 } from "./statusUpdates"
 import {TraceIDs, lambdaResponse} from "./responses"
 
@@ -34,16 +36,23 @@ export async function lambdaHandler(event: EnrichPrescriptionsEvent) {
 
   const searchsetBundle = event.fhir
   const statusUpdates = event.StatusUpdates?.Payload
+  const updatesScenario = getUpdatesScenario(statusUpdates)
 
-  if (statusUpdates && statusUpdates.isSuccess) {
-    logger.info("Applying status updates.")
-    applyStatusUpdates(searchsetBundle, statusUpdates)
-  } else if (statusUpdates && !statusUpdates.isSuccess) {
-    logger.info("Call to get status updates was unsuccessful. Applying temporary status updates.")
-    const statusUpdateRequest = event.statusUpdateData!
-    applyTemporaryStatusUpdates(searchsetBundle, statusUpdateRequest)
-  } else {
-    logger.info("No status updates to apply.")
+  switch (updatesScenario) {
+    case UpdatesScenario.Present: {
+      logger.info("Applying status updates.")
+      applyStatusUpdates(searchsetBundle, statusUpdates!)
+      break
+    }
+    case UpdatesScenario.ExpectedButAbsent: {
+      logger.info("Call to get status updates was unsuccessful. Applying temporary status updates.")
+      const statusUpdateRequest = event.statusUpdateData!
+      applyTemporaryStatusUpdates(searchsetBundle, statusUpdateRequest)
+      break
+    }
+    default: {
+      logger.info("Get Status Updates is toggled-off. No status updates to apply.")
+    }
   }
 
   return lambdaResponse(200, searchsetBundle, event.traceIDs)

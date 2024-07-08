@@ -20,6 +20,7 @@ import {lambdaHandler} from "../src/enrichPrescriptions"
 describe("Unit tests for handler", function () {
   beforeEach(() => {
     jest.useFakeTimers().setSystemTime(SYSTEM_DATETIME)
+    process.env.GET_STATUS_UPDATES = "true"
   })
 
   it("when event contains a bundle with one prescription, one MedicationRequest and status updates, updates are applied", async () => {
