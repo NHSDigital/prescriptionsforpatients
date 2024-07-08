@@ -41,10 +41,7 @@ Resources:
       DefinitionUri: GetMyPrescriptionsStateMachine.asl.json
       DefinitionSubstitutions:
         GetMyPrescriptionsFunctionArn: !Sub ${GetMyPrescriptionsFunctionArn}:$LATEST
-        GetStatusUpdatesFunctionArn: !Join
-          - ":"
-          - - !ImportValue psu:functions:GetStatusUpdates:FunctionArn
-            - $LATEST
+        GetStatusUpdatesFunctionArn: arn:aws:lambda:eu-west-2:591291862413:function:psu-pr-438-GetStatusUpdates:$LATEST
         EnrichPrescriptionsFunctionArn: !Sub ${EnrichPrescriptionsFunctionArn}:$LATEST
       Logging:
         Destinations:
@@ -67,7 +64,7 @@ Resources:
           - ","
           - - Fn::ImportValue: !Sub ${StackName}:functions:${GetMyPrescriptionsFunctionName}:ExecuteLambdaPolicyArn
             - Fn::ImportValue: !Sub ${StackName}:functions:${EnrichPrescriptionsFunctionName}:ExecuteLambdaPolicyArn
-            - Fn::ImportValue: psu:functions:psu-GetStatusUpdates:ExecuteLambdaPolicyArn
+            - arn:aws:iam::591291862413:policy/psu-pr-438-Functions-19V2U9I1A315F-GetStatusUpdatesResources-P1QBAW6HJV9B-ExecuteLambdaManagedPolicy-CEg2xREsCgwF
         LogRetentionInDays: !Ref LogRetentionInDays
         CloudWatchKMSKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
         EnableSplunk: !Ref EnableSplunk
