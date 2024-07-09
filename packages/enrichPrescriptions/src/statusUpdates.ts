@@ -18,7 +18,7 @@ export const TEMPORARILY_UNAVAILABLE_STATUS = "Tracking Temporarily Unavailable"
 export const APPROVED_STATUS = "Prescriber Approved"
 export const CANCELLED_STATUS = "Prescriber Cancelled"
 
-export const expectStatusUpdates = () => process.env.GET_STATUS_UPDATES === "true"
+export const expectStatusUpdates = () => process.env.EXPECT_STATUS_UPDATES === "true"
 
 type MedicationRequestStatus = "completed" | "active"
 

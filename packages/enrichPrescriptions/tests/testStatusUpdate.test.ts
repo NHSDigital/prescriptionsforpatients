@@ -28,10 +28,12 @@ import {
   ONE_WEEK_IN_MS,
   StatusUpdates,
   TEMPORARILY_UNAVAILABLE_STATUS,
+  UpdatesScenario,
   applyStatusUpdates,
   applyTemporaryStatusUpdates,
   delayWithPharmacyStatus,
-  getStatusDate
+  getStatusDate,
+  getUpdatesScenario
 } from "../src/statusUpdates"
 import {Bundle, MedicationRequest} from "fhir/r4"
 import {Logger} from "@aws-lambda-powertools/logger"
@@ -481,5 +483,18 @@ describe("Unit tests for statusUpdate", function () {
 
     expect(allMedicationRequests.length).toEqual(6)
     expect(allMedicationRequestsWithTemporaryUpdates.length).toEqual(3)
+  })
+
+  it.each([
+    {expectUpdates: true, updatesPresent: true, expected: UpdatesScenario.Present},
+    {expectUpdates: true, updatesPresent: false, expected: UpdatesScenario.ExpectedButAbsent},
+    {expectUpdates: false, updatesPresent: false, expected: UpdatesScenario.NotExpected}
+  ])("getUpdatesScenario returns as expected", async ({expectUpdates, updatesPresent, expected}) => {
+    process.env.EXPECT_STATUS_UPDATES = expectUpdates ? "true" : "false"
+    const statusUpdates = updatesPresent ? {isSuccess: true, prescriptions: [], schemaVersion: 1} : undefined
+
+    const scenario = getUpdatesScenario(statusUpdates)
+
+    expect(scenario).toEqual(expected)
   })
 })

@@ -20,7 +20,7 @@ import {lambdaHandler} from "../src/enrichPrescriptions"
 describe("Unit tests for handler", function () {
   beforeEach(() => {
     jest.useFakeTimers().setSystemTime(SYSTEM_DATETIME)
-    process.env.GET_STATUS_UPDATES = "true"
+    process.env.EXPECT_STATUS_UPDATES = "true"
   })
 
   it("when event contains a bundle with one prescription, one MedicationRequest and status updates, updates are applied", async () => {
@@ -53,15 +53,24 @@ describe("Unit tests for handler", function () {
     expect(actualResponse).toEqual(expectedResponse)
   })
 
-  it("when no status update data (call to GetStatusUpdates toggled-off), no updates are applied", async () => {
+  it("when no status update data (GetStatusUpdates toggled-off), no updates are applied", async () => {
+    process.env.EXPECT_STATUS_UPDATES = "false"
     const {event, expectedResponse} = noUpdateDataEventAndResponse()
     const actualResponse = await lambdaHandler(event)
 
     expect(actualResponse).toEqual(expectedResponse)
   })
 
-  it("when status update is unsuccessful (call to GetStatusUpdates fails), temporary updates are applied", async () => {
+  it("when status updates are expected but unsuccessful (GetStatusUpdates fails at code level), temporary updates are applied", async () => {
     const {event, expectedResponse} = getStatusUpdatesFailedEventAndResponse()
+    const actualResponse = await lambdaHandler(event)
+
+    expect(actualResponse).toEqual(expectedResponse)
+  })
+
+  it("when status updates are expected but not present (GetStatusUpdates fails at state machine level), temporary updates are applied", async () => {
+    const {event, expectedResponse} = getStatusUpdatesFailedEventAndResponse()
+    delete event.StatusUpdates
     const actualResponse = await lambdaHandler(event)
 
     expect(actualResponse).toEqual(expectedResponse)
