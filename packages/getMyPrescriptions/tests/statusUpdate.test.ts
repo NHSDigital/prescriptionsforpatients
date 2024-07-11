@@ -66,32 +66,38 @@ describe("Unit tests for statusUpdate", () => {
     expect(result).toEqual([])
   })
 
-  test("excludes prescriptions where all items have a status of either 'Prescriber Approved' or 'Cancelled'", async () => {
-    const bundle = mockInteractionResponseBody as Bundle
+  test.each([
+    {status: "Prescriber Cancelled", expectedLength: 1},
+    {status: "Prescriber Approved", expectedLength: 1},
+    {status: "Other", expectedLength: 2}
+  ])(
+    "excludes prescriptions where all items have a status of either 'Prescriber Approved' or 'Prescriber Cancelled'",
+    async ({status, expectedLength}) => {
+      const bundle = mockInteractionResponseBody as Bundle
 
-    const collectionBundle = bundle.entry![2].resource as Bundle
-    const medicationRequest = collectionBundle.entry![0].resource as MedicationRequest
-    medicationRequest.extension = [
-      {
-        url: "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory",
-        extension: [
-          {
-            url: "status",
-            valueCoding: {code: "Prescriber Approved"}
-          },
-          {
-            url: "statusDate",
-            valueDateTime: new Date().toISOString()
-          }
-        ]
-      }
-    ]
+      const collectionBundle = bundle.entry![2].resource as Bundle
+      const medicationRequest = collectionBundle.entry![0].resource as MedicationRequest
+      medicationRequest.extension = [
+        {
+          url: "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory",
+          extension: [
+            {
+              url: "status",
+              valueCoding: {code: status}
+            },
+            {
+              url: "statusDate",
+              valueDateTime: new Date().toISOString()
+            }
+          ]
+        }
+      ]
 
-    const result = buildStatusUpdateData(bundle)
+      const result = buildStatusUpdateData(bundle)
 
-    // Expect result length to be 1, since only one prescription should be processed for status updates
-    expect(result.length).toBe(1)
-  })
+      expect(result.length).toBe(expectedLength)
+    }
+  )
 })
 
 describe("Unit tests for statusUpdate, via handler", function () {
@@ -119,8 +125,12 @@ describe("Unit tests for statusUpdate, via handler", function () {
   it("when event is processed, statusUpdateData is included in the response", async () => {
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleEvent)
 
-    mock.onGet("https://service-search/service-search", {params: {...SERVICE_SEARCH_PARAMS, search: "flm49"}}).reply(200, JSON.parse(pharmacy2uResponse))
-    mock.onGet("https://service-search/service-search", {params: {...SERVICE_SEARCH_PARAMS, search: "few08"}}).reply(200, JSON.parse(pharmicaResponse))
+    mock
+      .onGet("https://service-search/service-search", {params: {...SERVICE_SEARCH_PARAMS, search: "flm49"}})
+      .reply(200, JSON.parse(pharmacy2uResponse))
+    mock
+      .onGet("https://service-search/service-search", {params: {...SERVICE_SEARCH_PARAMS, search: "few08"}})
+      .reply(200, JSON.parse(pharmicaResponse))
 
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, JSON.parse(exampleInteractionResponse))
 
