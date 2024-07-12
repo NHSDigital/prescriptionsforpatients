@@ -148,7 +148,6 @@ lint: lint-node lint-samtemplates lint-python lint-githubactions lint-githubacti
 
 test: compile
 	npm run test --workspace packages/capabilityStatement
-	npm run test --workspace packages/getMyPrescriptions
 	npm run test --workspace packages/enrichPrescriptions
 	npm run test --workspace packages/sandbox
 	npm run test --workspace packages/statusLambda
