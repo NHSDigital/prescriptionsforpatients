@@ -67,7 +67,7 @@ Resources:
           - ","
           - - Fn::ImportValue: !Sub ${StackName}:functions:${GetMyPrescriptionsFunctionName}:ExecuteLambdaPolicyArn
             - Fn::ImportValue: !Sub ${StackName}:functions:${EnrichPrescriptionsFunctionName}:ExecuteLambdaPolicyArn
-            - Fn::ImportValue: arn:aws:iam::591291862413:policy/psu-pr-495-Functions-1DW5292L2CCNR-GetStatusUpdatesResources-ZW6RF6G8WX8U-ExecuteLambdaManagedPolicy-lpHNYA6pCY2d
+            - arn:aws:iam::591291862413:policy/psu-pr-495-Functions-1DW5292L2CCNR-GetStatusUpdatesResources-ZW6RF6G8WX8U-ExecuteLambdaManagedPolicy-lpHNYA6pCY2d
         LogRetentionInDays: !Ref LogRetentionInDays
         CloudWatchKMSKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
         EnableSplunk: !Ref EnableSplunk
