@@ -41,10 +41,8 @@ Resources:
       DefinitionUri: GetMyPrescriptionsStateMachine.asl.json
       DefinitionSubstitutions:
         GetMyPrescriptionsFunctionArn: !Sub ${GetMyPrescriptionsFunctionArn}:$LATEST
-        GetStatusUpdatesFunctionArn: !Join
-          - ":"
-          - arn:aws:lambda:eu-west-2:591291862413:function:psu-pr-495-GetStatusUpdates
-            - $LATEST
+        GetStatusUpdatesFunctionArn: arn:aws:lambda:eu-west-2:591291862413:function:psu-pr-495-GetStatusUpdates
+          - $LATEST
         EnrichPrescriptionsFunctionArn: !Sub ${EnrichPrescriptionsFunctionArn}:$LATEST
       Logging:
         Destinations:
