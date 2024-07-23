@@ -66,7 +66,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       "$top": 1
     }
   }
-
+  // Logs for Service Search timeouts are not shown in Splunk
   async searchService(odsCode: string): Promise<URL | undefined> {
     try {
       const address = this.getServiceSearchEndpoint()
