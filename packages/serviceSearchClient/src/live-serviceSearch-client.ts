@@ -41,18 +41,27 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       config.headers["request-startTime"] = new Date().getTime()
       return config
     })
+
     this.axiosInstance.interceptors.response.use(
       (response) => {
         const currentTime = new Date().getTime()
         const startTime = response.config.headers["request-startTime"]
         this.logger.info("serviceSearch request duration", {serviceSearch_duration: currentTime - startTime})
-
         return response
       },
       (error) => {
         const currentTime = new Date().getTime()
         const startTime = error.config?.headers["request-startTime"]
         this.logger.info("serviceSearch request duration", {serviceSearch_duration: currentTime - startTime})
+
+        if (axios.isAxiosError(error)) {
+          if (error.code === "ECONNABORTED") {
+            this.logger.error("serviceSearch request timed out", {
+              odsCode: error.config?.params?.search,
+              timeout: SERVICE_SEARCH_TIMEOUT
+            })
+          }
+        }
 
         return Promise.reject(error)
       }
@@ -101,21 +110,12 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         this.stripApiKeyFromHeaders(error)
-
-        this.logger.error("axios error details", {
-          code: error.code,
-          message: error.message,
-          stack: error.stack
-        })
-
-        if (error.code === "ECONNABORTED") {
-          this.logger.error("serviceSearch request timed out", {odsCode, timeout: SERVICE_SEARCH_TIMEOUT})
-        } else if (error.response) {
+        if (error.response) {
           this.logger.error("error in response from serviceSearch", {
             response: {
               data: error.response.data,
               status: error.response.status,
-              Headers: error.response.headers
+              headers: error.response.headers
             },
             request: {
               method: error.request?.path,
