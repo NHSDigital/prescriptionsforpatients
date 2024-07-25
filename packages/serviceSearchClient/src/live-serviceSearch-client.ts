@@ -108,30 +108,45 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       const serviceUrl = handleUrl(urlString, odsCode, this.logger)
       return serviceUrl
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        this.stripApiKeyFromHeaders(error)
-        if (error.response) {
-          this.logger.error("error in response from serviceSearch", {
-            response: {
-              data: error.response.data,
-              status: error.response.status,
-              headers: error.response.headers
-            },
-            request: {
-              method: error.request?.path,
-              params: error.request?.params,
-              headers: error.request?.headers,
-              host: error.request?.host
-            }
+      const isAxiosError = axios.isAxiosError(error)
+
+      if (isAxiosError) {
+        if (error.code === "ECONNABORTED") {
+          this.logger.error("serviceSearch request timed out", {
+            odsCode: odsCode,
+            timeout: SERVICE_SEARCH_TIMEOUT,
+            message: error.message,
+            stack: error.stack
           })
-        } else if (error.request) {
-          this.logger.error("error in request to serviceSearch", {error})
         } else {
-          this.logger.error("general error calling serviceSearch", {error})
+          this.logger.error("error in request to serviceSearch", {
+            odsCode: odsCode,
+            message: error.message,
+            code: error.code,
+            stack: error.stack,
+            response: error.response
+              ? {
+                data: error.response.data,
+                status: error.response.status,
+                headers: error.response.headers
+              }
+              : undefined,
+            request: error.request
+              ? {
+                method: error.request.method,
+                url: error.request.url,
+                headers: error.request.headers
+              }
+              : undefined
+          })
         }
       } else {
-        this.logger.error("general error", {error})
+        this.logger.error("general error", {
+          message: (error as Error).message,
+          stack: (error as Error).stack
+        })
       }
+
       throw error
     }
   }
