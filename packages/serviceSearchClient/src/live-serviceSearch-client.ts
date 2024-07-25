@@ -9,12 +9,12 @@ const SERVICE_SEARCH_TIMEOUT = 45000
 const DISTANCE_SELLING = "DistanceSelling"
 
 type Service = {
-  "URL": string
-  "OrganisationSubType": string
+  URL: string
+  OrganisationSubType: string
 }
 
 export type ServiceSearchData = {
-  "value": Array<Service>
+  value: Array<Service>
 }
 
 export class LiveServiceSearchClient implements ServiceSearchClient {
@@ -24,11 +24,11 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
   private readonly logger: Logger
   private readonly outboundHeaders: {"Subscription-Key": string | undefined}
   private readonly baseQueryParams: {
-    "api-version": number,
-    "searchFields": string,
-    "$filter": string,
-    "$select": string,
-    "$top": number
+    "api-version": number
+    searchFields: string
+    $filter: string
+    $select: string
+    $top: number
   }
 
   constructor(logger: Logger) {
@@ -41,32 +41,35 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       config.headers["request-startTime"] = new Date().getTime()
       return config
     })
-    this.axiosInstance.interceptors.response.use((response) => {
-      const currentTime = new Date().getTime()
-      const startTime = response.config.headers["request-startTime"]
-      this.logger.info("serviceSearch request duration", {serviceSearch_duration: currentTime - startTime})
+    this.axiosInstance.interceptors.response.use(
+      (response) => {
+        const currentTime = new Date().getTime()
+        const startTime = response.config.headers["request-startTime"]
+        this.logger.info("serviceSearch request duration", {serviceSearch_duration: currentTime - startTime})
 
-      return response
-    }, (error) => {
-      const currentTime = new Date().getTime()
-      const startTime = error.config?.headers["request-startTime"]
-      this.logger.info("serviceSearch request duration", {serviceSearch_duration: currentTime - startTime})
+        return response
+      },
+      (error) => {
+        const currentTime = new Date().getTime()
+        const startTime = error.config?.headers["request-startTime"]
+        this.logger.info("serviceSearch request duration", {serviceSearch_duration: currentTime - startTime})
 
-      return Promise.reject(error)
-    })
+        return Promise.reject(error)
+      }
+    )
 
     this.outboundHeaders = {
       "Subscription-Key": process.env.ServiceSearchApiKey
     }
     this.baseQueryParams = {
       "api-version": 2,
-      "searchFields": "ODSCode",
-      "$filter": "OrganisationTypeId eq 'PHA' and OrganisationSubType eq 'DistanceSelling'",
-      "$select": "URL,OrganisationSubType",
-      "$top": 1
+      searchFields: "ODSCode",
+      $filter: "OrganisationTypeId eq 'PHA' and OrganisationSubType eq 'DistanceSelling'",
+      $select: "URL,OrganisationSubType",
+      $top: 1
     }
   }
-  // Logs for Service Search timeouts are not shown in Splunk
+
   async searchService(odsCode: string): Promise<URL | undefined> {
     try {
       const address = this.getServiceSearchEndpoint()
@@ -98,7 +101,9 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         this.stripApiKeyFromHeaders(error)
-        if (error.response) {
+        if (error.code === "ECONNABORTED") {
+          this.logger.error("serviceSearch request timed out", {odsCode, timeout: SERVICE_SEARCH_TIMEOUT})
+        } else if (error.response) {
           this.logger.error("error in response from serviceSearch", {
             response: {
               data: error.response.data,
