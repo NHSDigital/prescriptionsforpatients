@@ -39,6 +39,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
 
     this.axiosInstance.interceptors.request.use((config) => {
       config.headers["request-startTime"] = new Date().getTime()
+      this.logger.info("serviceSearch request received", {config})
       return config
     })
 
@@ -80,22 +81,16 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
   }
 
   async searchService(odsCode: string): Promise<URL | undefined> {
+    const address = this.getServiceSearchEndpoint()
+    const queryParams = {...this.baseQueryParams, search: odsCode}
+
+    this.logger.info(`making request to ${address} with ods code ${odsCode}`, {odsCode: odsCode})
+
     try {
-      const address = this.getServiceSearchEndpoint()
-      const queryParams = {...this.baseQueryParams, search: odsCode}
-
-      this.logger.info(`making request to ${address} with ods code ${odsCode}`, {odsCode: odsCode})
-
       const response = await this.axiosInstance.get(address, {
         headers: this.outboundHeaders,
         params: queryParams,
         timeout: SERVICE_SEARCH_TIMEOUT
-      })
-
-      this.logger.info("serviceSearch request received", {
-        status: response.status,
-        statusText: response.statusText,
-        odsCode: odsCode
       })
 
       const serviceSearchResponse: ServiceSearchData = response.data
