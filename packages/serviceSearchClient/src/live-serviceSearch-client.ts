@@ -101,6 +101,13 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         this.stripApiKeyFromHeaders(error)
+
+        this.logger.error("axios error details", {
+          code: error.code,
+          message: error.message,
+          stack: error.stack
+        })
+
         if (error.code === "ECONNABORTED") {
           this.logger.error("serviceSearch request timed out", {odsCode, timeout: SERVICE_SEARCH_TIMEOUT})
         } else if (error.response) {
