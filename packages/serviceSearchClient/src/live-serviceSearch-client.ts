@@ -85,10 +85,17 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       const queryParams = {...this.baseQueryParams, search: odsCode}
 
       this.logger.info(`making request to ${address} with ods code ${odsCode}`, {odsCode: odsCode})
+
       const response = await this.axiosInstance.get(address, {
         headers: this.outboundHeaders,
         params: queryParams,
         timeout: SERVICE_SEARCH_TIMEOUT
+      })
+
+      this.logger.info("serviceSearch request received", {
+        status: response.status,
+        statusText: response.statusText,
+        odsCode: odsCode
       })
 
       const serviceSearchResponse: ServiceSearchData = response.data
@@ -108,9 +115,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       const serviceUrl = handleUrl(urlString, odsCode, this.logger)
       return serviceUrl
     } catch (error) {
-      const isAxiosError = axios.isAxiosError(error)
-
-      if (isAxiosError) {
+      if (axios.isAxiosError(error)) {
         if (error.code === "ECONNABORTED") {
           this.logger.error("serviceSearch request timed out", {
             odsCode: odsCode,
@@ -120,8 +125,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
           })
         } else {
           this.logger.error("error in request to serviceSearch", {
-            odsCode: odsCode,
-            message: error.message,
+            error: error.message,
             code: error.code,
             stack: error.stack,
             response: error.response
@@ -141,12 +145,8 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
           })
         }
       } else {
-        this.logger.error("general error", {
-          message: (error as Error).message,
-          stack: (error as Error).stack
-        })
+        this.logger.error("general error", {error: (error as Error).message, stack: (error as Error).stack})
       }
-
       throw error
     }
   }
