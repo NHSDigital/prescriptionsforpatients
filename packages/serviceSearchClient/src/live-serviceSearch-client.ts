@@ -5,7 +5,7 @@ import axiosRetry from "axios-retry"
 import {handleUrl} from "./handleUrl"
 
 // timeout in ms to wait for response from serviceSearch to avoid lambda timeout
-const SERVICE_SEARCH_TIMEOUT = 45000
+export const SERVICE_SEARCH_TIMEOUT = 45000
 const DISTANCE_SELLING = "DistanceSelling"
 
 type Service = {
