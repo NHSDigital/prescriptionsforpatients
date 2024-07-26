@@ -37,13 +37,16 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
     this.axiosInstance = axios.create()
     axiosRetry(this.axiosInstance, {retries: 3})
 
+    // Request Interceptor
     this.axiosInstance.interceptors.request.use((config) => {
       config.headers["request-startTime"] = new Date().getTime()
       return config
     })
 
+    // Response Interceptor
     this.axiosInstance.interceptors.response.use(
       (response: AxiosResponse) => {
+        this.logger.debug("response interceptor triggered", {response})
         const currentTime = new Date().getTime()
         const startTime = response.config.headers["request-startTime"]
         if (startTime) {
@@ -52,6 +55,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
         return response
       },
       (error: AxiosError) => {
+        this.logger.debug("error interceptor triggered", {error})
         const currentTime = new Date().getTime()
         const startTime = error.config?.headers["request-startTime"]
         if (startTime) {
@@ -88,6 +92,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
     this.outboundHeaders = {
       "Subscription-Key": process.env.ServiceSearchApiKey
     }
+
     this.baseQueryParams = {
       "api-version": 2,
       searchFields: "ODSCode",
@@ -112,6 +117,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       const serviceSearchResponse: ServiceSearchData = response.data
       const services = serviceSearchResponse.value
       if (services.length === 0) {
+        this.logger.info(`no services found for ods code ${odsCode}`, {odsCode})
         return undefined
       }
 
@@ -119,37 +125,39 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       const service = services[0]
       const urlString = service.URL
 
-      if (urlString === null) {
+      if (!urlString) {
         this.logger.warn(`ods code ${odsCode} has no URL but is of type ${DISTANCE_SELLING}`, {odsCode})
         return undefined
       }
 
       const serviceUrl = handleUrl(urlString, odsCode, this.logger)
-      if (serviceUrl === undefined) {
+      if (!serviceUrl) {
+        this.logger.warn(`handled url for ods code ${odsCode} is undefined`, {odsCode})
         return undefined
       }
+
       return new URL(serviceUrl) // Convert to URL object
     } catch (error) {
       if (axios.isAxiosError(error)) {
         this.stripApiKeyFromHeaders(error)
-        if (error.response) {
-          this.logger.error("error in response from serviceSearch", {
-            response: {
+        this.logger.error("axios error", {
+          message: error.message,
+          stack: error.stack,
+          response: error.response
+            ? {
               data: error.response.data,
               status: error.response.status,
               headers: error.response.headers
-            },
-            request: {
-              method: error.request?.method,
-              url: error.request?.url,
-              headers: error.request?.headers
             }
-          })
-        } else if (error.request) {
-          this.logger.error("error in request to serviceSearch", {error})
-        } else {
-          this.logger.error("general error calling serviceSearch", {error})
-        }
+            : undefined,
+          request: error.request
+            ? {
+              method: error.request.method,
+              url: error.request.url,
+              headers: error.request.headers
+            }
+            : undefined
+        })
       } else {
         this.logger.error("general error", {error})
       }
