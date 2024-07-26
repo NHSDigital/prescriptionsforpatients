@@ -1,6 +1,6 @@
 import {Logger} from "@aws-lambda-powertools/logger"
 import {ServiceSearchClient} from "./serviceSearch-client"
-import axios, {AxiosError, AxiosInstance} from "axios"
+import axios, {AxiosError, AxiosInstance, AxiosResponse} from "axios"
 import axiosRetry from "axios-retry"
 import {handleUrl} from "./handleUrl"
 
@@ -42,8 +42,8 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       return config
     })
 
-    this.axiosInstance.response.use(
-      (response) => {
+    this.axiosInstance.interceptors.response.use(
+      (response: AxiosResponse) => {
         const currentTime = new Date().getTime()
         const startTime = response.config.headers["request-startTime"]
         if (startTime) {
@@ -51,7 +51,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
         }
         return response
       },
-      (error) => {
+      (error: AxiosError) => {
         const currentTime = new Date().getTime()
         const startTime = error.config?.headers["request-startTime"]
         if (startTime) {
@@ -123,7 +123,11 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
         this.logger.warn(`ods code ${odsCode} has no URL but is of type ${DISTANCE_SELLING}`, {odsCode})
         return undefined
       }
+
       const serviceUrl = handleUrl(urlString, odsCode, this.logger)
+      if (serviceUrl === undefined) {
+        return undefined
+      }
       return new URL(serviceUrl) // Convert to URL object
     } catch (error) {
       if (axios.isAxiosError(error)) {
