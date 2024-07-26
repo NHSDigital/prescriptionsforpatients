@@ -72,31 +72,20 @@ describe("live serviceSearch client", () => {
   })
 
   test("should retry thrice when unsuccessful http requests", async () => {
-    mock
-      .onGet(serviceSearchUrl)
-      .replyOnce(500, {})
-      .onGet(serviceSearchUrl)
-      .replyOnce(500, {})
-      .onGet(serviceSearchUrl)
-      .replyOnce(500, {})
-      .onGet(serviceSearchUrl)
-      .reply(200, validUrl.serviceSearchData)
+    mock.onGet(serviceSearchUrl).replyOnce(500, {})
+      .onGet(serviceSearchUrl).replyOnce(500, {})
+      .onGet(serviceSearchUrl).replyOnce(500, {})
+      .onGet(serviceSearchUrl).reply(200, validUrl.serviceSearchData)
     const result = await serviceSearchClient.searchService("")
     expect(result).toEqual(validUrl.expected)
   })
 
   test("should throw when unsuccessful http requests exceeds configured retries", async () => {
-    mock
-      .onGet(serviceSearchUrl)
-      .replyOnce(500, {})
-      .onGet(serviceSearchUrl)
-      .replyOnce(500, {})
-      .onGet(serviceSearchUrl)
-      .replyOnce(500, {})
-      .onGet(serviceSearchUrl)
-      .replyOnce(500, {})
-      .onGet(serviceSearchUrl)
-      .reply(200, validUrl.serviceSearchData)
+    mock.onGet(serviceSearchUrl).replyOnce(500, {})
+      .onGet(serviceSearchUrl).replyOnce(500, {})
+      .onGet(serviceSearchUrl).replyOnce(500, {})
+      .onGet(serviceSearchUrl).replyOnce(500, {})
+      .onGet(serviceSearchUrl).reply(200, validUrl.serviceSearchData)
     await expect(serviceSearchClient.searchService("")).rejects.toThrow("Request failed with status code 500")
   })
 
@@ -106,9 +95,9 @@ describe("live serviceSearch client", () => {
 
     await serviceSearchClient.searchService("")
 
-    expect(mockLoggerInfo).toHaveBeenCalledWith("serviceSearch request duration", {
-      serviceSearch_duration: expect.any(Number)
-    })
+    expect(mockLoggerInfo).toHaveBeenCalledWith(
+      "serviceSearch request duration", {"serviceSearch_duration": expect.any(Number)}
+    )
   })
 
   test("log response time on unsuccessful call", async () => {
@@ -117,9 +106,9 @@ describe("live serviceSearch client", () => {
 
     await expect(serviceSearchClient.searchService("")).rejects.toThrow("Request failed with status code 401")
 
-    expect(mockLoggerInfo).toHaveBeenCalledWith("serviceSearch request duration", {
-      serviceSearch_duration: expect.any(Number)
-    })
+    expect(mockLoggerInfo).toHaveBeenCalledWith(
+      "serviceSearch request duration", {"serviceSearch_duration": expect.any(Number)}
+    )
   })
 
   test("log response time on network error call", async () => {
@@ -128,9 +117,9 @@ describe("live serviceSearch client", () => {
 
     await expect(serviceSearchClient.searchService("")).rejects.toThrow("Network Error")
 
-    expect(mockLoggerInfo).toHaveBeenCalledWith("serviceSearch request duration", {
-      serviceSearch_duration: expect.any(Number)
-    })
+    expect(mockLoggerInfo).toHaveBeenCalledWith(
+      "serviceSearch request duration", {"serviceSearch_duration": expect.any(Number)}
+    )
   })
 
   test("handle null url", async () => {
@@ -139,9 +128,10 @@ describe("live serviceSearch client", () => {
     const mockLoggerError = jest.spyOn(Logger.prototype, "error")
     const result = await serviceSearchClient.searchService("no_url")
     expect(result).toEqual(undefined)
-    expect(mockLoggerWarn).toHaveBeenCalledWith("ods code no_url has no URL but is of type DistanceSelling", {
-      odsCode: "no_url"
-    })
+    expect(mockLoggerWarn).toHaveBeenCalledWith(
+      "ods code no_url has no URL but is of type DistanceSelling", {"odsCode": "no_url"}
+    )
     expect(mockLoggerError).not.toHaveBeenCalled()
   })
+
 })

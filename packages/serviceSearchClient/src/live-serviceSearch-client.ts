@@ -1,20 +1,20 @@
 import {Logger} from "@aws-lambda-powertools/logger"
 import {ServiceSearchClient} from "./serviceSearch-client"
-import axios, {AxiosError, AxiosInstance, AxiosResponse} from "axios"
+import axios, {AxiosError, AxiosInstance} from "axios"
 import axiosRetry from "axios-retry"
 import {handleUrl} from "./handleUrl"
 
-// Timeout in ms to wait for response from serviceSearch to avoid lambda timeout
+// timeout in ms to wait for response from serviceSearch to avoid lambda timeout
 const SERVICE_SEARCH_TIMEOUT = 45000
 const DISTANCE_SELLING = "DistanceSelling"
 
 type Service = {
-  URL: string
-  OrganisationSubType: string
+  "URL": string
+  "OrganisationSubType": string
 }
 
 export type ServiceSearchData = {
-  value: Array<Service>
+  "value": Array<Service>
 }
 
 export class LiveServiceSearchClient implements ServiceSearchClient {
@@ -24,11 +24,11 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
   private readonly logger: Logger
   private readonly outboundHeaders: {"Subscription-Key": string | undefined}
   private readonly baseQueryParams: {
-    "api-version": number
-    searchFields: string
-    $filter: string
-    $select: string
-    $top: number
+    "api-version": number,
+    "searchFields": string,
+    "$filter": string,
+    "$select": string,
+    "$top": number
   }
 
   constructor(logger: Logger) {
@@ -37,68 +37,33 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
     this.axiosInstance = axios.create()
     axiosRetry(this.axiosInstance, {retries: 3})
 
-    // Request Interceptor
     this.axiosInstance.interceptors.request.use((config) => {
       config.headers["request-startTime"] = new Date().getTime()
       return config
     })
+    this.axiosInstance.interceptors.response.use((response) => {
+      const currentTime = new Date().getTime()
+      const startTime = response.config.headers["request-startTime"]
+      this.logger.info("serviceSearch request duration", {serviceSearch_duration: currentTime - startTime})
 
-    // Response Interceptor
-    this.axiosInstance.interceptors.response.use(
-      (response: AxiosResponse) => {
-        this.logger.debug("response interceptor triggered", {response})
-        const currentTime = new Date().getTime()
-        const startTime = response.config.headers["request-startTime"]
-        if (startTime) {
-          this.logger.info("serviceSearch request duration", {serviceSearch_duration: currentTime - startTime})
-        }
-        return response
-      },
-      (error: AxiosError) => {
-        this.logger.debug("error interceptor triggered", {error})
-        const currentTime = new Date().getTime()
-        const startTime = error.config?.headers["request-startTime"]
-        if (startTime) {
-          this.logger.info("serviceSearch request duration", {serviceSearch_duration: currentTime - startTime})
-        }
+      return response
+    }, (error) => {
+      const currentTime = new Date().getTime()
+      const startTime = error.config?.headers["request-startTime"]
+      this.logger.info("serviceSearch request duration", {serviceSearch_duration: currentTime - startTime})
 
-        if (axios.isAxiosError(error)) {
-          this.stripApiKeyFromHeaders(error)
-          if (error.response) {
-            this.logger.error("error in response from serviceSearch", {
-              response: {
-                data: error.response.data,
-                status: error.response.status,
-                headers: error.response.headers
-              },
-              request: {
-                method: error.request?.method,
-                url: error.request?.url,
-                headers: error.request?.headers
-              }
-            })
-          } else if (error.request) {
-            this.logger.error("error in request to serviceSearch", {error})
-          } else {
-            this.logger.error("general error calling serviceSearch", {error})
-          }
-        } else {
-          this.logger.error("general error", {error})
-        }
-        return Promise.reject(error)
-      }
-    )
+      return Promise.reject(error)
+    })
 
     this.outboundHeaders = {
       "Subscription-Key": process.env.ServiceSearchApiKey
     }
-
     this.baseQueryParams = {
       "api-version": 2,
-      searchFields: "ODSCode",
-      $filter: "OrganisationTypeId eq 'PHA' and OrganisationSubType eq 'DistanceSelling'",
-      $select: "URL,OrganisationSubType",
-      $top: 1
+      "searchFields": "ODSCode",
+      "$filter": "OrganisationTypeId eq 'PHA' and OrganisationSubType eq 'DistanceSelling'",
+      "$select": "URL,OrganisationSubType",
+      "$top": 1
     }
   }
 
@@ -107,7 +72,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       const address = this.getServiceSearchEndpoint()
       const queryParams = {...this.baseQueryParams, search: odsCode}
 
-      this.logger.info(`making request to ${address} with ods code ${odsCode}`, {odsCode})
+      this.logger.info(`making request to ${address} with ods code ${odsCode}`, {odsCode: odsCode})
       const response = await this.axiosInstance.get(address, {
         headers: this.outboundHeaders,
         params: queryParams,
@@ -117,47 +82,41 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       const serviceSearchResponse: ServiceSearchData = response.data
       const services = serviceSearchResponse.value
       if (services.length === 0) {
-        this.logger.info(`no services found for ods code ${odsCode}`, {odsCode})
         return undefined
       }
 
-      this.logger.info(`pharmacy with ods code ${odsCode} is of type ${DISTANCE_SELLING}`, {odsCode})
+      this.logger.info(`pharmacy with ods code ${odsCode} is of type ${DISTANCE_SELLING}`, {odsCode: odsCode})
       const service = services[0]
-      const urlString = service.URL
+      const urlString = service["URL"]
 
-      if (!urlString) {
-        this.logger.warn(`ods code ${odsCode} has no URL but is of type ${DISTANCE_SELLING}`, {odsCode})
+      if (urlString === null) {
+        this.logger.warn(`ods code ${odsCode} has no URL but is of type ${DISTANCE_SELLING}`, {odsCode: odsCode})
         return undefined
       }
-
       const serviceUrl = handleUrl(urlString, odsCode, this.logger)
-      if (!serviceUrl) {
-        this.logger.warn(`handled url for ods code ${odsCode} is undefined`, {odsCode})
-        return undefined
-      }
-
-      return new URL(serviceUrl) // Convert to URL object
+      return serviceUrl
     } catch (error) {
       if (axios.isAxiosError(error)) {
         this.stripApiKeyFromHeaders(error)
-        this.logger.error("axios error", {
-          message: error.message,
-          stack: error.stack,
-          response: error.response
-            ? {
+        if (error.response) {
+          this.logger.error("error in response from serviceSearch", {
+            response: {
               data: error.response.data,
               status: error.response.status,
-              headers: error.response.headers
+              Headers: error.response.headers
+            },
+            request: {
+              method: error.request?.path,
+              params: error.request?.params,
+              headers: error.request?.headers,
+              host: error.request?.host
             }
-            : undefined,
-          request: error.request
-            ? {
-              method: error.request.method,
-              url: error.request.url,
-              headers: error.request.headers
-            }
-            : undefined
-        })
+          })
+        } else if (error.request) {
+          this.logger.error("error in request to serviceSearch", {error})
+        } else {
+          this.logger.error("general error calling serviceSearch", {error})
+        }
       } else {
         this.logger.error("general error", {error})
       }
@@ -165,7 +124,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
     }
   }
 
-  private stripApiKeyFromHeaders(error: AxiosError) {
+  stripApiKeyFromHeaders(error: AxiosError) {
     const headerKey = "subscription-key"
     if (error.response?.headers) {
       delete error.response.headers[headerKey]
