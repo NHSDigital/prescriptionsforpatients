@@ -135,7 +135,10 @@ async function eventHandler(
     const distanceSellingCallout = distanceSelling.search(distanceSellingBundle)
     const distanceSellingResponse = await jobWithTimeout(params.serviceSearchTimeoutMs, distanceSellingCallout)
     if (hasTimedOut(distanceSellingResponse)) {
-      logger.error(`The request to the distance selling service timed out after ${SERVICE_SEARCH_TIMEOUT_MS}ms.`)
+      logger.info("serviceSearch request timed out", {
+        timeout: SERVICE_SEARCH_TIMEOUT_MS,
+        message: `The request to the distance selling service timed out after ${SERVICE_SEARCH_TIMEOUT_MS}ms.`
+      })
       return successResponse(searchsetBundle, traceIDs, statusUpdateData)
     }
 
