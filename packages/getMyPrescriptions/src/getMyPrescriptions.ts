@@ -135,6 +135,7 @@ async function eventHandler(
     const distanceSellingCallout = distanceSelling.search(distanceSellingBundle)
     const distanceSellingResponse = await jobWithTimeout(params.serviceSearchTimeoutMs, distanceSellingCallout)
     if (hasTimedOut(distanceSellingResponse)) {
+      logger.info("serviceSearch request timeout")
       return successResponse(searchsetBundle, traceIDs, statusUpdateData)
     }
 
