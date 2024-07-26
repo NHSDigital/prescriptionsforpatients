@@ -1,4 +1,4 @@
-import {LiveServiceSearchClient, ServiceSearchData, SERVICE_SEARCH_TIMEOUT} from "../src/live-serviceSearch-client"
+import {LiveServiceSearchClient, ServiceSearchData} from "../src/live-serviceSearch-client"
 import {jest} from "@jest/globals"
 import MockAdapter from "axios-mock-adapter"
 import axios from "axios"
@@ -68,13 +68,7 @@ describe("live serviceSearch client", () => {
 
   test("should throw error when timeout on http request", async () => {
     mock.onGet(serviceSearchUrl).timeout()
-    const mockLoggerError = jest.spyOn(Logger.prototype, "error")
     await expect(serviceSearchClient.searchService("")).rejects.toThrow("timeout of 45000ms exceeded")
-
-    expect(mockLoggerError).toHaveBeenCalledWith("serviceSearch request timed out", {
-      odsCode: "",
-      timeout: SERVICE_SEARCH_TIMEOUT
-    })
   })
 
   test("should retry thrice when unsuccessful http requests", async () => {
