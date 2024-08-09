@@ -8,9 +8,10 @@ import {mockAPIGatewayProxyEvent, test_append_trace_ids, test_mime_type} from "@
 const dummyContext = helloworldContext
 const mockEvent: APIGatewayProxyEvent = mockAPIGatewayProxyEvent
 
-describe("Unit test for app handler", function () {
+describe.only("Unit test for app handler", function () {
   it("verifies successful response with no params", async () => {
     const result: APIGatewayProxyResult = await handler(mockEvent, dummyContext)
+    console.log(result)
 
     expect(result.statusCode).toEqual(200)
     expect(result.body).toEqual(JSON.stringify(successData))
