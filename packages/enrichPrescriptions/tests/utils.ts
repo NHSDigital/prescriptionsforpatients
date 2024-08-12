@@ -1,5 +1,4 @@
 // tests/utils.ts
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import {APIGatewayProxyResult} from "aws-lambda"
 import {Bundle, Extension, MedicationRequest} from "fhir/r4"

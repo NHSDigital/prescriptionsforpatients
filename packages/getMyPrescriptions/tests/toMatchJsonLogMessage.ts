@@ -29,9 +29,9 @@ const toMatchJsonLogMessage: MatcherFunction<[jsonField: unknown, jsonValue: unk
     } else {
       return {
         message: () => `expected JSON log message ${this.utils.printReceived(
-          actualJson,
+          actualJson
         )} to have ${this.utils.printExpected(
-          `${jsonField} with value ${jsonValue} and ${missingJsonField} to not exist`,
+          `${jsonField} with value ${jsonValue} and ${missingJsonField} to not exist`
         )}`,
         pass: false
       }

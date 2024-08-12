@@ -7,6 +7,7 @@ function test_mime_type(handler: HandlerType, mockEvent: APIGatewayProxyEvent, d
   return async () => {
     const result: APIGatewayProxyResult = await handler(mockEvent, dummyContext)
 
+    // eslint-disable-next-line no-undef
     expect(result.headers).toEqual({"Content-Type": "application/fhir+json", "Cache-Control": "no-cache"})
   }
 }

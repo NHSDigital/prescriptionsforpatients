@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const helloworldContext = {
   callbackWaitsForEmptyEventLoop: true,
   functionVersion: "$LATEST",
