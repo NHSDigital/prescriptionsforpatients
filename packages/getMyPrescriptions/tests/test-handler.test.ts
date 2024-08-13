@@ -1,13 +1,11 @@
 /* eslint-disable max-len */
-import {APIGatewayProxyEvent, APIGatewayProxyResult, Context} from "aws-lambda"
+import {APIGatewayProxyResult, Context} from "aws-lambda"
 import {
   DEFAULT_HANDLER_PARAMS,
   newHandler,
   GetMyPrescriptionsEvent,
-  apiGatewayEventHandler,
   stateMachineEventHandler,
-  STATE_MACHINE_MIDDLEWARE,
-  API_GATEWAY_MIDDLEWARE
+  STATE_MACHINE_MIDDLEWARE
 } from "../src/getMyPrescriptions"
 import {Logger} from "@aws-lambda-powertools/logger"
 import axios from "axios"
@@ -20,7 +18,6 @@ import {
 } from "@jest/globals"
 
 import {
-  mockAPIGatewayProxyEvent,
   mockAPIResponseBody,
   mockInteractionResponseBody,
   mockPharmacy2uResponse,
@@ -39,7 +36,6 @@ import {MiddyfiedHandler} from "@middy/core"
 const dummyContext = helloworldContext
 const mock = new MockAdapter(axios)
 
-const exampleApiGatewayEvent = JSON.stringify(mockAPIGatewayProxyEvent)
 const exampleStateMachineEvent = JSON.stringify(mockStateMachineInputEvent)
 const exampleInteractionResponse = JSON.stringify(mockInteractionResponseBody)
 
@@ -118,8 +114,6 @@ describe("Unit test for app handler", function () {
   const ENV = process.env
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let handler: MiddyfiedHandler<GetMyPrescriptionsEvent, APIGatewayProxyResult, Error, Context, any>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let apiGatewayHandler: MiddyfiedHandler<APIGatewayProxyEvent, APIGatewayProxyResult, Error, Context, any>
 
   beforeEach(() => {
     process.env = {...ENV}
@@ -133,11 +127,6 @@ describe("Unit test for app handler", function () {
       handlerFunction: stateMachineEventHandler,
       params: handlerParams,
       middleware: STATE_MACHINE_MIDDLEWARE
-    })
-    apiGatewayHandler = newHandler({
-      handlerFunction: apiGatewayEventHandler,
-      params: handlerParams,
-      middleware: API_GATEWAY_MIDDLEWARE
     })
     jest.useFakeTimers()
   })
@@ -159,17 +148,6 @@ describe("Unit test for app handler", function () {
     expect(resultBody.fhir).toEqual({resourceType: "Bundle", id: "test-request-id"})
     expect(resultBody.statusUpdateData).toBeUndefined()
     expect(resultBody.traceIDs).toEqual(EXPECTED_TRACE_IDS)
-    expect(result.headers).toEqual(HEADERS)
-  })
-
-  it("verifies successful response using lambda handler", async () => {
-    mock.onGet("https://live/mm/patientfacingprescriptions").reply(200, {resourceType: "Bundle"})
-
-    const event: APIGatewayProxyEvent = JSON.parse(exampleApiGatewayEvent)
-    const result: APIGatewayProxyResult = await apiGatewayHandler(event, dummyContext)
-
-    expect(result.statusCode).toEqual(200)
-    expect(result.body).toEqual(JSON.stringify({resourceType: "Bundle", id: "test-request-id"}))
     expect(result.headers).toEqual(HEADERS)
   })
 
@@ -242,19 +220,22 @@ describe("Unit test for app handler", function () {
     "return error when $scenarioDescription",
     async ({httpResponseCode, spineStatusCode, nhsdLoginUser, errorResponse, expectedHttpResponse}) => {
       mock.onGet("https://live/mm/patientfacingprescriptions").reply(httpResponseCode, {statusCode: spineStatusCode})
-      const event: APIGatewayProxyEvent = JSON.parse(exampleApiGatewayEvent)
+      const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
       event.headers = {"nhsd-nhslogin-user": nhsdLoginUser}
-      const result: APIGatewayProxyResult = await apiGatewayHandler(event, dummyContext)
+      const result: APIGatewayProxyResult = await handler(event, dummyContext)
+
       expect(result.statusCode).toBe(expectedHttpResponse)
       expect(result.headers).toEqual(HEADERS)
+      console.log("------------------------------------")
+      console.log(JSON.parse(result.body))
       expect(JSON.parse(result.body)).toEqual(errorResponse)
     }
   )
 
   it("return error when spine responds with network error", async () => {
     mock.onGet("https://live/mm/patientfacingprescriptions").networkError()
-    const event: APIGatewayProxyEvent = JSON.parse(exampleApiGatewayEvent)
-    const result: APIGatewayProxyResult = await apiGatewayHandler(event, dummyContext)
+    const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
+    const result: APIGatewayProxyResult = await handler(event, dummyContext)
 
     expect(result.statusCode).toBe(500)
     expect(result.headers).toEqual(HEADERS)
@@ -263,8 +244,8 @@ describe("Unit test for app handler", function () {
 
   it("return error when spine does not respond in time", async () => {
     mock.onGet("https://live/mm/patientfacingprescriptions").timeout()
-    const event: APIGatewayProxyEvent = JSON.parse(exampleApiGatewayEvent)
-    const result: APIGatewayProxyResult = await apiGatewayHandler(event, dummyContext)
+    const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
+    const result: APIGatewayProxyResult = await handler(event, dummyContext)
 
     expect(result.statusCode).toBe(500)
     expect(result.headers).toEqual(HEADERS)
@@ -277,8 +258,8 @@ describe("Unit test for app handler", function () {
     process.env.SpineCAChain = "ChangeMe"
 
     mock.onGet("https://live/mm/patientfacingprescriptions").reply(500, {resourceType: "Bundle"})
-    const event: APIGatewayProxyEvent = JSON.parse(exampleApiGatewayEvent)
-    const result: APIGatewayProxyResult = await apiGatewayHandler(event, dummyContext)
+    const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
+    const result: APIGatewayProxyResult = await handler(event, dummyContext)
 
     expect(result.statusCode).toBe(500)
     expect(result.headers).toEqual(HEADERS)
@@ -291,8 +272,8 @@ describe("Unit test for app handler", function () {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     mock.onGet("https://live/mm/patientfacingprescriptions").reply((_config) => delayedResponse)
 
-    const event: APIGatewayProxyEvent = JSON.parse(exampleApiGatewayEvent)
-    const eventHandler: Promise<APIGatewayProxyResult> = apiGatewayHandler(event, dummyContext)
+    const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
+    const eventHandler: Promise<APIGatewayProxyResult> = handler(event, dummyContext)
 
     await jest.advanceTimersByTimeAsync(11_000)
 
@@ -315,7 +296,7 @@ describe("Unit test for app handler", function () {
 
     const handlerParams = {...DEFAULT_HANDLER_PARAMS, lambdaTimeoutMs: 1_000, spineClient: _spineClient}
     const handler = newHandler({
-      handlerFunction: apiGatewayEventHandler,
+      handlerFunction: stateMachineEventHandler,
       params: handlerParams,
       middleware: []
     })
@@ -323,7 +304,7 @@ describe("Unit test for app handler", function () {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     mock.onGet("https://live/mm/patientfacingprescriptions").reply((_config) => delayedResponse)
 
-    const event: APIGatewayProxyEvent = JSON.parse(exampleApiGatewayEvent)
+    const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
     const eventHandler: Promise<APIGatewayProxyResult> = handler(event, dummyContext)
 
     await jest.advanceTimersByTimeAsync(2_000)
@@ -340,7 +321,7 @@ describe("Unit test for app handler", function () {
 
 describe("Unit tests for app handler including service search", function () {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let apiGatewayHandler: MiddyfiedHandler<APIGatewayProxyEvent, APIGatewayProxyResult, Error, Context, any>
+  let handler: MiddyfiedHandler<GetMyPrescriptionsEvent, APIGatewayProxyResult, Error, Context, any>
 
   const queryParams = {
     "api-version": 2,
@@ -363,10 +344,10 @@ describe("Unit tests for app handler including service search", function () {
     const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
     const _spineClient = createSpineClient(logger)
     const handlerParams = {...DEFAULT_HANDLER_PARAMS, spineClient: _spineClient}
-    apiGatewayHandler = newHandler({
-      handlerFunction: apiGatewayEventHandler,
+    handler = newHandler({
+      handlerFunction: stateMachineEventHandler,
       params: handlerParams,
-      middleware: API_GATEWAY_MIDDLEWARE
+      middleware: STATE_MACHINE_MIDDLEWARE
     })
   })
 
@@ -375,7 +356,7 @@ describe("Unit tests for app handler including service search", function () {
   })
 
   it("local cache is used to reduce calls to service search", async () => {
-    const event: APIGatewayProxyEvent = JSON.parse(exampleApiGatewayEvent)
+    const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
 
     mock
       .onGet("https://service-search/service-search", {params: {...queryParams, search: "flm49"}})
@@ -386,10 +367,10 @@ describe("Unit tests for app handler including service search", function () {
       .reply(200, JSON.parse(pharmicaResponse))
 
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, JSON.parse(exampleInteractionResponse))
-    const resultA: APIGatewayProxyResult = await apiGatewayHandler(event, dummyContext)
+    const resultA: APIGatewayProxyResult = await handler(event, dummyContext)
 
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, JSON.parse(exampleInteractionResponse))
-    const resultB: APIGatewayProxyResult = await apiGatewayHandler(event, dummyContext)
+    const resultB: APIGatewayProxyResult = await handler(event, dummyContext)
 
     for (const result of [resultA, resultB]) {
       expect(result.statusCode).toEqual(200)
@@ -413,8 +394,8 @@ describe("Unit tests for app handler including service search", function () {
       .onGet("https://service-search/service-search", {params: {...queryParams, search: "few08"}})
       .reply(200, JSON.parse(pharmicaResponse))
 
-    const event: APIGatewayProxyEvent = JSON.parse(exampleApiGatewayEvent)
-    const result: APIGatewayProxyResult = await apiGatewayHandler(event, dummyContext)
+    const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
+    const result: APIGatewayProxyResult = await handler(event, dummyContext)
 
     expect(result.statusCode).toEqual(200)
     expect(result.body).toEqual(JSON.stringify(mockAPIResponseBody))
@@ -429,8 +410,8 @@ describe("Unit tests for app handler including service search", function () {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     mock.onGet("https://service-search/service-search").reply((_config) => delayedResponse)
 
-    const event: APIGatewayProxyEvent = JSON.parse(exampleApiGatewayEvent)
-    const eventHandler: Promise<APIGatewayProxyResult> = apiGatewayHandler(event, dummyContext)
+    const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
+    const eventHandler: Promise<APIGatewayProxyResult> = handler(event, dummyContext)
 
     await jest.advanceTimersByTimeAsync(8_000)
 
@@ -443,7 +424,7 @@ describe("Unit tests for app handler including service search", function () {
 
 describe("Unit tests for logging functionality", function () {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let apiGatewayHandler: MiddyfiedHandler<APIGatewayProxyEvent, APIGatewayProxyResult, Error, Context, any>
+  let handler: MiddyfiedHandler<GetMyPrescriptionsEvent, APIGatewayProxyResult, Error, Context, any>
 
   const queryParams = {
     "api-version": 2,
@@ -466,10 +447,10 @@ describe("Unit tests for logging functionality", function () {
     const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
     const _spineClient = createSpineClient(logger)
     const handlerParams = {...DEFAULT_HANDLER_PARAMS, spineClient: _spineClient}
-    apiGatewayHandler = newHandler({
-      handlerFunction: apiGatewayEventHandler,
+    handler = newHandler({
+      handlerFunction: stateMachineEventHandler,
       params: handlerParams,
-      middleware: API_GATEWAY_MIDDLEWARE
+      middleware: STATE_MACHINE_MIDDLEWARE
     })
   })
 
@@ -481,12 +462,11 @@ describe("Unit tests for logging functionality", function () {
     const mockLoggerInfo = jest.spyOn(Logger.prototype, "info")
 
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, {statusCode: "0"})
-
-    const event_one: APIGatewayProxyEvent = JSON.parse(exampleApiGatewayEvent)
-    const event_two: APIGatewayProxyEvent = JSON.parse(exampleApiGatewayEvent)
-    event_two.requestContext.requestId = "d6af9ac6-7b61-11e6-9a41-93e8deadbeef"
-    await apiGatewayHandler(event_one, dummyContext)
-    await apiGatewayHandler(event_two, dummyContext)
+    const event_one: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
+    const event_two: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
+    event_two.headers["x-request-id"] = "d6af9ac6-7b61-11e6-9a41-93e8deadbeef"
+    await handler(event_one, dummyContext)
+    await handler(event_two, dummyContext)
 
     const expectedIds = ["c6af9ac6-7b61-11e6-9a41-93e8deadbeef", "d6af9ac6-7b61-11e6-9a41-93e8deadbeef"].reverse()
 
@@ -512,8 +492,8 @@ describe("Unit tests for logging functionality", function () {
 
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, {statusCode: "0"})
 
-    const event: APIGatewayProxyEvent = JSON.parse(exampleApiGatewayEvent)
-    await apiGatewayHandler(event, dummyContext)
+    const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
+    await handler(event, dummyContext)
 
     expect(mockAppendKeys).toHaveBeenCalledWith({
       "nhsd-correlation-id": "test-request-id.test-correlation-id.rrt-5789322914740101037-b-aet2-20145-482635-2",
@@ -539,8 +519,8 @@ describe("Unit tests for logging functionality", function () {
       .onGet("https://service-search/service-search", {params: {...queryParams, search: "few08"}})
       .reply(200, JSON.parse(pharmicaResponse))
 
-    const event: APIGatewayProxyEvent = JSON.parse(exampleApiGatewayEvent)
-    const result: APIGatewayProxyResult = await apiGatewayHandler(event, dummyContext)
+    const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
+    const result: APIGatewayProxyResult = await handler(event, dummyContext)
 
     expect(result.statusCode).toEqual(200)
     expect(mockLoggerError).toHaveBeenCalledTimes(2)

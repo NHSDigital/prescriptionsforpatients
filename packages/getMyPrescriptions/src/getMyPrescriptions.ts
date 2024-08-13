@@ -1,4 +1,4 @@
-import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
+import {APIGatewayProxyResult} from "aws-lambda"
 import {Logger} from "@aws-lambda-powertools/logger"
 import {injectLambdaContext} from "@aws-lambda-powertools/logger/middleware"
 import {LogLevel} from "@aws-lambda-powertools/logger/types"
@@ -14,7 +14,6 @@ import {
   INVALID_NHS_NUMBER_RESPONSE,
   SPINE_CERT_NOT_CONFIGURED_RESPONSE,
   TIMEOUT_RESPONSE,
-  apiGatewayLambdaResponse,
   stateMachineLambdaResponse,
   TraceIDs,
   ResponseFunc
@@ -59,23 +58,6 @@ export const stateMachineEventHandler = async (
   const handlerResponse = await jobWithTimeout(
     params.lambdaTimeoutMs,
     eventHandler(params, event.headers, stateMachineLambdaResponse, shouldGetStatusUpdates())
-  )
-
-  if (hasTimedOut(handlerResponse)) {
-    logger.error("Lambda handler has timed out. Returning error response.")
-    return TIMEOUT_RESPONSE
-  }
-  return handlerResponse
-}
-
-export const apiGatewayEventHandler = async (
-  event: APIGatewayProxyEvent,
-  params: HandlerParams
-): Promise<APIGatewayProxyResult> => {
-  event.headers["apigw-request-id"] = event.requestContext.requestId
-  const handlerResponse = await jobWithTimeout(
-    params.lambdaTimeoutMs,
-    eventHandler(params, event.headers, apiGatewayLambdaResponse)
   )
 
   if (hasTimedOut(handlerResponse)) {
@@ -203,15 +185,4 @@ export const handler = newHandler({
   handlerFunction: stateMachineEventHandler,
   params: DEFAULT_HANDLER_PARAMS,
   middleware: STATE_MACHINE_MIDDLEWARE
-})
-
-export const API_GATEWAY_MIDDLEWARE = [
-  MIDDLEWARE.injectLambdaContext,
-  MIDDLEWARE.inputOutputLogger,
-  MIDDLEWARE.errorHandler
-]
-export const apiGatewayHandler = newHandler({
-  handlerFunction: apiGatewayEventHandler,
-  params: DEFAULT_HANDLER_PARAMS,
-  middleware: API_GATEWAY_MIDDLEWARE
 })
