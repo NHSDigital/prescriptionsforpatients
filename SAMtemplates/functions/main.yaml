@@ -78,6 +78,11 @@ Resources:
         - !Ref GetSecretsLayer
     Metadata:
       BuildMethod: esbuild
+      guard:
+        SuppressedRules:
+          - LAMBDA_DLQ_CHECK
+          - LAMBDA_INSIDE_VPC
+          - LAMBDA_CONCURRENCY_CHECK
       BuildProperties:
         Minify: true
         Target: es2020
@@ -118,6 +123,11 @@ Resources:
           EXPECT_STATUS_UPDATES: !Ref ToggleGetStatusUpdates
     Metadata:
       BuildMethod: esbuild
+      guard:
+        SuppressedRules:
+          - LAMBDA_DLQ_CHECK
+          - LAMBDA_INSIDE_VPC
+          - LAMBDA_CONCURRENCY_CHECK
       BuildProperties:
         Minify: true
         Target: es2020
@@ -150,6 +160,11 @@ Resources:
       Role: !GetAtt CapabilityStatementResources.Outputs.LambdaRoleArn
     Metadata:
       BuildMethod: esbuild
+      guard:
+        SuppressedRules:
+          - LAMBDA_DLQ_CHECK
+          - LAMBDA_INSIDE_VPC
+          - LAMBDA_CONCURRENCY_CHECK
       BuildProperties:
         Minify: true
         Target: es2020
@@ -189,6 +204,11 @@ Resources:
         - !Ref GetSecretsLayer
     Metadata:
       BuildMethod: esbuild
+      guard:
+        SuppressedRules:
+          - LAMBDA_DLQ_CHECK
+          - LAMBDA_INSIDE_VPC
+          - LAMBDA_CONCURRENCY_CHECK
       BuildProperties:
         Minify: true
         Target: es2020

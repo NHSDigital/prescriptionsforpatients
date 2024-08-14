@@ -20,3 +20,4 @@ release_notes
 .aws-sam
 lib/
 *.tsbuildinfo
+cfn_guard_output/
