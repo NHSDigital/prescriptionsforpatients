@@ -1,10 +1,8 @@
-name: release workflow
+name: deploy to environments
 
 on:
-  push:
-    branches: [main]
-    tags: [v**]
-
+  workflow_dispatch:
+    
 env:
   BRANCH_NAME: ${{ github.event.ref.BRANCH_NAME }}
 
@@ -28,7 +26,7 @@ jobs:
     needs: quality_checks
     runs-on: ubuntu-latest
     outputs:
-      spec_version: ${{steps.output_spec_version.outputs.SPEC_VERSION}}
+      version_tag: ${{steps.output_version_tag.outputs.VERSION_TAG}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -41,7 +39,7 @@ jobs:
         uses: asdf-vm/actions/setup@05e0d2ed97b598bfce82fd30daf324ae0c4570e6
         with:
           asdf_branch: v0.11.3
-  
+
       - name: Cache asdf
         uses: actions/cache@v4
         with:
@@ -50,50 +48,63 @@ jobs:
           key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
           restore-keys: |
             ${{ runner.os }}-asdf-
-
       - name: Install asdf dependencies in .tool-versions
         uses: asdf-vm/actions/install@05e0d2ed97b598bfce82fd30daf324ae0c4570e6
         with:
           asdf_branch: v0.11.3
         env:
           PYTHON_CONFIGURE_OPTS: --enable-shared 
-  
-      - name: Install python packages
+
+      - name: Install node packages
         run: |
-          make install-python
+          make install-node
 
-      - name: Set SPEC_VERSION env var for merges to main
-        run: echo "SPEC_VERSION=$(poetry run python scripts/calculate_version.py)" >> "$GITHUB_ENV"
-        if: github.ref == 'refs/heads/main'
+      - name: Set VERSION_TAG env var to be short git SHA and get next tag varsion
+        id: output_version_tag
+        run: |
+          VERSION_TAG=$(git rev-parse --short HEAD)
+          NEXT_VERSION=$(npx semantic-release --dry-run | grep -i 'The next release version is' | sed -E 's/.* ([[:digit:].]+)$/\1/')
+          tagFormat=$(jq -r .tagFormat .releaserc)
+          if [ "${tagFormat}" = "null" ]
+          then
+            tagFormat="v\${version}"
+          fi
+          # disabling shellcheck as replace does not work
+          # shellcheck disable=SC2001
+          NEW_VERSION_TAG=$(echo "$tagFormat" | sed "s/\${version}/$NEXT_VERSION/")
+          echo "## VERSION TAG : ${VERSION_TAG}" >> "$GITHUB_STEP_SUMMARY"
+          echo "## NEXT TAG WILL BE : ${NEW_VERSION_TAG}" >> "$GITHUB_STEP_SUMMARY"
+          echo "VERSION_TAG=${VERSION_TAG}" >> "$GITHUB_OUTPUT"
+          echo "VERSION_TAG=${VERSION_TAG}" >> "$GITHUB_ENV"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
-      - name: Set SPEC_VERSION env var for tags
-        run: echo "SPEC_VERSION=${{ github.ref_name }}" >> "$GITHUB_ENV"
-        if: github.ref != 'refs/heads/main'
-
-      - name: Create release (tags and main)
-        id: create-release
-        # using commit hash for version v1.13.0
-        uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5
-        continue-on-error: true
+      - name: tag release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npx semantic-release
+
+      - name: Get release for editing
+        id: get_release
+        # version 1.2.4
+        uses: cardinalby/git-get-release-action@5172c3a026600b1d459b117738c605fabc9e4e44
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         with:
-          tag: ${{ env.SPEC_VERSION }}
-          commit: ${{  github.sha }}
+          tag: ${{ env.VERSION_TAG }}
+
+      - name: Edit Release
+        # version 1.2.0
+        uses: irongut/EditRelease@ccf529ad26dddf9996e7dd0f24ca5da4ea507cc2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          id: ${{ steps.get_release.outputs.id }}
           body: |
-            ## Commit message
-            ${{ github.event.head_commit.message }}
             ## Info
             [See code diff](${{ github.event.compare }})
             [Release workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-
             It was initialized by [${{ github.event.sender.login }}](${{ github.event.sender.html_url }})
-
-      - name: output SPEC_VERSION
-        id: output_spec_version
-        run: |
-          echo "## RELEASE TAG :** ${{ env.SPEC_VERSION  }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "SPEC_VERSION=${{ env.SPEC_VERSION }}" >> "$GITHUB_OUTPUT"
 
   package_code:
     needs: tag_release
@@ -103,13 +114,13 @@ jobs:
     needs: [tag_release, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: pfp
       TARGET_ENVIRONMENT: dev
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: pfp-truststore.pem
-      VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
+      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
       COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
@@ -129,13 +140,13 @@ jobs:
     needs: [tag_release, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: dev-ci
       TARGET_ENVIRONMENT: dev
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_code_old
       TRUSTSTORE_FILE: truststore.pem
-      VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
+      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
       COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
@@ -154,13 +165,13 @@ jobs:
     needs: [tag_release, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: pfp-sandbox
       TARGET_ENVIRONMENT: dev
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_sandbox_code
       TRUSTSTORE_FILE: pfp-sandbox-truststore.pem
-      VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
+      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
       COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
@@ -175,13 +186,13 @@ jobs:
     needs: [tag_release, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: dev-sandbox
       TARGET_ENVIRONMENT: dev
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_sandbox_code_old
       TRUSTSTORE_FILE: sandbox-truststore.pem
-      VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
+      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
       COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
@@ -196,13 +207,13 @@ jobs:
     needs: [tag_release, release_dev, release_dev_sandbox, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: pfp
       TARGET_ENVIRONMENT: ref
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: pfp-truststore.pem
-      VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
+      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
       COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
@@ -216,13 +227,13 @@ jobs:
     needs: [tag_release, release_dev_old, release_dev_sandbox, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: ref-ci
       TARGET_ENVIRONMENT: ref
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_code_old
       TRUSTSTORE_FILE: truststore.pem
-      VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
+      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
       COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
@@ -235,13 +246,13 @@ jobs:
     needs: [tag_release, release_dev, release_dev_sandbox, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: pfp
       TARGET_ENVIRONMENT: qa
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: pfp-truststore.pem
-      VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
+      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
       COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
@@ -255,13 +266,13 @@ jobs:
     needs: [tag_release, release_dev_old, release_dev_sandbox, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: qa-ci
       TARGET_ENVIRONMENT: qa
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_code_old
       TRUSTSTORE_FILE: truststore.pem
-      VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
+      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
       COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
@@ -274,13 +285,13 @@ jobs:
     needs: [tag_release, release_qa, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: pfp
       TARGET_ENVIRONMENT: int
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: pfp-truststore.pem
-      VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
+      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
       COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
@@ -300,13 +311,13 @@ jobs:
     needs: [tag_release, release_qa_old, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: int-ci
       TARGET_ENVIRONMENT: int
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_code_old
       TRUSTSTORE_FILE: truststore.pem
-      VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
+      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
       COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
@@ -325,13 +336,13 @@ jobs:
     needs: [tag_release, release_qa, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: pfp-sandbox
       TARGET_ENVIRONMENT: int
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_sandbox_code
       TRUSTSTORE_FILE: pfp-sandbox-truststore.pem
-      VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
+      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
       COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
@@ -346,13 +357,13 @@ jobs:
     needs: [tag_release, release_qa, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: int-sandbox
       TARGET_ENVIRONMENT: int
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_sandbox_code
       TRUSTSTORE_FILE: sandbox-truststore.pem
-      VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
+      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
       COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
@@ -367,13 +378,13 @@ jobs:
     needs: [tag_release, release_int, release_sandbox, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: pfp
       TARGET_ENVIRONMENT: prod
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: pfp-truststore.pem
-      VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
+      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
       COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
       LOG_LEVEL: INFO
       LOG_RETENTION_DAYS: 731
@@ -393,13 +404,13 @@ jobs:
     needs: [tag_release, release_int_old, release_sandbox, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: prod-ci
       TARGET_ENVIRONMENT: prod
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_code_old
       TRUSTSTORE_FILE: truststore.pem
-      VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
+      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
       COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
       LOG_LEVEL: INFO
       LOG_RETENTION_DAYS: 731

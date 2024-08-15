@@ -1,0 +1,218 @@
+name: merge to main workflow
+
+on:
+  push:
+    branches: [main]
+
+env:
+  BRANCH_NAME: ${{ github.event.ref.BRANCH_NAME }}
+
+jobs:
+  quality_checks:
+    uses: ./.github/workflows/quality_checks.yml
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  get_commit_id:
+    runs-on: ubuntu-latest
+    outputs:
+      commit_id: ${{ steps.commit_id.outputs.commit_id }}
+    steps:
+      - name: Get Commit ID
+        id: commit_id
+        run: |
+          echo "commit_id=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+
+  tag_release:
+    needs: quality_checks
+    runs-on: ubuntu-latest
+    outputs:
+      version_tag: ${{steps.output_version_tag.outputs.VERSION_TAG}}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BRANCH_NAME }}
+          fetch-depth: 0
+
+      # using git commit sha for version of action to ensure we have stable version
+      - name: Install asdf
+        uses: asdf-vm/actions/setup@05e0d2ed97b598bfce82fd30daf324ae0c4570e6
+        with:
+          asdf_branch: v0.11.3
+
+      - name: Cache asdf
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.asdf
+          key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
+          restore-keys: |
+            ${{ runner.os }}-asdf-
+
+      - name: Install asdf dependencies in .tool-versions
+        uses: asdf-vm/actions/install@05e0d2ed97b598bfce82fd30daf324ae0c4570e6
+        with:
+          asdf_branch: v0.11.3
+        env:
+          PYTHON_CONFIGURE_OPTS: --enable-shared 
+
+      - name: Install node packages
+        run: |
+          make install-node
+          
+      - name: Set VERSION_TAG env var to be short git SHA and get next tag varsion
+        id: output_version_tag
+        run: |
+          VERSION_TAG=$(git rev-parse --short HEAD)
+          NEXT_VERSION=$(npx semantic-release --dry-run | grep -i 'The next release version is' | sed -E 's/.* ([[:digit:].]+)$/\1/')
+          tagFormat=$(jq -r .tagFormat .releaserc)
+          if [ "${tagFormat}" = "null" ]
+          then
+            tagFormat="v\${version}"
+          fi
+          # disabling shellcheck as replace does not work
+          # shellcheck disable=SC2001
+          NEW_VERSION_TAG=$(echo "$tagFormat" | sed "s/\${version}/$NEXT_VERSION/")
+          echo "## VERSION TAG : ${VERSION_TAG}" >> "$GITHUB_STEP_SUMMARY"
+          echo "## NEXT TAG WILL BE : ${NEW_VERSION_TAG}" >> "$GITHUB_STEP_SUMMARY"
+          echo "VERSION_TAG=${VERSION_TAG}" >> "$GITHUB_OUTPUT"
+          echo "VERSION_TAG=${VERSION_TAG}" >> "$GITHUB_ENV"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+  package_code:
+    needs: tag_release
+    uses: ./.github/workflows/sam_package_code.yml
+
+  release_dev:
+    needs: [tag_release, package_code, get_commit_id]
+    uses: ./.github/workflows/sam_release_code.yml
+    with:
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
+      STACK_NAME: pfp
+      TARGET_ENVIRONMENT: dev
+      ENABLE_MUTUAL_TLS: true
+      BUILD_ARTIFACT: packaged_code
+      TRUSTSTORE_FILE: pfp-truststore.pem
+      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
+      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
+      LOG_LEVEL: DEBUG
+      LOG_RETENTION_DAYS: 30
+      CREATE_INT_RELEASE_NOTES: true
+      CREATE_PROD_RELEASE_NOTES: true
+      TOGGLE_GET_STATUS_UPDATES: true
+    secrets:
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_SPINE_SERVER: ${{ secrets.DEV_TARGET_SPINE_SERVER }}
+      TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.DEV_TARGET_SERVICE_SEARCH_SERVER }}
+      DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
+      INT_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.INT_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
+      PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
+      DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
+  
+  release_dev_old:
+    needs: [tag_release, package_code, get_commit_id]
+    uses: ./.github/workflows/sam_release_code.yml
+    with:
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
+      STACK_NAME: dev-ci
+      TARGET_ENVIRONMENT: dev
+      ENABLE_MUTUAL_TLS: true
+      BUILD_ARTIFACT: packaged_code_old
+      TRUSTSTORE_FILE: truststore.pem
+      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
+      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
+      LOG_LEVEL: DEBUG
+      LOG_RETENTION_DAYS: 30
+      CREATE_INT_RELEASE_NOTES: true
+      CREATE_PROD_RELEASE_NOTES: true
+    secrets:
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_SPINE_SERVER: ${{ secrets.DEV_TARGET_SPINE_SERVER }}
+      TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.DEV_TARGET_SERVICE_SEARCH_SERVER }}
+      DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
+      INT_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.INT_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
+      PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
+      DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
+
+  release_dev_sandbox:
+    needs: [tag_release, package_code, get_commit_id]
+    uses: ./.github/workflows/sam_release_code.yml
+    with:
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
+      STACK_NAME: pfp-sandbox
+      TARGET_ENVIRONMENT: dev
+      ENABLE_MUTUAL_TLS: true
+      BUILD_ARTIFACT: packaged_sandbox_code
+      TRUSTSTORE_FILE: pfp-sandbox-truststore.pem
+      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
+      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
+      LOG_LEVEL: DEBUG
+      LOG_RETENTION_DAYS: 30
+      DOMAIN_NAME_EXPORT: eps-route53-resources:EPS-domain
+      ZONE_ID_EXPORT: eps-route53-resources:EPS-ZoneID
+    secrets:
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_SPINE_SERVER: sandbox
+      TARGET_SERVICE_SEARCH_SERVER: sandbox
+  
+  release_dev_sandbox_old:
+    needs: [tag_release, package_code, get_commit_id]
+    uses: ./.github/workflows/sam_release_code.yml
+    with:
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
+      STACK_NAME: dev-sandbox
+      TARGET_ENVIRONMENT: dev
+      ENABLE_MUTUAL_TLS: true
+      BUILD_ARTIFACT: packaged_sandbox_code_old
+      TRUSTSTORE_FILE: sandbox-truststore.pem
+      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
+      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
+      LOG_LEVEL: DEBUG
+      LOG_RETENTION_DAYS: 30
+      DOMAIN_NAME_EXPORT: route53-resources:domain
+      ZONE_ID_EXPORT: route53-resources:ZoneID
+    secrets:
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_SPINE_SERVER: sandbox
+      TARGET_SERVICE_SEARCH_SERVER: sandbox
+
+  release_qa:
+    needs: [tag_release, release_dev, release_dev_sandbox, package_code, get_commit_id]
+    uses: ./.github/workflows/sam_release_code.yml
+    with:
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
+      STACK_NAME: pfp
+      TARGET_ENVIRONMENT: qa
+      ENABLE_MUTUAL_TLS: true
+      BUILD_ARTIFACT: packaged_code
+      TRUSTSTORE_FILE: pfp-truststore.pem
+      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
+      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
+      LOG_LEVEL: DEBUG
+      LOG_RETENTION_DAYS: 30
+      TOGGLE_GET_STATUS_UPDATES: true
+    secrets:
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.QA_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_SPINE_SERVER: ${{ secrets.QA_TARGET_SPINE_SERVER }}
+      TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.QA_TARGET_SERVICE_SEARCH_SERVER }}
+  
+  release_qa_old:
+    needs: [tag_release, release_dev_old, release_dev_sandbox, package_code, get_commit_id]
+    uses: ./.github/workflows/sam_release_code.yml
+    with:
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
+      STACK_NAME: qa-ci
+      TARGET_ENVIRONMENT: qa
+      ENABLE_MUTUAL_TLS: true
+      BUILD_ARTIFACT: packaged_code_old
+      TRUSTSTORE_FILE: truststore.pem
+      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
+      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
+      LOG_LEVEL: DEBUG
+      LOG_RETENTION_DAYS: 30
+    secrets:
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.QA_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_SPINE_SERVER: ${{ secrets.QA_TARGET_SPINE_SERVER }}
+      TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.QA_TARGET_SERVICE_SEARCH_SERVER }}
