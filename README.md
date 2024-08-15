@@ -1,9 +1,18 @@
 # Prescriptions API
 
-![Build](https://github.com/NHSDigital/prescriptionsforpatients/workflows/release/badge.svg?branch=main)
+![Build](https://github.com/NHSDigital/prescriptionsforpatients/actions/workflows/ci.yml/badge.svg?branch=main)
+![Release](https://github.com/NHSDigital/prescriptionsforpatients/actions/workflows/release.yml/badge.svg?branch=main)  
+
+## Versions and deployments
+
+Version release history can be found ot <https://github.com/NHSDigital/prescriptionsforpatients/releases>.
+We use eslint convention for commit messages for commits to main branch. Descriptions for the types of changes in a release can be found in the [contributing guidelines](./CONTRIBUTING.md)
+Deployment history can be found at <https://nhsdigital.github.io/prescriptionsforpatients/>
+
+## Introduction
 
 This is the AWS layer that provides an API for accessing prescription information for a patient.  
-It is called by an Apigee proxy that is defined at https://github.com/NHSDigital/prescriptions-for-patients
+It is called by an Apigee proxy that is defined at <https://github.com/NHSDigital/prescriptions-for-patients>
 
 - `packages/getMyPrescriptions/` Get prescription details for /Bundle endpoint.
 - `packages/enrichPrescriptions/` Get prescription status updates for prescriptions retrieved by getMyPrescriptions.
@@ -21,6 +30,7 @@ It is called by an Apigee proxy that is defined at https://github.com/NHSDigital
 - `.github` Contains github workflows that are used for building and deploying from pull requests and releases.
 - `.devcontainer` Contains a dockerfile and vscode devcontainer definition.
 - `.vscode` Contains vscode workspace file.
+- `.releaserc` semantic-release config file
 
 Consumers of the API will find developer documentation on the [NHS Digital Developer Hub](https://digital.nhs.uk/developer/api-catalogue).
 
@@ -37,7 +47,7 @@ The contents of this repository are protected by Crown Copyright (C).
 ## Development
 
 It is recommended that you use visual studio code and a devcontainer as this will install all necessary components and correct versions of tools and languages.  
-See https://code.visualstudio.com/docs/devcontainers/containers for details on how to set this up on your host machine.  
+See <https://code.visualstudio.com/docs/devcontainers/containers> for details on how to set this up on your host machine.  
 There is also a workspace file in .vscode that should be opened once you have started the devcontainer. The workspace file can also be opened outside of a devcontainer if you wish.  
 The project uses [SAM](https://aws.amazon.com/serverless/sam/) to develop and deploy the APIs and associated resources.
 
@@ -45,24 +55,24 @@ All commits must be made using [signed commits](https://docs.github.com/en/authe
 
 Once the steps at the link above have been completed. Add to your ~/.gnupg/gpg.conf as below:
 
-```
+```bash
 use-agent
 pinentry-mode loopback
 ```
 
 and to your ~/.gnupg/gpg-agent.conf as below:
 
-```
+```bash
 allow-loopback-pinentry
 ```
 
 As described here:
-https://stackoverflow.com/a/59170001
+<https://stackoverflow.com/a/59170001>
 
 You will need to create the files, if they do not already exist.
 This will ensure that your VSCode bash terminal prompts you for your GPG key password.
 
-You can cache the gpg key passphrase by following instructions at https://superuser.com/questions/624343/keep-gnupg-credentials-cached-for-entire-user-session
+You can cache the gpg key passphrase by following instructions at <https://superuser.com/questions/624343/keep-gnupg-credentials-cached-for-entire-user-session>
 
 ### SAM setup and usage
 
@@ -72,7 +82,7 @@ You can cache the gpg key passphrase by following instructions at https://superu
 
 Ensure you have the following lines in the file .envrc
 
-```
+```bash
 export AWS_DEFAULT_PROFILE=prescription-dev
 export stack_name=<UNIQUE_NAME_FOR_YOU>
 export TARGET_SPINE_SERVER=<NAME OF DEV TARGET SPINE SERVER>
@@ -83,13 +93,13 @@ UNIQUE_NAME_FOR_YOU should be a unique name for you with no underscores in it - 
 
 Once you have saved .envrc, start a new terminal in vscode and run this command to authenticate against AWS
 
-```
+```bash
 make aws-configure
 ```
 
 Put the following values in:
 
-```
+```text
 SSO session name (Recommended): sso-session
 SSO start URL [None]: <USE VALUE OF SSO START URL FROM AWS LOGIN COMMAND LINE ACCESS INSTRUCTIONS ACCESSED FROM https://myapps.microsoft.com>
 SSO region [None]: eu-west-2
@@ -112,21 +122,20 @@ You will need the "Execute Analysis" permission for the project (NHSDigital_pres
 
 ### GitHub Packages Setup
 
-To work with the GitHub Package Registry, you need to generate a [personal access token (classic)](https://docs.github.com/en/enterprise-cloud@latest/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#personal-access-tokens-classic) with appropriate permissions. 
+To work with the GitHub Package Registry, you need to generate a [personal access token (classic)](https://docs.github.com/en/enterprise-cloud@latest/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#personal-access-tokens-classic) with appropriate permissions.
 
 Follow these steps:
 
 - [Generate a personal access token (classic)](https://docs.github.com/en/enterprise-cloud@latest/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic)
-   - Go to your GitHub account settings and navigate to "Developer settings" > "Personal access tokens". Select the "Tokens(classic)" from the left bar.
-   - Click on the "Generate a personal access token" link and select the `read:packages` scope. Ensure the token has no expiration.
-
+  - Go to your GitHub account settings and navigate to "Developer settings" > "Personal access tokens". Select the "Tokens(classic)" from the left bar.
+  - Click on the "Generate a personal access token" link and select the `read:packages` scope. Ensure the token has no expiration.
 
 - [Authorize a personal access token for use with SAML single sign-on](https://docs.github.com/en/enterprise-cloud@latest/authentication/authenticating-with-saml-single-sign-on/authorizing-a-personal-access-token-for-use-with-saml-single-sign-on)
   - Click "Configure SSO". If you don't see this option, ensure that you have authenticated at least once through your SAML IdP to access resources on GitHub.com
   - In the dropdown menu, to the right of the organization you'd like to authorize the token for, click "Authorize".
 
 - [Authenticating with a personal access token in to npm](https://docs.github.com/en/enterprise-cloud@latest/packages/working-with-a-github-packages-registry/working-with-the-npm-registry#authenticating-with-a-personal-access-token)
-   - To authenticate with npm, use the following command, replacing `USERNAME` with your GitHub username, `TOKEN` with your personal access token (classic), and `PUBLIC-EMAIL-ADDRESS` with your email address.
+  - To authenticate with npm, use the following command, replacing `USERNAME` with your GitHub username, `TOKEN` with your personal access token (classic), and `PUBLIC-EMAIL-ADDRESS` with your email address.
 
 ```bash
 $ npm login --scope=@nhsdigital --auth-type=legacy --registry=https://npm.pkg.github.com
@@ -138,13 +147,13 @@ $ npm login --scope=@nhsdigital --auth-type=legacy --registry=https://npm.pkg.gi
 
 You can run the following command to deploy the code to AWS for testing
 
-```
+```bash
 make sam-sync
 ```
 
 This will take a few minutes to deploy - you will see something like this when deployment finishes
 
-```
+```text
 ......
 CloudFormation events from stack operations (refresh every 0.5 seconds)
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -164,7 +173,7 @@ Stack creation succeeded. Sync infra completed.
 Note - the command will keep running and should not be stopped.
 You can now call this api - note getMyPrescriptions requires an nhsd-nhslogin-user header
 
-```
+```bash
 curl --header "nhsd-nhslogin-user: P9:9446041481" https://${stack_name}.dev.prescriptionsforpatients.national.nhs.uk/Bundle
 ```
 
@@ -215,7 +224,6 @@ These are used to do common commands
 
 - `download-get-secrets-layer` creates the necessary directory structure and downloads the `get-secrets-layer.zip` artifact from NHSDigital's `electronic-prescription-service-get-secrets` releases
 
-
 #### Clean and deep-clean targets
 
 - `clean` clears up any files that have been generated by building or testing locally.
@@ -253,12 +261,27 @@ This .github folder contains workflows and templates related to github
 
 Workflows are in the .github/workflows folder
 
+- `ci.yml` Workflow run when code merged to main. Deploys to dev and qa environments.
 - `combine-dependabot-prs.yml`: Workflow for combining dependabot pull requests. Runs on demand
 - `delete_old_cloudformation_stacks.yml`: Workflow for deleting old cloud formation stacks. Runs daily
 - `pull_request.yml`: Called when pull request is opened or updated. Calls sam_package_code and sam_release_code to build and deploy the code. Deploys to dev AWS account. The main and sandbox stacks deployed have PR-<PULL_REQUEST_ID> in the name
 - `quality_checks.yml`: Runs check-licenses, lint, test and sonarcloud scan against the repo. Called from pull_request.yml and release.yml
-- `release.yml`: Run when code is merged to main branch or a tag starting v is pushed. Calls sam_package_code and sam_release_code to build and deploy the code.
+- `release.yml`: Runs on demand to create a release and deploy to all environments.
 - `sam_package_code.yml`: Packages code and uploads to a github artifact for later deployment
 - `sam_release_code.yml`: Release code built by sam_package_code.yml to an environment
 - `pr-link.yaml`: This workflow template links Pull Requests to Jira tickets and runs when a pull request is opened.
 - `dependabot.yml`: Dependabot definition file
+
+### Github pages
+
+Github pages is used to display deployment information. The source for github pages is in the gh-pages branch.
+As part of the ci and release workflows, the release tag (either the short commit SHA or release tag) is appended to _data/{environment}_deployments.csv so we have a history of releases and replaced in _data/{environment}_latest.csv so we now what the latest released version is.
+There are different makefile targets in this branch. These are
+
+- `run-jekyll` - runs the site locally so changes can be previewed during development
+- `sync-main` - syncs common files from main branch to gh-pages branch. You must commit and push after running this
+- `install-python` installs python dependencies
+- `install-hooks` installs git pre commit hooks
+- `install-node` installs node dependencies
+- `install-jekyll` installs dependencies to be able to run jekyll locally
+- `install` runs all install targets
