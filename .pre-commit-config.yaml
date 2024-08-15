@@ -1,0 +1,89 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-merge-conflict
+        name: Check for merge conflict strings
+
+      - id: end-of-file-fixer
+        name: Fix missing newline at the end of files
+
+      - id: check-shebang-scripts-are-executable
+        name: Check shell scripts are executable
+        files: \.(sh)$
+
+      - id: check-yaml
+        name: Check pipelines configuration
+        files: ^(.github)
+
+  - repo: https://github.com/pycqa/flake8
+    rev: "7ef0350a439c93166bc8ba89fcc3de6a9a664e6c" # release 6.1.0
+    hooks:
+      - id: flake8
+
+  - repo: local
+    hooks:
+      - id: lint-updatePrescriptionStatus
+        name: Lint updatePrescriptionStatus
+        entry: npm
+        args: ["run", "--prefix=packages/updatePrescriptionStatus", "lint"]
+        language: system
+        files: ^packages\/updatePrescriptionStatus
+        types_or: [ts, tsx, javascript, jsx, json]
+        pass_filenames: false
+
+      - id: lint-gsul
+        name: Lint gsul
+        entry: npm
+        args: ["run", "--prefix=packages/gsul", "lint"]
+        language: system
+        files: ^packages\/gsul
+        types_or: [ts, tsx, javascript, jsx, json]
+        pass_filenames: false
+
+      - id: lint-sandbox
+        name: Lint sandbox
+        entry: npm
+        args: ["run", "--prefix=packages/sandbox", "lint"]
+        language: system
+        files: ^packages\/sandbox
+        types_or: [ts, tsx, javascript, jsx, json]
+        pass_filenames: false
+
+      - id: lint-statusLambda
+        name: Lint statusLambda
+        entry: npm
+        args: ["run", "--prefix=packages/statusLambda", "lint"]
+        language: system
+        files: ^packages\/statusLambda
+        types_or: [ts, tsx, javascript, jsx, json]
+        pass_filenames: false
+
+      - id: lint-samtemplates
+        name: Lint sam templates
+        entry: make
+        args: ["lint-samtemplates"]
+        language: system
+        files: ^SAMtemplates
+        pass_filenames: false
+
+      - id: lint-githubactions
+        name: Lint github actions
+        entry: make
+        args: ["lint-githubactions"]
+        language: system
+        files: ^.github
+        types_or: [yaml]
+        pass_filenames: false
+
+      - id: lint-githubaction-scripts
+        name: Lint github action scripts
+        entry: make
+        args: ["lint-githubaction-scripts"]
+        language: system
+        files: ^.github/scripts
+        types_or: [sh, shell]
+        pass_filenames: false
+
+fail_fast: true
+default_stages: [commit]
