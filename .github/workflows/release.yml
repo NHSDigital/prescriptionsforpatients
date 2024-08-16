@@ -2,9 +2,6 @@ name: deploy to environments
 
 on:
   workflow_dispatch:
-    
-env:
-  BRANCH_NAME: ${{ github.event.ref.BRANCH_NAME }}
 
 jobs:
   quality_checks:
@@ -31,7 +28,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ env.BRANCH_NAME }}
+          ref: main
           fetch-depth: 0
 
       # using git commit sha for version of action to ensure we have stable version

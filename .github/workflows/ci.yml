@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 env:
-  BRANCH_NAME: ${{ github.event.ref.BRANCH_NAME }}
+  BRANCH_NAME: ${{ github.ref_name }}
 
 jobs:
   quality_checks:
