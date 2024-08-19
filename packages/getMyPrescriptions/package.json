@@ -8,7 +8,7 @@
   "type": "module",
   "scripts": {
     "unit": "POWERTOOLS_DEV=true NODE_OPTIONS=--experimental-vm-modules jest --no-cache --coverage",
-    "lint": "eslint . --ext .ts --max-warnings 0 --fix",
+    "lint": "eslint  --max-warnings 0 --fix --config ../../eslint.config.mjs .",
     "compile": "tsc",
     "test": "npm run compile && npm run unit",
     "check-licenses": "license-checker --failOn GPL --failOn LGPL --start ../.."
@@ -17,7 +17,7 @@
     "@aws-lambda-powertools/commons": "^2.6.0",
     "@aws-lambda-powertools/logger": "^2.7.0",
     "@aws-lambda-powertools/parameters": "^2.7.0",
-    "@aws-sdk/client-secrets-manager": "^3.624.0",
+    "@aws-sdk/client-secrets-manager": "^3.632.0",
     "@middy/core": "^5.4.6",
     "@middy/http-header-normalizer": "^5.4.6",
     "@middy/input-output-logger": "^5.4.6",

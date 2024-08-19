@@ -8,7 +8,7 @@
     "type": "module",
     "scripts": {
         "unit": "jest",
-        "lint": "eslint . --ext .ts --max-warnings 0 --fix",
+        "lint": "eslint  --max-warnings 0 --fix --config ../../../eslint.config.mjs .",
         "compile": "tsc",
         "test": "npm run compile && npm run unit",
         "check-licenses": "license-checker --failOn GPL --failOn LGPL --start ../.."

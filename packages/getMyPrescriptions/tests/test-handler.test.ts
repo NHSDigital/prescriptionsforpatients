@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import {APIGatewayProxyResult as LambdaResult, Context} from "aws-lambda"
 import {
   DEFAULT_HANDLER_PARAMS,

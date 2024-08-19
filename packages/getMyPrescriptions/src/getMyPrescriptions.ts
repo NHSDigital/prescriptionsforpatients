@@ -40,8 +40,6 @@ export type GetMyPrescriptionsEvent = {
   headers: EventHeaders
 }
 
-/* eslint-disable  max-len */
-
 /**
  *
  * @param {Object} event - Step function input event

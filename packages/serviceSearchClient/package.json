@@ -7,7 +7,7 @@
   "scripts": {
     "unit": "POWERTOOLS_DEV=true NODE_OPTIONS=--experimental-vm-modules jest --no-cache --coverage",
     "build": "tsc --build --clean ./tsconfig.json",
-    "lint": "eslint . --ext .ts --max-warnings 0 --fix",
+    "lint": "eslint  --max-warnings 0 --fix --config ../../eslint.config.mjs .",
     "test": "npm run compile && npm run unit",
     "check-licenses": "license-checker --failOn GPL --failOn LGPL --start ../..",
     "compile": "tsc"
@@ -16,7 +16,7 @@
   "license": "MIT",
   "dependencies": {
     "@aws-lambda-powertools/logger": "^2.7.0",
-    "axios": "^1.7.3",
+    "axios": "^1.7.4",
     "axios-retry": "^4.5.0"
   },
   "devDependencies": {

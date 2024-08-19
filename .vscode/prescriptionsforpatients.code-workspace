@@ -131,7 +131,7 @@
 			"orta.vscode-jest",
 			"42crunch.vscode-openapi",
 			"mermade.openapi-lint",
-			"rvest.vs-code-prettier-eslint",
+			"dbaeumer.vscode-eslint",
 			"redhat.vscode-yaml",
 			"christian-kohler.npm-intellisense",
 			"dbaeumer.vscode-eslint",

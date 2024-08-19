@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 
 import {expect, describe, it} from "@jest/globals"
 import {richRequestBundle, simpleRequestBundle} from "./utils"
