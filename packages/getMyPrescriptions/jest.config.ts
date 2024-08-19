@@ -3,7 +3,7 @@ import defaultConfig from "../../jest.default.config"
 
 const jestConfig: JestConfigWithTsJest = {
   ...defaultConfig,
-  "rootDir": "./"
+  rootDir: "./"
 }
 
 export default jestConfig

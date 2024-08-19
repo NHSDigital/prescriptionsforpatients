@@ -1,4 +1,4 @@
-import {APIGatewayProxyResult} from "aws-lambda"
+import {APIGatewayProxyResult as LambdaResult} from "aws-lambda"
 import {Logger} from "@aws-lambda-powertools/logger"
 import {injectLambdaContext} from "@aws-lambda-powertools/logger/middleware"
 import {LogLevel} from "@aws-lambda-powertools/logger/types"
@@ -44,17 +44,15 @@ export type GetMyPrescriptionsEvent = {
 
 /**
  *
- * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
- * @param {Object} event - API Gateway Lambda Proxy Input Format
+ * @param {Object} event - Step function input event
  *
- * Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
- * @returns {Object} object - API Gateway Lambda Proxy Output Format
+ * @returns {Object} object - Lambda output response
  *
  */
 export const stateMachineEventHandler = async (
   event: GetMyPrescriptionsEvent,
   params: HandlerParams
-): Promise<APIGatewayProxyResult> => {
+): Promise<LambdaResult> => {
   const handlerResponse = await jobWithTimeout(
     params.lambdaTimeoutMs,
     eventHandler(params, event.headers, stateMachineLambdaResponse, shouldGetStatusUpdates())
@@ -72,7 +70,7 @@ async function eventHandler(
   headers: EventHeaders,
   successResponse: ResponseFunc,
   includeStatusUpdateData: boolean = false
-): Promise<APIGatewayProxyResult> {
+): Promise<LambdaResult> {
   const xRequestId = headers["x-request-id"]
   const requestId = headers["apigw-request-id"]
   const spineClient = params.spineClient
@@ -135,7 +133,7 @@ async function eventHandler(
 }
 
 type HandlerConfig<T> = {
-  handlerFunction: (event: T, config: HandlerParams) => Promise<APIGatewayProxyResult>
+  handlerFunction: (event: T, config: HandlerParams) => Promise<LambdaResult>
   middleware: Array<middy.MiddlewareObj>
   params: HandlerParams
 }
@@ -179,7 +177,8 @@ const MIDDLEWARE = {
 export const STATE_MACHINE_MIDDLEWARE = [
   MIDDLEWARE.injectLambdaContext,
   MIDDLEWARE.httpHeaderNormalizer,
-  MIDDLEWARE.inputOutputLogger
+  MIDDLEWARE.inputOutputLogger,
+  MIDDLEWARE.errorHandler
 ]
 export const handler = newHandler({
   handlerFunction: stateMachineEventHandler,
