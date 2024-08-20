@@ -129,16 +129,13 @@ lint-node: compile-node
 lint-samtemplates:
 	poetry run cfn-lint -I "SAMtemplates/**/*.yaml" 2>&1 | grep "Run scan"
 
-lint-python:
-	poetry run flake8 scripts/*.py --config .flake8
-
 lint-githubactions:
 	actionlint
 
 lint-githubaction-scripts:
 	shellcheck .github/scripts/*.sh
 
-lint: lint-node lint-samtemplates lint-python lint-githubactions lint-githubaction-scripts
+lint: lint-node lint-samtemplates lint-githubactions lint-githubaction-scripts
 
 test: compile
 	npm run test --workspace packages/capabilityStatement
