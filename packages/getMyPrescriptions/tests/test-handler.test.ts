@@ -77,7 +77,10 @@ const responseStatus500 = {
         ]
       }
     }
-  ]
+  ],
+  meta:{
+    lastUpdated: "2015-04-09T12:34:56.001Z"
+  }
 }
 
 const responseNotConfCertStatus500 = {
@@ -128,6 +131,7 @@ describe("Unit test for app handler", function () {
       middleware: STATE_MACHINE_MIDDLEWARE
     })
     jest.useFakeTimers()
+    jest.setSystemTime(new Date("2015-04-09T12:34:56.001Z"))
   })
   afterEach(() => {
     process.env = {...ENV}
@@ -219,8 +223,8 @@ describe("Unit test for app handler", function () {
     "return error when $scenarioDescription",
     async ({httpResponseCode, spineStatusCode, nhsdLoginUser, errorResponse, expectedHttpResponse}) => {
       mock.onGet("https://live/mm/patientfacingprescriptions").reply(httpResponseCode, {statusCode: spineStatusCode})
-      const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
-      event.headers = {"nhsd-nhslogin-user": nhsdLoginUser}
+      let event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
+      event.headers["nhsd-nhslogin-user"] = nhsdLoginUser
       const result: LambdaResult = await handler(event, dummyContext)
 
       expect(result.statusCode).toBe(expectedHttpResponse)
@@ -243,7 +247,6 @@ describe("Unit test for app handler", function () {
     mock.onGet("https://live/mm/patientfacingprescriptions").timeout()
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
     const result: LambdaResult = await handler(event, dummyContext)
-
     expect(result.statusCode).toBe(500)
     expect(result.headers).toEqual(HEADERS)
     expect(JSON.parse(result.body)).toEqual(responseStatus500)
