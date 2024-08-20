@@ -4,7 +4,7 @@ current_deployed_tag=$(aws cloudformation describe-stacks --stack-name "$TARGET_
 
 if [ -z "$current_deployed_tag" ]
 then
-     current_deployed_tag=v1.0.970-beta
+     current_deployed_tag=v0.0.000-versionunknown
 fi
 
 echo "CURRENT_DEPLOYED_TAG=${current_deployed_tag}" >> "$GITHUB_ENV"
