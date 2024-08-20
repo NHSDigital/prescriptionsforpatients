@@ -23,21 +23,39 @@ repos:
 
   - repo: local
     hooks:
-      - id: lint-updatePrescriptionStatus
-        name: Lint updatePrescriptionStatus
+      - id: lint-getMyPrescriptions
+        name: Lint getMyPrescriptions
         entry: npm
-        args: ["run", "--prefix=packages/updatePrescriptionStatus", "lint"]
+        args: ["run", "--prefix=packages/getMyPrescriptions", "lint"]
         language: system
-        files: ^packages\/updatePrescriptionStatus
+        files: ^packages\/getMyPrescriptions
         types_or: [ts, tsx, javascript, jsx, json]
         pass_filenames: false
 
-      - id: lint-gsul
-        name: Lint gsul
+      - id: lint-enrichPrescriptions
+        name: Lint enrichPrescriptions
         entry: npm
-        args: ["run", "--prefix=packages/gsul", "lint"]
+        args: ["run", "--prefix=packages/enrichPrescriptions", "lint"]
         language: system
-        files: ^packages\/gsul
+        files: ^packages\/enrichPrescriptions
+        types_or: [ts, tsx, javascript, jsx, json]
+        pass_filenames: false
+
+      - id: lint-statusLambda
+        name: Lint statusLambda
+        entry: npm
+        args: ["run", "--prefix=packages/statusLambda", "lint"]
+        language: system
+        files: ^packages\/statusLambda
+        types_or: [ts, tsx, javascript, jsx, json]
+        pass_filenames: false
+
+      - id: lint-capabilityStatement
+        name: Lint capabilityStatement
+        entry: npm
+        args: ["run", "--prefix=packages/capabilityStatement", "lint"]
+        language: system
+        files: ^packages\/capabilityStatement
         types_or: [ts, tsx, javascript, jsx, json]
         pass_filenames: false
 
@@ -50,13 +68,47 @@ repos:
         types_or: [ts, tsx, javascript, jsx, json]
         pass_filenames: false
 
-      - id: lint-statusLambda
-        name: Lint statusLambda
+      - id: lint-serviceSearchClient
+        name: Lint serviceSearchClient
         entry: npm
-        args: ["run", "--prefix=packages/statusLambda", "lint"]
+        args: ["run", "--prefix=packages/serviceSearchClient", "lint"]
         language: system
-        files: ^packages\/statusLambda
+        files: ^packages\/serviceSearchClient
         types_or: [ts, tsx, javascript, jsx, json]
+        pass_filenames: false
+
+      - id: lint-distanceSelling
+        name: Lint distanceSelling
+        entry: npm
+        args: ["run", "--prefix=packages/distanceSelling", "lint"]
+        language: system
+        files: ^packages\/distanceSelling
+        types_or: [ts, tsx, javascript, jsx, json]
+        pass_filenames: false
+
+      - id: lint-common-testing
+        name: Lint common testing
+        entry: npm
+        args: ["run", "--prefix=packages/common/testing", "lint"]
+        language: system
+        files: ^packages\/common\/testing
+        types_or: [ts, tsx, javascript, jsx, json]
+        pass_filenames: false
+
+      - id: lint-getSecretLayer
+        name: Lint getSecretLayer
+        entry: make
+        args: ["lint-go"]
+        language: system
+        files: ^packages\/getSecretLayer
+        pass_filenames: false
+
+      - id: lint-cloudformation
+        name: Lint cloudformation
+        entry: make
+        args: ["lint-cloudformation"]
+        language: system
+        files: ^cloudformation
         pass_filenames: false
 
       - id: lint-samtemplates

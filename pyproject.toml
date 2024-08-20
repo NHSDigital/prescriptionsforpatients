@@ -17,7 +17,7 @@ authors = [
     "Adam Brown <adam.brown41@nhs.net>",
     "Sean Steberis <sean.steberis2@nhs.net>",
     "Kate Bobyn <kate.bobyn2@nhs.net>",
-    "Natasa Fragkou <natasa.fragkou@nhs.net>",
+    "Natasa Fragkou <natasa.fragkou@nhs.net>"
 ]
 readme = "README.md"
 repository = "https://github.com/NHSDigital/prescriptionsforpatients"
@@ -30,11 +30,11 @@ jsonpath-rw = "^1.4.0"
 semver = "^3.0.2"
 gitpython = "^3.1.43"
 requests = "^2.32.3"
-boto3 = "^1.34.161"
+boto3 = "^1.35.0"
 argparse = "^1.4.0"
 pre-commit = "^3.5.0"
 pytest = "^8.3.2"
-cfn-lint = "^1.10.1"
+cfn-lint = "^1.10.3"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^5.0.4"
