@@ -139,31 +139,6 @@ jobs:
       INT_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.INT_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
       PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
       DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
-  
-  release_dev_old:
-    needs: [tag_release, package_code, get_commit_id]
-    uses: ./.github/workflows/sam_release_code.yml
-    with:
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
-      STACK_NAME: dev-ci
-      TARGET_ENVIRONMENT: dev
-      ENABLE_MUTUAL_TLS: true
-      BUILD_ARTIFACT: packaged_code_old
-      TRUSTSTORE_FILE: truststore.pem
-      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
-      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
-      LOG_LEVEL: DEBUG
-      LOG_RETENTION_DAYS: 30
-      CREATE_INT_RELEASE_NOTES: true
-      CREATE_PROD_RELEASE_NOTES: true
-    secrets:
-      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
-      TARGET_SPINE_SERVER: ${{ secrets.DEV_TARGET_SPINE_SERVER }}
-      TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.DEV_TARGET_SERVICE_SEARCH_SERVER }}
-      DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
-      INT_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.INT_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
-      PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
-      DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
 
   release_dev_sandbox:
     needs: [tag_release, package_code, get_commit_id]
@@ -181,27 +156,6 @@ jobs:
       LOG_RETENTION_DAYS: 30
       DOMAIN_NAME_EXPORT: eps-route53-resources:EPS-domain
       ZONE_ID_EXPORT: eps-route53-resources:EPS-ZoneID
-    secrets:
-      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
-      TARGET_SPINE_SERVER: sandbox
-      TARGET_SERVICE_SEARCH_SERVER: sandbox
-  
-  release_dev_sandbox_old:
-    needs: [tag_release, package_code, get_commit_id]
-    uses: ./.github/workflows/sam_release_code.yml
-    with:
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
-      STACK_NAME: dev-sandbox
-      TARGET_ENVIRONMENT: dev
-      ENABLE_MUTUAL_TLS: true
-      BUILD_ARTIFACT: packaged_sandbox_code_old
-      TRUSTSTORE_FILE: sandbox-truststore.pem
-      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
-      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
-      LOG_LEVEL: DEBUG
-      LOG_RETENTION_DAYS: 30
-      DOMAIN_NAME_EXPORT: route53-resources:domain
-      ZONE_ID_EXPORT: route53-resources:ZoneID
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: sandbox
@@ -226,25 +180,6 @@ jobs:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.REF_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.REF_TARGET_SPINE_SERVER }}
       TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.REF_TARGET_SERVICE_SEARCH_SERVER }}
-  
-  release_ref_old:
-    needs: [tag_release, release_dev_old, release_dev_sandbox, package_code, get_commit_id]
-    uses: ./.github/workflows/sam_release_code.yml
-    with:
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
-      STACK_NAME: ref-ci
-      TARGET_ENVIRONMENT: ref
-      ENABLE_MUTUAL_TLS: true
-      BUILD_ARTIFACT: packaged_code_old
-      TRUSTSTORE_FILE: truststore.pem
-      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
-      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
-      LOG_LEVEL: DEBUG
-      LOG_RETENTION_DAYS: 30
-    secrets:
-      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.REF_CLOUD_FORMATION_DEPLOY_ROLE }}
-      TARGET_SPINE_SERVER: ${{ secrets.REF_TARGET_SPINE_SERVER }}
-      TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.REF_TARGET_SERVICE_SEARCH_SERVER }}
 
   release_qa:
     needs: [tag_release, release_dev, release_dev_sandbox, package_code, get_commit_id]
@@ -261,25 +196,6 @@ jobs:
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
       TOGGLE_GET_STATUS_UPDATES: true
-    secrets:
-      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.QA_CLOUD_FORMATION_DEPLOY_ROLE }}
-      TARGET_SPINE_SERVER: ${{ secrets.QA_TARGET_SPINE_SERVER }}
-      TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.QA_TARGET_SERVICE_SEARCH_SERVER }}
-  
-  release_qa_old:
-    needs: [tag_release, release_dev_old, release_dev_sandbox, package_code, get_commit_id]
-    uses: ./.github/workflows/sam_release_code.yml
-    with:
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
-      STACK_NAME: qa-ci
-      TARGET_ENVIRONMENT: qa
-      ENABLE_MUTUAL_TLS: true
-      BUILD_ARTIFACT: packaged_code_old
-      TRUSTSTORE_FILE: truststore.pem
-      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
-      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
-      LOG_LEVEL: DEBUG
-      LOG_RETENTION_DAYS: 30
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.QA_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.QA_TARGET_SPINE_SERVER }}
@@ -310,31 +226,6 @@ jobs:
       INT_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.INT_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
       PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
       DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
-
-  release_int_old:
-    needs: [tag_release, release_qa_old, package_code, get_commit_id]
-    uses: ./.github/workflows/sam_release_code.yml
-    with:
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
-      STACK_NAME: int-ci
-      TARGET_ENVIRONMENT: int
-      ENABLE_MUTUAL_TLS: true
-      BUILD_ARTIFACT: packaged_code_old
-      TRUSTSTORE_FILE: truststore.pem
-      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
-      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
-      LOG_LEVEL: DEBUG
-      LOG_RETENTION_DAYS: 30
-      CREATE_INT_RELEASE_NOTES: true
-      CREATE_INT_RC_RELEASE_NOTES: true
-    secrets:
-      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
-      TARGET_SPINE_SERVER: ${{ secrets.INT_TARGET_SPINE_SERVER }}
-      TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.INT_TARGET_SERVICE_SEARCH_SERVER }}
-      DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
-      INT_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.INT_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
-      PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
-      DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
   
   release_sandbox:
     needs: [tag_release, release_qa, package_code, get_commit_id]
@@ -357,27 +248,6 @@ jobs:
       TARGET_SPINE_SERVER: sandbox
       TARGET_SERVICE_SEARCH_SERVER: sandbox
 
-  release_sandbox_old:
-    needs: [tag_release, release_qa, package_code, get_commit_id]
-    uses: ./.github/workflows/sam_release_code.yml
-    with:
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
-      STACK_NAME: int-sandbox
-      TARGET_ENVIRONMENT: int
-      ENABLE_MUTUAL_TLS: true
-      BUILD_ARTIFACT: packaged_sandbox_code
-      TRUSTSTORE_FILE: sandbox-truststore.pem
-      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
-      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
-      LOG_LEVEL: DEBUG
-      LOG_RETENTION_DAYS: 30
-      DOMAIN_NAME_EXPORT: route53-resources:domain
-      ZONE_ID_EXPORT: route53-resources:ZoneID
-    secrets:
-      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
-      TARGET_SPINE_SERVER: sandbox
-      TARGET_SERVICE_SEARCH_SERVER: sandbox
-
   release_prod:
     needs: [tag_release, release_int, release_sandbox, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
@@ -395,31 +265,6 @@ jobs:
       MARK_JIRA_RELEASED: true
       CREATE_PROD_RELEASE_NOTES: true
       TOGGLE_GET_STATUS_UPDATES: false
-    secrets:
-      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
-      TARGET_SPINE_SERVER: ${{ secrets.PROD_TARGET_SPINE_SERVER }}
-      TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.PROD_TARGET_SERVICE_SEARCH_SERVER }}
-      DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
-      INT_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.INT_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
-      PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
-      DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
-
-  release_prod_old:
-    needs: [tag_release, release_int_old, release_sandbox, package_code, get_commit_id]
-    uses: ./.github/workflows/sam_release_code.yml
-    with:
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
-      STACK_NAME: prod-ci
-      TARGET_ENVIRONMENT: prod
-      ENABLE_MUTUAL_TLS: true
-      BUILD_ARTIFACT: packaged_code_old
-      TRUSTSTORE_FILE: truststore.pem
-      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
-      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
-      LOG_LEVEL: INFO
-      LOG_RETENTION_DAYS: 731
-      MARK_JIRA_RELEASED: true
-      CREATE_PROD_RELEASE_NOTES: true
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.PROD_TARGET_SPINE_SERVER }}
