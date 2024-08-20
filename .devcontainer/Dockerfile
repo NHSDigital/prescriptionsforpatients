@@ -29,7 +29,7 @@ USER vscode
 # Install ASDF
 RUN git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.11.3; \
     echo '. $HOME/.asdf/asdf.sh' >> ~/.bashrc; \
-    echo '. $HOME/.asdf/completions/asdf.bash' >> ~/.bashrc;
+    echo '. $HOME/.asdf/completions/asdf.bash' >> ~/.bashrc; \
     echo '# Install Ruby Gems to ~/gems' >> ~/.bashrc; \
     echo 'export GEM_HOME="$HOME/gems"' >> ~/.bashrc; \
     echo 'export PATH="$HOME/gems/bin:$PATH"' >> ~/.bashrc;
