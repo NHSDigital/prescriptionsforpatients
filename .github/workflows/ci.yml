@@ -55,7 +55,7 @@ jobs:
         with:
           asdf_branch: v0.11.3
         env:
-          PYTHON_CONFIGURE_OPTS: --enable-shared 
+          PYTHON_CONFIGURE_OPTS: --enable-shared
 
       - name: Setting up .npmrc
         env:
@@ -67,7 +67,7 @@ jobs:
       - name: Install node packages
         run: |
           make install-node
-          
+
       - name: Set VERSION_TAG env var to be short git SHA and get next tag version
         id: output_version_tag
         run: |
@@ -99,6 +99,7 @@ jobs:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: pfp
       TARGET_ENVIRONMENT: dev
+      APIGEE_ENVIRONMENT: internal-dev
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: pfp-truststore.pem
@@ -109,31 +110,6 @@ jobs:
       CREATE_INT_RELEASE_NOTES: true
       CREATE_PROD_RELEASE_NOTES: true
       TOGGLE_GET_STATUS_UPDATES: true
-    secrets:
-      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
-      TARGET_SPINE_SERVER: ${{ secrets.DEV_TARGET_SPINE_SERVER }}
-      TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.DEV_TARGET_SERVICE_SEARCH_SERVER }}
-      DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
-      INT_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.INT_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
-      PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
-      DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
-  
-  release_dev_old:
-    needs: [tag_release, package_code, get_commit_id]
-    uses: ./.github/workflows/sam_release_code.yml
-    with:
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
-      STACK_NAME: dev-ci
-      TARGET_ENVIRONMENT: dev
-      ENABLE_MUTUAL_TLS: true
-      BUILD_ARTIFACT: packaged_code_old
-      TRUSTSTORE_FILE: truststore.pem
-      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
-      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
-      LOG_LEVEL: DEBUG
-      LOG_RETENTION_DAYS: 30
-      CREATE_INT_RELEASE_NOTES: true
-      CREATE_PROD_RELEASE_NOTES: true
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.DEV_TARGET_SPINE_SERVER }}
@@ -150,6 +126,7 @@ jobs:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: pfp-sandbox
       TARGET_ENVIRONMENT: dev
+      APIGEE_ENVIRONMENT: internal-dev-sandbox
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_sandbox_code
       TRUSTSTORE_FILE: pfp-sandbox-truststore.pem
@@ -163,35 +140,22 @@ jobs:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: sandbox
       TARGET_SERVICE_SEARCH_SERVER: sandbox
-  
-  release_dev_sandbox_old:
-    needs: [tag_release, package_code, get_commit_id]
-    uses: ./.github/workflows/sam_release_code.yml
-    with:
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
-      STACK_NAME: dev-sandbox
-      TARGET_ENVIRONMENT: dev
-      ENABLE_MUTUAL_TLS: true
-      BUILD_ARTIFACT: packaged_sandbox_code_old
-      TRUSTSTORE_FILE: sandbox-truststore.pem
-      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
-      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
-      LOG_LEVEL: DEBUG
-      LOG_RETENTION_DAYS: 30
-      DOMAIN_NAME_EXPORT: route53-resources:domain
-      ZONE_ID_EXPORT: route53-resources:ZoneID
-    secrets:
-      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
-      TARGET_SPINE_SERVER: sandbox
-      TARGET_SERVICE_SEARCH_SERVER: sandbox
 
   release_qa:
-    needs: [tag_release, release_dev, release_dev_sandbox, package_code, get_commit_id]
+    needs:
+      [
+        tag_release,
+        release_dev,
+        release_dev_sandbox,
+        package_code,
+        get_commit_id,
+      ]
     uses: ./.github/workflows/sam_release_code.yml
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: pfp
       TARGET_ENVIRONMENT: qa
+      APIGEE_ENVIRONMENT: internal-qa
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: pfp-truststore.pem
@@ -200,25 +164,6 @@ jobs:
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
       TOGGLE_GET_STATUS_UPDATES: true
-    secrets:
-      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.QA_CLOUD_FORMATION_DEPLOY_ROLE }}
-      TARGET_SPINE_SERVER: ${{ secrets.QA_TARGET_SPINE_SERVER }}
-      TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.QA_TARGET_SERVICE_SEARCH_SERVER }}
-  
-  release_qa_old:
-    needs: [tag_release, release_dev_old, release_dev_sandbox, package_code, get_commit_id]
-    uses: ./.github/workflows/sam_release_code.yml
-    with:
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
-      STACK_NAME: qa-ci
-      TARGET_ENVIRONMENT: qa
-      ENABLE_MUTUAL_TLS: true
-      BUILD_ARTIFACT: packaged_code_old
-      TRUSTSTORE_FILE: truststore.pem
-      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
-      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
-      LOG_LEVEL: DEBUG
-      LOG_RETENTION_DAYS: 30
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.QA_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.QA_TARGET_SPINE_SERVER }}

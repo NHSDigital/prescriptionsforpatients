@@ -50,7 +50,7 @@ jobs:
         with:
           asdf_branch: v0.11.3
         env:
-          PYTHON_CONFIGURE_OPTS: --enable-shared 
+          PYTHON_CONFIGURE_OPTS: --enable-shared
 
       - name: Setting up .npmrc
         env:
@@ -121,6 +121,7 @@ jobs:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: pfp
       TARGET_ENVIRONMENT: dev
+      APIGEE_ENVIRONMENT: internal-dev
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: pfp-truststore.pem
@@ -147,6 +148,7 @@ jobs:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: pfp-sandbox
       TARGET_ENVIRONMENT: dev
+      APIGEE_ENVIRONMENT: internal-dev-sandbox
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_sandbox_code
       TRUSTSTORE_FILE: pfp-sandbox-truststore.pem
@@ -162,12 +164,20 @@ jobs:
       TARGET_SERVICE_SEARCH_SERVER: sandbox
 
   release_ref:
-    needs: [tag_release, release_dev, release_dev_sandbox, package_code, get_commit_id]
+    needs:
+      [
+        tag_release,
+        release_dev,
+        release_dev_sandbox,
+        package_code,
+        get_commit_id,
+      ]
     uses: ./.github/workflows/sam_release_code.yml
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: pfp
       TARGET_ENVIRONMENT: ref
+      APIGEE_ENVIRONMENT: ref
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: pfp-truststore.pem
@@ -182,12 +192,20 @@ jobs:
       TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.REF_TARGET_SERVICE_SEARCH_SERVER }}
 
   release_qa:
-    needs: [tag_release, release_dev, release_dev_sandbox, package_code, get_commit_id]
+    needs:
+      [
+        tag_release,
+        release_dev,
+        release_dev_sandbox,
+        package_code,
+        get_commit_id,
+      ]
     uses: ./.github/workflows/sam_release_code.yml
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: pfp
       TARGET_ENVIRONMENT: qa
+      APIGEE_ENVIRONMENT: internal-qa
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: pfp-truststore.pem
@@ -208,6 +226,7 @@ jobs:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: pfp
       TARGET_ENVIRONMENT: int
+      APIGEE_ENVIRONMENT: int
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: pfp-truststore.pem
@@ -226,7 +245,7 @@ jobs:
       INT_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.INT_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
       PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
       DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
-  
+
   release_sandbox:
     needs: [tag_release, release_qa, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
@@ -234,6 +253,7 @@ jobs:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: pfp-sandbox
       TARGET_ENVIRONMENT: int
+      APIGEE_ENVIRONMENT: int-sandbox
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_sandbox_code
       TRUSTSTORE_FILE: pfp-sandbox-truststore.pem
@@ -249,12 +269,14 @@ jobs:
       TARGET_SERVICE_SEARCH_SERVER: sandbox
 
   release_prod:
-    needs: [tag_release, release_int, release_sandbox, package_code, get_commit_id]
+    needs:
+      [tag_release, release_int, release_sandbox, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: pfp
       TARGET_ENVIRONMENT: prod
+      APIGEE_ENVIRONMENT: prod
       ENABLE_MUTUAL_TLS: true
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: pfp-truststore.pem
