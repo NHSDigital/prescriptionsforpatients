@@ -21,3 +21,8 @@ release_notes
 lib/
 *.tsbuildinfo
 cfn_guard_output/
+_site/
+.sass-cache
+.jekyll-cache
+.jekyll-metadata
+vendor

@@ -1,6 +1,6 @@
 import {Bundle, OperationOutcome} from "fhir/r4"
 import {StatusUpdateData, shouldGetStatusUpdates} from "./statusUpdate"
-import {APIGatewayProxyResult} from "aws-lambda"
+import {APIGatewayProxyResult as LambdaResult} from "aws-lambda"
 
 export type FhirBody = Bundle | OperationOutcome
 
@@ -23,15 +23,17 @@ export type TraceIDs = {
 }
 
 export type ResponseFunc = (
-  fhirBody: FhirBody, traceIDs: TraceIDs, statusUpdateData?: Array<StatusUpdateData>
-) => APIGatewayProxyResult
+  fhirBody: FhirBody,
+  traceIDs: TraceIDs,
+  statusUpdateData?: Array<StatusUpdateData>
+) => LambdaResult
 
 export const HEADERS = {
   "Content-Type": "application/fhir+json",
   "Cache-Control": "no-cache"
 }
 
-export const TIMEOUT_RESPONSE: APIGatewayProxyResult = {
+export const TIMEOUT_RESPONSE: LambdaResult = {
   statusCode: 408,
   body: JSON.stringify({
     resourceType: "OperationOutcome",
@@ -54,7 +56,7 @@ export const TIMEOUT_RESPONSE: APIGatewayProxyResult = {
   headers: HEADERS
 }
 
-export const SPINE_CERT_NOT_CONFIGURED_RESPONSE: APIGatewayProxyResult = {
+export const SPINE_CERT_NOT_CONFIGURED_RESPONSE: LambdaResult = {
   statusCode: 500,
   body: JSON.stringify({
     resourceType: "OperationOutcome",
@@ -78,7 +80,7 @@ export const SPINE_CERT_NOT_CONFIGURED_RESPONSE: APIGatewayProxyResult = {
   headers: HEADERS
 }
 
-export const INVALID_NHS_NUMBER_RESPONSE: APIGatewayProxyResult = {
+export const INVALID_NHS_NUMBER_RESPONSE: LambdaResult = {
   statusCode: 400,
   body: JSON.stringify({
     resourceType: "OperationOutcome",
@@ -102,8 +104,10 @@ export const INVALID_NHS_NUMBER_RESPONSE: APIGatewayProxyResult = {
 }
 
 export function stateMachineLambdaResponse(
-  fhirBody: FhirBody, traceIDs: TraceIDs, statusUpdateData?: Array<StatusUpdateData>
-): APIGatewayProxyResult {
+  fhirBody: FhirBody,
+  traceIDs: TraceIDs,
+  statusUpdateData?: Array<StatusUpdateData>
+): LambdaResult {
   const body: StateMachineFunctionResponseBody = {
     fhir: fhirBody,
     getStatusUpdates: shouldGetStatusUpdates(),
@@ -120,14 +124,6 @@ export function stateMachineLambdaResponse(
   return {
     statusCode: 200,
     body: JSON.stringify(body),
-    headers: HEADERS
-  }
-}
-
-export function apiGatewayLambdaResponse(fhirBody: FhirBody): APIGatewayProxyResult {
-  return {
-    statusCode: 200,
-    body: JSON.stringify(fhirBody),
     headers: HEADERS
   }
 }

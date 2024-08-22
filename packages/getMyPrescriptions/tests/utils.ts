@@ -14,10 +14,10 @@ export function mockInternalDependency(modulePath: string, module: object, depen
 
 export const SERVICE_SEARCH_PARAMS = {
   "api-version": 2,
-  "searchFields": "ODSCode",
-  "$filter": "OrganisationTypeId eq 'PHA' and OrganisationSubType eq 'DistanceSelling'",
-  "$select": "URL,OrganisationSubType",
-  "$top": 1
+  searchFields: "ODSCode",
+  $filter: "OrganisationTypeId eq 'PHA' and OrganisationSubType eq 'DistanceSelling'",
+  $select: "URL,OrganisationSubType",
+  $top: 1
 }
 
 export const EXPECTED_TRACE_IDS: TraceIDs = {
@@ -50,10 +50,7 @@ export function pharmacy2uOrganisation(): Organization {
       {
         use: "work",
         type: "both",
-        line: [
-          "Unit 4B",
-          "Victoria Road"
-        ],
+        line: ["Unit 4B", "Victoria Road"],
         city: "LEEDS",
         district: "WEST YORKSHIRE",
         postalCode: "LS14 2LA"
@@ -84,9 +81,7 @@ export function pharmicaOrganisation(): Organization {
       {
         use: "work",
         type: "both",
-        line: [
-          "1-5 Clerkenwell Road"
-        ],
+        line: ["1-5 Clerkenwell Road"],
         city: "LONDON",
         district: "GREATER LONDON",
         postalCode: "EC1M 5PA"

@@ -20,10 +20,6 @@ install-hooks: install-python
 sam-build: sam-validate compile download-get-secrets-layer
 	sam build --template-file SAMtemplates/main_template.yaml --region eu-west-2
 
-#to be removed
-sam-build-old: sam-validate compile download-get-secrets-layer
-	sam build --template-file SAMtemplates/main_template.old.yaml --region eu-west-2
-
 sam-build-sandbox: sam-validate-sandbox compile download-get-secrets-layer
 	sam build --template-file SAMtemplates/sandbox_template.yaml --region eu-west-2
 
@@ -69,8 +65,6 @@ sam-list-outputs: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam list stack-outputs --stack-name $$stack_name
 
 sam-validate: 
-	sam validate --template-file SAMtemplates/main_template.old.yaml --region eu-west-2
-	sam validate --template-file SAMtemplates/lambda_resources.old.yaml --region eu-west-2
 	sam validate --template-file SAMtemplates/main_template.yaml --region eu-west-2
 	sam validate --template-file SAMtemplates/apis/main.yaml --region eu-west-2
 	sam validate --template-file SAMtemplates/apis/api_resources.yaml --region eu-west-2
@@ -135,16 +129,13 @@ lint-node: compile-node
 lint-samtemplates:
 	poetry run cfn-lint -I "SAMtemplates/**/*.yaml" 2>&1 | grep "Run scan"
 
-lint-python:
-	poetry run flake8 scripts/*.py --config .flake8
-
 lint-githubactions:
 	actionlint
 
 lint-githubaction-scripts:
 	shellcheck .github/scripts/*.sh
 
-lint: lint-node lint-samtemplates lint-python lint-githubactions lint-githubaction-scripts
+lint: lint-node lint-samtemplates lint-githubactions lint-githubaction-scripts
 
 test: compile
 	npm run test --workspace packages/capabilityStatement
