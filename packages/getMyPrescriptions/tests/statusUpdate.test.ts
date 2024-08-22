@@ -8,12 +8,12 @@ import {
 } from "@jest/globals"
 import axios from "axios"
 import {Bundle, MedicationRequest} from "fhir/r4"
-import {APIGatewayProxyResult, Context} from "aws-lambda"
+import {APIGatewayProxyResult as LambdaResult, Context} from "aws-lambda"
 import MockAdapter from "axios-mock-adapter"
 
 import {
   helloworldContext,
-  mockAPIResponseBody,
+  mockAPIResponseBody as mockResponseBody,
   mockInteractionResponseBody,
   mockPharmacy2uResponse,
   mockPharmicaResponse,
@@ -102,7 +102,7 @@ describe("Unit tests for statusUpdate", () => {
 
 describe("Unit tests for statusUpdate, via handler", function () {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let handler: MiddyfiedHandler<GetMyPrescriptionsEvent, APIGatewayProxyResult, Error, Context, any>
+  let handler: MiddyfiedHandler<GetMyPrescriptionsEvent, LambdaResult, Error, Context, any>
   beforeEach(() => {
     process.env.TargetSpineServer = "spine"
     process.env.TargetServiceSearchServer = "service-search"
@@ -134,7 +134,7 @@ describe("Unit tests for statusUpdate, via handler", function () {
 
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, JSON.parse(exampleInteractionResponse))
 
-    const result: APIGatewayProxyResult = await handler(event, dummyContext)
+    const result: LambdaResult = await handler(event, dummyContext)
 
     const statusUpdateData = {
       schemaVersion: 1,
@@ -144,7 +144,7 @@ describe("Unit tests for statusUpdate, via handler", function () {
       ]
     }
     const expected: StateMachineFunctionResponseBody = {
-      fhir: mockAPIResponseBody as Bundle,
+      fhir: mockResponseBody as Bundle,
       getStatusUpdates: true,
       statusUpdateData: statusUpdateData,
       traceIDs: EXPECTED_TRACE_IDS
