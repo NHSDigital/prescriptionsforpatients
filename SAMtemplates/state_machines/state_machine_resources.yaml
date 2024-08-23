@@ -111,6 +111,10 @@ Resources:
 
   StateMachineLogGroup:
     Type: AWS::Logs::LogGroup
+    Metadata:
+      guard:
+        SuppressedRules:
+          - CW_LOGGROUP_RETENTION_PERIOD_CHECK
     Properties:
       LogGroupName: !Sub /aws/stepfunctions/${StateMachineName}
       RetentionInDays: !Ref LogRetentionInDays

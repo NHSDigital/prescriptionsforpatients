@@ -10,34 +10,34 @@ Parameters:
   LambdaName:
     Type: String
     Default: none
-  
+
   LambdaArn:
     Type: String
     Default: none
-  
+
   IncludeAdditionalPolicies:
     Type: String
     Default: false
-  
+
   AdditionalPolicies:
     Type: CommaDelimitedList
     Description: A list of additional policies to attach the lambdas role (comma delimited).
     Default: none
-  
+
   LogRetentionInDays:
     Type: Number
-  
+
   CloudWatchKMSKeyId:
     Type: String
     Default: none
-  
+
   EnableSplunk:
     Type: String
-  
+
   SplunkSubscriptionFilterRole:
     Type: String
     Default: none
-  
+
   SplunkDeliveryStreamArn:
     Type: String
     Default: none
@@ -46,7 +46,7 @@ Conditions:
   ShouldUseSplunk: !Equals
     - true
     - !Ref EnableSplunk
-  
+
   ShouldIncludeAdditionalPolicies: !Equals
     - true
     - !Ref IncludeAdditionalPolicies
@@ -103,21 +103,25 @@ Resources:
             Resource:
               - !GetAtt LambdaLogGroup.Arn
               - !Sub ${LambdaLogGroup.Arn}:log-stream:*
-  
+
   LambdaLogGroup:
     Type: AWS::Logs::LogGroup
+    Metadata:
+      guard:
+        SuppressedRules:
+          - CW_LOGGROUP_RETENTION_PERIOD_CHECK
     Properties:
       LogGroupName: !Sub /aws/lambda/${LambdaName}
       RetentionInDays: !Ref LogRetentionInDays
       KmsKeyId: !Ref CloudWatchKMSKeyId
-  
+
   LambdaSplunkSubscriptionFilter:
     Condition: ShouldUseSplunk
     Type: AWS::Logs::SubscriptionFilter
     Properties:
       RoleArn: !Ref SplunkSubscriptionFilterRole
       LogGroupName: !Ref LambdaLogGroup
-      FilterPattern: ''
+      FilterPattern: ""
       DestinationArn: !Ref SplunkDeliveryStreamArn
 
 Outputs:

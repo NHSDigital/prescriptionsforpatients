@@ -190,3 +190,6 @@ aws-configure:
 
 aws-login:
 	aws sso login --sso-session sso-session
+
+cfn-guard:
+	./scripts/run_cfn_guard.sh

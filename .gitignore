@@ -20,6 +20,7 @@ release_notes
 .aws-sam
 lib/
 *.tsbuildinfo
+cfn_guard_output/
 _site/
 .sass-cache
 .jekyll-cache
