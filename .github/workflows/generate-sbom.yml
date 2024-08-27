@@ -7,10 +7,6 @@ jobs:
   generate-sbom:
     runs-on: ubuntu-latest
 
-    outputs:
-      node-scan-result: ${{ steps.node-sbom-scan.outputs.json }}
-      python-scan-result: ${{ steps.python-sbom-scan.outputs.json }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -75,7 +71,7 @@ jobs:
         uses: anchore/scan-action@v3
         with:
           sbom: sbom-node.json
-          output-format: json
+          output-format: table
           fail-build: false
           severity-cutoff: critical
           
@@ -84,9 +80,6 @@ jobs:
         uses: anchore/scan-action@v3
         with:
           sbom: sbom-python.json
-          output-format: json
+          output-format: table
           fail-build: false
           severity-cutoff: critical
-
-      - name: List directory
-        run: ls -alh
