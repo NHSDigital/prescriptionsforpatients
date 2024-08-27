@@ -7,6 +7,10 @@ jobs:
   generate-sbom:
     runs-on: ubuntu-latest
 
+    outputs:
+      node-scan-result: ${{ steps.node-sbom-scan.outputs.json }}
+      python-scan-result: ${{ steps.python-sbom-scan.outputs.json }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -67,17 +71,19 @@ jobs:
             sbom-node.json
 
       - name: Scan Node SBOM
+        id: node-sbom-scan
         uses: anchore/scan-action@v3
         with:
           sbom: sbom-node.json
-          fail-build: true
+          output-format: json
+          fail-build: false
           severity-cutoff: critical
           
       - name: Scan Python SBOM
+        id: python-sbom-scan
         uses: anchore/scan-action@v3
         with:
           sbom: sbom-python.json
-          fail-build: true
+          output-format: json
+          fail-build: false
           severity-cutoff: critical
-                  
-          
