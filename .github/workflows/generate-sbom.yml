@@ -65,3 +65,19 @@ jobs:
           path: |
             sbom-python.json
             sbom-node.json
+
+      - name: Scan Node SBOM
+        uses: anchore/scan-action@v3
+        with:
+          sbom: sbom-node.json
+          fail-build: true
+          severity-cutoff: critical
+          
+      - name: Scan Python SBOM
+        uses: anchore/scan-action@v3
+        with:
+          sbom: sbom-python.json
+          fail-build: true
+          severity-cutoff: critical
+                  
+          
