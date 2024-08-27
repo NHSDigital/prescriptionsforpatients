@@ -87,3 +87,6 @@ jobs:
           output-format: json
           fail-build: false
           severity-cutoff: critical
+
+      - name: List directory
+        run: ls -alh
