@@ -15,7 +15,7 @@ jobs:
 
       - name: Extract SBOM artifacts
         run: |
-          unzip SBOMs.zip -d sboms
+          unzip SBOMs -d sboms
 
       - uses: anchore/scan-action@v3
         with:
