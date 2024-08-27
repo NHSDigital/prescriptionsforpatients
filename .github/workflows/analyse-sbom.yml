@@ -7,11 +7,19 @@ jobs:
 
   scan-node-vulnerabilities:
     runs-on: ubuntu-latest
-    steps:
-    - uses: anchore/scan-action@v3
-      with:
-        sbom: sbom-node.json
-        fail-build: true
-        severity-cutoff: critical
-        acs-report-enable: true
-        
+    steps:      
+      - name: Download SBOM artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: SBOMs
+
+      - name: Extract SBOM artifacts
+        run: |
+          unzip SBOMs.zip -d sboms
+
+      - uses: anchore/scan-action@v3
+        with:
+          sbom: sboms/sbom-node.json
+          fail-build: true
+          severity-cutoff: critical
+          
