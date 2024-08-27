@@ -13,13 +13,9 @@ jobs:
         with:
           name: SBOMs
 
-      - name: Extract SBOM artifacts
-        run: |
-          unzip SBOMs -d sboms
-
       - uses: anchore/scan-action@v3
         with:
-          sbom: sboms/sbom-node.json
+          sbom: SBOMs/sbom-node.json
           fail-build: true
           severity-cutoff: critical
           
