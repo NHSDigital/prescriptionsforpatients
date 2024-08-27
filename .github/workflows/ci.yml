@@ -92,6 +92,10 @@ jobs:
     needs: tag_release
     uses: ./.github/workflows/sam_package_code.yml
 
+  generate_sboms:
+    needs: quality_checks
+    uses: ./.github/workflows/generate-sbom.yml
+
   release_dev:
     needs: [tag_release, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml

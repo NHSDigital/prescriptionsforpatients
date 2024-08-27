@@ -1,0 +1,12 @@
+name: Test SBOM generation and analysis
+
+on:
+  push:
+
+jobs:
+  generate_sboms:
+    uses: ./.github/workflows/generate-sbom.yml
+
+  analyse_sboms:
+    needs: generate_sboms
+    uses: ./.github/workflows/analyse-sbom.yml

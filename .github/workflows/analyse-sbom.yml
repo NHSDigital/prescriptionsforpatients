@@ -1,0 +1,17 @@
+name: "Scan SBOM for vulnerabilities"
+
+on:
+  workflow_call:
+
+jobs:
+
+  scan-node-vulnerabilities:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: anchore/scan-action@v3
+      with:
+        sbom: sbom-node.json
+        fail-build: true
+        severity-cutoff: critical
+        acs-report-enable: true
+        
