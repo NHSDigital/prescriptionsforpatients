@@ -72,7 +72,7 @@ jobs:
         with:
           sbom: sbom-node.json
           output-format: table
-          fail-build: false
+          fail-build: true
           severity-cutoff: critical
           
       - name: Scan Python SBOM
@@ -81,5 +81,5 @@ jobs:
         with:
           sbom: sbom-python.json
           output-format: table
-          fail-build: false
+          fail-build: true
           severity-cutoff: critical
