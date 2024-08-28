@@ -71,15 +71,31 @@ jobs:
         uses: anchore/scan-action@v3
         with:
           sbom: sbom-node.json
-          output-format: table
-          fail-build: true
+          output-format: json
+          fail-build: false
           severity-cutoff: critical
-          
+      
+      - name: Rename scan results
+        run: |
+          mv results.json sbom-node-scan-results.json
+
+      - name: Check scan results against ignored issues
+        run: |
+          ./.github/scripts/check-sbom-issues-against-ignores.sh ./.github/ignored_security_issues.json sbom-node-scan-results.json
+
       - name: Scan Python SBOM
         id: python-sbom-scan
         uses: anchore/scan-action@v3
         with:
           sbom: sbom-python.json
           output-format: table
-          fail-build: true
+          fail-build: false
           severity-cutoff: critical
+      
+      - name: Rename scan results
+        run: |
+          mv results.json sbom-python-scan-results.json
+      
+      - name: Check scan results against ignored issues
+        run: |
+          ./.github/scripts/check-sbom-issues-against-ignores.sh ./.github/ignored_security_issues.json sbom-python-scan-results.json
