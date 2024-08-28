@@ -49,6 +49,62 @@ jobs:
         run: |
           make install
 
+      - name: Install Python SBOM generator
+        run: pip install cyclonedx-bom
+
+      - name: Generate Python SBOM
+        run: |
+          cyclonedx-py poetry > sbom-python.json
+
+      - name: Install Node.js SBOM generator
+        run: npm install -g @cyclonedx/cyclonedx-npm
+
+      - name: Generate Node.js SBOM
+        run: |
+          cyclonedx-npm --output-format json --output-file sbom-node.json
+
+      - name: Upload SBOMs as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: SBOMs
+          path: |
+            sbom-python.json
+            sbom-node.json
+
+      - name: Scan Node SBOM
+        id: node-sbom-scan
+        uses: anchore/scan-action@v3
+        with:
+          sbom: sbom-node.json
+          output-format: json
+          fail-build: false
+          severity-cutoff: critical
+      
+      - name: Rename scan results
+        run: |
+          mv results.json sbom-node-scan-results.json
+
+      - name: Scan Python SBOM
+        id: python-sbom-scan
+        uses: anchore/scan-action@v3
+        with:
+          sbom: sbom-python.json
+          output-format: table
+          fail-build: false
+          severity-cutoff: critical
+      
+      - name: Rename scan results
+        run: |
+          mv results.json sbom-python-scan-results.json
+      
+      - name: Check scan results against ignored issues
+        run: |
+          ./.github/scripts/check-sbom-issues-against-ignores.sh ./.github/ignored_security_issues.json sbom-node-scan-results.json
+
+      - name: Check scan results against ignored issues
+        run: |
+          ./.github/scripts/check-sbom-issues-against-ignores.sh ./.github/ignored_security_issues.json sbom-python-scan-results.json
+  
       - name: run check-licenses
         run: make check-licenses
 

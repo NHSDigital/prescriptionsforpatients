@@ -52,11 +52,7 @@ jobs:
         id: commit_id
         run: |
           echo "commit_id=${{ github.sha }}" >> "$GITHUB_OUTPUT"
-
-  generate_sboms:
-    needs: quality_checks
-    uses: ./.github/workflows/generate-sbom.yml
-        
+  
   package_code:
     needs: get_issue_number
     uses: ./.github/workflows/sam_package_code.yml
