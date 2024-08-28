@@ -25,6 +25,7 @@ while IFS= read -r MATCH; do
   for IGNORED in "${IGNORED_ISSUES[@]}"; do
     if [[ "$IGNORED" == "$VULN_ID" ]]; then
       FOUND=true
+      echo "Warning: Ignored vulnerability found: $VULN_ID"
       break
     fi
   done
