@@ -79,10 +79,14 @@ jobs:
           output-format: json
           fail-build: false
           severity-cutoff: critical
-      
+
       - name: Rename scan results
         run: |
-          mv results.json sbom-node-scan-results.json
+          if [ -f results.json ]; then
+            mv results.json sbom-node-scan-results.json
+          else
+            echo '{}' > sbom-node-scan-results.json
+          fi
 
       - name: Scan Python SBOM
         id: python-sbom-scan
@@ -92,11 +96,15 @@ jobs:
           output-format: table
           fail-build: false
           severity-cutoff: critical
-      
+
       - name: Rename scan results
         run: |
-          mv results.json sbom-python-scan-results.json
-      
+          if [ -f results.json ]; then
+            mv results.json sbom-python-scan-results.json
+          else
+            echo '{}' > sbom-python-scan-results.json
+          fi
+
       - name: Check scan results against ignored issues
         run: |
           ./.github/scripts/check-sbom-issues-against-ignores.sh ./.github/ignored_security_issues.json sbom-node-scan-results.json
