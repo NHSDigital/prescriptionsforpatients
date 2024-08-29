@@ -72,7 +72,14 @@ jobs:
         id: output_version_tag
         run: |
           VERSION_TAG=$(git rev-parse --short HEAD)
-          NEXT_VERSION=$(npx semantic-release --dry-run | grep -i 'The next release version is' | sed -E 's/.* ([[:digit:].]+)$/\1/')
+          npx semantic-release --dry-run > semantic-release-output.log
+          NEXT_VERSION=$(grep -i 'The next release version is' semantic-release-output.log | sed -E 's/.* ([[:digit:].]+)$/\1/')
+          if [ -z "${NEXT_VERSION}" ]
+          then
+            echo "Could not get next tag. Here is the log from semantic-release"
+            cat semantic-release-output.log
+            exit 1
+          fi
           tagFormat=$(node -e "const config=require('./release.config.js'); console.log(config.tagFormat)")
           if [ "${tagFormat}" = "null" ]
           then
