@@ -136,6 +136,27 @@ jobs:
           TOGGLE_GET_STATUS_UPDATES: ${{ inputs.TOGGLE_GET_STATUS_UPDATES }}
         run: ./release_code.sh
 
+      - name: Generate a token to authenticate regression testing
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.REGRESSION_TESTS_APP_ID }}
+          private-key: ${{ secrets.REGRESSION_TESTS_PEM }}
+          owner: "NHSDigital"
+          repositories: "electronic-prescription-service-api-regression-tests"
+
+      - name: Run Regression Testing
+        env:
+          TARGET_ENVIRONMENT: ${{ inputs.TARGET_ENVIRONMENT }}
+          VERSION_NUMBER: ${{ inputs.VERSION_NUMBER }}
+          GITHUB-TOKEN: ${{ steps.generate-token.outputs.token }}
+        run: |
+              if [[ "$TARGET_ENVIRONMENT" != "prod" && "$TARGET_ENVIRONMENT" != "ref" ]]; then
+                make install-python
+                echo Running regression tests in the $TARGET_ENVIRONMENT environment
+                poetry run scripts/run_regression_tests.py --env=$TARGET_ENVIRONMENT --pr_label=$VERSION_NUMBER --token=$GITHUB-TOKEN
+              fi
+
       - name: create_int_release_notes
         uses: ./.github/actions/update_confluence_jira
         if: ${{ inputs.CREATE_INT_RELEASE_NOTES == true && always() && !failure() && !cancelled() }}
