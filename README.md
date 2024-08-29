@@ -1,7 +1,7 @@
-# Prescriptions API
+# Prescriptions API - DO NOT MERGE
 
 ![Build](https://github.com/NHSDigital/prescriptionsforpatients/actions/workflows/ci.yml/badge.svg?branch=main)
-![Release](https://github.com/NHSDigital/prescriptionsforpatients/actions/workflows/release.yml/badge.svg?branch=main)  
+![Release](https://github.com/NHSDigital/prescriptionsforpatients/actions/workflows/release.yml/badge.svg?branch=main)
 
 ## Versions and deployments
 
@@ -127,10 +127,12 @@ To work with the GitHub Package Registry, you need to generate a [personal acces
 Follow these steps:
 
 - [Generate a personal access token (classic)](https://docs.github.com/en/enterprise-cloud@latest/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic)
+
   - Go to your GitHub account settings and navigate to "Developer settings" > "Personal access tokens". Select the "Tokens(classic)" from the left bar.
   - Click on the "Generate a personal access token" link and select the `read:packages` scope. Ensure the token has no expiration.
 
 - [Authorize a personal access token for use with SAML single sign-on](https://docs.github.com/en/enterprise-cloud@latest/authentication/authenticating-with-saml-single-sign-on/authorizing-a-personal-access-token-for-use-with-saml-single-sign-on)
+
   - Click "Configure SSO". If you don't see this option, ensure that you have authenticated at least once through your SAML IdP to access resources on GitHub.com
   - In the dropdown menu, to the right of the organization you'd like to authorize the token for, click "Authorize".
 
