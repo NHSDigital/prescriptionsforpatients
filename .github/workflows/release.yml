@@ -75,7 +75,7 @@ jobs:
           fi
           # disabling shellcheck as replace does not work
           # shellcheck disable=SC2001
-          NEW_VERSION_TAG=$(echo "$tagFormat" | sed "s/\${version}/$NEXT_VERSION/")
+          VERSION_TAG=$(echo "$tagFormat" | sed "s/\${version}/$NEXT_VERSION/")
           echo "## VERSION TAG : ${VERSION_TAG}" >> "$GITHUB_STEP_SUMMARY"
           echo "## NEXT TAG WILL BE : ${NEW_VERSION_TAG}" >> "$GITHUB_STEP_SUMMARY"
           echo "VERSION_TAG=${VERSION_TAG}" >> "$GITHUB_OUTPUT"
