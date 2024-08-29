@@ -68,16 +68,15 @@ jobs:
         run: |
           VERSION_TAG=$(git rev-parse --short HEAD)
           NEXT_VERSION=$(npx semantic-release --dry-run | grep -i 'The next release version is' | sed -E 's/.* ([[:digit:].]+)$/\1/')
-          tagFormat=$(jq -r .tagFormat .releaserc)
+          tagFormat=$(node -e "const config=require('./release.config.js'); console.log(config.tagFormat)")
           if [ "${tagFormat}" = "null" ]
           then
             tagFormat="v\${version}"
           fi
           # disabling shellcheck as replace does not work
           # shellcheck disable=SC2001
-          NEW_VERSION_TAG=$(echo "$tagFormat" | sed "s/\${version}/$NEXT_VERSION/")
+          VERSION_TAG=$(echo "$tagFormat" | sed "s/\${version}/$NEXT_VERSION/")
           echo "## VERSION TAG : ${VERSION_TAG}" >> "$GITHUB_STEP_SUMMARY"
-          echo "## NEXT TAG WILL BE : ${NEW_VERSION_TAG}" >> "$GITHUB_STEP_SUMMARY"
           echo "VERSION_TAG=${VERSION_TAG}" >> "$GITHUB_OUTPUT"
           echo "VERSION_TAG=${VERSION_TAG}" >> "$GITHUB_ENV"
         env:
@@ -235,7 +234,7 @@ jobs:
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
       CREATE_INT_RELEASE_NOTES: true
-      CREATE_INT_RC_RELEASE_NOTES: false
+      CREATE_INT_RC_RELEASE_NOTES: true
       TOGGLE_GET_STATUS_UPDATES: true
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
