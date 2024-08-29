@@ -1,7 +1,6 @@
 /* eslint-disable func-style */
 import {expect} from "@jest/globals"
 import type {MatcherFunction} from "expect"
-import * as _ from "lodash-es"
 
 /*
 This is a custom matcher that extends jest expect
@@ -20,7 +19,7 @@ const toMatchJsonLogMessage: MatcherFunction<[jsonField: unknown, jsonValue: unk
       throw new TypeError("These must be of type string!")
     }
     const actualJson = JSON.parse(actual)
-    const pass = _.get(actualJson, jsonField, "") === jsonValue && _.get(actualJson, missingJsonField, "") === ""
+    const pass = (actualJson[jsonField] ?? "") === jsonValue && (actualJson[missingJsonField] ?? "") === ""
     if (pass) {
       return {
         message: () => "",
