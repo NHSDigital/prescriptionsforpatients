@@ -73,7 +73,7 @@ jobs:
 
       - name: Scan Node SBOM
         id: node-sbom-scan
-        uses: anchore/scan-action@v3
+        uses: anchore/scan-action@v4
         with:
           sbom: sbom-node.json
           output-format: json
@@ -90,7 +90,7 @@ jobs:
 
       - name: Scan Python SBOM
         id: python-sbom-scan
-        uses: anchore/scan-action@v3
+        uses: anchore/scan-action@v4
         with:
           sbom: sbom-python.json
           output-format: table
