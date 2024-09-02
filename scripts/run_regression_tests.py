@@ -34,12 +34,13 @@ def generate_timestamp():
 
 
 def trigger_test_run():
+    env="INTERNAL-DEV" if arguments.env == "dev-pr" else arguments.env
     body = {
         "ref": "main",
         "inputs": {
             "id": run_id,
             "tags": "@regression",
-            "environment": arguments.env,
+            "environment": env,
             "pull_request_id": arguments.pr_label,
             "product": "PFP-APIGEE",
         },
