@@ -57,6 +57,9 @@ on:
       TOGGLE_GET_STATUS_UPDATES:
         type: boolean
         default: false
+      REGRESSION_TESTS_PEM:
+        type: string
+        default: false
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
