@@ -54,7 +54,7 @@ def trigger_test_run():
     print(f"Dispatch workflow. Unique workflow identifier: {run_id}")
     assert (
         response.status_code == 204
-    ), f"Failed to trigger test run. Expected 204, got {response.status_code}"
+    ), f"Failed to trigger test run. Expected 204, got {response.status_code}. Response: {response.text}"
 
 
 def get_workflow_runs():
@@ -101,6 +101,7 @@ def find_workflow():
             "Processed all available workflows but no jobs were matching the Unique ID were found!"
         )
 
+
 def is_correct_job(list_of_jobs):
     job = list_of_jobs[0]
     steps = job["steps"]
@@ -111,6 +112,7 @@ def is_correct_job(list_of_jobs):
             return True
     else:
         print("Jobs for this workflow run haven't populated yet...")
+
 
 def get_job():
     job_request_url = f"{GITHUB_API_URL}/runs/{workflow_id}/jobs"
@@ -156,7 +158,7 @@ if __name__ == "__main__":
         "--token", required=True, help="Please provide the authentication token."
     )
     arguments = parser.parse_args()
-
+    print(arguments.token)
     run_id = generate_unique_run_id()
     run_date_filter = generate_timestamp()
 
