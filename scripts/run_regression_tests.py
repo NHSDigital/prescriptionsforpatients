@@ -158,7 +158,7 @@ if __name__ == "__main__":
         "--token", required=True, help="Please provide the authentication token."
     )
     arguments = parser.parse_args()
-    print(arguments.token)
+    print(f"Token: {arguments.token}")
     run_id = generate_unique_run_id()
     run_date_filter = generate_timestamp()
 
