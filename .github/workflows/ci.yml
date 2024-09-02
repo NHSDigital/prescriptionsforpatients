@@ -11,6 +11,7 @@ jobs:
   quality_checks:
     uses: ./.github/workflows/quality_checks.yml
     secrets:
+      REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   get_commit_id:

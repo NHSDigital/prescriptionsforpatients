@@ -72,6 +72,8 @@ on:
         required: false
       DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE:
         required: false
+      REGRESSION_TESTS_PEM:
+        required: true
 
 jobs:
   sam_release_code:
@@ -141,7 +143,7 @@ jobs:
         uses: actions/create-github-app-token@v1
         with:
           app-id: ${{ vars.REGRESSION_TESTS_APP_ID }}
-          private-key: ${{ secrets.REGRESSION_TESTS_PEM }}
+          private-key: ${{ inputs.REGRESSION_TESTS_PEM }}
           owner: "NHSDigital"
           repositories: "electronic-prescription-service-api-regression-tests"
 

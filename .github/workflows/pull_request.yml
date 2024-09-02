@@ -12,6 +12,7 @@ jobs:
     uses: ./.github/workflows/quality_checks.yml
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
 
   pr_title_format_check:
     uses: ./.github/workflows/pr_title_check.yml
