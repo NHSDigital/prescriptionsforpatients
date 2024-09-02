@@ -94,24 +94,23 @@ def find_workflow():
             jobs_url = workflow["jobs_url"]
 
             list_of_jobs = get_jobs_for_workflow(jobs_url)
-
-            if list_of_jobs:
-                job = list_of_jobs[0]
-                steps = job["steps"]
-
-                if len(steps) >= 2:
-                    third_step = steps[2]
-                    if third_step["name"] == run_id:
-                        print(f"Workflow Job found! Using ID: {current_workflow_id}")
-                        return current_workflow_id
-                else:
-                    print("Not enough steps have been executed for this run yet...")
-            else:
-                print("Jobs for this workflow run haven't populated yet...")
+            if is_correct_job(list_of_jobs) is True:
+                print(f"Workflow Job found! Using ID: {current_workflow_id}")
+                return current_workflow_id
         print(
             "Processed all available workflows but no jobs were matching the Unique ID were found!"
         )
 
+def is_correct_job(list_of_jobs):
+    job = list_of_jobs[0]
+    steps = job["steps"]
+
+    if len(steps) >= 2:
+        third_step = steps[2]
+        if third_step["name"] == run_id:
+            return True
+    else:
+        print("Jobs for this workflow run haven't populated yet...")
 
 def get_job():
     job_request_url = f"{GITHUB_API_URL}/runs/{workflow_id}/jobs"
