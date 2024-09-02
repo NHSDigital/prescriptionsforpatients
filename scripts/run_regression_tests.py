@@ -10,7 +10,6 @@ import random
 import string
 import requests
 import time
-from requests.auth import HTTPBasicAuth
 
 GITHUB_API_URL = "https://api.github.com/repos/NHSDigital/electronic-prescription-service-api-regression-tests/actions"
 
@@ -49,7 +48,6 @@ def trigger_test_run():
     response = requests.post(
         url=f"{GITHUB_API_URL}/workflows/regression_tests.yml/dispatches",
         headers=get_headers(),
-        auth=get_auth_header(),
         json=body,
     )
 
@@ -64,7 +62,6 @@ def get_workflow_runs():
     response = requests.get(
         f"{GITHUB_API_URL}/runs?created=%3E{run_date_filter}",
         headers=get_headers(),
-        auth=get_auth_header(),
     )
     assert (
         response.status_code == 200
@@ -74,7 +71,7 @@ def get_workflow_runs():
 
 def get_jobs_for_workflow(jobs_url):
     print("Getting jobs for workflow...")
-    response = requests.get(jobs_url, auth=get_auth_header())
+    response = requests.get(jobs_url, headers=get_headers(),)
     assert (
         response.status_code == 200
     ), f"Unable to get workflow jobs. Expected 200, got {response.status_code}"
@@ -120,8 +117,7 @@ def get_job():
     job_request_url = f"{GITHUB_API_URL}/runs/{workflow_id}/jobs"
     job_response = requests.get(
         job_request_url,
-        headers=get_headers(),
-        auth=get_auth_header(),
+        headers=get_headers()
     )
 
     return job_response.json()["jobs"][0]
