@@ -149,7 +149,7 @@ jobs:
           app-id: ${{ vars.REGRESSION_TESTS_APP_ID }}
           private-key: ${{ secrets.REGRESSION_TESTS_PEM }}
           owner: "NHSDigital"
-          repositories: "electronic-prescription-service-api-regression-tests"
+          repositories: "electronic-prescription-service-api-regression-tests, prescriptionsforpatients"
 
       # using git commit sha for version of action to ensure we have stable version
       - name: Install asdf
