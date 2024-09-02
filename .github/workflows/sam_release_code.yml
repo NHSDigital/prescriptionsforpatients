@@ -181,7 +181,7 @@ jobs:
               if [[ "$TARGET_ENVIRONMENT" != "prod" && "$TARGET_ENVIRONMENT" != "ref" ]]; then
                 make install-python
                 echo Running regression tests in the "$TARGET_ENVIRONMENT" environment
-                poetry run ./scripts/run_regression_tests.py --env="$TARGET_ENVIRONMENT" --pr_label="$VERSION_NUMBER" --token="$GITHUB-TOKEN"
+                poetry run python ./scripts/run_regression_tests.py --env="$TARGET_ENVIRONMENT" --pr_label="$VERSION_NUMBER" --token="$GITHUB-TOKEN"
               fi
 
       - name: create_int_release_notes
