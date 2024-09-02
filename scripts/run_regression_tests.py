@@ -5,7 +5,7 @@
   check the status of the regression test run to be reported to the CI.
 """
 import argparse
-import datetime
+from datetime import datetime, timedelta, timezone
 import random
 import string
 import requests
@@ -27,8 +27,8 @@ def generate_unique_run_id(length=15):
 
 
 def generate_timestamp():
-    delta_time = datetime.timedelta(minutes=2)
-    date_time = (datetime.datetime.utcnow() - delta_time).strftime("%Y-%m-%dT%H:%M")
+    delta_time = timedelta(minutes=2)
+    date_time = (datetime.now(timezone.utc) - delta_time).strftime("%Y-%m-%dT%H:%M")
     print(f"Generated Date as: {date_time}")
     return date_time
 
