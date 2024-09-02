@@ -11,7 +11,6 @@ jobs:
   quality_checks:
     uses: ./.github/workflows/quality_checks.yml
     secrets:
-      REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   get_commit_id:
@@ -119,6 +118,7 @@ jobs:
       CREATE_PROD_RELEASE_NOTES: true
       TOGGLE_GET_STATUS_UPDATES: true
     secrets:
+      REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.DEV_TARGET_SPINE_SERVER }}
       TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.DEV_TARGET_SERVICE_SEARCH_SERVER }}
@@ -145,6 +145,7 @@ jobs:
       DOMAIN_NAME_EXPORT: eps-route53-resources:EPS-domain
       ZONE_ID_EXPORT: eps-route53-resources:EPS-ZoneID
     secrets:
+      REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: sandbox
       TARGET_SERVICE_SEARCH_SERVER: sandbox
@@ -173,6 +174,7 @@ jobs:
       LOG_RETENTION_DAYS: 30
       TOGGLE_GET_STATUS_UPDATES: true
     secrets:
+      REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.QA_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.QA_TARGET_SPINE_SERVER }}
       TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.QA_TARGET_SERVICE_SEARCH_SERVER }}
