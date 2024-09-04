@@ -193,6 +193,7 @@ jobs:
           parallel --retries 10 --delay 3 ::: "git pull --rebase && git push"
 
   regression_tests:
+    name: Regression Tests
     uses: ./.github/workflows/run_regression_tests.yml
     needs: sam_release_code
     with:
