@@ -194,6 +194,7 @@ jobs:
 
   regression_tests:
     uses: ./.github/workflows/run_regression_tests.yml
+    needs: sam_release_code
     with:
       ENVIRONMENT: ${{ inputs.TARGET_ENVIRONMENT }}
       VERSION_NUMBER: ${{ inputs.VERSION_NUMBER }}
