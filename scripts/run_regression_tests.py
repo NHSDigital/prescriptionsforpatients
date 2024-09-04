@@ -42,7 +42,7 @@ def trigger_test_run():
             "tags": "@regression",
             "environment": env,
             "pull_request_id": arguments.pr_label,
-            "product": "PFP-APIGEE",
+            "product": "PFP-AWS",
         },
     }
 
