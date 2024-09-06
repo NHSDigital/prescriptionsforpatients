@@ -57,7 +57,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
-          echo "@nhsdigital:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "@NHSDigital:registry=https://npm.pkg.github.com" >> ~/.npmrc
 
       - name: Install node packages
         run: |

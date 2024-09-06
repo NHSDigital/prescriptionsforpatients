@@ -138,7 +138,7 @@ Follow these steps:
   - To authenticate with npm, use the following command, replacing `USERNAME` with your GitHub username, `TOKEN` with your personal access token (classic), and `PUBLIC-EMAIL-ADDRESS` with your email address.
 
 ```bash
-$ npm login --scope=@nhsdigital --auth-type=legacy --registry=https://npm.pkg.github.com
+$ npm login --scope=@NHSDigital --auth-type=legacy --registry=https://npm.pkg.github.com
 > Username: USERNAME
 > Password: TOKEN
 ```
