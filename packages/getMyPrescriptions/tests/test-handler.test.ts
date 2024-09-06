@@ -29,7 +29,7 @@ import {HEADERS, StateMachineFunctionResponseBody, TIMEOUT_RESPONSE} from "../sr
 import "./toMatchJsonLogMessage"
 import {EXPECTED_TRACE_IDS} from "./utils"
 import {LogLevel} from "@aws-lambda-powertools/logger/types"
-import {createSpineClient} from "@nhsdigital/eps-spine-client"
+import {createSpineClient} from "@NHSDigital/eps-spine-client"
 import {MiddyfiedHandler} from "@middy/core"
 
 const dummyContext = helloworldContext

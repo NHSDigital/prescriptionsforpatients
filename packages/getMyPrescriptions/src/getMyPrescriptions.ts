@@ -6,7 +6,7 @@ import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
 import httpHeaderNormalizer from "@middy/http-header-normalizer"
 import errorHandler from "@nhs/fhir-middy-error-handler"
-import {createSpineClient} from "@nhsdigital/eps-spine-client"
+import {createSpineClient} from "@NHSDigital/eps-spine-client"
 import {extractNHSNumber, NHSNumberValidationError} from "./extractNHSNumber"
 import {DistanceSelling, ServicesCache} from "@prescriptionsforpatients/distanceSelling"
 import type {Bundle} from "fhir/r4"
@@ -20,7 +20,7 @@ import {
 } from "./responses"
 import {deepCopy, hasTimedOut, jobWithTimeout} from "./utils"
 import {buildStatusUpdateData, shouldGetStatusUpdates} from "./statusUpdate"
-import {SpineClient} from "@nhsdigital/eps-spine-client/lib/spine-client"
+import {SpineClient} from "@NHSDigital/eps-spine-client/lib/spine-client"
 import {isolateOperationOutcome} from "./fhirUtils"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
