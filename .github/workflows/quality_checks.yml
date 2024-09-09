@@ -51,8 +51,6 @@ jobs:
 
       - name: Generate and check SBOMs
         uses: NHSDigital/eps-action-sbom@main
-        with:
-          workspace: ${{ github.workspace }}
       
       - name: Upload SBOMs
         uses: actions/upload-artifact@v3
