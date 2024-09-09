@@ -2,7 +2,7 @@ import "jest"
 import axios from "axios"
 import MockAdapter from "axios-mock-adapter"
 import {Logger} from "@aws-lambda-powertools/logger"
-import {serviceHealthCheck} from "@nhsdigital/eps-spine-client"
+import {serviceHealthCheck} from "@NHSDigital/eps-spine-client"
 
 const mock = new MockAdapter(axios)
 const axiosInstance = axios.create()

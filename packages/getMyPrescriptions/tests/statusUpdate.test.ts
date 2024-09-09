@@ -32,7 +32,7 @@ import {
 import {EXPECTED_TRACE_IDS, SERVICE_SEARCH_PARAMS} from "./utils"
 import {LogLevel} from "@aws-lambda-powertools/logger/types"
 import {Logger} from "@aws-lambda-powertools/logger"
-import {createSpineClient} from "@nhsdigital/eps-spine-client"
+import {createSpineClient} from "@NHSDigital/eps-spine-client"
 import {MiddyfiedHandler} from "@middy/core"
 
 const exampleEvent = JSON.stringify(mockStateMachineInputEvent)

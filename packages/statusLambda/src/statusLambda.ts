@@ -4,7 +4,7 @@ import {injectLambdaContext} from "@aws-lambda-powertools/logger/middleware"
 import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
 import errorHandler from "@nhs/fhir-middy-error-handler"
-import {createSpineClient} from "@nhsdigital/eps-spine-client"
+import {createSpineClient} from "@NHSDigital/eps-spine-client"
 
 const logger = new Logger({serviceName: "status"})
 
