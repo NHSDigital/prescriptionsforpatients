@@ -34,6 +34,7 @@ def generate_timestamp():
 
 
 def trigger_test_run():
+    pr_label = arguments.pr_label.lower()
     env="INTERNAL-DEV" if arguments.env == "dev-pr" else arguments.env
     body = {
         "ref": "main",
@@ -41,7 +42,7 @@ def trigger_test_run():
             "id": run_id,
             "tags": "@regression",
             "environment": env,
-            "pull_request_id": arguments.pr_label,
+            "pull_request_id": pr_label,
             "product": "PFP-AWS",
         },
     }
