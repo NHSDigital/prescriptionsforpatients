@@ -15,13 +15,13 @@
     "source=${env:HOME}${env:USERPROFILE}/.npmrc,target=/home/vscode/.npmrc,type=bind"
   ],
   // Features to add to the dev container. More info: https://containers.dev/features.
-  "features": {
-    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
-      "version": "latest",
-      "moby": "true",
-      "installDockerBuildx": "true"
-    }
-  },
+  // "features": {
+  //   "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+  //     "version": "latest",
+  //     "moby": "true",
+  //     "installDockerBuildx": "true"
+  //   }
+  // },
   "customizations": {
     "vscode": {
       "extensions": [

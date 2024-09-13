@@ -17,7 +17,7 @@ GITHUB_API_URL = "https://api.github.com/repos/NHSDigital/electronic-prescriptio
 def get_headers():
     return {
         "Accept": "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28",
+        "X-GitHub-Api-Version": "2022-1-28",
         "Authorization": f"Bearer {arguments.token}",
     }
 
@@ -35,7 +35,7 @@ def generate_timestamp():
 
 def trigger_test_run():
     pr_label = arguments.pr_label.lower()
-    env="INTERNAL-DEV" if arguments.env == "dev-pr" else arguments.env
+    env = "INTERNAL-DEV" if arguments.env == "dev-pr" else arguments.env
     body = {
         "ref": "main",
         "inputs": {
