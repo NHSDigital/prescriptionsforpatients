@@ -57,6 +57,9 @@ on:
       TOGGLE_GET_STATUS_UPDATES:
         type: boolean
         default: false
+      REGRESSION_TESTS_PEM:
+        type: string
+        default: false
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
@@ -72,6 +75,8 @@ on:
         required: false
       DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE:
         required: false
+      REGRESSION_TESTS_PEM:
+        required: true
 
 jobs:
   sam_release_code:
@@ -185,3 +190,13 @@ jobs:
           git add _data/${{ inputs.APIGEE_ENVIRONMENT }}_deployments.csv
           git commit -m 'update releases for ${{ inputs.APIGEE_ENVIRONMENT }}'
           parallel --retries 10 --delay 3 ::: "git pull --rebase && git push"
+
+  regression_tests:
+    name: Regression Tests
+    uses: ./.github/workflows/run_regression_tests.yml
+    needs: sam_release_code
+    with:
+      ENVIRONMENT: ${{ inputs.APIGEE_ENVIRONMENT }}
+      VERSION_NUMBER: ${{ inputs.VERSION_NUMBER }}
+    secrets:
+      REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
