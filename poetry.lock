@@ -174,13 +174,13 @@ files = [
 
 [[package]]
 name = "cfn-lint"
-version = "1.13.0"
+version = "1.14.0"
 description = "Checks CloudFormation templates for practices and behaviour that could potentially be improved"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "cfn_lint-1.13.0-py3-none-any.whl", hash = "sha256:f7823eac55168af8edde7c05076c79d27423f3748b39c759c22339f34d637306"},
-    {file = "cfn_lint-1.13.0.tar.gz", hash = "sha256:5d193bc27403f3acbfcb941582596412905a13694d2bbf6d400764c6e4658341"},
+    {file = "cfn_lint-1.14.0-py3-none-any.whl", hash = "sha256:a9dfce45e3f0dd1cb3d1732cc9cc9ba7231640a666f1b7eba0f7c70c74a9be60"},
+    {file = "cfn_lint-1.14.0.tar.gz", hash = "sha256:49fe75a4e1b496c668c597a03e47d74e25a08ed6372c7f30b5025ddeeab4c145"},
 ]
 
 [package.dependencies]
@@ -1523,4 +1523,4 @@ test = ["big-O", "jaraco.functools", "jaraco.itertools", "jaraco.test", "more-it
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "5181dabc657bda143b0a2f3fd4e008c245ccc3a4e84f14b72df1c8aa9acc4d60"
+content-hash = "5ab30d054caf732d4b74a9cbe09888260919d2cda09b83689800a210a7afc6dc"
