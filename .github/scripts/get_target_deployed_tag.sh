@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-current_deployed_tag=$(aws cloudformation describe-stacks --stack-name "$TARGET_ENVIRONMENT"-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
+current_deployed_tag=$(aws cloudformation describe-stacks --stack-name pfp --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
 
 if [ -z "$current_deployed_tag" ]
 then
