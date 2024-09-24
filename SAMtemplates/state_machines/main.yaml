@@ -43,7 +43,7 @@ Resources:
         GetMyPrescriptionsFunctionArn: !Sub ${GetMyPrescriptionsFunctionArn}:$LATEST
         GetStatusUpdatesFunctionArn: !Join
           - ":"
-          - - !ImportValue psu:functions:GetStatusUpdates:FunctionArn
+          - - !ImportValue psu-pr-834:functions:GetGSULArn:FunctionArn
             - $LATEST
         EnrichPrescriptionsFunctionArn: !Sub ${EnrichPrescriptionsFunctionArn}:$LATEST
       Logging:
@@ -67,7 +67,9 @@ Resources:
           - ","
           - - Fn::ImportValue: !Sub ${StackName}:functions:${GetMyPrescriptionsFunctionName}:ExecuteLambdaPolicyArn
             - Fn::ImportValue: !Sub ${StackName}:functions:${EnrichPrescriptionsFunctionName}:ExecuteLambdaPolicyArn
-            - Fn::ImportValue: psu:functions:psu-GetStatusUpdates:ExecuteLambdaPolicyArn
+            - Fn::ImportValue: psu-pr-834-blue:functions:psu-pr-834-blue-GetStatusUpdates:ExecuteLambdaPolicyArn
+            - Fn::ImportValue: psu-pr-834-green:functions:psu-pr-834-green-GetStatusUpdates:ExecuteLambdaPolicyArn
+            - Fn::ImportValue: psu-pr-834:functions:psu-pr-834-GetGSULArn:ExecuteLambdaPolicyArn
         LogRetentionInDays: !Ref LogRetentionInDays
         CloudWatchKMSKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
         EnableSplunk: !Ref EnableSplunk
