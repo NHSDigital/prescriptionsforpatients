@@ -63,6 +63,9 @@ on:
       RUN_REGRESSION_TESTS:
         type: boolean
         default: true
+      ENABLE_ALERTS:
+        type: boolean
+        default: true
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true

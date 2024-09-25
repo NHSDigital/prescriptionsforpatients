@@ -1,0 +1,83 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: |
+  PfP Cloudwatch alarms and related resources
+
+Parameters:
+  StackName:
+    Type: String
+    Default: none
+
+  GetMyPrescriptionsFunctionName:
+    Type: String
+    Default: none
+
+  EnableAlerts:
+    Type: String
+
+Resources:
+  GetMyPrescriptionsErrorsLogsMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      FilterName: GetMyPrescriptionsErrors
+      FilterPattern: !Sub '{ ($.level = "ERROR") && ($.function_name = "${GetMyPrescriptionsFunctionName}") }' # function_name included to allow it to be set as a dimension on the metric
+      LogGroupName:
+        Fn::ImportValue: !Sub ${StackName}:functions:${GetMyPrescriptionsFunctionName}:LambdaLogGroupName
+      MetricTransformations:
+        - MetricNamespace: LambdaLogFilterMetrics
+          MetricName: ErrorCount
+          MetricValue: 1
+          Unit: Count
+          Dimensions: # dimensions for a logs filter metric can only be a field/value from the filter pattern
+            - Key: FunctionName
+              Value: $.function_name
+
+  GetMyPrescriptionsErrorsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Count of GetMyPrescriptions errors
+      AlarmName: !Sub ${StackName}_GetMyPrescriptions_Errors
+      Namespace: LambdaLogFilterMetrics
+      MetricName: ErrorCount
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref GetMyPrescriptionsFunctionName
+      Period: 60 #seconds
+      EvaluationPeriods: 1
+      Statistic: Sum
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Threshold: 1
+      Unit: Count
+      TreatMissingData: notBreaching
+      ActionsEnabled: !Ref EnableAlerts
+      AlarmActions:
+        - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
+      InsufficientDataActions:
+        - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
+      OKActions:
+        - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
+
+  GetMyPrescriptionsUnhandledErrorsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Count of GetMyPrescriptions unhandled errors
+      AlarmName: !Sub ${StackName}_GetMyPrescriptions_UnhandledErrors
+      Namespace: Lambda
+      MetricName: Errors
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref GetMyPrescriptionsFunctionName
+      Period: 60 #seconds
+      EvaluationPeriods: 1
+      Statistic: Sum
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Threshold: 1
+      Unit: Count
+      TreatMissingData: notBreaching
+      ActionsEnabled: !Ref EnableAlerts
+      AlarmActions:
+        - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
+      InsufficientDataActions:
+        - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
+      OKActions:
+        - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
