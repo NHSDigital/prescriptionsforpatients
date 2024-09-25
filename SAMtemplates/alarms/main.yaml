@@ -16,11 +16,12 @@ Parameters:
     Type: String
 
 Resources:
-  GetMyPrescriptionsErrorsLogsMetricFilter:
+  ServiceSearchErrorsLogsMetricFilter:
     Type: AWS::Logs::MetricFilter
     Properties:
       FilterName: GetMyPrescriptionsErrors
-      FilterPattern: !Sub '{ ($.level = "ERROR") && ($.function_name = "${GetMyPrescriptionsFunctionName}") }' # function_name included to allow it to be set as a dimension on the metric
+      # Match logs with $.message starting with "call to service search unsuccessful"
+      FilterPattern: !Sub '{ ($.level = "WARN") && ($.function_name = "${GetMyPrescriptionsFunctionName}") && $.message = %call to service search unsuccessful% }' # function_name included to allow it to be set as a dimension on the metric
       LogGroupName:
         Fn::ImportValue: !Sub ${StackName}:functions:${GetMyPrescriptionsFunctionName}:LambdaLogGroupName
       MetricTransformations:
@@ -32,11 +33,11 @@ Resources:
             - Key: FunctionName
               Value: $.function_name
 
-  GetMyPrescriptionsErrorsAlarm:
+  ServiceSearchErrorsAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmDescription: Count of GetMyPrescriptions errors
-      AlarmName: !Sub ${StackName}_GetMyPrescriptions_Errors
+      AlarmDescription: Count of Service Search errors
+      AlarmName: !Sub ${StackName}_ServiceSearch_Errors
       Namespace: LambdaLogFilterMetrics
       MetricName: ErrorCount
       Dimensions:
@@ -57,11 +58,11 @@ Resources:
       OKActions:
         - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
 
-  GetMyPrescriptionsUnhandledErrorsAlarm:
+  ServiceSearchUnhandledErrorsAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmDescription: Count of GetMyPrescriptions unhandled errors
-      AlarmName: !Sub ${StackName}_GetMyPrescriptions_UnhandledErrors
+      AlarmDescription: Count of Service Search unhandled errors
+      AlarmName: !Sub ${StackName}_ServiceSearch_UnhandledErrors
       Namespace: Lambda
       MetricName: Errors
       Dimensions:
