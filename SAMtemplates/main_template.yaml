@@ -75,6 +75,13 @@ Parameters:
     Type: String
     Default: false
 
+  EnableAlerts:
+    Type: String
+    Default: true
+    AllowedValues:
+      - true
+      - false
+
 Resources:
   Apis:
     Type: AWS::Serverless::Application
@@ -121,3 +128,12 @@ Resources:
         EnrichPrescriptionsFunctionArn: !GetAtt Functions.Outputs.EnrichPrescriptionsFunctionArn
         LogRetentionInDays: !Ref LogRetentionInDays
         EnableSplunk: !Ref EnableSplunk
+
+  Alarms:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: alarms/main.yaml
+      Parameters:
+        StackName: !Ref AWS::StackName
+        GetMyPrescriptionsFunctionName: !GetAtt Functions.Outputs.GetMyPrescriptionsFunctionName
+        EnableAlerts: !Ref EnableAlerts
