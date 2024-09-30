@@ -63,6 +63,9 @@ on:
       RUN_REGRESSION_TESTS:
         type: boolean
         default: true
+      ENABLE_ALERTS:
+        type: boolean
+        default: true
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
@@ -142,6 +145,7 @@ jobs:
           DOMAIN_NAME_EXPORT: ${{ inputs.DOMAIN_NAME_EXPORT }}
           ZONE_ID_EXPORT: ${{ inputs.ZONE_ID_EXPORT }}
           TOGGLE_GET_STATUS_UPDATES: ${{ inputs.TOGGLE_GET_STATUS_UPDATES }}
+          ENABLE_ALERTS: ${{ inputs.ENABLE_ALERTS }}
         run: ./release_code.sh
 
       - name: create_int_release_notes
