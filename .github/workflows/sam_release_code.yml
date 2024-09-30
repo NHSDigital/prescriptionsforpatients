@@ -60,6 +60,12 @@ on:
       REGRESSION_TESTS_PEM:
         type: string
         default: false
+      RUN_REGRESSION_TESTS:
+        type: boolean
+        default: true
+      ENABLE_ALERTS:
+        type: boolean
+        default: true
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
@@ -139,6 +145,7 @@ jobs:
           DOMAIN_NAME_EXPORT: ${{ inputs.DOMAIN_NAME_EXPORT }}
           ZONE_ID_EXPORT: ${{ inputs.ZONE_ID_EXPORT }}
           TOGGLE_GET_STATUS_UPDATES: ${{ inputs.TOGGLE_GET_STATUS_UPDATES }}
+          ENABLE_ALERTS: ${{ inputs.ENABLE_ALERTS }}
         run: ./release_code.sh
 
       - name: create_int_release_notes
@@ -192,6 +199,7 @@ jobs:
           parallel --retries 10 --delay 3 ::: "git pull --rebase && git push"
 
   regression_tests:
+    if: ${{ inputs.RUN_REGRESSION_TESTS == true }}
     name: Regression Tests
     uses: ./.github/workflows/run_regression_tests.yml
     needs: sam_release_code

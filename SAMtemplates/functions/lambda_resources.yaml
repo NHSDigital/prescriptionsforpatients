@@ -134,3 +134,9 @@ Outputs:
     Value: !GetAtt ExecuteLambdaManagedPolicy.PolicyArn
     Export:
       Name: !Sub ${StackName}:functions:${LambdaName}:ExecuteLambdaPolicyArn
+
+  LogGroupName:
+    Description: Lambda log group name
+    Value: !Ref LambdaLogGroup
+    Export:
+      Name: !Sub ${StackName}:functions:${LambdaName}:LambdaLogGroupName

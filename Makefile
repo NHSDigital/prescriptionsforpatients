@@ -34,7 +34,8 @@ sam-sync: guard-AWS_DEFAULT_PROFILE guard-stack_name compile download-get-secret
 		--parameter-overrides \
 			  EnableSplunk=false\
 			  TargetSpineServer=$$TARGET_SPINE_SERVER \
-			  TargetServiceSearchServer=$$TARGET_SERVICE_SEARCH_SERVER
+			  TargetServiceSearchServer=$$TARGET_SERVICE_SEARCH_SERVER \
+				EnableAlerts=false
 
 sam-sync-sandbox: guard-stack_name compile download-get-secrets-layer
 	sam sync \
@@ -50,7 +51,8 @@ sam-deploy: guard-AWS_DEFAULT_PROFILE guard-stack_name
 		--parameter-overrides \
 			  EnableSplunk=false \
 			  TargetSpineServer=$$TARGET_SPINE_SERVER \
-			  TargetServiceSearchServer=$$TARGET_SERVICE_SEARCH_SERVER
+			  TargetServiceSearchServer=$$TARGET_SERVICE_SEARCH_SERVER \
+				EnableAlerts=false
 
 sam-delete: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam delete --stack-name $$stack_name
@@ -105,7 +107,8 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 			  Env=$$TARGET_ENVIRONMENT \
 				DomainNameExport=$$DOMAIN_NAME_EXPORT \
 				ZoneIDExport=$$ZONE_ID_EXPORT \
-			  ToggleGetStatusUpdates=$$TOGGLE_GET_STATUS_UPDATES
+			  ToggleGetStatusUpdates=$$TOGGLE_GET_STATUS_UPDATES \
+			  EnableAlerts=$$ENABLE_ALERTS
 
 compile-node:
 	npx tsc --build tsconfig.build.json
