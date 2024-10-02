@@ -15,6 +15,10 @@ Parameters:
   EnableAlerts:
     Type: String
 
+  ConcurrencyThreshold:
+    Type: Number
+    Default: 100000
+
 Resources:
   ServiceSearchErrorsLogsMetricFilter:
     Type: AWS::Logs::MetricFilter
@@ -75,6 +79,27 @@ Resources:
       Threshold: 1
       Unit: Count
       TreatMissingData: notBreaching
+      ActionsEnabled: !Ref EnableAlerts
+      AlarmActions:
+        - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
+      InsufficientDataActions:
+        - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
+      OKActions:
+        - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
+
+  PfPConcurrencyAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties: 
+      AlarmName: !Sub "${StackName}_Concurrency_Alarm"
+      AlarmDescription: "Monitors the concurrency of the PfP as a whole and triggers when concurrency exceeds the threshold."
+      Namespace: "AWS/Lambda"
+      MetricName: "ConcurrentExecutions"
+      Statistic: Maximum
+      Period: 60 # seconds
+      EvaluationPeriods: 1
+      Threshold: !Ref ConcurrencyThreshold
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: breaching
       ActionsEnabled: !Ref EnableAlerts
       AlarmActions:
         - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
