@@ -94,12 +94,12 @@ Resources:
       AlarmDescription: "Monitors the concurrency of the PfP as a whole and triggers when concurrency exceeds the threshold."
       Namespace: "AWS/Lambda"
       MetricName: "ConcurrentExecutions"
-      Statistic: Sum
+      Statistic: Maximum
       Period: 60 # seconds
       EvaluationPeriods: 1
       Threshold: !Ref ConcurrencyThreshold
       ComparisonOperator: GreaterThanOrEqualToThreshold
-      TreatMissingData: notBreaching
+      TreatMissingData: breaching
       ActionsEnabled: !Ref EnableAlerts
       AlarmActions:
         - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
