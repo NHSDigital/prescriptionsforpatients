@@ -90,7 +90,7 @@ Resources:
   PfPConcurrencyAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties: 
-      AlarmName: !Sub "${StackName}-Concurrency-Alarm"
+      AlarmName: !Sub "${StackName}_Concurrency_Alarm"
       AlarmDescription: "Monitors the concurrency of the PfP as a whole and triggers when concurrency exceeds the threshold."
       Namespace: "AWS/Lambda"
       MetricName: "ConcurrentExecutions"
