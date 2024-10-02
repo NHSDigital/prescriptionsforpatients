@@ -137,4 +137,4 @@ Resources:
         StackName: !Ref AWS::StackName
         GetMyPrescriptionsFunctionName: !GetAtt Functions.Outputs.GetMyPrescriptionsFunctionName
         EnableAlerts: !Ref EnableAlerts
-        ConcurrencyThreshold: 10 #FIXME: Set appropriate threshold based on load tests.
+        ConcurrencyThreshold: 10000 #FIXME: Set appropriate threshold based on load tests.
