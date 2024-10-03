@@ -154,7 +154,7 @@ Resources:
     Type: AWS::Logs::MetricFilter
     Properties:
       FilterName: EnrichPrescriptionsErrors
-      FilterPattern: '%ERROR%'
+      FilterPattern: '$ = %ERROR%'
       LogGroupName:
         Fn::ImportValue: !Sub ${StackName}:functions:${EnrichPrescriptionsFunctionName}:LambdaLogGroupName
       MetricTransformations:
