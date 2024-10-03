@@ -154,12 +154,12 @@ Resources:
     Type: AWS::Logs::MetricFilter
     Properties:
       FilterName: EnrichPrescriptionsErrors
-      FilterPattern: '"ERROR"'
+      FilterPattern: '%ERROR%'
       LogGroupName:
         Fn::ImportValue: !Sub ${StackName}:functions:${EnrichPrescriptionsFunctionName}:LambdaLogGroupName
       MetricTransformations:
         - MetricNamespace: LambdaLogFilterMetrics
-          MetricName: ErrorCount
+          MetricName: EnrichPrescriptionsErrorCount
           MetricValue: 1
           Unit: Count
 
@@ -169,7 +169,7 @@ Resources:
       AlarmDescription: Count of EnrichPrescriptions errors
       AlarmName: !Sub ${StackName}_EnrichPrescriptions_Errors
       Namespace: LambdaLogFilterMetrics
-      MetricName: ErrorCount
+      MetricName: EnrichPrescriptionsErrorCount
       Dimensions:
         - Name: FunctionName
           Value: !Ref EnrichPrescriptionsFunctionName
