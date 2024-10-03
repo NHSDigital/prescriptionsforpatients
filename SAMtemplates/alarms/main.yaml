@@ -162,9 +162,6 @@ Resources:
           MetricName: ErrorCount
           MetricValue: 1
           Unit: Count
-          Dimensions:
-            - Key: FunctionName
-              Value: !Ref EnrichPrescriptionsFunctionName
 
   EnrichPrescriptionsErrorsAlarm:
     Type: AWS::CloudWatch::Alarm
