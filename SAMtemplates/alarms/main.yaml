@@ -6,11 +6,12 @@ Description: |
 Parameters:
   StackName:
     Type: String
-    Default: none
 
   GetMyPrescriptionsFunctionName:
     Type: String
-    Default: none
+
+  EnrichPrescriptionsFunctionName:
+    Type: String
 
   EnableAlerts:
     Type: String
@@ -134,6 +135,47 @@ Resources:
       Dimensions:
         - Name: FunctionName
           Value: !Ref GetMyPrescriptionsFunctionName
+      Period: 60 #seconds
+      EvaluationPeriods: 1
+      Statistic: Sum
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Threshold: 1
+      Unit: Count
+      TreatMissingData: notBreaching
+      ActionsEnabled: !Ref EnableAlerts
+      AlarmActions:
+        - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
+      InsufficientDataActions:
+        - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
+      OKActions:
+        - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
+
+  EnrichPrescriptionsErrorsLogsMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      FilterName: EnrichPrescriptionsErrors
+      FilterPattern: '"ERROR"'
+      LogGroupName:
+        Fn::ImportValue: !Sub ${StackName}:functions:${EnrichPrescriptionsFunctionName}:LambdaLogGroupName
+      MetricTransformations:
+        - MetricNamespace: LambdaLogFilterMetrics
+          MetricName: ErrorCount
+          MetricValue: 1
+          Unit: Count
+          Dimensions:
+            - Key: FunctionName
+              Value: !Ref EnrichPrescriptionsFunctionName
+
+  EnrichPrescriptionsErrorsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Count of EnrichPrescriptions errors
+      AlarmName: !Sub ${StackName}_EnrichPrescriptions_Errors
+      Namespace: LambdaLogFilterMetrics
+      MetricName: ErrorCount
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref EnrichPrescriptionsFunctionName
       Period: 60 #seconds
       EvaluationPeriods: 1
       Statistic: Sum
