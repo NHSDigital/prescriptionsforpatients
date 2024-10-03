@@ -159,7 +159,7 @@ Resources:
         Fn::ImportValue: !Sub ${StackName}:functions:${EnrichPrescriptionsFunctionName}:LambdaLogGroupName
       MetricTransformations:
         - MetricNamespace: LambdaLogFilterMetrics
-          MetricName: EnrichPrescriptionsErrorCount
+          MetricName: !Sub ${StackName}EnrichPrescriptionsErrorCount
           MetricValue: 1
           Unit: Count
 
@@ -169,10 +169,7 @@ Resources:
       AlarmDescription: Count of EnrichPrescriptions errors
       AlarmName: !Sub ${StackName}_EnrichPrescriptions_Errors
       Namespace: LambdaLogFilterMetrics
-      MetricName: EnrichPrescriptionsErrorCount
-      Dimensions:
-        - Name: FunctionName
-          Value: !Ref EnrichPrescriptionsFunctionName
+      MetricName: !Sub ${StackName}EnrichPrescriptionsErrorCount
       Period: 60 #seconds
       EvaluationPeriods: 1
       Statistic: Sum
