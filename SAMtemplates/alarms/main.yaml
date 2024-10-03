@@ -95,7 +95,7 @@ Resources:
       Namespace: "AWS/Lambda"
       MetricName: "ConcurrentExecutions"
       Statistic: Maximum
-      Period: 60 # seconds
+      Period: 300 # seconds
       EvaluationPeriods: 1
       Threshold: !Ref ConcurrencyThreshold
       ComparisonOperator: GreaterThanOrEqualToThreshold
