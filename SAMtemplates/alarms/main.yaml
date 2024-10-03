@@ -23,7 +23,7 @@ Resources:
   ServiceSearchErrorsLogsMetricFilter:
     Type: AWS::Logs::MetricFilter
     Properties:
-      FilterName: GetMyPrescriptionsErrors
+      FilterName: ServiceSearchErrors
       # Match logs with $.message starting with "call to service search unsuccessful"
       FilterPattern: !Sub '{ ($.level = "WARN") && ($.function_name = "${GetMyPrescriptionsFunctionName}") && $.message = %call to service search unsuccessful% }' # function_name included to allow it to be set as a dimension on the metric
       LogGroupName:
@@ -100,6 +100,48 @@ Resources:
       Threshold: !Ref ConcurrencyThreshold
       ComparisonOperator: GreaterThanOrEqualToThreshold
       TreatMissingData: breaching
+      ActionsEnabled: !Ref EnableAlerts
+      AlarmActions:
+        - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
+      InsufficientDataActions:
+        - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
+      OKActions:
+        - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
+
+  GetMyPrescriptionsErrorsLogsMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      FilterName: GetMyPrescriptionsErrors
+      # Match logs with $.message starting with "call to service search unsuccessful"
+      FilterPattern: !Sub '{ ($.level = "ERROR") && ($.function_name = "${GetMyPrescriptionsFunctionName}") && $.message != %call to service search unsuccessful% }' # function_name included to allow it to be set as a dimension on the metric
+      LogGroupName:
+        Fn::ImportValue: !Sub ${StackName}:functions:${GetMyPrescriptionsFunctionName}:LambdaLogGroupName
+      MetricTransformations:
+        - MetricNamespace: LambdaLogFilterMetrics
+          MetricName: ErrorCount
+          MetricValue: 1
+          Unit: Count
+          Dimensions: # dimensions for a logs filter metric can only be a field/value from the filter pattern
+            - Key: FunctionName
+              Value: $.function_name
+
+  GetMyPrescriptionsErrorsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Count of GetMyPrescriptions errors
+      AlarmName: !Sub ${StackName}_GetMyPrescriptions_Errors
+      Namespace: LambdaLogFilterMetrics
+      MetricName: ErrorCount
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref GetMyPrescriptionsFunctionName
+      Period: 60 #seconds
+      EvaluationPeriods: 1
+      Statistic: Sum
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Threshold: 1
+      Unit: Count
+      TreatMissingData: notBreaching
       ActionsEnabled: !Ref EnableAlerts
       AlarmActions:
         - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
