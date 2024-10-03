@@ -24,8 +24,8 @@ Resources:
     Type: AWS::Logs::MetricFilter
     Properties:
       FilterName: ServiceSearchErrors
-      # Match logs with $.message starting with "call to service search unsuccessful"
-      FilterPattern: !Sub '{ ($.level = "WARN") && ($.function_name = "${GetMyPrescriptionsFunctionName}") && $.message = %call to service search unsuccessful% }' # function_name included to allow it to be set as a dimension on the metric
+      # Match logs with $.message starting with "error in request to serviceSearch"
+      FilterPattern: !Sub '{ ($.level = "ERROR") && ($.function_name = "${GetMyPrescriptionsFunctionName}") && $.message = %error in request to serviceSearch% }' # function_name included to allow it to be set as a dimension on the metric
       LogGroupName:
         Fn::ImportValue: !Sub ${StackName}:functions:${GetMyPrescriptionsFunctionName}:LambdaLogGroupName
       MetricTransformations:
@@ -112,7 +112,7 @@ Resources:
     Type: AWS::Logs::MetricFilter
     Properties:
       FilterName: GetMyPrescriptionsErrors
-      FilterPattern: !Sub '{ ($.level = "ERROR") && ($.function_name = "${GetMyPrescriptionsFunctionName}") && $.message != %call to service search unsuccessful% }' # function_name included to allow it to be set as a dimension on the metric
+      FilterPattern: !Sub '{ ($.level = "ERROR") && ($.function_name = "${GetMyPrescriptionsFunctionName}") && ($.message != %error in request to serviceSearch%) }'
       LogGroupName:
         Fn::ImportValue: !Sub ${StackName}:functions:${GetMyPrescriptionsFunctionName}:LambdaLogGroupName
       MetricTransformations:
