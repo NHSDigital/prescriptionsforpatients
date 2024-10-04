@@ -137,4 +137,3 @@ Resources:
         StackName: !Ref AWS::StackName
         GetMyPrescriptionsFunctionName: !GetAtt Functions.Outputs.GetMyPrescriptionsFunctionName
         EnableAlerts: !Ref EnableAlerts
-        ConcurrencyThreshold: 350
