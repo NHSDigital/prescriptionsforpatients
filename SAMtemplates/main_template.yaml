@@ -138,4 +138,3 @@ Resources:
         GetMyPrescriptionsFunctionName: !GetAtt Functions.Outputs.GetMyPrescriptionsFunctionName
         EnrichPrescriptionsFunctionName: !GetAtt Functions.Outputs.EnrichPrescriptionsFunctionName
         EnableAlerts: !Ref EnableAlerts
-        ConcurrencyThreshold: 10000 #FIXME: Set appropriate threshold based on load tests.
