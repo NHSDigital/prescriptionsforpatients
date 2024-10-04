@@ -136,4 +136,5 @@ Resources:
       Parameters:
         StackName: !Ref AWS::StackName
         GetMyPrescriptionsFunctionName: !GetAtt Functions.Outputs.GetMyPrescriptionsFunctionName
+        EnrichPrescriptionsFunctionName: !GetAtt Functions.Outputs.EnrichPrescriptionsFunctionName
         EnableAlerts: !Ref EnableAlerts
