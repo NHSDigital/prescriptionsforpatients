@@ -112,7 +112,7 @@ Resources:
   GetMyPrescriptionsErrorsLogsMetricFilter:
     Type: AWS::Logs::MetricFilter
     Properties:
-      FilterName: GetMyPrescriptionsErrors
+      FilterName: !Sub ${StackName}_GetMyPrescriptionsErrors
       FilterPattern: !Sub '{ ($.level = "ERROR") && ($.function_name = "${GetMyPrescriptionsFunctionName}") && ($.message != %error in request to serviceSearch%) }'
       LogGroupName:
         Fn::ImportValue: !Sub ${StackName}:functions:${GetMyPrescriptionsFunctionName}:LambdaLogGroupName
