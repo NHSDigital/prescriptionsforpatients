@@ -8,7 +8,7 @@ Globals:
     Timeout: 50
     MemorySize: 256
     Architectures:
-      - x86_64
+      - arm64
     Runtime: nodejs20.x
     Environment:
       Variables:
@@ -22,7 +22,7 @@ Globals:
         SpineCAChainARN: !ImportValue account-resources:SpineCAChain
         ServiceSearchApiKeyARN: !ImportValue account-resources:ServiceSearchApiKey
     Layers:
-      - !Sub arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:52
+      - !Sub arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension-Arm64:20
 
 Parameters:
   StackName:
