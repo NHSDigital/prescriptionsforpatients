@@ -17,19 +17,19 @@ jobs:
         continue-on-error: true
         run: |
           # Match ticket name patterns
-          REGEX="
+          REGEX='
             (aea-[0-9]+)|
             (apm-[0-9]+)|
             (apmspii-[0-9]+)|
             (adz-[0-9]+)|
             (amb-[0-9]+)
-          "
+          '
 
           # Remove whitespace and newlines from the regex
-          REGEX=$(echo "$REGEX" | tr -d "[:space:]")
+          REGEX=$(echo "$REGEX" | tr -d '[:space:]')
 
           # Extract the ticket name and convert to uppercase
-          TICKET_NAME=$(echo "$REF" | grep -i -E -o "$REGEX" | tr "[:lower:]" "[:upper:]")
+          TICKET_NAME=$(echo "$REF" | grep -i -E -o "$REGEX" | tr '[:lower:]' '[:upper:]')
 
           # Set the environment variable
           echo "TICKET_NAME=$TICKET_NAME" >> "$GITHUB_ENV"
