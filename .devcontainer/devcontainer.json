@@ -66,7 +66,8 @@
       }
     }
   },
-  "postCreateCommand": "rm -f ~/.docker/config.json; git config --global --add safe.directory /workspaces/prescriptionsforpatients; make install; direnv allow ."
+  "remoteEnv": { "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}" },
+  "postCreateCommand": "rm -f ~/.docker/config.json; git config --global --add safe.directory /workspaces/prescriptionsforpatients; make install; direnv allow .; docker build -f /workspaces/eps-workflow-quality-checks/dockerfiles/nhsd-git-secrets.dockerfile -t git-secrets ."
   // "features": {},
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   // "forwardPorts": [],

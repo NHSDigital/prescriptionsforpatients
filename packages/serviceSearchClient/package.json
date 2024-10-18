@@ -15,12 +15,12 @@
   "author": "NHS Digital",
   "license": "MIT",
   "dependencies": {
-    "@aws-lambda-powertools/logger": "^2.9.0",
+    "@aws-lambda-powertools/logger": "^2.10.0",
     "axios": "^1.7.7",
     "axios-retry": "^4.5.0"
   },
   "devDependencies": {
     "@prescriptionsforpatients_common/testing": "^1.0.0",
-    "axios-mock-adapter": "^2.0.0"
+    "axios-mock-adapter": "^2.1.0"
   }
 }
