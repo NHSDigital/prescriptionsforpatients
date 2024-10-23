@@ -266,7 +266,6 @@ Workflows are in the .github/workflows folder
 - `combine-dependabot-prs.yml`: Workflow for combining dependabot pull requests. Runs on demand
 - `delete_old_cloudformation_stacks.yml`: Workflow for deleting old cloud formation stacks. Runs daily
 - `pull_request.yml`: Called when pull request is opened or updated. Calls sam_package_code and sam_release_code to build and deploy the code. Deploys to dev AWS account. The main and sandbox stacks deployed have PR-<PULL_REQUEST_ID> in the name
-- `quality_checks.yml`: Runs check-licenses, lint, test and sonarcloud scan against the repo. Called from pull_request.yml and release.yml
 - `release.yml`: Runs on demand to create a release and deploy to all environments.
 - `sam_package_code.yml`: Packages code and uploads to a github artifact for later deployment
 - `sam_release_code.yml`: Release code built by sam_package_code.yml to an environment
