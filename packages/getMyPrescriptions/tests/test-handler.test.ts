@@ -268,10 +268,10 @@ describe("Unit test for app handler", function () {
 
   it("times-out if spine call takes too long", async () => {
     const mockErrorLogger = jest.spyOn(Logger.prototype, "error")
-    const delayedResponse: Promise<Array<unknown>> = new Promise((resolve) => setTimeout(() => resolve([]), 15_000))
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    mock.onGet("https://live/mm/patientfacingprescriptions").reply((_config) => delayedResponse)
-
+    mock.onGet("https://live/mm/patientfacingprescriptions").reply(function (config) {
+      return new Promise((resolve) => setTimeout(() => resolve([200, {}]), 15_000))
+    })
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
     const eventHandler: Promise<LambdaResult> = handler(event, dummyContext)
 
@@ -300,9 +300,11 @@ describe("Unit test for app handler", function () {
       params: handlerParams,
       middleware: []
     })
-    const delayedResponse: Promise<Array<unknown>> = new Promise((resolve) => setTimeout(() => resolve([]), 5_000))
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    mock.onGet("https://live/mm/patientfacingprescriptions").reply((_config) => delayedResponse)
+    mock.onGet("https://live/mm/patientfacingprescriptions").reply(function (config) {
+      return new Promise((resolve) => setTimeout(() => resolve([200, {}]), 5_000))
+    })
 
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
     const eventHandler: Promise<LambdaResult> = handler(event, dummyContext)
@@ -429,9 +431,10 @@ describe("Unit tests for app handler including service search", function () {
     const exampleResponse = {resourceType: "Bundle"}
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, exampleResponse)
 
-    const delayedResponse: Promise<Array<unknown>> = new Promise((resolve) => setTimeout(() => resolve([]), 15_000))
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    mock.onGet("https://service-search/service-search").reply((_config) => delayedResponse)
+    mock.onGet("https://service-search/service-search").reply(function (config) {
+      return new Promise((resolve) => setTimeout(() => resolve([200, {}]), 15_000))
+    })
 
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
     const eventHandler: Promise<LambdaResult> = handler(event, dummyContext)
