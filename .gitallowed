@@ -1,0 +1,16 @@
+token: ?"?\$\{\{\s*secrets\.GITHUB_TOKEN\s*\}\}"?
+github-token: ?"?\$\{\{\s*secrets\.GITHUB_TOKEN\s*\}\}"?
+token: ?"?\$\{\{\s*secrets\.DEPENDABOT_TOKEN\s*\}\}"?
+id-token: write
+--token=\$\{\{\s*steps\.generate-token\.outputs\.token\s*\}\}
+--token=\$GITHUB-TOKEN
+--token="\$GITHUB-TOKEN"
+"accountId": "123456789012"
+accountId: "123456789012"
+console\.log\(`access token : \${access_token}`\)
+.*CidrBlock.*
+.*Gemfile\.lock.*
+.*\.gitallowed.*
+.*nhsd-rules-deny.txt.*
+.*\.venv.*
+.*node_modules.*
