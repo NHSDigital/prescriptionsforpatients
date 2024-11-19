@@ -45,13 +45,13 @@ tests-no-zope = ["cloudpickle", "hypothesis", "mypy (>=1.1.1)", "pympler", "pyte
 
 [[package]]
 name = "aws-sam-translator"
-version = "1.91.0"
+version = "1.92.0"
 description = "AWS SAM Translator is a library that transform SAM templates into AWS CloudFormation templates"
 optional = false
 python-versions = "!=4.0,<=4.0,>=3.8"
 files = [
-    {file = "aws_sam_translator-1.91.0-py3-none-any.whl", hash = "sha256:9ebf4b53c226338e6b89d14d8583bc4559b87f0be52ed8d577c5a1dc2db14962"},
-    {file = "aws_sam_translator-1.91.0.tar.gz", hash = "sha256:0cdfbc598f384c430c3ec064f6008d80c5a0d58f1dc45ca4e331ae5c43cb4697"},
+    {file = "aws_sam_translator-1.92.0-py3-none-any.whl", hash = "sha256:10e77ab628cead3d0e8ee0211eb84c04010c051b9a48ce6b15171c39bdbe917d"},
+    {file = "aws_sam_translator-1.92.0.tar.gz", hash = "sha256:49014e783180ca1fcdd70790645a850d20f4285c19ae694d37fefc52a60d7c64"},
 ]
 
 [package.dependencies]
@@ -111,17 +111,17 @@ uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
 name = "boto3"
-version = "1.35.63"
+version = "1.35.64"
 description = "The AWS SDK for Python"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "boto3-1.35.63-py3-none-any.whl", hash = "sha256:d0f938d4f6f392b6ffc5e75fff14a42e5bbb5228675a0367c8af55398abadbec"},
-    {file = "boto3-1.35.63.tar.gz", hash = "sha256:deb593d9a0fb240deb4c43e4da8e6626d7c36be7b2fd2fe28f49d44d395b7de0"},
+    {file = "boto3-1.35.64-py3-none-any.whl", hash = "sha256:cdacf03fc750caa3aa0dbf6158166def9922c9d67b4160999ff8fc350662facc"},
+    {file = "boto3-1.35.64.tar.gz", hash = "sha256:bc3fc12b41fa2c91e51ab140f74fb1544408a2b1e00f88a4c2369a66d18ddf20"},
 ]
 
 [package.dependencies]
-botocore = ">=1.35.63,<1.36.0"
+botocore = ">=1.35.64,<1.36.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.10.0,<0.11.0"
 
@@ -130,13 +130,13 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.35.63"
+version = "1.35.64"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "botocore-1.35.63-py3-none-any.whl", hash = "sha256:0ca1200694a4c0a3fa846795d8e8a08404c214e21195eb9e010c4b8a4ca78a4a"},
-    {file = "botocore-1.35.63.tar.gz", hash = "sha256:2b8196bab0a997d206c3d490b52e779ef47dffb68c57c685443f77293aca1589"},
+    {file = "botocore-1.35.64-py3-none-any.whl", hash = "sha256:bbd96bf7f442b1d5e35b36f501076e4a588c83d8d84a1952e9ee1d767e5efb3e"},
+    {file = "botocore-1.35.64.tar.gz", hash = "sha256:2f95c83f31c9e38a66995c88810fc638c829790e125032ba00ab081a2cf48cb9"},
 ]
 
 [package.dependencies]
@@ -174,17 +174,17 @@ files = [
 
 [[package]]
 name = "cfn-lint"
-version = "1.19.0"
+version = "1.20.0"
 description = "Checks CloudFormation templates for practices and behaviour that could potentially be improved"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "cfn_lint-1.19.0-py3-none-any.whl", hash = "sha256:9c43a6b866915df6d2ac5584000ef05e53c67624809808c2cebd3dc6154b7c14"},
-    {file = "cfn_lint-1.19.0.tar.gz", hash = "sha256:63835e083f7831e54c512bce4808754df221b5895aed9a114c71879d1cc4ebff"},
+    {file = "cfn_lint-1.20.0-py3-none-any.whl", hash = "sha256:b75bf2fbb1d8f6155fd6c919fcde432c44793778c888b293bb0966c5358f4949"},
+    {file = "cfn_lint-1.20.0.tar.gz", hash = "sha256:1b5d1f493e9e821d6ecf51c0492d9bb3ec0c407cb47beb7070024637c3ec057a"},
 ]
 
 [package.dependencies]
-aws-sam-translator = ">=1.91.0"
+aws-sam-translator = ">=1.92.0"
 jsonpatch = "*"
 networkx = ">=2.4,<4"
 pyyaml = ">5.4"
@@ -1523,4 +1523,4 @@ test = ["big-O", "jaraco.functools", "jaraco.itertools", "jaraco.test", "more-it
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "700adb4e7e64df27585166ee45615ca226c2d0291e77c93ce5b189570d58d514"
+content-hash = "d7173c48c8c31929dcb62c6b1fc0d1679155e74572779fc4f548d8d644541d14"
