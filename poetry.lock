@@ -45,13 +45,13 @@ tests-no-zope = ["cloudpickle", "hypothesis", "mypy (>=1.1.1)", "pympler", "pyte
 
 [[package]]
 name = "aws-sam-translator"
-version = "1.91.0"
+version = "1.92.0"
 description = "AWS SAM Translator is a library that transform SAM templates into AWS CloudFormation templates"
 optional = false
 python-versions = "!=4.0,<=4.0,>=3.8"
 files = [
-    {file = "aws_sam_translator-1.91.0-py3-none-any.whl", hash = "sha256:9ebf4b53c226338e6b89d14d8583bc4559b87f0be52ed8d577c5a1dc2db14962"},
-    {file = "aws_sam_translator-1.91.0.tar.gz", hash = "sha256:0cdfbc598f384c430c3ec064f6008d80c5a0d58f1dc45ca4e331ae5c43cb4697"},
+    {file = "aws_sam_translator-1.92.0-py3-none-any.whl", hash = "sha256:10e77ab628cead3d0e8ee0211eb84c04010c051b9a48ce6b15171c39bdbe917d"},
+    {file = "aws_sam_translator-1.92.0.tar.gz", hash = "sha256:49014e783180ca1fcdd70790645a850d20f4285c19ae694d37fefc52a60d7c64"},
 ]
 
 [package.dependencies]
@@ -174,17 +174,17 @@ files = [
 
 [[package]]
 name = "cfn-lint"
-version = "1.19.0"
+version = "1.20.0"
 description = "Checks CloudFormation templates for practices and behaviour that could potentially be improved"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "cfn_lint-1.19.0-py3-none-any.whl", hash = "sha256:9c43a6b866915df6d2ac5584000ef05e53c67624809808c2cebd3dc6154b7c14"},
-    {file = "cfn_lint-1.19.0.tar.gz", hash = "sha256:63835e083f7831e54c512bce4808754df221b5895aed9a114c71879d1cc4ebff"},
+    {file = "cfn_lint-1.20.0-py3-none-any.whl", hash = "sha256:b75bf2fbb1d8f6155fd6c919fcde432c44793778c888b293bb0966c5358f4949"},
+    {file = "cfn_lint-1.20.0.tar.gz", hash = "sha256:1b5d1f493e9e821d6ecf51c0492d9bb3ec0c407cb47beb7070024637c3ec057a"},
 ]
 
 [package.dependencies]
-aws-sam-translator = ">=1.91.0"
+aws-sam-translator = ">=1.92.0"
 jsonpatch = "*"
 networkx = ">=2.4,<4"
 pyyaml = ">5.4"
@@ -1523,4 +1523,4 @@ test = ["big-O", "jaraco.functools", "jaraco.itertools", "jaraco.test", "more-it
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "12c8bfeae0af5483a3b454f4807fc77c9d1f0f4bc2d1da03af90a88471a87073"
+content-hash = "d7173c48c8c31929dcb62c6b1fc0d1679155e74572779fc4f548d8d644541d14"
