@@ -21,7 +21,7 @@
     "@middy/core": "^5.5.1",
     "@middy/http-header-normalizer": "^5.5.1",
     "@middy/input-output-logger": "^5.5.1",
-    "@nhs/fhir-middy-error-handler": "^2.1.10",
+    "@nhs/fhir-middy-error-handler": "^2.1.11",
     "@NHSDigital/eps-spine-client": "^2.1.10",
     "@prescriptionsforpatients/distanceSelling": "^1.0.0",
     "@types/fhir": "^0.0.41"
