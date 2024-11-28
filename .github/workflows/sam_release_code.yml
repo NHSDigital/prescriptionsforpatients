@@ -112,7 +112,7 @@ jobs:
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets.CLOUD_FORMATION_DEPLOY_ROLE }}
-          role-session-name: github-actions
+          role-session-name: aws-pfp-release-code
 
       - name: download build artifact
         uses: actions/download-artifact@v4
