@@ -29,7 +29,7 @@
     "@types/aws-lambda": "^8.10.147",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.13.9",
-    "@typescript-eslint/eslint-plugin": "^8.25.0",
+    "@typescript-eslint/eslint-plugin": "^8.26.0",
     "@typescript-eslint/parser": "^8.26.0",
     "aws-lambda": "^1.0.7",
     "conventional-changelog-eslint": "^6.0.0",
