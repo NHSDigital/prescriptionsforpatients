@@ -1,5 +1,5 @@
 [project]
-python = "^3.8"
+python = ">=3.8,<3.9.0 || >3.9.1,<4.0"
 
 [tool.poetry]
 name = "prescriptionsforpatients"
