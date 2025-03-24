@@ -82,6 +82,9 @@ Parameters:
       - true
       - false
 
+  StateMachineLogLevel:
+    Type: String
+
 Resources:
   Apis:
     Type: AWS::Serverless::Application

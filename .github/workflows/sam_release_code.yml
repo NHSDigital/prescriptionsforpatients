@@ -53,13 +53,14 @@ on:
         default: false
       REGRESSION_TESTS_PEM:
         type: string
-        default: false
       RUN_REGRESSION_TESTS:
         type: boolean
         default: true
       ENABLE_ALERTS:
         type: boolean
         default: true
+      STATE_MACHINE_LOG_LEVEL:
+        type: string
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
@@ -138,6 +139,7 @@ jobs:
           VERSION_NUMBER: ${{ inputs.VERSION_NUMBER }}
           TOGGLE_GET_STATUS_UPDATES: ${{ inputs.TOGGLE_GET_STATUS_UPDATES }}
           ENABLE_ALERTS: ${{ inputs.ENABLE_ALERTS }}
+          STATE_MACHINE_LOG_LEVEL: ${{ inputs.STATE_MACHINE_LOG_LEVEL }}
         run: ./release_code.sh
 
       - name: create_int_release_notes
