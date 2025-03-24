@@ -131,6 +131,7 @@ Resources:
         EnrichPrescriptionsFunctionArn: !GetAtt Functions.Outputs.EnrichPrescriptionsFunctionArn
         LogRetentionInDays: !Ref LogRetentionInDays
         EnableSplunk: !Ref EnableSplunk
+        StateMachineLogLevel: !Ref StateMachineLogLevel
 
   Alarms:
     Type: AWS::Serverless::Application
