@@ -106,7 +106,8 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 			  LogRetentionInDays=$$LOG_RETENTION_DAYS \
 			  Env=$$TARGET_ENVIRONMENT \
 			  ToggleGetStatusUpdates=$$TOGGLE_GET_STATUS_UPDATES \
-			  EnableAlerts=$$ENABLE_ALERTS
+			  EnableAlerts=$$ENABLE_ALERTS \
+			  StateMachineLogLevel=$$STATE_MACHINE_LOG_LEVEL
 
 compile-node:
 	npx tsc --build tsconfig.build.json

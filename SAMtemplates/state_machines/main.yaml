@@ -31,6 +31,9 @@ Parameters:
   EnableSplunk:
     Type: String
 
+  StateMachineLogLevel:
+    Type: String
+
 Resources:
   GetMyPrescriptionsStateMachine:
     Type: AWS::Serverless::StateMachine
@@ -51,7 +54,7 @@ Resources:
           - CloudWatchLogsLogGroup:
               LogGroupArn: !GetAtt GetMyPrescriptionsStateMachineResources.Outputs.StateMachineLogGroupArn
         IncludeExecutionData: true
-        Level: ALL
+        Level: !Ref StateMachineLogLevel
       Tracing:
         Enabled: true
 

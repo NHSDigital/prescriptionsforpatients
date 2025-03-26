@@ -82,6 +82,9 @@ Parameters:
       - true
       - false
 
+  StateMachineLogLevel:
+    Type: String
+
 Resources:
   Apis:
     Type: AWS::Serverless::Application
@@ -128,6 +131,7 @@ Resources:
         EnrichPrescriptionsFunctionArn: !GetAtt Functions.Outputs.EnrichPrescriptionsFunctionArn
         LogRetentionInDays: !Ref LogRetentionInDays
         EnableSplunk: !Ref EnableSplunk
+        StateMachineLogLevel: !Ref StateMachineLogLevel
 
   Alarms:
     Type: AWS::Serverless::Application
