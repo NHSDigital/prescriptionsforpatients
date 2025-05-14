@@ -16,7 +16,7 @@
     "@aws-lambda-powertools/commons": "^2.19.1",
     "@aws-lambda-powertools/logger": "^2.19.1",
     "@aws-lambda-powertools/parameters": "^2.19.1",
-    "@middy/core": "^6.2.4",
+    "@middy/core": "^6.3.0",
     "@middy/input-output-logger": "^6.2.4",
     "@nhs/fhir-middy-error-handler": "^2.1.30",
     "@NHSDigital/eps-spine-client": "^2.1.35"
