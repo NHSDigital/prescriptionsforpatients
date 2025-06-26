@@ -19,6 +19,6 @@
     "@middy/core": "^6.3.2",
     "@middy/input-output-logger": "^6.3.2",
     "@nhs/fhir-middy-error-handler": "^2.1.37",
-    "@NHSDigital/eps-spine-client": "^2.1.41"
+    "@NHSDigital/eps-spine-client": "^2.1.42"
   }
 }
