@@ -26,6 +26,7 @@ import {
   CANCELLED_STATUS,
   NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS,
   ONE_WEEK_IN_MS,
+  StatusUpdateRequest,
   StatusUpdates,
   TEMPORARILY_UNAVAILABLE_STATUS,
   UpdatesScenario,
@@ -406,6 +407,21 @@ describe("Unit tests for statusUpdate", function () {
 
       applyTemporaryStatusUpdates(requestBundle, statusUpdateRequest)
       expect(medicationRequest.extension).toBeUndefined()
+    })
+
+    it("Item with no status, and no status in the message, that expects an update, is given the temporary update and has its status set as active", async () => {
+      const requestBundle = simpleRequestBundle()
+      const prescriptions = isolatePrescriptions(requestBundle)
+      const medicationRequests = isolateMedicationRequests(prescriptions[0])
+      const medicationRequest = medicationRequests![0]
+
+      const statusUpdateRequest = undefined
+
+      applyTemporaryStatusUpdates(requestBundle, statusUpdateRequest as unknown as StatusUpdateRequest)
+      const statusExtension = medicationRequest.extension![0].extension!.filter((e) => e.url === "status")[0]
+
+      expect(statusExtension.valueCoding!.code!).toEqual(TEMPORARILY_UNAVAILABLE_STATUS)
+      expect(medicationRequest.status).toEqual("active")
     })
 
     it.each([
