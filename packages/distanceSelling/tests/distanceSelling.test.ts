@@ -216,7 +216,8 @@ describe("ServiceSearch tests", function () {
     await distanceSelling.processOdsCodes(organisations)
 
     const organisation: Organization = organisations[0]
-    expect(organisation.address).toBeDefined()
+    // The address is removed, since we're a distance selling pharmacy
+    expect(organisation.address).toBeUndefined()
     expect(organisation.telecom![1]).toEqual(expectedTelecom)
   })
 
