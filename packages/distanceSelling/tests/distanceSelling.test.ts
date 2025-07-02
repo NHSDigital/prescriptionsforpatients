@@ -307,4 +307,30 @@ describe("ServiceSearch tests", function () {
 
     expect(result).toEqual([])
   })
+
+  it("processOdsCodes removes address and adds telecom when cache entry exists for ODS codes", async () => {
+  // Pre‐populate cache with both ODS codes
+    const cache: ServicesCache = {
+      flm49: "www.pharmacy2u.co.uk",
+      few08: "www.pharmica.co.uk"
+    }
+    const distanceSelling = new DistanceSelling(cache, logger)
+    const searchsetBundle = JSON.parse(mockBundleString) as Bundle
+
+    // organizations to process
+    const prescriptions = distanceSelling.isolatePrescriptions(searchsetBundle)
+    const performerReferences = distanceSelling.getPerformerReferences(prescriptions)
+    const organisations = distanceSelling.getPerformerOrganisations(performerReferences, prescriptions)
+
+    // Run the cache‐hit branch
+    await distanceSelling.processOdsCodes(organisations)
+
+    organisations.forEach((org) => {
+      expect(org.address).toBeUndefined()
+    })
+    const org1Url = organisations[0].telecom?.find(t => t.system === "url")?.value
+    const org2Url = organisations[1].telecom?.find(t => t.system === "url")?.value
+    expect(org1Url).toEqual("www.pharmacy2u.co.uk")
+    expect(org2Url).toEqual("www.pharmica.co.uk")
+  })
 })
