@@ -329,19 +329,6 @@
                   "use": "work",
                   "value": "www.pharmacy2u.co.uk"
                 }
-              ],
-              "address": [
-                {
-                  "use": "work",
-                  "type": "both",
-                  "line": [
-                    "Unit 4B",
-                    "Victoria Road"
-                  ],
-                  "city": "LEEDS",
-                  "district": "WEST YORKSHIRE",
-                  "postalCode": "LS14 2LA"
-                }
               ]
             }
           }
@@ -630,18 +617,6 @@
                   "system": "url",
                   "use": "work",
                   "value": "www.pharmica.co.uk"
-                }
-              ],
-              "address": [
-                {
-                  "use": "work",
-                  "type": "both",
-                  "line": [
-                    "1-5 Clerkenwell Road"
-                  ],
-                  "city": "LONDON",
-                  "district": "GREATER LONDON",
-                  "postalCode": "EC1M 5PA"
                 }
               ]
             }
