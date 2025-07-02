@@ -28,7 +28,7 @@
     "@semantic-release/release-notes-generator": "^14.0.3",
     "@types/aws-lambda": "^8.10.150",
     "@types/jest": "^30.0.0",
-    "@types/node": "^24.0.7",
+    "@types/node": "^24.0.10",
     "@typescript-eslint/eslint-plugin": "^8.35.1",
     "@typescript-eslint/parser": "^8.35.1",
     "aws-lambda": "^1.0.7",
