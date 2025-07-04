@@ -2,14 +2,18 @@ import {APIGatewayProxyResult as LambdaResult} from "aws-lambda"
 import {Logger} from "@aws-lambda-powertools/logger"
 import {injectLambdaContext} from "@aws-lambda-powertools/logger/middleware"
 import {LogLevel} from "@aws-lambda-powertools/logger/types"
+
 import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
 import httpHeaderNormalizer from "@middy/http-header-normalizer"
+
 import errorHandler from "@nhs/fhir-middy-error-handler"
-import {createSpineClient} from "@NHSDigital/eps-spine-client"
-import {extractNHSNumber, NHSNumberValidationError} from "./extractNHSNumber"
-import {DistanceSelling, ServicesCache} from "@prescriptionsforpatients/distanceSelling"
 import type {Bundle} from "fhir/r4"
+
+import {createSpineClient} from "@NHSDigital/eps-spine-client"
+import {SpineClient} from "@NHSDigital/eps-spine-client/lib/spine-client"
+
+import {DistanceSelling, ServicesCache} from "@prescriptionsforpatients/distanceSelling"
 import {
   INVALID_NHS_NUMBER_RESPONSE,
   SPINE_CERT_NOT_CONFIGURED_RESPONSE,
@@ -18,9 +22,9 @@ import {
   TraceIDs,
   ResponseFunc
 } from "./responses"
+import {extractNHSNumber, NHSNumberValidationError} from "./extractNHSNumber"
 import {deepCopy, hasTimedOut, jobWithTimeout} from "./utils"
 import {buildStatusUpdateData, shouldGetStatusUpdates} from "./statusUpdate"
-import {SpineClient} from "@NHSDigital/eps-spine-client/lib/spine-client"
 import {isolateOperationOutcome} from "./fhirUtils"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
@@ -106,7 +110,7 @@ async function eventHandler(
       logger.error("Operation outcome returned from spine", {operationOutcome})
     })
 
-    const statusUpdateData = includeStatusUpdateData ? buildStatusUpdateData(searchsetBundle) : undefined
+    const statusUpdateData = includeStatusUpdateData ? buildStatusUpdateData(logger, searchsetBundle) : undefined
 
     const distanceSelling = new DistanceSelling(servicesCache, logger)
     const distanceSellingBundle = deepCopy(searchsetBundle)

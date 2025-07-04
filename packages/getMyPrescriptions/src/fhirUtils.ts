@@ -45,7 +45,7 @@ export function isolatePerformerReference(medicationRequests: Array<MedicationRe
 }
 
 export function isolatePerformerOrganisation(reference: string, prescription: Bundle): Organization {
-  const filter = (entry: Entry) => entry.fullUrl! === reference
+  const filter = (entry: Entry) => (entry.fullUrl !== null && entry.fullUrl === reference)
   return filterAndTypeBundleEntries<Organization>(prescription, filter)[0]
 }
 
