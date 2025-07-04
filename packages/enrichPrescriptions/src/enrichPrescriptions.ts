@@ -48,8 +48,7 @@ export async function lambdaHandler(event: EnrichPrescriptionsEvent) {
     }
     case UpdatesScenario.ExpectedButAbsent: {
       logger.info("Call to get status updates was unsuccessful. Applying temporary status updates.")
-      const statusUpdateRequest = event.statusUpdateData!
-      applyTemporaryStatusUpdates(logger, searchsetBundle, statusUpdateRequest)
+      applyTemporaryStatusUpdates(logger, searchsetBundle, event.statusUpdateData)
       break
     }
     default: {
