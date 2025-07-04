@@ -111,19 +111,22 @@ def find_workflow(auth_header):
 
             list_of_jobs = get_jobs_for_workflow(jobs_url, auth_header)
 
-            if list_of_jobs:
-                job = list_of_jobs[0]
-                steps = job["steps"]
-
-                if len(steps) >= 2:
-                    third_step = steps[2]
-                    if third_step["name"] == run_id:
-                        print(f"Workflow Job found! Using ID: {current_workflow_id}")
-                        return current_workflow_id
-                else:
-                    print("Not enough steps have been executed for this run yet...")
-            else:
+            if not list_of_jobs:
                 print("Jobs for this workflow run haven't populated yet...")
+                continue
+
+            job = list_of_jobs[0]
+            steps = job["steps"]
+
+            if len(steps) < 2:
+                print("Not enough steps have been executed for this run yet...")
+                continue
+
+            third_step = steps[2]
+            if third_step["name"] == run_id:
+                print(f"Workflow Job found! Using ID: {current_workflow_id}")
+                return current_workflow_id
+
         print(
             "Processed all available workflows but no jobs were matching the Unique ID were found!"
         )
