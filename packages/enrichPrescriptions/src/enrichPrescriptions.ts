@@ -1,9 +1,11 @@
 import {Logger} from "@aws-lambda-powertools/logger"
 import {injectLambdaContext} from "@aws-lambda-powertools/logger/middleware"
 import {LogLevel} from "@aws-lambda-powertools/logger/types"
+
 import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
 import {Bundle} from "fhir/r4"
+
 import {
   StatusUpdateRequest,
   StatusUpdates,
@@ -41,13 +43,12 @@ export async function lambdaHandler(event: EnrichPrescriptionsEvent) {
   switch (updatesScenario) {
     case UpdatesScenario.Present: {
       logger.info("Applying status updates.")
-      applyStatusUpdates(searchsetBundle, statusUpdates!)
+      applyStatusUpdates(logger, searchsetBundle, statusUpdates!)
       break
     }
     case UpdatesScenario.ExpectedButAbsent: {
       logger.info("Call to get status updates was unsuccessful. Applying temporary status updates.")
-      const statusUpdateRequest = event.statusUpdateData!
-      applyTemporaryStatusUpdates(searchsetBundle, statusUpdateRequest)
+      applyTemporaryStatusUpdates(logger, searchsetBundle, event.statusUpdateData)
       break
     }
     default: {
