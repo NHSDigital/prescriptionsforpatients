@@ -111,9 +111,8 @@ export class DistanceSelling {
   }
 
   addToTelecom(url: string, organisation: Organization) {
-    if (!organisation.telecom) {
-      organisation.telecom = []
-    }
+    organisation.telecom ??= []
+
     const urlEntryAbsent: boolean = organisation.telecom.filter(entry => entry.system === "url").length === 0
     if (urlEntryAbsent) {
       const telecom: ContactPoint = {system: "url", use: "work", value: url}
