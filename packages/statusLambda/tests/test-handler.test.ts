@@ -1,16 +1,18 @@
-import {APIGatewayProxyResult} from "aws-lambda"
-import {handler} from "../src/statusLambda"
 import {
   jest,
   expect,
   describe,
   it
 } from "@jest/globals"
-import {helloworldContext} from "@prescriptionsforpatients_common/testing"
+
+import {APIGatewayProxyResult} from "aws-lambda"
 import {Logger} from "@aws-lambda-powertools/logger"
+
 import MockAdapter from "axios-mock-adapter"
 import axios from "axios"
-import {mockAPIGatewayProxyEvent} from "@prescriptionsforpatients_common/testing"
+
+import {handler} from "../src/statusLambda"
+import {mockAPIGatewayProxyEvent, helloworldContext} from "@prescriptionsforpatients_common/testing"
 
 const mock = new MockAdapter(axios)
 
@@ -27,10 +29,10 @@ describe("Unit test for status check", function () {
     process.env.COMMIT_ID = "test_commit_id"
     process.env.TargetSpineServer = "sandbox"
 
-    const result: APIGatewayProxyResult = (await handler(
+    const result: APIGatewayProxyResult = await handler(
       mockAPIGatewayProxyEvent,
       dummyContext
-    )) as APIGatewayProxyResult
+    )
 
     expect(result.statusCode).toEqual(200)
     expect(JSON.parse(result.body)).toMatchObject({
@@ -42,10 +44,10 @@ describe("Unit test for status check", function () {
     process.env.VERSION_NUMBER = "test_version_number"
     process.env.TargetSpineServer = "sandbox"
 
-    const result: APIGatewayProxyResult = (await handler(
+    const result: APIGatewayProxyResult = await handler(
       mockAPIGatewayProxyEvent,
       dummyContext
-    )) as APIGatewayProxyResult
+    )
 
     expect(result.statusCode).toEqual(200)
     expect(JSON.parse(result.body)).toMatchObject({
@@ -71,10 +73,10 @@ describe("Unit test for status check", function () {
     process.env.COMMIT_ID = "test_commit_id"
     process.env.TargetSpineServer = "sandbox"
 
-    const result: APIGatewayProxyResult = (await handler(
+    const result: APIGatewayProxyResult = await handler(
       mockAPIGatewayProxyEvent,
       dummyContext
-    )) as APIGatewayProxyResult
+    )
 
     const headers = result.headers
 
@@ -100,10 +102,10 @@ describe("Unit test for status check", function () {
     mock.onGet("https://live/healthcheck").reply(200, {})
     process.env.TargetSpineServer = "live"
 
-    const result: APIGatewayProxyResult = (await handler(
+    const result: APIGatewayProxyResult = await handler(
       mockAPIGatewayProxyEvent,
       dummyContext
-    )) as APIGatewayProxyResult
+    )
 
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
@@ -117,10 +119,10 @@ describe("Unit test for status check", function () {
     mock.onGet("https://live/healthcheck").reply(500, {})
     process.env.TargetSpineServer = "live"
 
-    const result: APIGatewayProxyResult = (await handler(
+    const result: APIGatewayProxyResult = await handler(
       mockAPIGatewayProxyEvent,
       dummyContext
-    )) as APIGatewayProxyResult
+    )
 
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
@@ -134,10 +136,10 @@ describe("Unit test for status check", function () {
     mock.onGet("https://live/healthcheck").networkError()
     process.env.TargetSpineServer = "live"
 
-    const result: APIGatewayProxyResult = (await handler(
+    const result: APIGatewayProxyResult = await handler(
       mockAPIGatewayProxyEvent,
       dummyContext
-    )) as APIGatewayProxyResult
+    )
 
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
@@ -151,10 +153,10 @@ describe("Unit test for status check", function () {
     mock.onGet("https://live/healthcheck").timeout()
     process.env.TargetSpineServer = "live"
 
-    const result: APIGatewayProxyResult = (await handler(
+    const result: APIGatewayProxyResult = await handler(
       mockAPIGatewayProxyEvent,
       dummyContext
-    )) as APIGatewayProxyResult
+    )
 
     expect(result.statusCode).toEqual(200)
     const result_body = JSON.parse(result.body)
