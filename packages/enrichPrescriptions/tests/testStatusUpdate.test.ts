@@ -430,7 +430,7 @@ describe("Unit tests for statusUpdate", function () {
         const statusUpdateRequest = createStatusUpdateRequest([{odsCode: "FLM49", prescriptionID: prescriptionID}])
 
         applyTemporaryStatusUpdates(logger, requestBundle, statusUpdateRequest)
-        const statusExtension = medicationRequest.extension![0].extension!.filter((e) => e.url === "status")[0]!
+        const statusExtension = medicationRequest.extension![0].extension!.filter((e) => e.url === "status")[0]
 
         expect(statusExtension.valueCoding!.code!).toEqual(shouldUpdate ? TEMPORARILY_UNAVAILABLE_STATUS : status)
       }
