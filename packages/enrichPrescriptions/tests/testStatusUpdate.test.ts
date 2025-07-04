@@ -40,8 +40,11 @@ import {Logger} from "@aws-lambda-powertools/logger"
 import {isolateMedicationRequests, isolatePrescriptions} from "../src/fhirUtils"
 
 describe("Unit tests for statusUpdate", function () {
+  let logger: Logger
+
   beforeEach(() => {
     jest.useFakeTimers().setSystemTime(SYSTEM_DATETIME)
+    logger = new Logger({serviceName: "testStatusUpdate", logLevel: "INFO"})
   })
 
   it("when no update is present for a prescription, the not-onboarded update is applied", async () => {
@@ -55,7 +58,7 @@ describe("Unit tests for statusUpdate", function () {
     medicationRequest.extension = defaultExtension(false)
     medicationRequest.status = "active"
 
-    applyStatusUpdates(requestBundle, statusUpdates)
+    applyStatusUpdates(logger, requestBundle, statusUpdates)
 
     expect(requestBundle).toEqual(expectedResponseBundle)
   })
@@ -71,7 +74,7 @@ describe("Unit tests for statusUpdate", function () {
     medicationRequest.extension = defaultExtension(false)
     medicationRequest.status = "active"
 
-    applyStatusUpdates(requestBundle, statusUpdates)
+    applyStatusUpdates(logger, requestBundle, statusUpdates)
 
     expect(requestBundle).toEqual(expectedResponseBundle)
   })
@@ -80,7 +83,7 @@ describe("Unit tests for statusUpdate", function () {
     const requestBundle = simpleRequestBundle()
     const statusUpdates = simpleStatusUpdatesPayload()
 
-    applyStatusUpdates(requestBundle, statusUpdates)
+    applyStatusUpdates(logger, requestBundle, statusUpdates)
 
     expect(requestBundle).toEqual(simpleResponseBundle())
   })
@@ -100,7 +103,7 @@ describe("Unit tests for statusUpdate", function () {
 
     medicationRequest.extension![0].extension![1].valueDateTime = lessThanOneWeekAgo
 
-    applyStatusUpdates(requestBundle, statusUpdates)
+    applyStatusUpdates(logger, requestBundle, statusUpdates)
 
     expect(requestBundle).toEqual(expected)
   })
@@ -121,7 +124,7 @@ describe("Unit tests for statusUpdate", function () {
     medicationRequest.status = "completed"
     medicationRequest.extension![0].extension![1].valueDateTime = moreThanOneWeekAgo
 
-    applyStatusUpdates(requestBundle, statusUpdates)
+    applyStatusUpdates(logger, requestBundle, statusUpdates)
 
     expect(requestBundle).toEqual(expected)
   })
@@ -159,7 +162,7 @@ describe("Unit tests for statusUpdate", function () {
 
       addExtensionToMedicationRequest(responseMedicationRequest, "Collected", moreThanOneWeekAgo)
 
-      applyStatusUpdates(requestBundle, statusUpdates)
+      applyStatusUpdates(logger, requestBundle, statusUpdates)
 
       expect(requestBundle).toEqual(expectedResponseBundle)
     })
@@ -191,7 +194,7 @@ describe("Unit tests for statusUpdate", function () {
     responseMedicationRequest.extension!.push(existingExtension)
     responseMedicationRequest.extension!.reverse()
 
-    applyStatusUpdates(requestBundle, statusUpdates)
+    applyStatusUpdates(logger, requestBundle, statusUpdates)
 
     expect(requestBundle).toEqual(expectedResponseBundle)
   })
@@ -211,7 +214,7 @@ describe("Unit tests for statusUpdate", function () {
       addExtensionToMedicationRequest(medicationRequest, status, "2023-09-11T10:11:12.000Z")
 
       const statusUpdates = simpleStatusUpdatesPayload()
-      applyStatusUpdates(requestBundle, statusUpdates)
+      applyStatusUpdates(logger, requestBundle, statusUpdates)
 
       // Check that the original extension is still present and unchanged
       expect(medicationRequest.extension![0].extension![0].valueCoding!.code).toEqual(expectedCode)
@@ -229,7 +232,7 @@ describe("Unit tests for statusUpdate", function () {
 
     const responseBundle = JSON.parse(JSON.stringify(requestBundle))
 
-    applyStatusUpdates(requestBundle, statusUpdates)
+    applyStatusUpdates(logger, requestBundle, statusUpdates)
 
     expect(requestBundle).toEqual(responseBundle)
   })
@@ -244,7 +247,7 @@ describe("Unit tests for statusUpdate", function () {
     const medicationRequest = prescription.entry![3].resource as MedicationRequest
     medicationRequest.extension = defaultExtension()
 
-    applyStatusUpdates(requestBundle, statusUpdates)
+    applyStatusUpdates(logger, requestBundle, statusUpdates)
 
     expect(requestBundle).toEqual(expectedResponseBundle)
   })
@@ -260,7 +263,7 @@ describe("Unit tests for statusUpdate", function () {
     statusHistory!.reverse()
 
     const statusUpdates = simpleStatusUpdatesPayload()
-    applyStatusUpdates(requestBundle, statusUpdates)
+    applyStatusUpdates(logger, requestBundle, statusUpdates)
 
     expect(requestBundle).toEqual(simpleResponseBundle())
     expect(medicationRequest.extension[0].extension!.length).toEqual(2)
@@ -334,7 +337,7 @@ describe("Unit tests for statusUpdate", function () {
         addExtensionToMedicationRequest(medicationRequest, pfpStatus, updateTime)
 
         if (npptUpdates) {
-          applyStatusUpdates(requestBundle, npptUpdates)
+          applyStatusUpdates(logger, requestBundle, npptUpdates)
         }
 
         expect(medicationRequest.extension![0].extension![0].valueCoding!.code).toEqual(expectedStatus)
@@ -385,7 +388,7 @@ describe("Unit tests for statusUpdate", function () {
       const prescriptionID = medicationRequest.groupIdentifier!.value!.toUpperCase()
       const statusUpdateRequest = createStatusUpdateRequest([{odsCode: "FLM49", prescriptionID: prescriptionID}])
 
-      applyTemporaryStatusUpdates(requestBundle, statusUpdateRequest)
+      applyTemporaryStatusUpdates(logger, requestBundle, statusUpdateRequest)
       const statusExtension = medicationRequest.extension![0].extension!.filter((e) => e.url === "status")[0]
 
       expect(statusExtension.valueCoding!.code!).toEqual(TEMPORARILY_UNAVAILABLE_STATUS)
@@ -404,7 +407,7 @@ describe("Unit tests for statusUpdate", function () {
         {odsCode: "FLM49", prescriptionID: "NOPE"}
       ])
 
-      applyTemporaryStatusUpdates(requestBundle, statusUpdateRequest)
+      applyTemporaryStatusUpdates(logger, requestBundle, statusUpdateRequest)
       expect(medicationRequest.extension).toBeUndefined()
     })
 
@@ -426,7 +429,7 @@ describe("Unit tests for statusUpdate", function () {
         const prescriptionID = medicationRequests![0].groupIdentifier!.value!.toUpperCase()
         const statusUpdateRequest = createStatusUpdateRequest([{odsCode: "FLM49", prescriptionID: prescriptionID}])
 
-        applyTemporaryStatusUpdates(requestBundle, statusUpdateRequest)
+        applyTemporaryStatusUpdates(logger, requestBundle, statusUpdateRequest)
         const statusExtension = medicationRequest.extension![0].extension!.filter((e) => e.url === "status")[0]!
 
         expect(statusExtension.valueCoding!.code!).toEqual(shouldUpdate ? TEMPORARILY_UNAVAILABLE_STATUS : status)
@@ -460,7 +463,7 @@ describe("Unit tests for statusUpdate", function () {
       {odsCode: "FEW08", prescriptionID: "16B2E0-A83008-81C13H"}
     ])
 
-    applyTemporaryStatusUpdates(requestBundle, statusUpdateRequest)
+    applyTemporaryStatusUpdates(logger, requestBundle, statusUpdateRequest)
 
     const tempStatusUpdateFilter = (medicationRequest: MedicationRequest) => {
       const outerExtension = medicationRequest.extension?.filter(

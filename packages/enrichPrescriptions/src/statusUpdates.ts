@@ -152,8 +152,8 @@ export function applyStatusUpdates(logger: Logger, searchsetBundle: Bundle, stat
 
     logger.info(`Applying updates for prescription ${prescriptionID}.`)
 
-    const prescriptionUpdate = statusUpdates.prescriptions.filter((p) => p.prescriptionID === prescriptionID)[0]
-    if (!prescriptionUpdate || !prescriptionUpdate.onboarded) {
+    const prescriptionUpdate = statusUpdates.prescriptions.find(p => p.prescriptionID === prescriptionID)
+    if (!prescriptionUpdate?.onboarded) {
       logger.info(`Supplier of prescription ${prescriptionID} not onboarded. Applying default updates.`)
       medicationRequests?.forEach((medicationRequest) => {
         if (delayWithPharmacyStatus(medicationRequest)) {
