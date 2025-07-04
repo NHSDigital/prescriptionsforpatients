@@ -52,7 +52,17 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       const startTime = error.config?.headers["request-startTime"]
       this.logger.info("serviceSearch request duration", {serviceSearch_duration: currentTime - startTime})
 
-      return Promise.reject(error)
+      // reject with a proper Error object
+      let err: Error
+      if (error instanceof Error) {
+        err = error
+      } else if ((error as AxiosError).message) {
+        err = new Error((error as AxiosError).message)
+      } else {
+        logger.error("Unknown error in serviceSearch request", {error})
+        err = new Error("Unknown error in serviceSearch request")
+      }
+      return Promise.reject(err)
     })
 
     this.outboundHeaders = {
