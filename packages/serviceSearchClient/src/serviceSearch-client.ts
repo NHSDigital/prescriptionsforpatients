@@ -4,6 +4,7 @@ import {LiveServiceSearchClient} from "./live-serviceSearch-client"
 export interface ServiceSearchClient {
   searchService(odsCode: string, logger: Logger): Promise<URL | undefined>
 }
+
 export class SandboxServiceSearchClient implements ServiceSearchClient {
   async searchService(): Promise<URL | undefined> {
     // This is not implemented as sandbox lambda does not use this code

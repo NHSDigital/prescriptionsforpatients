@@ -1,8 +1,9 @@
 import {Logger} from "@aws-lambda-powertools/logger"
-import {ServiceSearchClient} from "./serviceSearch-client"
 import axios, {AxiosError, AxiosInstance} from "axios"
 import axiosRetry from "axios-retry"
 import {handleUrl} from "./handleUrl"
+
+import {ServiceSearchClient} from "./serviceSearch-client"
 
 // timeout in ms to wait for response from serviceSearch to avoid lambda timeout
 const SERVICE_SEARCH_TIMEOUT = 45000
