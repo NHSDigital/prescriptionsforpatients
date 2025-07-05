@@ -72,7 +72,7 @@ jobs:
       COMMIT_ID: ${{ needs.get_commit_id.outputs.commit_id }}
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
-      TOGGLE_GET_STATUS_UPDATES: true
+      TOGGLE_GET_STATUS_UPDATES: false
       ENABLE_ALERTS: false
       STATE_MACHINE_LOG_LEVEL: ALL
     secrets:
