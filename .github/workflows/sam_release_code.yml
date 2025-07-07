@@ -61,6 +61,8 @@ on:
         default: true
       STATE_MACHINE_LOG_LEVEL:
         type: string
+      REGRESSION_TEST_PRODUCT:
+        type: string
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
@@ -200,5 +202,6 @@ jobs:
     with:
       ENVIRONMENT: ${{ inputs.APIGEE_ENVIRONMENT }}
       VERSION_NUMBER: ${{ inputs.VERSION_NUMBER }}
+      REGRESSION_TEST_PRODUCT: ${{ inputs.REGRESSION_TEST_PRODUCT }}
     secrets:
       REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
