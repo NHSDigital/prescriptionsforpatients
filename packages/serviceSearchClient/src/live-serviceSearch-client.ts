@@ -59,12 +59,23 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
         logger.error("Error in serviceSearch request", {error})
         err = error
       } else if ((error as AxiosError).message) {
-        logger.error("Axios error in serviceSearch request", {error})
-        const responseString = JSON.stringify((error as AxiosError).response)
-        const msg =
-          `Error in serviceSearch request. Message: ${(error as AxiosError).message} | ` +
-          `Request: ${(error as AxiosError).request} | Response: ${responseString}`
-        err = new Error(msg)
+        let axiosErrorDetails = {}
+        if (error.response) {
+          axiosErrorDetails = {response: {
+            data: error.data,
+            status: error.status,
+            headers: error.headers
+          }}
+        }
+        if (error.request) {
+          axiosErrorDetails = {
+            ...axiosErrorDetails,
+            request: error.request
+          }
+        }
+
+        logger.error("Axios error in serviceSearch request", {axiosErrorDetails})
+        err = new Error("Axios error in serviceSearch request")
       } else {
         logger.error("Unknown error in serviceSearch request", {error})
         err = new Error("Unknown error in serviceSearch request")
