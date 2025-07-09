@@ -115,7 +115,7 @@ describe("live serviceSearch client", () => {
     const axiosErr = {
       isAxiosError: true,
       message: "reqfail",
-      config: {},
+      config: {headers: {}},
       request: {detail: "reqError"},
       response: undefined
     } as unknown as AxiosError
@@ -129,7 +129,6 @@ describe("live serviceSearch client", () => {
     )
   })
 
-  // Integration scenarios from existing suite
   describe("integration scenarios", () => {
     const validUrlData: ServiceSearchData = {
       value: [
@@ -207,5 +206,53 @@ describe("live serviceSearch client", () => {
       )
       expect(errorSpy).not.toHaveBeenCalled()
     })
+
+    test("searchService logs only the interesting data when a request is rejected", async () => {
+    // this looks like AxiosError but is not an Error instance
+      const axiosErr = {
+        isAxiosError: true,
+        message: "upstream service failed",
+        config: {headers: {"request-startTime": 1234}},
+        response: {
+          data: "body-payload",
+          status: 418,
+          headers: {"x-test": "yes"},
+          statusText: "",
+          config: {},
+          request: {}
+        },
+        request: {detail: "socket-timeout"},
+        // these top-level props will be picked up by the interceptor
+        data: "body-payload",
+        status: 418,
+        headers: {"x-test": "yes"}
+      } as unknown as AxiosError
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const instanceMock = new MockAdapter((client as any)["axiosInstance"])
+      instanceMock.onGet(serviceSearchUrl).reply(() => {
+        throw axiosErr
+      })
+
+      const errSpy = jest.spyOn(Logger.prototype, "error")
+
+      // invoking searchService should end up throwing the generic interceptor Error
+      await expect(client.searchService("Z123")).rejects.toThrow("Axios error in serviceSearch request")
+
+      expect(errSpy).toHaveBeenCalledWith(
+        "Axios error in serviceSearch request",
+        {
+          axiosErrorDetails: {
+            response: {
+              data: "body-payload",
+              status: 418,
+              headers: {"x-test": "yes"}
+            },
+            request: {detail: "socket-timeout"}
+          }
+        }
+      )
+    })
+
   })
 })
