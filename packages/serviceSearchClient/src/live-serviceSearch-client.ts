@@ -59,6 +59,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
         logger.error("Error in serviceSearch request", {error})
         err = error
       } else if ((error as AxiosError).message) {
+        // Only report the interesting subset of the error object.
         let axiosErrorDetails = {}
         if (error.response) {
           axiosErrorDetails = {response: {
