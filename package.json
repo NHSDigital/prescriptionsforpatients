@@ -38,7 +38,7 @@
     "jest": "^30.0.4",
     "jest-junit": "^16.0.0",
     "license-checker": "^25.0.1",
-    "semantic-release": "^24.2.6",
+    "semantic-release": "^24.2.7",
     "ts-jest": "^29.4.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
