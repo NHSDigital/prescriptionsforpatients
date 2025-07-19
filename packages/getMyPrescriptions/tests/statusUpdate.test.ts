@@ -45,9 +45,16 @@ const dummyContext = helloworldContext
 const mock = new MockAdapter(axios)
 
 describe("Unit tests for statusUpdate", () => {
+  let logger: Logger
+
+  beforeEach(() => {
+    logger = new Logger({serviceName: "getMyPrescriptions"})
+    mock.reset()
+  })
+
   test("when a bundle is passed-in, expected status update data is returned for prescriptions with performers, without duplicates", async () => {
     const bundle = mockInteractionResponseBody as Bundle
-    const result = buildStatusUpdateData(bundle)
+    const result = buildStatusUpdateData(logger, bundle)
     expect(result).toEqual([
       {
         odsCode: "FLM49",
@@ -62,7 +69,7 @@ describe("Unit tests for statusUpdate", () => {
 
   test("when an empty bundle is passed-in, status update data is empty", async () => {
     const bundle: Bundle = {resourceType: "Bundle", type: "searchset"}
-    const result = buildStatusUpdateData(bundle)
+    const result = buildStatusUpdateData(logger, bundle)
     expect(result).toEqual([])
   })
 
@@ -93,7 +100,7 @@ describe("Unit tests for statusUpdate", () => {
         }
       ]
 
-      const result = buildStatusUpdateData(bundle)
+      const result = buildStatusUpdateData(logger, bundle)
 
       expect(result.length).toBe(expectedLength)
     }

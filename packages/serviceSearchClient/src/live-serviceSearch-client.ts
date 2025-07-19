@@ -1,8 +1,9 @@
 import {Logger} from "@aws-lambda-powertools/logger"
-import {ServiceSearchClient} from "./serviceSearch-client"
 import axios, {AxiosError, AxiosInstance} from "axios"
 import axiosRetry from "axios-retry"
 import {handleUrl} from "./handleUrl"
+
+import {ServiceSearchClient} from "./serviceSearch-client"
 
 // timeout in ms to wait for response from serviceSearch to avoid lambda timeout
 const SERVICE_SEARCH_TIMEOUT = 45000
@@ -52,7 +53,35 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       const startTime = error.config?.headers["request-startTime"]
       this.logger.info("serviceSearch request duration", {serviceSearch_duration: currentTime - startTime})
 
-      return Promise.reject(error)
+      // reject with a proper Error object
+      let err: Error
+      if (error instanceof Error) {
+        logger.error("Error in serviceSearch request", {error})
+        err = error
+      } else if ((error as AxiosError).message) {
+        // Only report the interesting subset of the error object.
+        let axiosErrorDetails = {}
+        if (error.response) {
+          axiosErrorDetails = {response: {
+            data: error.data,
+            status: error.status,
+            headers: error.headers
+          }}
+        }
+        if (error.request) {
+          axiosErrorDetails = {
+            ...axiosErrorDetails,
+            request: error.request
+          }
+        }
+
+        logger.error("Axios error in serviceSearch request", {axiosErrorDetails})
+        err = new Error("Axios error in serviceSearch request")
+      } else {
+        logger.error("Unknown error in serviceSearch request", {error})
+        err = new Error("Unknown error in serviceSearch request")
+      }
+      return Promise.reject(err)
     })
 
     this.outboundHeaders = {
