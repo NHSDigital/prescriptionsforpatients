@@ -26,16 +26,16 @@
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/release-notes-generator": "^14.0.3",
-    "@types/aws-lambda": "^8.10.150",
+    "@types/aws-lambda": "^8.10.152",
     "@types/jest": "^30.0.0",
-    "@types/node": "^24.0.15",
-    "@typescript-eslint/eslint-plugin": "^8.37.0",
-    "@typescript-eslint/parser": "^8.37.0",
+    "@types/node": "^24.1.0",
+    "@typescript-eslint/eslint-plugin": "^8.38.0",
+    "@typescript-eslint/parser": "^8.38.0",
     "aws-lambda": "^1.0.7",
     "conventional-changelog-eslint": "^6.0.0",
     "eslint": "^9.31.0",
     "eslint-plugin-import-newlines": "^1.4.0",
-    "jest": "^30.0.4",
+    "jest": "^30.0.5",
     "jest-junit": "^16.0.0",
     "license-checker": "^25.0.1",
     "semantic-release": "^24.2.7",
@@ -44,6 +44,6 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "esbuild": "^0.25.6"
+    "esbuild": "^0.25.8"
   }
 }
