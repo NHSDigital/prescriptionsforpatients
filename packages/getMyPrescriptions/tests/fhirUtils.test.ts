@@ -92,8 +92,8 @@ describe("Unit tests for fhirUtils", function () {
 
   it("isolatePerformerOrganisations returns relevant organisations when same organisation across prescriptions", async () => {
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
-    const pharmicaPrescription = searchsetBundle.entry![2].resource! as Bundle
-    pharmicaPrescription.entry![4].resource! = pharmacy2uOrganisation()
+    const pharmicaPrescription = searchsetBundle.entry![2].resource as Bundle
+    pharmicaPrescription.entry![4].resource = pharmacy2uOrganisation()
 
     const result = isolatePerformerOrganisations(searchsetBundle)
 
