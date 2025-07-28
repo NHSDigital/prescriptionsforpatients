@@ -33,7 +33,7 @@
     "@typescript-eslint/parser": "^8.38.0",
     "aws-lambda": "^1.0.7",
     "conventional-changelog-eslint": "^6.0.0",
-    "eslint": "^9.31.0",
+    "eslint": "^9.32.0",
     "eslint-plugin-import-newlines": "^1.4.0",
     "jest": "^30.0.5",
     "jest-junit": "^16.0.0",
