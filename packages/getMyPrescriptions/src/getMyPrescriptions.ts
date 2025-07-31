@@ -110,6 +110,8 @@ async function eventHandler(
       logger.error("Operation outcome returned from spine", {operationOutcome})
     })
 
+    logger.debug("JIM-LOG", {searchsetBundle})
+
     const statusUpdateData = includeStatusUpdateData ? buildStatusUpdateData(logger, searchsetBundle) : undefined
 
     const distanceSelling = new DistanceSelling(servicesCache, logger)
