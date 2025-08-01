@@ -102,7 +102,14 @@ async function eventHandler(
     logger.info(`nhsNumber: ${nhsNumber}`, {nhsNumber})
     headers["nhsNumber"] = nhsNumber
 
-    if (nhsNumber === TC008_NHS_NUMBER) { // FIXME: AND NOT PROD!
+    // AEA-5653 | TC007: force timeout
+    if ((nhsNumber === TC007_NHS_NUMBER) && (env !== "prod")) {
+      logger.info("Test NHS number corresponding to TC007 has been received. Returning a timeout response")
+      return TIMEOUT_RESPONSE
+    }
+
+    // AEA-5653 | TC008: force internal error response
+    if ((nhsNumber === TC008_NHS_NUMBER) && (env !== "prod")) {
       logger.info("Test NHS number corresponding to TC008 has been received. Returning a 500 response")
       return TC008_ERROR_RESPONSE
     }
@@ -126,15 +133,6 @@ async function eventHandler(
     const distanceSelling = new DistanceSelling(servicesCache, logger)
     const distanceSellingBundle = deepCopy(searchsetBundle)
     const distanceSellingCallout = distanceSelling.search(distanceSellingBundle)
-
-    // AEA-5653 | TC007: force timeout for test NHS number
-    if (nhsNumber === TC007_NHS_NUMBER) { // FIXME: AND NOT PROD!
-      logger.info(
-        "Test NHS number corresponding to TC007 has been received. Returning a timeout response",
-        {env: `${env}`}
-      )
-      return successResponse(searchsetBundle, traceIDs, statusUpdateData)
-    }
 
     const distanceSellingResponse = await jobWithTimeout(params.serviceSearchTimeoutMs, distanceSellingCallout)
     if (hasTimedOut(distanceSellingResponse)) {
