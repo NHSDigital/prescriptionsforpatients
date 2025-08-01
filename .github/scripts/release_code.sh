@@ -42,7 +42,7 @@ sam deploy \
       TargetServiceSearchServer="$TARGET_SERVICE_SEARCH_SERVER" \
       EnableSplunk=true \
       VersionNumber="$VERSION_NUMBER" \
-      CommitId="$COMMT_ID" \
+      CommitId="$COMMIT_ID" \
       LogLevel="$LOG_LEVEL" \
       LogRetentionInDays="$LOG_RETENTION_DAYS" \
       Env="$TARGET_ENVIRONMENT" \
