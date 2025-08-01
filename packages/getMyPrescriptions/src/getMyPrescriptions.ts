@@ -120,7 +120,8 @@ async function eventHandler(
 
     // AEA-5653 | TC007: force timeout for test NHS number
     if (nhsNumber === TC007_NHS_NUMBER) { // FIXME: AND NOT PROD!
-      logger.info("Test NHS number corresponding to TC007 has been received. Returning a timeout response")
+      const env = process.env["Env"]
+      logger.info("Test NHS number corresponding to TC007 has been received. Returning a timeout response", {env})
       return successResponse(searchsetBundle, traceIDs, statusUpdateData)
     }
 
