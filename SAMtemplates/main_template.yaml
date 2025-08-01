@@ -120,6 +120,7 @@ Resources:
       Location: functions/main.yaml
       Parameters:
         StackName: !Ref AWS::StackName
+        Env: !Ref Env
         TargetSpineServer: !Ref TargetSpineServer
         TargetServiceSearchServer: !Ref TargetServiceSearchServer
         LogLevel: !Ref LogLevel
@@ -135,7 +136,6 @@ Resources:
       Location: state_machines/main.yaml
       Parameters:
         StackName: !Ref AWS::StackName
-        Env: !Ref Env
         GetMyPrescriptionsFunctionName: !GetAtt Functions.Outputs.GetMyPrescriptionsFunctionName
         GetMyPrescriptionsFunctionArn: !GetAtt Functions.Outputs.GetMyPrescriptionsFunctionArn
         EnrichPrescriptionsFunctionName: !GetAtt Functions.Outputs.EnrichPrescriptionsFunctionName
