@@ -37,7 +37,7 @@ const LAMBDA_TIMEOUT_MS = 10_000
 const SPINE_TIMEOUT_MS = 9_000
 const SERVICE_SEARCH_TIMEOUT_MS = 5_000
 
-const TC007_NHS_NUMBER = "6247817525"
+const TC007_NHS_NUMBER = "9992032499"
 
 type EventHeaders = Record<string, string | undefined>
 
@@ -119,7 +119,7 @@ async function eventHandler(
     const distanceSellingCallout = distanceSelling.search(distanceSellingBundle)
 
     // AEA-5653 | TC007: force timeout for test NHS number
-    if (nhsNumber === TC007_NHS_NUMBER) {
+    if (nhsNumber === TC007_NHS_NUMBER) { // FIXME: AND NOT PROD!
       logger.info("Test NHS number corresponding to TC007 has been received. Returning a timeout response")
       return successResponse(searchsetBundle, traceIDs, statusUpdateData)
     }
