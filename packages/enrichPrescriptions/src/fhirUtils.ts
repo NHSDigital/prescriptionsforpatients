@@ -60,3 +60,22 @@ function filterAndTypeBundleEntries<T>(bundle: Bundle, filter: (entry: Entry) =>
     return []
   }
 }
+
+export function extractNHSNumber(fhir: Bundle<FhirResource>): string {
+  // Pull out any MedicationRequest resources from the bundle
+  const medications = isolateMedicationRequests(fhir)
+  if (!medications?.length) {
+    return ""
+  }
+
+  // Find the NHS number identifier on the subject of each MedicationRequest
+  const nhsIdentifier = medications
+    .map((med) => med.subject?.identifier)
+    .find(
+      (id) =>
+        id?.system === "https://fhir.nhs.uk/Id/nhs-number" && typeof id.value === "string"
+    )
+
+  // Return the value or empty string if not present
+  return nhsIdentifier?.value ?? ""
+}

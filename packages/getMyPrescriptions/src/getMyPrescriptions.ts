@@ -38,7 +38,6 @@ const LAMBDA_TIMEOUT_MS = 10_000
 const SPINE_TIMEOUT_MS = 9_000
 const SERVICE_SEARCH_TIMEOUT_MS = 5_000
 
-const TC007_NHS_NUMBER = "9992032499"
 const TC008_NHS_NUMBER = "9992387920"
 
 type EventHeaders = Record<string, string | undefined>
@@ -101,12 +100,6 @@ async function eventHandler(
     const nhsNumber = extractNHSNumber(headers["nhsd-nhslogin-user"])
     logger.info(`nhsNumber: ${nhsNumber}`, {nhsNumber})
     headers["nhsNumber"] = nhsNumber
-
-    // AEA-5653 | TC007: force timeout
-    if ((nhsNumber === TC007_NHS_NUMBER) && (env !== "prod")) {
-      logger.info("Test NHS number corresponding to TC007 has been received. Returning a timeout response")
-      return TIMEOUT_RESPONSE
-    }
 
     // AEA-5653 | TC008: force internal error response
     if ((nhsNumber === TC008_NHS_NUMBER) && (env !== "prod")) {
