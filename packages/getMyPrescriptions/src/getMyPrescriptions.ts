@@ -18,6 +18,7 @@ import {
   INVALID_NHS_NUMBER_RESPONSE,
   SPINE_CERT_NOT_CONFIGURED_RESPONSE,
   TIMEOUT_RESPONSE,
+  TC008_ERROR_RESPONSE,
   stateMachineLambdaResponse,
   TraceIDs,
   ResponseFunc
@@ -38,6 +39,7 @@ const SPINE_TIMEOUT_MS = 9_000
 const SERVICE_SEARCH_TIMEOUT_MS = 5_000
 
 const TC007_NHS_NUMBER = "9992032499"
+const TC008_NHS_NUMBER = "9992387920"
 
 type EventHeaders = Record<string, string | undefined>
 
@@ -79,6 +81,8 @@ async function eventHandler(
   const requestId = headers["apigw-request-id"]
   const spineClient = params.spineClient
 
+  const env = process.env["DEPLOYMENT_ENVIRONMENT"]
+
   const traceIDs: TraceIDs = {
     "nhsd-correlation-id": headers["nhsd-correlation-id"],
     "x-request-id": xRequestId,
@@ -95,8 +99,13 @@ async function eventHandler(
     }
 
     const nhsNumber = extractNHSNumber(headers["nhsd-nhslogin-user"])
-    logger.info(`nhsNumber: ${nhsNumber}`)
+    logger.info(`nhsNumber: ${nhsNumber}`, {nhsNumber})
     headers["nhsNumber"] = nhsNumber
+
+    if (nhsNumber === TC008_NHS_NUMBER) { // FIXME: AND NOT PROD!
+      logger.info("Test NHS number corresponding to TC008 has been received. Returning a 500 response")
+      return TC008_ERROR_RESPONSE
+    }
 
     const spineCallout = spineClient.getPrescriptions(headers)
     const response = await jobWithTimeout(params.spineTimeoutMs, spineCallout)
@@ -120,8 +129,10 @@ async function eventHandler(
 
     // AEA-5653 | TC007: force timeout for test NHS number
     if (nhsNumber === TC007_NHS_NUMBER) { // FIXME: AND NOT PROD!
-      const env = process.env["Env"]
-      logger.info("Test NHS number corresponding to TC007 has been received. Returning a timeout response", {env})
+      logger.info(
+        "Test NHS number corresponding to TC007 has been received. Returning a timeout response",
+        {env: `${env}`}
+      )
       return successResponse(searchsetBundle, traceIDs, statusUpdateData)
     }
 
