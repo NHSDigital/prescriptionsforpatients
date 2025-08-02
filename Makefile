@@ -66,7 +66,7 @@ sam-list-resources: guard-AWS_DEFAULT_PROFILE guard-stack_name
 sam-list-outputs: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam list stack-outputs --stack-name $$stack_name
 
-sam-validate: 
+sam-validate:
 	sam validate --template-file SAMtemplates/main_template.yaml --region eu-west-2
 	sam validate --template-file SAMtemplates/apis/main.yaml --region eu-west-2
 	sam validate --template-file SAMtemplates/apis/api_resources.yaml --region eu-west-2
@@ -76,7 +76,7 @@ sam-validate:
 	sam validate --template-file SAMtemplates/state_machines/state_machine_resources.yaml --region eu-west-2
 
 
-sam-validate-sandbox: 
+sam-validate-sandbox:
 	sam validate --template-file SAMtemplates/sandbox_template.yaml --region eu-west-2
 
 sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-stack_name guard-template_file guard-cloud_formation_execution_role guard-LATEST_TRUSTSTORE_VERSION guard-TRUSTSTORE_FILE guard-enable_mutual_tls guard-VERSION_NUMBER guard-COMMIT_ID guard-LOG_LEVEL guard-LOG_RETENTION_DAYS guard-TARGET_ENVIRONMENT guard-target_spine_server guard-target_service_search_server guard-TOGGLE_GET_STATUS_UPDATES

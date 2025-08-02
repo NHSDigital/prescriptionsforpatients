@@ -15,6 +15,7 @@ import {
   getUpdatesScenario
 } from "./statusUpdates"
 import {TraceIDs, lambdaResponse} from "./responses"
+import {extractNHSNumber} from "./fhirUtils"
 
 export const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 export const logger = new Logger({serviceName: "enrichPrescriptions", logLevel: LOG_LEVEL})
@@ -36,9 +37,12 @@ export async function lambdaHandler(event: EnrichPrescriptionsEvent) {
   }
   logger.appendKeys(traceIDs)
 
+  const nhsNumber = extractNHSNumber(event.fhir)
+  logger.info("NHS number", {nhsNumber: `${nhsNumber}`})
+
   const searchsetBundle = event.fhir
   const statusUpdates = event.StatusUpdates?.Payload
-  const updatesScenario = getUpdatesScenario(statusUpdates)
+  const updatesScenario = getUpdatesScenario(logger, statusUpdates, nhsNumber)
 
   switch (updatesScenario) {
     case UpdatesScenario.Present: {

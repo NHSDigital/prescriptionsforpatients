@@ -103,6 +103,31 @@ export const INVALID_NHS_NUMBER_RESPONSE: LambdaResult = {
   headers: HEADERS
 }
 
+// AEA-5653 | TC008: Manually triggered error message
+export const TC008_ERROR_RESPONSE: LambdaResult = {
+  statusCode: 500,
+  body: JSON.stringify({
+    resourceType: "OperationOutcome",
+    issue: [
+      {
+        code: "exception",
+        severity: "fatal",
+        details: {
+          coding: [
+            {
+              system: "https://fhir.nhs.uk/CodeSystem/http-error-codes",
+              code: "SERVER_ERROR",
+              display: "500: The Server has encountered an error processing the request."
+            }
+          ]
+        },
+        diagnostics: "Error intentionally triggered for testing purposes"
+      }
+    ]
+  }),
+  headers: HEADERS
+}
+
 export function stateMachineLambdaResponse(
   fhirBody: FhirBody,
   traceIDs: TraceIDs,
