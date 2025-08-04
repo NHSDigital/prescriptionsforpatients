@@ -201,9 +201,14 @@ export function stateMachineLambdaResponse(
     }
   }
 
+  const env = process.env["DEPLOYED_ENVIRONMENT"]
+
   if (
-    nhsNumber === TC009_MULTIPLE_EXCLUDED_PRESCRIPTIONS_NHS_NUMBER
-    || nhsNumber === TC009_SINGLE_EXCLUDED_PRESCRIPTION_NHS_NUMBER
+    env !== "prod"
+    && (
+      nhsNumber === TC009_MULTIPLE_EXCLUDED_PRESCRIPTIONS_NHS_NUMBER
+      || nhsNumber === TC009_SINGLE_EXCLUDED_PRESCRIPTION_NHS_NUMBER
+    )
   ) {
     // When testing with TC009, inject our dummy excluded‐prescription entry
     if ((body.fhir as Bundle).entry) {
