@@ -1,6 +1,10 @@
-import {Bundle, OperationOutcome} from "fhir/r4"
+import {Bundle, BundleEntry, OperationOutcome} from "fhir/r4"
 import {StatusUpdateData, shouldGetStatusUpdates} from "./statusUpdate"
 import {APIGatewayProxyResult as LambdaResult} from "aws-lambda"
+import {v4} from "uuid"
+import {logger} from "./getMyPrescriptions"
+
+const TC009_MULTIPLE_EXCLUDED_PRESCRIPTIONS_NHS_NUMBER = "9997750640"
 
 export type FhirBody = Bundle | OperationOutcome
 
@@ -23,6 +27,7 @@ export type TraceIDs = {
 }
 
 export type ResponseFunc = (
+  nhsNumber: string,
   fhirBody: FhirBody,
   traceIDs: TraceIDs,
   statusUpdateData?: Array<StatusUpdateData>
@@ -128,7 +133,59 @@ export const TC008_ERROR_RESPONSE: LambdaResult = {
   headers: HEADERS
 }
 
+export function createExcludedPrescriptionEntry(): BundleEntry {
+  const outcomeId = v4()
+  const now = new Date().toISOString()
+
+  // Generate a short ID. 3 blocks of 6 alphanumeric characters
+  const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+  // This doesn't need to be cryptographically secure. Math.random is fine here.
+  const rand = Uint8Array.from({length: 18}, () => Math.floor(Math.random() * CHARS.length))
+
+  let shortFormId = ""
+  for (const num of rand) {
+    shortFormId += CHARS[num]
+    if (shortFormId.length === 6 || shortFormId.length === 12) shortFormId += "-"
+  }
+
+  const operationOutcome: OperationOutcome = {
+    resourceType: "OperationOutcome",
+    id: outcomeId,
+    meta: {
+      lastUpdated: now
+    },
+    issue: [
+      {
+        code: "business-rule",
+        severity: "warning",
+        details: {
+          coding: [
+            {
+              system: "https://fhir.nhs.uk/CodeSystem/Spine-ErrorOrWarningCode",
+              code: "INVALIDATED_RESOURCE",
+              display: "Invalidated resource"
+            }
+          ]
+        },
+        diagnostics: `Prescription with short form ID ${shortFormId} has been invalidated so could not be returned.`
+      }
+    ]
+  }
+
+  const response: BundleEntry = {
+    fullUrl: `urn:uuid:${v4()}`,
+    search: {
+      mode: "outcome"
+    },
+    resource: operationOutcome
+  }
+
+  logger.debug("Generated a dummy excluded prescription summary block", {dummyExcludedBlock: response})
+  return response
+}
+
 export function stateMachineLambdaResponse(
+  nhsNumber: string,
   fhirBody: FhirBody,
   traceIDs: TraceIDs,
   statusUpdateData?: Array<StatusUpdateData>
@@ -143,6 +200,21 @@ export function stateMachineLambdaResponse(
     body.statusUpdateData = {
       schemaVersion: 1,
       prescriptions: statusUpdateData
+    }
+  }
+
+  if (nhsNumber === TC009_MULTIPLE_EXCLUDED_PRESCRIPTIONS_NHS_NUMBER) {
+    // When testing with TC009, inject our dummy excluded‐prescription entry
+    if ((body.fhir as Bundle).entry) {
+      const bundle = body.fhir as Bundle
+
+      // If we have no entries, create an empty array
+      bundle.entry ??= []
+      bundle.entry.push(createExcludedPrescriptionEntry())
+      bundle.entry.push(createExcludedPrescriptionEntry())
+      logger.info(
+        "Test NHS number corresponding to TC009 has been received. Appending an excluded prescription entry"
+      )
     }
   }
 

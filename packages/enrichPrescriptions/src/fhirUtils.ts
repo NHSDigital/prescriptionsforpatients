@@ -71,7 +71,6 @@ export function extractNHSNumber(logger: Logger, searchsetBundle: Bundle<FhirRes
     const medicationRequests = isolateMedicationRequests(prescription)
 
     if (!medicationRequests?.length) {
-      logger.debug("No medicationRequests found in fhir bundle to extract nhs number from")
       continue
     }
 
