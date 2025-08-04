@@ -1,3 +1,4 @@
+import {Logger} from "@aws-lambda-powertools/logger"
 import {
   Bundle,
   BundleEntry,
@@ -61,4 +62,32 @@ export function filterAndTypeBundleEntries<T>(bundle: Bundle, filter: (entry: En
 export function isolateOperationOutcome(prescription: Bundle): Array<OperationOutcome> {
   const filter = (entry: Entry) => entry.resource?.resourceType === "OperationOutcome"
   return filterAndTypeBundleEntries<OperationOutcome>(prescription, filter)
+}
+
+export function extractODSCodes(logger: Logger, searchsetBundle: Bundle<FhirResource>): Array<string> {
+
+  let ODSCodes = []
+  logger.debug("Extracting ODS codes from this fhir bundle", {searchsetBundle})
+  for (const prescription of isolatePrescriptions(searchsetBundle)) {
+    const medicationRequests = isolateMedicationRequests(prescription)
+
+    if (!medicationRequests?.length) {
+      continue
+    }
+
+    // Find the ODS code identifier on the subject of each MedicationRequest
+    const ODSIdentifier = medicationRequests
+      .map((med) => med.subject?.identifier)
+      .find(
+        (id) =>
+          id?.system === "https://fhir.nhs.uk/Id/ods-organization-code" && typeof id.value === "string"
+      )
+    logger.debug("Found ODS code", {ODSIdentifier})
+
+    if (ODSIdentifier?.value) {
+      ODSCodes.push(ODSIdentifier.value)
+    }
+
+  }
+  return ODSCodes
 }
