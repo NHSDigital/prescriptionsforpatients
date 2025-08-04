@@ -5,7 +5,8 @@ import {
   MedicationRequest,
   Organization
 } from "fhir/r4"
-import {logger} from "./enrichPrescriptions"
+
+import {Logger} from "@aws-lambda-powertools/logger"
 
 export type Entry = BundleEntry<FhirResource>
 
@@ -62,24 +63,38 @@ function filterAndTypeBundleEntries<T>(bundle: Bundle, filter: (entry: Entry) =>
   }
 }
 
-export function extractNHSNumber(fhir: Bundle<FhirResource>): string {
-  // Pull out any MedicationRequest resources from the bundle
-  logger.debug("Extracting nhs number from this fhir bundle", {fhir})
-  const medications = isolateMedicationRequests(fhir)
-  if (!medications?.length) {
-    logger.debug("No medications found in fhir bundle to extract nhs number from")
-    return ""
+export function extractNHSNumber(logger: Logger, searchsetBundle: Bundle<FhirResource>): string {
+
+  let nhsNumber = ""
+  logger.debug("Extracting nhs number from this fhir bundle", {searchsetBundle})
+  for (const prescription of isolatePrescriptions(searchsetBundle)) {
+    const medicationRequests = isolateMedicationRequests(prescription)
+
+    if (!medicationRequests?.length) {
+      logger.debug("No medicationRequests found in fhir bundle to extract nhs number from")
+      continue
+    }
+
+    // Find the NHS number identifier on the subject of each MedicationRequest
+    const nhsIdentifier = medicationRequests
+      .map((med) => med.subject?.identifier)
+      .find(
+        (id) =>
+          id?.system === "https://fhir.nhs.uk/Id/nhs-number" && typeof id.value === "string"
+      )
+    logger.debug("Found NHS number", {nhsIdentifier})
+
+    if (nhsIdentifier?.value) {
+      // If there are multiple NHS numbers in the bundle, and they DON'T match up, we can't say which is correct.
+      // So, don't say anything.
+      // This shouldn't happen though - it's against the spec - but I'm putting a catch in just in case.
+      if ((nhsNumber !== "") && (nhsNumber !== nhsIdentifier.value)) {
+        logger.warn("Multiple NHS numbers found in the FHIR bundle. Returning no NHS number.")
+        return ""
+      }
+      nhsNumber = nhsIdentifier.value
+    }
+
   }
-
-  // Find the NHS number identifier on the subject of each MedicationRequest
-  const nhsIdentifier = medications
-    .map((med) => med.subject?.identifier)
-    .find(
-      (id) =>
-        id?.system === "https://fhir.nhs.uk/Id/nhs-number" && typeof id.value === "string"
-    )
-  logger.debug("Found NHS number", {nhsIdentifier})
-
-  // Return the value or empty string if not present
-  return nhsIdentifier?.value ?? ""
+  return nhsNumber
 }

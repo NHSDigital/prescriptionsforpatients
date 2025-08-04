@@ -37,10 +37,11 @@ export async function lambdaHandler(event: EnrichPrescriptionsEvent) {
   }
   logger.appendKeys(traceIDs)
 
-  const nhsNumber = extractNHSNumber(event.fhir)
+  const searchsetBundle = event.fhir
+
+  const nhsNumber = extractNHSNumber(logger, searchsetBundle)
   logger.info("NHS number", {nhsNumber: `${nhsNumber}`})
 
-  const searchsetBundle = event.fhir
   const statusUpdates = event.StatusUpdates?.Payload
   const updatesScenario = getUpdatesScenario(logger, statusUpdates, nhsNumber)
 
