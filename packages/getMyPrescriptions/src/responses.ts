@@ -146,7 +146,7 @@ export function createExcludedPrescriptionEntry(): BundleEntry {
   let shortFormId = ""
   for (const num of rand) {
     shortFormId += CHARS[num]
-    if (shortFormId.length === 6 || shortFormId.length === 12) shortFormId += "-"
+    if (shortFormId.length === 6 || shortFormId.length === 13) shortFormId += "-"
   }
 
   const operationOutcome: OperationOutcome = {
