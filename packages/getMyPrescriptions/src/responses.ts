@@ -4,6 +4,7 @@ import {APIGatewayProxyResult as LambdaResult} from "aws-lambda"
 import {v4} from "uuid"
 import {logger} from "./getMyPrescriptions"
 
+const TC009_SINGLE_EXCLUDED_PRESCRIPTION_NHS_NUMBER = "9990624666"
 const TC009_MULTIPLE_EXCLUDED_PRESCRIPTIONS_NHS_NUMBER = "9997750640"
 
 export type FhirBody = Bundle | OperationOutcome
@@ -172,16 +173,13 @@ export function createExcludedPrescriptionEntry(): BundleEntry {
     ]
   }
 
-  const response: BundleEntry = {
+  return {
     fullUrl: `urn:uuid:${v4()}`,
     search: {
       mode: "outcome"
     },
     resource: operationOutcome
   }
-
-  logger.debug("Generated a dummy excluded prescription summary block", {dummyExcludedBlock: response})
-  return response
 }
 
 export function stateMachineLambdaResponse(
@@ -203,15 +201,22 @@ export function stateMachineLambdaResponse(
     }
   }
 
-  if (nhsNumber === TC009_MULTIPLE_EXCLUDED_PRESCRIPTIONS_NHS_NUMBER) {
+  if (
+    nhsNumber === TC009_MULTIPLE_EXCLUDED_PRESCRIPTIONS_NHS_NUMBER
+    || nhsNumber === TC009_SINGLE_EXCLUDED_PRESCRIPTION_NHS_NUMBER
+  ) {
     // When testing with TC009, inject our dummy excluded‐prescription entry
     if ((body.fhir as Bundle).entry) {
       const bundle = body.fhir as Bundle
 
       // If we have no entries, create an empty array
       bundle.entry ??= []
+
       bundle.entry.push(createExcludedPrescriptionEntry())
-      bundle.entry.push(createExcludedPrescriptionEntry())
+      if (nhsNumber === TC009_MULTIPLE_EXCLUDED_PRESCRIPTIONS_NHS_NUMBER) {
+        bundle.entry.push(createExcludedPrescriptionEntry())
+      }
+
       logger.info(
         "Test NHS number corresponding to TC009 has been received. Appending an excluded prescription entry"
       )
