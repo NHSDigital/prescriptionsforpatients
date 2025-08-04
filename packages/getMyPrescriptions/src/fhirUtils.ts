@@ -64,30 +64,22 @@ export function isolateOperationOutcome(prescription: Bundle): Array<OperationOu
   return filterAndTypeBundleEntries<OperationOutcome>(prescription, filter)
 }
 
-export function extractODSCodes(logger: Logger, searchsetBundle: Bundle<FhirResource>): Array<string> {
+export function extractOdsCodes(logger: Logger, bundle: Bundle<FhirResource>): Array<string> {
+  logger.debug("Extracting ODS codes from FHIR bundle", {bundle})
 
-  let ODSCodes = []
-  logger.debug("Extracting ODS codes from this fhir bundle", {searchsetBundle})
-  for (const prescription of isolatePrescriptions(searchsetBundle)) {
-    const medicationRequests = isolateMedicationRequests(prescription)
+  return isolatePrescriptions(bundle).flatMap(prescription => {
+    const medications = isolateMedicationRequests(prescription)
+    if (medications.length === 0) return []
 
-    if (!medicationRequests?.length) {
-      continue
+    const performerRef = isolatePerformerReference(medications)
+    if (!performerRef) {
+      return []
     }
 
-    // Find the ODS code identifier on the subject of each MedicationRequest
-    const ODSIdentifier = medicationRequests
-      .map((med) => med.subject?.identifier)
-      .find(
-        (id) =>
-          id?.system === "https://fhir.nhs.uk/Id/ods-organization-code" && typeof id.value === "string"
-      )
-    logger.debug("Found ODS code", {ODSIdentifier})
-
-    if (ODSIdentifier?.value) {
-      ODSCodes.push(ODSIdentifier.value)
-    }
-
-  }
-  return ODSCodes
+    const org = isolatePerformerOrganisation(performerRef, prescription)
+    // Map identifiers to values, then filter out any undefined
+    return org?.identifier
+      ?.map(({value}) => value)
+      .filter((v): v is string => v !== null && v !== "") ?? []
+  })
 }
