@@ -5,6 +5,7 @@ import {
   MedicationRequest,
   Organization
 } from "fhir/r4"
+import {logger} from "./enrichPrescriptions"
 
 export type Entry = BundleEntry<FhirResource>
 
@@ -63,8 +64,10 @@ function filterAndTypeBundleEntries<T>(bundle: Bundle, filter: (entry: Entry) =>
 
 export function extractNHSNumber(fhir: Bundle<FhirResource>): string {
   // Pull out any MedicationRequest resources from the bundle
+  logger.debug("Extracting nhs number from this fhir bundle", {fhir})
   const medications = isolateMedicationRequests(fhir)
   if (!medications?.length) {
+    logger.debug("No medications found in fhir bundle to extract nhs number from")
     return ""
   }
 
@@ -75,6 +78,7 @@ export function extractNHSNumber(fhir: Bundle<FhirResource>): string {
       (id) =>
         id?.system === "https://fhir.nhs.uk/Id/nhs-number" && typeof id.value === "string"
     )
+  logger.debug("Found NHS number", {nhsIdentifier})
 
   // Return the value or empty string if not present
   return nhsIdentifier?.value ?? ""
