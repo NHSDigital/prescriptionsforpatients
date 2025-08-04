@@ -38,7 +38,7 @@ const LAMBDA_TIMEOUT_MS = 10_000
 const SPINE_TIMEOUT_MS = 9_000
 const SERVICE_SEARCH_TIMEOUT_MS = 5_000
 
-const TC008_NHS_NUMBER = "9992387920"
+export const TC008_NHS_NUMBER = "9992387920"
 
 type EventHeaders = Record<string, string | undefined>
 

@@ -4,7 +4,8 @@ import {
   newHandler,
   GetMyPrescriptionsEvent,
   stateMachineEventHandler,
-  STATE_MACHINE_MIDDLEWARE
+  STATE_MACHINE_MIDDLEWARE,
+  TC008_NHS_NUMBER
 } from "../src/getMyPrescriptions"
 import {Logger} from "@aws-lambda-powertools/logger"
 import axios from "axios"
@@ -25,7 +26,12 @@ import {
   mockStateMachineInputEvent
 } from "@prescriptionsforpatients_common/testing"
 
-import {HEADERS, StateMachineFunctionResponseBody, TIMEOUT_RESPONSE} from "../src/responses"
+import {
+  HEADERS,
+  StateMachineFunctionResponseBody,
+  TIMEOUT_RESPONSE,
+  TC008_ERROR_RESPONSE
+} from "../src/responses"
 import "./toMatchJsonLogMessage"
 import {EXPECTED_TRACE_IDS} from "./utils"
 import {LogLevel} from "@aws-lambda-powertools/logger/types"
@@ -78,7 +84,7 @@ const responseStatus500 = {
       }
     }
   ],
-  meta:{
+  meta: {
     lastUpdated: "2015-04-09T12:34:56.001Z"
   }
 }
@@ -318,6 +324,16 @@ describe("Unit test for app handler", function () {
 
     // Assert error level log was produced
     expect(mockErrorLogger).toHaveBeenCalledWith("Lambda handler has timed out. Returning error response.")
+  })
+
+  it("returns TC007 error when TC007 test NHS number is received in non-production environment", async () => {
+    process.env.DEPLOYMENT_ENVIRONMENT = "dev"
+    const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
+    event.headers["nhsd-nhslogin-user"] = `P9:${TC008_NHS_NUMBER}`
+    const result: LambdaResult = await handler(event, dummyContext)
+    expect(result.statusCode).toBe(500)
+    expect(result.headers).toEqual(HEADERS)
+    expect(JSON.parse(result.body)).toEqual(JSON.parse(TC008_ERROR_RESPONSE.body))
   })
 })
 
