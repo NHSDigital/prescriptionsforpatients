@@ -11,6 +11,16 @@ Parameters:
       - true
       - false
 
+  Env:
+    Type: String
+    Default: "dev"
+    AllowedValues:
+      - dev
+      - dev-pr
+      - qa
+      - int
+      - prod
+
   TruststoreVersion:
     Type: String
     Default: none
@@ -110,6 +120,7 @@ Resources:
       Location: functions/main.yaml
       Parameters:
         StackName: !Ref AWS::StackName
+        Env: !Ref Env
         TargetSpineServer: !Ref TargetSpineServer
         TargetServiceSearchServer: !Ref TargetServiceSearchServer
         LogLevel: !Ref LogLevel
