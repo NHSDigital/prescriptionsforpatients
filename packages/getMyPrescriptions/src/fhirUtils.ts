@@ -71,19 +71,12 @@ export function extractOdsCodes(logger: Logger, bundle: Bundle<FhirResource>): A
     const medications = isolateMedicationRequests(prescription)
     if (medications.length === 0) return []
 
-    // FIXME: DELETE THESE LOGS
-    logger.debug("Medications", {medications})
-
     const performerRef = isolatePerformerReference(medications)
     if (!performerRef) {
       return []
     }
-    // FIXME: DELETE THESE LOGS
-    logger.debug("Performer reference", {performerRef})
 
     const org = isolatePerformerOrganisation(performerRef, prescription)
-    // FIXME: DELETE THESE LOGS
-    logger.debug("Org", {org})
     // Map identifiers to values, then filter out any undefined
     return org?.identifier
       ?.map(({value}) => value)
