@@ -26,7 +26,7 @@ import {
 import {extractNHSNumber, NHSNumberValidationError} from "./extractNHSNumber"
 import {deepCopy, hasTimedOut, jobWithTimeout} from "./utils"
 import {buildStatusUpdateData, shouldGetStatusUpdates} from "./statusUpdate"
-import {isolateOperationOutcome} from "./fhirUtils"
+import {extractOdsCodes, isolateOperationOutcome} from "./fhirUtils"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 export const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
@@ -120,6 +120,15 @@ async function eventHandler(
     operationOutcomes.forEach((operationOutcome) => {
       logger.error("Operation outcome returned from spine", {operationOutcome})
     })
+
+    const ODSCodes = extractOdsCodes(logger, searchsetBundle)
+    logger.info(
+      "Processing PfP get prescriptions request for patient. They have these relevant ODS codes.",
+      {
+        ODSCodes,
+        nhsNumber
+      }
+    )
 
     const statusUpdateData = includeStatusUpdateData ? buildStatusUpdateData(logger, searchsetBundle) : undefined
 
