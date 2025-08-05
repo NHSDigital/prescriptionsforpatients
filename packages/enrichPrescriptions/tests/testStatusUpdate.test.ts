@@ -495,8 +495,9 @@ describe("Unit tests for statusUpdate", function () {
   ])("getUpdatesScenario returns as expected", async ({expectUpdates, updatesPresent, expected}) => {
     process.env.EXPECT_STATUS_UPDATES = expectUpdates ? "true" : "false"
     const statusUpdates = updatesPresent ? {isSuccess: true, prescriptions: [], schemaVersion: 1} : undefined
+    const nhsNumber = "9990236291"
 
-    const scenario = getUpdatesScenario(statusUpdates)
+    const scenario = getUpdatesScenario(logger, statusUpdates, nhsNumber)
 
     expect(scenario).toEqual(expected)
   })
