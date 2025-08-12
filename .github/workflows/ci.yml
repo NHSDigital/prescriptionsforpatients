@@ -30,7 +30,7 @@ jobs:
       version_tag: ${{steps.output_version_tag.outputs.VERSION_TAG}}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ env.BRANCH_NAME }}
           fetch-depth: 0
