@@ -9,8 +9,8 @@ describe("Unit tests for fhirUtils", function () {
     const searchsetBundle = richRequestBundle()
     const result = isolatePrescriptions(searchsetBundle)
 
-    expect(result!.length).toEqual(3)
-    result!.forEach(r =>
+    expect(result.length).toEqual(3)
+    result.forEach(r =>
       expect(r.resourceType).toEqual("Bundle")
     )
   })

@@ -1,12 +1,14 @@
+import {Logger} from "@aws-lambda-powertools/logger"
+
 import {Bundle, Extension, MedicationRequest} from "fhir/r4"
 import moment, {Moment} from "moment"
+
 import {
   isolateMedicationRequests,
   isolatePerformerOrganisation,
   isolatePerformerReference,
   isolatePrescriptions
 } from "./fhirUtils"
-import {logger} from "./enrichPrescriptions"
 
 export const EXTENSION_URL = "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory"
 export const VALUE_CODING_SYSTEM = "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt"
@@ -17,6 +19,8 @@ export const NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS = "With Pharmacy but Trackin
 export const TEMPORARILY_UNAVAILABLE_STATUS = "Tracking Temporarily Unavailable"
 export const APPROVED_STATUS = "Prescriber Approved"
 export const CANCELLED_STATUS = "Prescriber Cancelled"
+
+const TC007_NHS_NUMBER = "9992032499"
 
 export const expectStatusUpdates = () => process.env.EXPECT_STATUS_UPDATES === "true"
 
@@ -71,7 +75,7 @@ function determineStatus(updateItem: UpdateItem): MedicationRequestStatus {
   return updatedOverSevenDaysAgo ? "completed" : "active"
 }
 
-function updateMedicationRequest(medicationRequest: MedicationRequest, updateItem: UpdateItem) {
+function updateMedicationRequest(logger: Logger, medicationRequest: MedicationRequest, updateItem: UpdateItem) {
   const status = determineStatus(updateItem)
   const relevantExtension = medicationRequest.extension?.find((ext) => ext.url === EXTENSION_URL)
   const statusCoding = relevantExtension?.extension?.find((innerExt) => innerExt.url === "status")?.valueCoding?.code
@@ -79,7 +83,7 @@ function updateMedicationRequest(medicationRequest: MedicationRequest, updateIte
   if (statusCoding && (statusCoding === APPROVED_STATUS || statusCoding === CANCELLED_STATUS)) {
     logger.info(
       `Status update for prescription ${updateItem.itemId} has been skipped because the current status is already ` +
-        `${statusCoding}.`
+      `${statusCoding}.`
     )
     return
   }
@@ -135,7 +139,7 @@ function statusHistoryExtensionReplacementIndex(medicationRequest: MedicationReq
   })
 }
 
-export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: StatusUpdates) {
+export function applyStatusUpdates(logger: Logger, searchsetBundle: Bundle, statusUpdates: StatusUpdates) {
   isolatePrescriptions(searchsetBundle).forEach((prescription) => {
     const medicationRequests = isolateMedicationRequests(prescription)
     const prescriptionID = medicationRequests![0].groupIdentifier!.value!.toUpperCase()
@@ -150,8 +154,8 @@ export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: Statu
 
     logger.info(`Applying updates for prescription ${prescriptionID}.`)
 
-    const prescriptionUpdate = statusUpdates.prescriptions.filter((p) => p.prescriptionID === prescriptionID)[0]
-    if (!prescriptionUpdate || !prescriptionUpdate.onboarded) {
+    const prescriptionUpdate = statusUpdates.prescriptions.find(p => p.prescriptionID === prescriptionID)
+    if (!prescriptionUpdate?.onboarded) {
       logger.info(`Supplier of prescription ${prescriptionID} not onboarded. Applying default updates.`)
       medicationRequests?.forEach((medicationRequest) => {
         if (delayWithPharmacyStatus(medicationRequest)) {
@@ -160,7 +164,7 @@ export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: Statu
           )?.value
           logger.info(
             `Delaying 'With Pharmacy but Tracking not Supported' status ` +
-              `for prescription ${prescriptionID} line item id ${lineItemId}`
+            `for prescription ${prescriptionID} line item id ${lineItemId}`
           )
           // Prescription has been in "With Pharmacy but Tracking not Supported" status for less than an hour,
           // set status as Prescriber Approved
@@ -169,10 +173,10 @@ export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: Statu
             lastUpdateDateTime: moment().utc().toISOString(),
             latestStatus: APPROVED_STATUS
           }
-          updateMedicationRequest(medicationRequest, update)
+          updateMedicationRequest(logger, medicationRequest, update)
           return
         }
-        updateMedicationRequest(medicationRequest, defaultUpdate(false))
+        updateMedicationRequest(logger, medicationRequest, defaultUpdate(false))
       })
       return
     }
@@ -184,10 +188,10 @@ export function applyStatusUpdates(searchsetBundle: Bundle, statusUpdates: Statu
       const itemUpdates = prescriptionUpdate.items.filter((item) => item.itemId === medicationRequestID)
       if (itemUpdates.length > 0) {
         logger.info(`Update found for MedicationRequest with id ${medicationRequestID}. Applying.`)
-        updateMedicationRequest(medicationRequest, itemUpdates[0])
+        updateMedicationRequest(logger, medicationRequest, itemUpdates[0])
       } else {
         logger.info(`No update found for MedicationRequest with id ${medicationRequestID}. Applying default.`)
-        updateMedicationRequest(medicationRequest, defaultUpdate())
+        updateMedicationRequest(logger, medicationRequest, defaultUpdate())
       }
     })
   })
@@ -240,8 +244,17 @@ export enum UpdatesScenario {
   NotExpected
 }
 
-export function getUpdatesScenario(statusUpdates: StatusUpdates | undefined): UpdatesScenario {
-  if (expectStatusUpdates() && statusUpdates) {
+export function getUpdatesScenario(
+  logger: Logger,
+  statusUpdates: StatusUpdates | undefined,
+  nhsNumber: string
+): UpdatesScenario {
+  const env = process.env["DEPLOYED_ENVIRONMENT"]
+  if ((nhsNumber === TC007_NHS_NUMBER) && (env !== "prod")) {
+    // AEA-5653 | TC007: force timeout
+    logger.info("Test NHS number corresponding to TC007 has been received. Returning a timeout response")
+    return UpdatesScenario.ExpectedButAbsent
+  } else if (expectStatusUpdates() && statusUpdates) {
     return statusUpdates.isSuccess ? UpdatesScenario.Present : UpdatesScenario.ExpectedButAbsent
   } else if (expectStatusUpdates() && !statusUpdates) {
     return UpdatesScenario.ExpectedButAbsent
@@ -249,7 +262,11 @@ export function getUpdatesScenario(statusUpdates: StatusUpdates | undefined): Up
   return UpdatesScenario.NotExpected
 }
 
-export function applyTemporaryStatusUpdates(searchsetBundle: Bundle, statusUpdateRequest: StatusUpdateRequest) {
+export function applyTemporaryStatusUpdates(
+  logger: Logger,
+  searchsetBundle: Bundle,
+  statusUpdateRequest: StatusUpdateRequest
+) {
   const update: UpdateItem = {
     isTerminalState: false,
     lastUpdateDateTime: moment().utc().toISOString(),
@@ -269,7 +286,7 @@ export function applyTemporaryStatusUpdates(searchsetBundle: Bundle, statusUpdat
       )
       if (updates.length > 0) {
         logger.info(`Updates expected for medication requests in prescription ${prescriptionID}. Applying temporary.`)
-        medicationRequests?.forEach((medicationRequest) => updateMedicationRequest(medicationRequest, update))
+        medicationRequests?.forEach((medicationRequest) => updateMedicationRequest(logger, medicationRequest, update))
       }
     }
   })

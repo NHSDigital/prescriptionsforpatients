@@ -1,3 +1,4 @@
+import {Logger} from "@aws-lambda-powertools/logger"
 import {
   Bundle,
   BundleEntry,
@@ -45,7 +46,7 @@ export function isolatePerformerReference(medicationRequests: Array<MedicationRe
 }
 
 export function isolatePerformerOrganisation(reference: string, prescription: Bundle): Organization {
-  const filter = (entry: Entry) => entry.fullUrl! === reference
+  const filter = (entry: Entry) => (!!entry.fullUrl && entry.fullUrl === reference)
   return filterAndTypeBundleEntries<Organization>(prescription, filter)[0]
 }
 
@@ -61,4 +62,24 @@ export function filterAndTypeBundleEntries<T>(bundle: Bundle, filter: (entry: En
 export function isolateOperationOutcome(prescription: Bundle): Array<OperationOutcome> {
   const filter = (entry: Entry) => entry.resource?.resourceType === "OperationOutcome"
   return filterAndTypeBundleEntries<OperationOutcome>(prescription, filter)
+}
+
+export function extractOdsCodes(logger: Logger, bundle: Bundle<FhirResource>): Array<string> {
+  logger.debug("Extracting ODS codes from FHIR bundle", {bundle})
+
+  return isolatePrescriptions(bundle).flatMap(prescription => {
+    const medications = isolateMedicationRequests(prescription)
+    if (medications.length === 0) return []
+
+    const performerRef = isolatePerformerReference(medications)
+    if (!performerRef) {
+      return []
+    }
+
+    const org = isolatePerformerOrganisation(performerRef, prescription)
+    // Map identifiers to values, then filter out any undefined
+    return org?.identifier
+      ?.map(({value}) => value)
+      .filter((v): v is string => v !== null && v !== "") ?? []
+  })
 }
