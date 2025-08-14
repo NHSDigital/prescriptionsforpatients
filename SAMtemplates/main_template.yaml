@@ -20,6 +20,7 @@ Parameters:
       - qa
       - int
       - prod
+      - recovery
 
   TruststoreVersion:
     Type: String

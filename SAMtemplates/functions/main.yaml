@@ -38,6 +38,7 @@ Parameters:
       - qa
       - int
       - prod
+      - recovery
 
   TargetSpineServer:
     Type: String
