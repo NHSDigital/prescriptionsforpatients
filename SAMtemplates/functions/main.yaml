@@ -38,6 +38,7 @@ Parameters:
       - qa
       - int
       - prod
+      - ref
 
   TargetSpineServer:
     Type: String
