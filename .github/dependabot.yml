@@ -18,7 +18,7 @@ updates:
       interval: "weekly"
       day: "friday"
       time: "18:00" #UTC
-    open-pull-request-limit: 20  
+    open-pull-requests-limit: 20  
     commit-message:
       prefix: "Upgrade: [dependabot] - "
 
@@ -28,7 +28,9 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "friday"
+      time: "18:00" #UTC
     versioning-strategy: increase
     open-pull-requests-limit: 20
     commit-message:
@@ -42,7 +44,9 @@ updates:
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "friday"
+      time: "18:00" #UTC
     versioning-strategy: increase
     commit-message:
       prefix: "Upgrade: [dependabot] - "
