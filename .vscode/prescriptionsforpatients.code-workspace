@@ -21,8 +21,8 @@
 			"path": "../packages/getMyPrescriptions"
 		},
 		{
-			"name": "packages/sandbox",
-			"path": "../packages/sandbox"
+			"name": "packages/nhsd-pfp-sandbox",
+			"path": "../packages/nhsd-pfp-sandbox"
 		},
 		{
 			"name": "packages/statusLambda",

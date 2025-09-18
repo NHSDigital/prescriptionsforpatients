@@ -8,7 +8,7 @@
     { "path": "packages/capabilityStatement" },
     { "path": "packages/getMyPrescriptions" },
     { "path": "packages/enrichPrescriptions" },
-    { "path": "packages/sandbox" },
+    { "path": "packages/nhsd-pfp-sandbox" },
     { "path": "packages/statusLambda" },
     { "path": "packages/common/testing" },
     { "path": "packages/distanceSelling" }

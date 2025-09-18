@@ -62,9 +62,9 @@ repos:
       - id: lint-sandbox
         name: Lint sandbox
         entry: npm
-        args: ["run", "--prefix=packages/sandbox", "lint"]
+        args: ["run", "--prefix=packages/nhsd-pfp-sandbox", "lint"]
         language: system
-        files: ^packages\/sandbox
+        files: ^packages\/nhsd-pfp-sandbox
         types_or: [ts, tsx, javascript, jsx, json]
         pass_filenames: false
 
