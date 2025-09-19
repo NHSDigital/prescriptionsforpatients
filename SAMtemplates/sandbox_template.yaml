@@ -128,10 +128,10 @@ Resources:
         Minify: true
         Target: es2020
         Sourcemap: true
-        tsconfig: sandbox/tsconfig.json
+        tsconfig: nhsd-pfp-sandbox/tsconfig.json
         packages: bundle
         EntryPoints:
-          - sandbox/src/sandbox.ts
+          - nhsd-pfp-sandbox/src/sandbox.ts
 
   # capabilityStatement lambda
   CapabilityStatementResources:

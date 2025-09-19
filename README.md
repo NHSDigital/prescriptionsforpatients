@@ -16,7 +16,7 @@ It is called by an Apigee proxy that is defined at <https://github.com/NHSDigita
 
 - `packages/getMyPrescriptions/` Get prescription details for /Bundle endpoint.
 - `packages/enrichPrescriptions/` Get prescription status updates for prescriptions retrieved by getMyPrescriptions.
-- `packages/sandbox/` Returns [static data](./packages/sandbox/examples/GetMyPrescriptions/Bundle/success.json) from the Sandbox.
+- `packages/nhsd-pfp-sandbox/` Returns [static data](./packages/nhsd-pfp-sandbox/examples/GetMyPrescriptions/Bundle/success.json) from the Sandbox.
 - `packages/statusLambda/` Returns the status of the getMyPrescriptions endpoint.
 - `packages/capabilityStatement/` Returns a static capability statement.
 - `packages/serviceSearchClient/` Module for connecting to service search.

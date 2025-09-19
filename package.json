@@ -17,7 +17,7 @@
     "packages/capabilityStatement",
     "packages/getMyPrescriptions",
     "packages/enrichPrescriptions",
-    "packages/sandbox",
+    "packages/nhsd-pfp-sandbox",
     "packages/statusLambda",
     "packages/serviceSearchClient",
     "packages/common/testing",

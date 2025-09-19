@@ -1,7 +1,7 @@
 {
-  "name": "sandbox",
+  "name": "nhsd-pfp-sandbox",
   "version": "1.0.0",
-  "description": "Sandbox",
+  "description": "NHS Digital Prescriptions for Patients sandbox",
   "main": "sandbox.js",
   "author": "NHS Digital",
   "license": "MIT",

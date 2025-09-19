@@ -122,7 +122,7 @@ lint-node: compile-node
 	npm run lint --workspace packages/capabilityStatement
 	npm run lint --workspace packages/getMyPrescriptions
 	npm run lint --workspace packages/enrichPrescriptions
-	npm run lint --workspace packages/sandbox
+	npm run lint --workspace packages/nhsd-pfp-sandbox
 	npm run lint --workspace packages/statusLambda
 	npm run lint --workspace packages/serviceSearchClient
 	npm run lint --workspace packages/common/testing
@@ -143,7 +143,7 @@ test: compile
 	npm run test --workspace packages/capabilityStatement
 	npm run test --workspace packages/getMyPrescriptions
 	npm run test --workspace packages/enrichPrescriptions
-	npm run test --workspace packages/sandbox
+	npm run test --workspace packages/nhsd-pfp-sandbox
 	npm run test --workspace packages/statusLambda
 	npm run test --workspace packages/serviceSearchClient
 	npm run test --workspace packages/distanceSelling
@@ -152,7 +152,7 @@ clean:
 	rm -rf packages/capabilityStatement/coverage
 	rm -rf packages/getMyPrescriptions/coverage
 	rm -rf packages/enrichPrescriptions/coverage
-	rm -rf packages/sandbox/coverage
+	rm -rf packages/nhsd-pfp-sandbox/coverage
 	rm -rf packages/serviceSearchClient/coverage
 	rm -rf packages/distanceSelling/coverage
 	rm -rf packages/statusLambda/coverage
@@ -160,7 +160,7 @@ clean:
 	rm -rf packages/capabilityStatement/lib
 	rm -rf packages/getMyPrescriptions/lib
 	rm -rf packages/enrichPrescriptions/lib
-	rm -rf packages/sandbox/lib
+	rm -rf packages/nhsd-pfp-sandbox/lib
 	rm -rf packages/serviceSearchClient/lib
 	rm -rf packages/distanceSelling/lib
 	rm -rf packages/statusLambda/lib
@@ -179,7 +179,7 @@ check-licenses-node:
 	npm run check-licenses --workspace packages/getMyPrescriptions
 	npm run check-licenses --workspace packages/enrichPrescriptions
 	npm run check-licenses --workspace packages/capabilityStatement
-	npm run check-licenses --workspace packages/sandbox
+	npm run check-licenses --workspace packages/nhsd-pfp-sandbox
 	npm run check-licenses --workspace packages/statusLambda
 	npm run check-licenses --workspace packages/serviceSearchClient
 	npm run check-licenses --workspace packages/distanceSelling
