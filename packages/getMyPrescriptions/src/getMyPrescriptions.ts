@@ -91,6 +91,10 @@ async function eventHandler(
   }
   logger.appendKeys(traceIDs)
 
+  // This header does not get passed through - we need the application name adding in
+  logger.info("Headers", {headers})
+  const applicationName = headers["attribute-name"] ?? "unknown"
+
   try {
     const isCertificateConfigured = spineClient.isCertificateConfigured()
     if (!isCertificateConfigured) {
@@ -126,7 +130,8 @@ async function eventHandler(
       "Processing PfP get prescriptions request for patient. They have these relevant ODS codes.",
       {
         ODSCodes,
-        nhsNumber
+        nhsNumber,
+        applicationName
       }
     )
 
