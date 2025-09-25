@@ -91,9 +91,7 @@ async function eventHandler(
   }
   logger.appendKeys(traceIDs)
 
-  // This header does not get passed through - we need the application name adding in
-  logger.info("Headers", {headers})
-  const applicationName = headers["attribute-name"] ?? "unknown"
+  const applicationName = headers["NHSD-Application-Name"] ?? "unknown"
 
   try {
     const isCertificateConfigured = spineClient.isCertificateConfigured()
