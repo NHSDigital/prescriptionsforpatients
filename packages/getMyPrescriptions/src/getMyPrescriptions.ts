@@ -145,10 +145,10 @@ async function eventHandler(
         timeout: SERVICE_SEARCH_TIMEOUT_MS,
         message: `The request to the distance selling service timed out after ${SERVICE_SEARCH_TIMEOUT_MS}ms.`
       })
-      return successResponse(nhsNumber, searchsetBundle, traceIDs, statusUpdateData)
+      return successResponse(logger, nhsNumber, searchsetBundle, traceIDs, statusUpdateData)
     }
 
-    return successResponse(nhsNumber, distanceSellingBundle, traceIDs, statusUpdateData)
+    return successResponse(logger, nhsNumber, distanceSellingBundle, traceIDs, statusUpdateData)
   } catch (error) {
     if (error instanceof NHSNumberValidationError) {
       return INVALID_NHS_NUMBER_RESPONSE
