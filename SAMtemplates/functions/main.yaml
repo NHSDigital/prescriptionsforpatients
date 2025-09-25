@@ -29,6 +29,17 @@ Parameters:
     Type: String
     Default: none
 
+  Env:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - dev-pr
+      - qa
+      - int
+      - prod
+      - ref
+
   TargetSpineServer:
     Type: String
 
@@ -73,6 +84,7 @@ Resources:
         Variables:
           AWS_LAMBDA_EXEC_WRAPPER: /opt/get-secrets-layer
           LOG_LEVEL: !Ref LogLevel
+          DEPLOYMENT_ENVIRONMENT: !Ref Env
           GET_STATUS_UPDATES: !Ref ToggleGetStatusUpdates
       Layers:
         - !Ref GetSecretsLayer
@@ -120,6 +132,7 @@ Resources:
       Environment:
         Variables:
           LOG_LEVEL: !Ref LogLevel
+          DEPLOYMENT_ENVIRONMENT: !Ref Env
           EXPECT_STATUS_UPDATES: !Ref ToggleGetStatusUpdates
     Metadata:
       BuildMethod: esbuild

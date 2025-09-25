@@ -11,7 +11,7 @@ jobs:
   # This workflow contains a single job called "combine-prs"
   delete-old-cloudformation-stacks:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     permissions:
         id-token: write
         contents: read
@@ -19,18 +19,18 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Checkout local github scripts
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ env.BRANCH_NAME }}
           sparse-checkout: |
             .github/scripts
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
-          role-session-name: github-actions
+          role-session-name: aws-pfp-delete-old-stacks
 
       - name: delete stacks
         shell: bash

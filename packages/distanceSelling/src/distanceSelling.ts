@@ -72,6 +72,8 @@ export class DistanceSelling {
           urlString = this.servicesCache[odsCode]
           if (urlString) {
             this.addToTelecom(urlString, organisation)
+            // remove physical address for distance‐selling (online) pharmacies
+            delete organisation.address
           }
         } else {
           this.logger.info(
@@ -96,6 +98,8 @@ export class DistanceSelling {
       this.servicesCache[odsCode] = urlString
       this.logger.info(`url ${urlString} added to cache for ods code ${odsCode}.`, {odsCode: odsCode})
       this.addToTelecom(urlString, organisation)
+      // remove physical address for distance‐selling (online) pharmacies
+      delete organisation.address
     } else {
       this.servicesCache[odsCode] = undefined
     }
@@ -107,9 +111,8 @@ export class DistanceSelling {
   }
 
   addToTelecom(url: string, organisation: Organization) {
-    if (!organisation.telecom) {
-      organisation.telecom = []
-    }
+    organisation.telecom ??= []
+
     const urlEntryAbsent: boolean = organisation.telecom.filter(entry => entry.system === "url").length === 0
     if (urlEntryAbsent) {
       const telecom: ContactPoint = {system: "url", use: "work", value: url}

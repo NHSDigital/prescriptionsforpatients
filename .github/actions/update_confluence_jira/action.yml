@@ -32,7 +32,7 @@ runs:
       with:
         aws-region: eu-west-2
         role-to-assume: ${{ inputs.TARGET_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
-        role-session-name: account-resources-release-notes-target
+        role-session-name: aws-pfp-release-notes-target
 
     - name: Get deployed tag on target
       shell: bash
@@ -46,7 +46,7 @@ runs:
       with:
         aws-region: eu-west-2
         role-to-assume: ${{ inputs.DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
-        role-session-name: account-resources-release-notes-dev
+        role-session-name: aws-pfp-release-notes-dev
 
     - name: get current dev tag
       shell: bash
@@ -58,7 +58,7 @@ runs:
       with:
         aws-region: eu-west-2
         role-to-assume: ${{ inputs.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
-        role-session-name: account-resources-release-notes-run-lambda
+        role-session-name: aws-pfp-release-notes-run-lambda
         unset-current-credentials: true
 
     - name: create int release notes

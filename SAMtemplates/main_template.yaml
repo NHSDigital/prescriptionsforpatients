@@ -11,6 +11,17 @@ Parameters:
       - true
       - false
 
+  Env:
+    Type: String
+    Default: "dev"
+    AllowedValues:
+      - dev
+      - dev-pr
+      - qa
+      - int
+      - prod
+      - ref
+
   TruststoreVersion:
     Type: String
     Default: none
@@ -82,6 +93,9 @@ Parameters:
       - true
       - false
 
+  StateMachineLogLevel:
+    Type: String
+
 Resources:
   Apis:
     Type: AWS::Serverless::Application
@@ -107,6 +121,7 @@ Resources:
       Location: functions/main.yaml
       Parameters:
         StackName: !Ref AWS::StackName
+        Env: !Ref Env
         TargetSpineServer: !Ref TargetSpineServer
         TargetServiceSearchServer: !Ref TargetServiceSearchServer
         LogLevel: !Ref LogLevel
@@ -128,6 +143,7 @@ Resources:
         EnrichPrescriptionsFunctionArn: !GetAtt Functions.Outputs.EnrichPrescriptionsFunctionArn
         LogRetentionInDays: !Ref LogRetentionInDays
         EnableSplunk: !Ref EnableSplunk
+        StateMachineLogLevel: !Ref StateMachineLogLevel
 
   Alarms:
     Type: AWS::Serverless::Application

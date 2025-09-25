@@ -1,9 +1,11 @@
 import {Logger} from "@aws-lambda-powertools/logger"
 import {injectLambdaContext} from "@aws-lambda-powertools/logger/middleware"
 import {LogLevel} from "@aws-lambda-powertools/logger/types"
+
 import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
 import {Bundle} from "fhir/r4"
+
 import {
   StatusUpdateRequest,
   StatusUpdates,
@@ -13,6 +15,7 @@ import {
   getUpdatesScenario
 } from "./statusUpdates"
 import {TraceIDs, lambdaResponse} from "./responses"
+import {extractNHSNumber} from "./fhirUtils"
 
 export const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 export const logger = new Logger({serviceName: "enrichPrescriptions", logLevel: LOG_LEVEL})
@@ -35,19 +38,22 @@ export async function lambdaHandler(event: EnrichPrescriptionsEvent) {
   logger.appendKeys(traceIDs)
 
   const searchsetBundle = event.fhir
+
+  const nhsNumber = extractNHSNumber(logger, searchsetBundle)
+  logger.info("NHS number", {nhsNumber: `${nhsNumber}`})
+
   const statusUpdates = event.StatusUpdates?.Payload
-  const updatesScenario = getUpdatesScenario(statusUpdates)
+  const updatesScenario = getUpdatesScenario(logger, statusUpdates, nhsNumber)
 
   switch (updatesScenario) {
     case UpdatesScenario.Present: {
       logger.info("Applying status updates.")
-      applyStatusUpdates(searchsetBundle, statusUpdates!)
+      applyStatusUpdates(logger, searchsetBundle, statusUpdates!)
       break
     }
     case UpdatesScenario.ExpectedButAbsent: {
       logger.info("Call to get status updates was unsuccessful. Applying temporary status updates.")
-      const statusUpdateRequest = event.statusUpdateData!
-      applyTemporaryStatusUpdates(searchsetBundle, statusUpdateRequest)
+      applyTemporaryStatusUpdates(logger, searchsetBundle, event.statusUpdateData)
       break
     }
     default: {

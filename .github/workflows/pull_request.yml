@@ -9,21 +9,21 @@ env:
 
 jobs:
   quality_checks:
-    uses: NHSDigital/eps-workflow-quality-checks/.github/workflows/quality-checks.yml@v3.0.0
-    secrets:
+    uses: NHSDigital/eps-workflow-quality-checks/.github/workflows/quality-checks.yml@v4.1.1
+    secrets: 
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   pr_title_format_check:
     uses: ./.github/workflows/pr_title_check.yml
 
   get_issue_number:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: quality_checks
     outputs:
       issue_number: ${{steps.get_issue_number.outputs.result}}
 
     steps:
-      - uses: actions/github-script@v7
+      - uses: actions/github-script@v8
         name: get issue number
         id: get_issue_number
         with:
@@ -44,7 +44,7 @@ jobs:
           result-encoding: string
 
   get_commit_id:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     outputs:
       commit_id: ${{ steps.commit_id.outputs.commit_id }}
     steps:
@@ -74,6 +74,9 @@ jobs:
       LOG_RETENTION_DAYS: 30
       TOGGLE_GET_STATUS_UPDATES: true
       ENABLE_ALERTS: false
+      STATE_MACHINE_LOG_LEVEL: ALL
+      RUN_REGRESSION_TESTS: true
+      REGRESSION_TEST_PRODUCT: PFP-AWS
     secrets:
       REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
@@ -95,6 +98,8 @@ jobs:
       COMMIT_ID: ${{ needs.get_commit_id.outputs.commit_id }}
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
+      STATE_MACHINE_LOG_LEVEL: ALL
+      RUN_REGRESSION_TESTS: false
     secrets:
       REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}

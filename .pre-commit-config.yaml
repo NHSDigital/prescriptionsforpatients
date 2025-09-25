@@ -62,9 +62,9 @@ repos:
       - id: lint-sandbox
         name: Lint sandbox
         entry: npm
-        args: ["run", "--prefix=packages/sandbox", "lint"]
+        args: ["run", "--prefix=packages/nhsd-pfp-sandbox", "lint"]
         language: system
-        files: ^packages\/sandbox
+        files: ^packages\/nhsd-pfp-sandbox
         types_or: [ts, tsx, javascript, jsx, json]
         pass_filenames: false
 
@@ -136,6 +136,17 @@ repos:
         files: ^.github/scripts
         types_or: [sh, shell]
         pass_filenames: false
+
+  - repo: local
+    hooks:
+      - id: git-secrets
+        name: Git Secrets
+        description: git-secrets scans commits, commit messages, and --no-ff merges to prevent adding secrets into your git repositories.
+        entry: bash
+        args:
+          - -c
+          - 'docker run -v "$LOCAL_WORKSPACE_FOLDER:/src" git-secrets --pre_commit_hook'
+        language: system
 
 fail_fast: true
 default_stages: [commit]

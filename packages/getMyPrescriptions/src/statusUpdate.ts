@@ -1,3 +1,5 @@
+import {Logger} from "@aws-lambda-powertools/logger"
+
 import {Bundle, MedicationRequest} from "fhir/r4"
 import {
   isolateMedicationRequests,
@@ -5,14 +7,13 @@ import {
   isolatePerformerReference,
   isolatePrescriptions
 } from "./fhirUtils"
-import {logger} from "./getMyPrescriptions"
 
 export const EXTENSION_URL = "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory"
 export const shouldGetStatusUpdates = () => process.env.GET_STATUS_UPDATES === "true"
 
 export type StatusUpdateData = {odsCode: string; prescriptionID: string}
 
-export function buildStatusUpdateData(searchsetBundle: Bundle): Array<StatusUpdateData> {
+export function buildStatusUpdateData(logger: Logger, searchsetBundle: Bundle): Array<StatusUpdateData> {
   const statusUpdateData: Array<StatusUpdateData> = []
   isolatePrescriptions(searchsetBundle).forEach((prescription) => {
     const medicationRequests = isolateMedicationRequests(prescription)

@@ -4,7 +4,8 @@ import {
   newHandler,
   GetMyPrescriptionsEvent,
   stateMachineEventHandler,
-  STATE_MACHINE_MIDDLEWARE
+  STATE_MACHINE_MIDDLEWARE,
+  TC008_NHS_NUMBER
 } from "../src/getMyPrescriptions"
 import {Logger} from "@aws-lambda-powertools/logger"
 import axios from "axios"
@@ -25,7 +26,12 @@ import {
   mockStateMachineInputEvent
 } from "@prescriptionsforpatients_common/testing"
 
-import {HEADERS, StateMachineFunctionResponseBody, TIMEOUT_RESPONSE} from "../src/responses"
+import {
+  HEADERS,
+  StateMachineFunctionResponseBody,
+  TIMEOUT_RESPONSE,
+  TC008_ERROR_RESPONSE
+} from "../src/responses"
 import "./toMatchJsonLogMessage"
 import {EXPECTED_TRACE_IDS} from "./utils"
 import {LogLevel} from "@aws-lambda-powertools/logger/types"
@@ -78,7 +84,7 @@ const responseStatus500 = {
       }
     }
   ],
-  meta:{
+  meta: {
     lastUpdated: "2015-04-09T12:34:56.001Z"
   }
 }
@@ -268,10 +274,10 @@ describe("Unit test for app handler", function () {
 
   it("times-out if spine call takes too long", async () => {
     const mockErrorLogger = jest.spyOn(Logger.prototype, "error")
-    const delayedResponse: Promise<Array<unknown>> = new Promise((resolve) => setTimeout(() => resolve([]), 15_000))
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    mock.onGet("https://live/mm/patientfacingprescriptions").reply((_config) => delayedResponse)
-
+    mock.onGet("https://live/mm/patientfacingprescriptions").reply(function (config) {
+      return new Promise((resolve) => setTimeout(() => resolve([200, {}]), 15_000))
+    })
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
     const eventHandler: Promise<LambdaResult> = handler(event, dummyContext)
 
@@ -300,9 +306,11 @@ describe("Unit test for app handler", function () {
       params: handlerParams,
       middleware: []
     })
-    const delayedResponse: Promise<Array<unknown>> = new Promise((resolve) => setTimeout(() => resolve([]), 5_000))
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    mock.onGet("https://live/mm/patientfacingprescriptions").reply((_config) => delayedResponse)
+    mock.onGet("https://live/mm/patientfacingprescriptions").reply(function (config) {
+      return new Promise((resolve) => setTimeout(() => resolve([200, {}]), 5_000))
+    })
 
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
     const eventHandler: Promise<LambdaResult> = handler(event, dummyContext)
@@ -316,6 +324,16 @@ describe("Unit test for app handler", function () {
 
     // Assert error level log was produced
     expect(mockErrorLogger).toHaveBeenCalledWith("Lambda handler has timed out. Returning error response.")
+  })
+
+  it("returns TC007 error when TC007 test NHS number is received in non-production environment", async () => {
+    process.env.DEPLOYMENT_ENVIRONMENT = "dev"
+    const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
+    event.headers["nhsd-nhslogin-user"] = `P9:${TC008_NHS_NUMBER}`
+    const result: LambdaResult = await handler(event, dummyContext)
+    expect(result.statusCode).toBe(500)
+    expect(result.headers).toEqual(HEADERS)
+    expect(JSON.parse(result.body)).toEqual(JSON.parse(TC008_ERROR_RESPONSE.body))
   })
 })
 
@@ -429,9 +447,10 @@ describe("Unit tests for app handler including service search", function () {
     const exampleResponse = {resourceType: "Bundle"}
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, exampleResponse)
 
-    const delayedResponse: Promise<Array<unknown>> = new Promise((resolve) => setTimeout(() => resolve([]), 15_000))
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    mock.onGet("https://service-search/service-search").reply((_config) => delayedResponse)
+    mock.onGet("https://service-search/service-search").reply(function (config) {
+      return new Promise((resolve) => setTimeout(() => resolve([200, {}]), 15_000))
+    })
 
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
     const eventHandler: Promise<LambdaResult> = handler(event, dummyContext)

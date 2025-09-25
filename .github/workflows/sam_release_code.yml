@@ -53,13 +53,16 @@ on:
         default: false
       REGRESSION_TESTS_PEM:
         type: string
-        default: false
       RUN_REGRESSION_TESTS:
         type: boolean
         default: true
       ENABLE_ALERTS:
         type: boolean
         default: true
+      STATE_MACHINE_LOG_LEVEL:
+        type: string
+      REGRESSION_TEST_PRODUCT:
+        type: string
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
@@ -80,7 +83,7 @@ on:
 
 jobs:
   sam_release_code:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     environment: ${{ inputs.TARGET_ENVIRONMENT }}
     permissions:
       id-token: write
@@ -88,7 +91,7 @@ jobs:
 
     steps:
       - name: Checkout local github actions
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ env.BRANCH_NAME }}
           fetch-depth: 0
@@ -108,14 +111,14 @@ jobs:
           DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets.CLOUD_FORMATION_DEPLOY_ROLE }}
-          role-session-name: github-actions
+          role-session-name: aws-pfp-release-code
 
       - name: download build artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: ${{ inputs.BUILD_ARTIFACT }}
           path: .
@@ -124,20 +127,21 @@ jobs:
         shell: bash
         working-directory: .github/scripts
         env:
-          artifact_bucket_prefix: prescriptions_for_patients/${{ inputs.ARTIFACT_BUCKET_PREFIX }}
+          ARTIFACT_BUCKET_PREFIX: prescriptions_for_patients/${{ inputs.ARTIFACT_BUCKET_PREFIX }}
           COMMIT_ID: ${{ inputs.COMMIT_ID }}
-          enable_mutual_tls: ${{ inputs.ENABLE_MUTUAL_TLS }}
+          ENABLE_MUTUAL_TLS: ${{ inputs.ENABLE_MUTUAL_TLS }}
           LOG_LEVEL: ${{ inputs.LOG_LEVEL }}
           LOG_RETENTION_DAYS: ${{ inputs.LOG_RETENTION_DAYS }}
-          stack_name: ${{ inputs.STACK_NAME }}
+          STACK_NAME: ${{ inputs.STACK_NAME }}
           TARGET_ENVIRONMENT: ${{ inputs.TARGET_ENVIRONMENT }}
-          target_service_search_server: ${{ secrets.TARGET_SERVICE_SEARCH_SERVER }}
-          target_spine_server: ${{ secrets.TARGET_SPINE_SERVER }}
-          template_file: template.yaml
+          TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.TARGET_SERVICE_SEARCH_SERVER }}
+          TARGET_SPINE_SERVER: ${{ secrets.TARGET_SPINE_SERVER }}
+          TEMPLATE_FILE: template.yaml
           TRUSTSTORE_FILE: ${{ inputs.TRUSTSTORE_FILE }}
           VERSION_NUMBER: ${{ inputs.VERSION_NUMBER }}
           TOGGLE_GET_STATUS_UPDATES: ${{ inputs.TOGGLE_GET_STATUS_UPDATES }}
           ENABLE_ALERTS: ${{ inputs.ENABLE_ALERTS }}
+          STATE_MACHINE_LOG_LEVEL: ${{ inputs.STATE_MACHINE_LOG_LEVEL }}
         run: ./release_code.sh
 
       - name: create_int_release_notes
@@ -170,7 +174,7 @@ jobs:
           DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
 
       - name: Checkout gh-pages
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: gh-pages
           path: gh-pages
@@ -198,5 +202,6 @@ jobs:
     with:
       ENVIRONMENT: ${{ inputs.APIGEE_ENVIRONMENT }}
       VERSION_NUMBER: ${{ inputs.VERSION_NUMBER }}
+      REGRESSION_TEST_PRODUCT: ${{ inputs.REGRESSION_TEST_PRODUCT }}
     secrets:
       REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
