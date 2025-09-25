@@ -125,7 +125,8 @@ async function eventHandler(
 
     const ODSCodes = extractOdsCodes(logger, searchsetBundle)
     logger.info(
-      "Processing PfP get prescriptions request for patient. They have these relevant ODS codes.",
+      "Processing PfP get prescriptions request for patient. "
+      + "They have these relevant ODS codes, and the PfP request was made via this apigee application.",
       {
         ODSCodes,
         nhsNumber,
