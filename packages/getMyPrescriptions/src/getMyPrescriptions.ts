@@ -91,6 +91,8 @@ async function eventHandler(
   }
   logger.appendKeys(traceIDs)
 
+  const applicationName = headers["nhsd-application-name"] ?? "unknown"
+
   try {
     const isCertificateConfigured = spineClient.isCertificateConfigured()
     if (!isCertificateConfigured) {
@@ -123,10 +125,12 @@ async function eventHandler(
 
     const ODSCodes = extractOdsCodes(logger, searchsetBundle)
     logger.info(
-      "Processing PfP get prescriptions request for patient. They have these relevant ODS codes.",
+      "Processing PfP get prescriptions request for patient. "
+      + "They have these relevant ODS codes, and the PfP request was made via this apigee application.",
       {
         ODSCodes,
-        nhsNumber
+        nhsNumber,
+        applicationName
       }
     )
 
@@ -142,10 +146,10 @@ async function eventHandler(
         timeout: SERVICE_SEARCH_TIMEOUT_MS,
         message: `The request to the distance selling service timed out after ${SERVICE_SEARCH_TIMEOUT_MS}ms.`
       })
-      return successResponse(nhsNumber, searchsetBundle, traceIDs, statusUpdateData)
+      return successResponse(logger, nhsNumber, searchsetBundle, traceIDs, statusUpdateData)
     }
 
-    return successResponse(nhsNumber, distanceSellingBundle, traceIDs, statusUpdateData)
+    return successResponse(logger, nhsNumber, distanceSellingBundle, traceIDs, statusUpdateData)
   } catch (error) {
     if (error instanceof NHSNumberValidationError) {
       return INVALID_NHS_NUMBER_RESPONSE

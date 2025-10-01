@@ -2,7 +2,7 @@ import {Bundle, BundleEntry, OperationOutcome} from "fhir/r4"
 import {StatusUpdateData, shouldGetStatusUpdates} from "./statusUpdate"
 import {APIGatewayProxyResult as LambdaResult} from "aws-lambda"
 import {v4} from "uuid"
-import {logger} from "./getMyPrescriptions"
+import {Logger} from "@aws-lambda-powertools/logger"
 
 const TC009_SINGLE_EXCLUDED_PRESCRIPTION_NHS_NUMBER = "9990624666"
 const TC009_MULTIPLE_EXCLUDED_PRESCRIPTIONS_NHS_NUMBER = "9997750640"
@@ -28,6 +28,7 @@ export type TraceIDs = {
 }
 
 export type ResponseFunc = (
+  logger: Logger,
   nhsNumber: string,
   fhirBody: FhirBody,
   traceIDs: TraceIDs,
@@ -183,6 +184,7 @@ export function createExcludedPrescriptionEntry(): BundleEntry {
 }
 
 export function stateMachineLambdaResponse(
+  logger: Logger,
   nhsNumber: string,
   fhirBody: FhirBody,
   traceIDs: TraceIDs,
