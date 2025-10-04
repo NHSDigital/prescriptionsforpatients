@@ -1,11 +1,5 @@
 import {jest} from "@jest/globals"
 
-const mockV4 = jest.fn()
-jest.mock("uuid", () => ({
-  __esModule: true,
-  v4: mockV4
-}))
-
 // I just could NOT get jest to cooperate with the mocked UUID function.
 // This ended up working (thanks chatgpt) but is really ugly (THANKS chatgpt)
 let createExcludedPrescriptionEntry: typeof import("../src/responses").createExcludedPrescriptionEntry
@@ -24,10 +18,9 @@ describe("createExcludedPrescriptionEntry", () => {
 
     // Make Math.random deterministic (always 0)
     jest.spyOn(Math, "random").mockReturnValue(0)
-
-    mockV4
-      .mockReturnValueOnce("outcome-uuid")
-      .mockReturnValueOnce("fullurl-uuid")
+    jest.spyOn(crypto, "randomUUID")
+      .mockReturnValueOnce("outcome-uuid-in-uuid-format")
+      .mockReturnValueOnce("fullurl-uuid-in-uuid-format")
   })
 
   afterAll(() => {
@@ -38,7 +31,7 @@ describe("createExcludedPrescriptionEntry", () => {
   it("should produce a BundleEntry with the correct structure and values", () => {
     const entry = createExcludedPrescriptionEntry()
 
-    expect(entry.fullUrl).toBe("urn:uuid:fullurl-uuid")
+    expect(entry.fullUrl).toBe("urn:uuid:fullurl-uuid-in-uuid-format")
 
     expect(entry.search).toEqual({mode: "outcome"})
     const resource = entry.resource
@@ -46,7 +39,7 @@ describe("createExcludedPrescriptionEntry", () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const operationOutcome = resource as {issue: Array<any>}
 
-    expect(resource?.id).toBe("outcome-uuid")
+    expect(resource?.id).toBe("outcome-uuid-in-uuid-format")
 
     expect(resource?.meta).toEqual({lastUpdated: FIXED_DATE.toISOString()})
     expect(operationOutcome.issue).toHaveLength(1)

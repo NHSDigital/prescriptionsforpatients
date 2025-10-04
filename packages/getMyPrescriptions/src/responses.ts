@@ -1,7 +1,6 @@
 import {Bundle, BundleEntry, OperationOutcome} from "fhir/r4"
 import {StatusUpdateData, shouldGetStatusUpdates} from "./statusUpdate"
 import {APIGatewayProxyResult as LambdaResult} from "aws-lambda"
-import {v4} from "uuid"
 import {Logger} from "@aws-lambda-powertools/logger"
 
 const TC009_SINGLE_EXCLUDED_PRESCRIPTION_NHS_NUMBER = "9990624666"
@@ -136,7 +135,7 @@ export const TC008_ERROR_RESPONSE: LambdaResult = {
 }
 
 export function createExcludedPrescriptionEntry(): BundleEntry {
-  const outcomeId = v4()
+  const outcomeId = crypto.randomUUID()
   const now = new Date().toISOString()
 
   // Generate a short ID. 3 blocks of 6 alphanumeric characters
@@ -175,7 +174,7 @@ export function createExcludedPrescriptionEntry(): BundleEntry {
   }
 
   return {
-    fullUrl: `urn:uuid:${v4()}`,
+    fullUrl: `urn:uuid:${crypto.randomUUID()}`,
     search: {
       mode: "outcome"
     },
