@@ -22,7 +22,7 @@ Resources:
   TC007NHSNumberParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: !Sub ${StackName}-TC007-NHS-Number
+      Name: !Sub ${StackName}-TC007NHSNumber
       Description: "List of NHS numbers that will trigger 'temporarily unavailable' response for testing purposes."
       Type: String
       Value: !Ref TC007NHSNumberValue
@@ -30,7 +30,7 @@ Resources:
   TC008NHSNumberParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: !Sub ${StackName}-TC008-NHS-Number
+      Name: !Sub ${StackName}-TC008NHSNumber
       Description: "List of NHS numbers that will trigger '500 system error' response for testing purposes."
       Type: String
       Value: !Ref TC008NHSNumberValue
@@ -38,7 +38,7 @@ Resources:
   TC009NHSNumberParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: !Sub ${StackName}-TC009_NHS_Number
+      Name: !Sub ${StackName}-TC009NHSNumber
       Description: "List of NHS numbers that will trigger 'one or more prescriptions missing' response for testing purposes."
       Type: String
       Value: !Ref TC009NHSNumberValue

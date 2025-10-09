@@ -105,15 +105,15 @@ Parameters:
 
   TC007NHSNumberValue:
     Type: String
-    Default: " "
+    Default: "8396901627"
 
   TC008NHSNumberValue:
     Type: String
-    Default: " "
+    Default: "8618341568"
 
   TC009NHSNumberValue:
     Type: String
-    Default: " "
+    Default: "8548472367"
 
   ForwardCsocLogs:
     Type: String
