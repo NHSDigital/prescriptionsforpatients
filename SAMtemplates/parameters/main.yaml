@@ -1,0 +1,85 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  SSM Parameter Store entries. Values may differ between prod and non-prod environments
+
+Parameters:
+  StackName:
+    Type: String
+
+  TC007NHSNumberValue:
+    Type: String
+    Default: " "
+
+  TC008NHSNumberValue:
+    Type: String
+    Default: " "
+
+  TC009NHSNumberValue:
+    Type: String
+    Default: " "
+
+Resources:
+  TC007NHSNumberParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub ${StackName}-TC007-NHS-Number
+      Description: "List of NHS numbers that will trigger 'temporarily unavailable' response for testing purposes."
+      Type: String
+      Value: !Ref TC007NHSNumberValue
+
+  TC008NHSNumberParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub ${StackName}-TC008-NHS-Number
+      Description: "List of NHS numbers that will trigger '500 system error' response for testing purposes."
+      Type: String
+      Value: !Ref TC008NHSNumberValue
+
+  TC009NHSNumberParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub ${StackName}-TC009_NHS_Number
+      Description: "List of NHS numbers that will trigger 'one or more prescriptions missing' response for testing purposes."
+      Type: String
+      Value: !Ref TC009NHSNumberValue
+
+  GetPfPParameterPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: "Allows reading SSM parameters"
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - ssm:GetParameter
+              - ssm:GetParameters
+            Resource:
+              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${StackName}-TC007-NHS-Number
+              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${StackName}-TC008-NHS-Number
+              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${StackName}-TC009-NHS-Number
+
+Outputs:
+  TC007NHSNumberParameterName:
+    Description: "Name of the SSM parameter holding TC007_NHS_Number"
+    Value: !Ref TC007NHSNumberParameter
+    Export:
+      Name: !Sub ${StackName}-TC007NHSNumberParameter
+
+  TC008NHSNumberParameterName:
+    Description: "Name of the SSM parameter holding TC008_NHS_Number"
+    Value: !Ref TC008NHSNumberParameter
+    Export:
+      Name: !Sub ${StackName}-TC008NHSNumberParameter
+
+  TC009NHSNumberParameterName:
+    Description: "Name of the SSM parameter holding TC009_NHS_Number"
+    Value: !Ref TC009NHSNumberParameter
+    Export:
+      Name: !Sub ${StackName}-TC009NHSNumberParameter
+
+  GetPfPParameterPolicy:
+    Description: Access to the parameters used by the notifications integration
+    Value: !Ref GetPfPParameterPolicy
+    Export:
+      Name: !Sub ${StackName}-GetPfPParameterPolicy
