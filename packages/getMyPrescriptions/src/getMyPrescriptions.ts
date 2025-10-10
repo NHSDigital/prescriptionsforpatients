@@ -2,6 +2,7 @@ import {APIGatewayProxyResult as LambdaResult} from "aws-lambda"
 import {Logger} from "@aws-lambda-powertools/logger"
 import {injectLambdaContext} from "@aws-lambda-powertools/logger/middleware"
 import {LogLevel} from "@aws-lambda-powertools/logger/types"
+import {SSMProvider} from "@aws-lambda-powertools/parameters/ssm"
 
 import middy from "@middy/core"
 import inputOutputLogger from "@middy/input-output-logger"
@@ -38,7 +39,7 @@ const LAMBDA_TIMEOUT_MS = 10_000
 const SPINE_TIMEOUT_MS = 9_000
 const SERVICE_SEARCH_TIMEOUT_MS = 5_000
 
-export const TC008_NHS_NUMBER = "9992387920"
+const ssmProvider = new SSMProvider()
 
 type EventHeaders = Record<string, string | undefined>
 
@@ -80,8 +81,6 @@ async function eventHandler(
   const requestId = headers["apigw-request-id"]
   const spineClient = params.spineClient
 
-  const env = process.env["DEPLOYMENT_ENVIRONMENT"]
-
   const traceIDs: TraceIDs = {
     "nhsd-correlation-id": headers["nhsd-correlation-id"],
     "x-request-id": xRequestId,
@@ -102,9 +101,7 @@ async function eventHandler(
     const nhsNumber = extractNHSNumber(headers["nhsd-nhslogin-user"])
     logger.info(`nhsNumber: ${nhsNumber}`, {nhsNumber})
     headers["nhsNumber"] = nhsNumber
-
-    // AEA-5653 | TC008: force internal error response
-    if ((nhsNumber === TC008_NHS_NUMBER) && (env !== "prod")) {
+    if (await isTC008(nhsNumber)) {
       logger.info("Test NHS number corresponding to TC008 has been received. Returning a 500 response")
       return TC008_ERROR_RESPONSE
     }
@@ -157,6 +154,15 @@ async function eventHandler(
       throw error
     }
   }
+}
+
+async function isTC008(nhsNumber: string) {
+  // AEA-5653, AEA-5853 | TC008: force internal error response for supplier testing
+  const env = process.env["DEPLOYMENT_ENVIRONMENT"]
+  if (env === "prod") return false
+  const stackName = process.env.STACK_NAME || "pfp"
+  const TC008_NHS_NUMBERS = await ssmProvider.get(`/${stackName}-TC008-NHS-Number`)
+  return (TC008_NHS_NUMBERS && TC008_NHS_NUMBERS.includes(nhsNumber))
 }
 
 type HandlerConfig<T> = {
