@@ -4,8 +4,7 @@ import {
   newHandler,
   GetMyPrescriptionsEvent,
   stateMachineEventHandler,
-  STATE_MACHINE_MIDDLEWARE,
-  TC008_NHS_NUMBER
+  STATE_MACHINE_MIDDLEWARE
 } from "../src/getMyPrescriptions"
 import {Logger} from "@aws-lambda-powertools/logger"
 import axios from "axios"
@@ -37,6 +36,9 @@ import {EXPECTED_TRACE_IDS} from "./utils"
 import {LogLevel} from "@aws-lambda-powertools/logger/types"
 import {createSpineClient} from "@NHSDigital/eps-spine-client"
 import {MiddyfiedHandler} from "@middy/core"
+
+// TODO switch to use config
+const TC008_NHS_NUMBER = "9992387920"
 
 const dummyContext = helloworldContext
 const mock = new MockAdapter(axios)
@@ -326,7 +328,7 @@ describe("Unit test for app handler", function () {
     expect(mockErrorLogger).toHaveBeenCalledWith("Lambda handler has timed out. Returning error response.")
   })
 
-  it("returns TC007 error when TC007 test NHS number is received in non-production environment", async () => {
+  it("returns TC008 error when TC008 test NHS number is received in non-production environment", async () => {
     process.env.DEPLOYMENT_ENVIRONMENT = "dev"
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
     event.headers["nhsd-nhslogin-user"] = `P9:${TC008_NHS_NUMBER}`
