@@ -86,10 +86,19 @@ repos:
         types_or: [ts, tsx, javascript, jsx, json]
         pass_filenames: false
 
+      - id: lint-common
+        name: Lint common testing
+        entry: npm
+        args: ["run", "--prefix=packages/common/src", "lint"]
+        language: system
+        files: ^packages\/common\/src
+        types_or: [ts, tsx, javascript, jsx, json]
+        pass_filenames: false
+  
       - id: lint-common-testing
         name: Lint common testing
         entry: npm
-        args: ["run", "--prefix=packages/common/testing", "lint"]
+        args: ["run", "--prefix=packages/common/tests", "lint"]
         language: system
         files: ^packages\/common\/testing
         types_or: [ts, tsx, javascript, jsx, json]

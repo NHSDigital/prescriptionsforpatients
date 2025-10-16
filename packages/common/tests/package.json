@@ -1,5 +1,5 @@
 {
-    "name": "@prescriptionsforpatients_common/testing",
+    "name": "@common/tests",
     "version": "1.0.0",
     "description": "Common resources for testing prescriptionsforpatients",
     "author": "NHS Digital",

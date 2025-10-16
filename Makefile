@@ -125,7 +125,7 @@ lint-node: compile-node
 	npm run lint --workspace packages/nhsd-pfp-sandbox
 	npm run lint --workspace packages/statusLambda
 	npm run lint --workspace packages/serviceSearchClient
-	npm run lint --workspace packages/common/testing
+	npm run lint --workspace packages/common
 	npm run lint --workspace packages/distanceSelling
 
 lint-samtemplates:
@@ -147,6 +147,7 @@ test: compile
 	npm run test --workspace packages/statusLambda
 	npm run test --workspace packages/serviceSearchClient
 	npm run test --workspace packages/distanceSelling
+	npm run test --workspace packages/common
 
 clean:
 	rm -rf packages/capabilityStatement/coverage
@@ -156,7 +157,7 @@ clean:
 	rm -rf packages/serviceSearchClient/coverage
 	rm -rf packages/distanceSelling/coverage
 	rm -rf packages/statusLambda/coverage
-	rm -rf packages/common/testing/coverage
+	rm -rf packages/common/tests/coverage
 	rm -rf packages/capabilityStatement/lib
 	rm -rf packages/getMyPrescriptions/lib
 	rm -rf packages/enrichPrescriptions/lib
@@ -165,7 +166,7 @@ clean:
 	rm -rf packages/distanceSelling/lib
 	rm -rf packages/statusLambda/lib
 	rm -rf packages/getSecretLayer/lib
-	rm -rf packages/common/testing/lib
+	rm -rf packages/common/tests/lib
 	rm -rf .aws-sam
 
 deep-clean: clean
