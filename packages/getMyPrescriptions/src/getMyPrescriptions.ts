@@ -27,7 +27,7 @@ import {extractNHSNumber, NHSNumberValidationError} from "./extractNHSNumber"
 import {deepCopy, hasTimedOut, jobWithTimeout} from "./utils"
 import {buildStatusUpdateData, shouldGetStatusUpdates} from "./statusUpdate"
 import {extractOdsCodes, isolateOperationOutcome} from "./fhirUtils"
-import {pfpConfig} from "./config"
+import {pfpConfig, PfPConfig} from "./config"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 export const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
@@ -99,7 +99,7 @@ async function eventHandler(
     const nhsNumber = extractNHSNumber(headers["nhsd-nhslogin-user"])
     logger.info(`nhsNumber: ${nhsNumber}`, {nhsNumber})
     headers["nhsNumber"] = nhsNumber
-    if (await pfpConfig.isTC008(nhsNumber)) {
+    if (await params.pfpConfig.isTC008(nhsNumber)) {
       logger.info("Test NHS number corresponding to TC008 has been received. Returning a 500 response")
       return TC008_ERROR_RESPONSE
     }
@@ -165,12 +165,14 @@ type HandlerParams = {
   spineTimeoutMs: number
   serviceSearchTimeoutMs: number
   spineClient: SpineClient
+  pfpConfig: PfPConfig
 }
 export const DEFAULT_HANDLER_PARAMS = {
   lambdaTimeoutMs: LAMBDA_TIMEOUT_MS,
   spineTimeoutMs: SPINE_TIMEOUT_MS,
   serviceSearchTimeoutMs: SERVICE_SEARCH_TIMEOUT_MS,
-  spineClient: _spineClient
+  spineClient: _spineClient,
+  pfpConfig: pfpConfig
 }
 
 export const newHandler = <T>(handlerConfig: HandlerConfig<T>) => {
