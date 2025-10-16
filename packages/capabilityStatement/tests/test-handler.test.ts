@@ -9,7 +9,7 @@ import {
   helloworldContext,
   test_append_trace_ids,
   test_mime_type
-} from "@prescriptionsforpatients_common/testing"
+} from "@common/tests"
 
 const dummyContext = helloworldContext
 const mockEvent: APIGatewayProxyEvent = mockAPIGatewayProxyEvent

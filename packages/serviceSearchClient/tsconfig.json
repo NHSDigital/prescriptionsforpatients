@@ -7,7 +7,7 @@
     "composite": true,
     "declaration": true
   },
-  "references": [{"path": "../common/testing"}],
+  "references": [{"path": "../common"}, {"path": "../common/tests"}],
   "include": ["src/**/*", "tests/**/*"],
   "exclude": ["node_modules"]
 }

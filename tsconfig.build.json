@@ -4,13 +4,14 @@
   "files": [],
   // Building this project will build all of the following:
   "references": [
+    { "path": "packages/common/tests" },
+    { "path": "packages/common/" },
     { "path": "packages/serviceSearchClient" },
     { "path": "packages/capabilityStatement" },
     { "path": "packages/getMyPrescriptions" },
     { "path": "packages/enrichPrescriptions" },
     { "path": "packages/nhsd-pfp-sandbox" },
     { "path": "packages/statusLambda" },
-    { "path": "packages/common/testing" },
     { "path": "packages/distanceSelling" }
   ]
 }

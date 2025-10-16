@@ -5,9 +5,8 @@
     "outDir": "lib"
   },
   "references": [
-    { "path": "../common" },
-    { "path": "../common/tests" }
+    { "path": "./tests" }
   ],
-  "include": ["src/**/*", "tests/**/*"],
-  "exclude": ["node_modules"]
+  "include": ["src/**/*", "index.ts", "config.ts"],
+  "exclude": ["node_modules", "tests"]
 }
