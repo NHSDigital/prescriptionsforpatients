@@ -2,9 +2,7 @@ import {Bundle, BundleEntry, OperationOutcome} from "fhir/r4"
 import {StatusUpdateData, shouldGetStatusUpdates} from "./statusUpdate"
 import {APIGatewayProxyResult as LambdaResult} from "aws-lambda"
 import {Logger} from "@aws-lambda-powertools/logger"
-
-const TC009_SINGLE_EXCLUDED_PRESCRIPTION_NHS_NUMBER = "9990624666"
-const TC009_MULTIPLE_EXCLUDED_PRESCRIPTIONS_NHS_NUMBER = "9997750640"
+import {pfpConfig} from "@common"
 
 export type FhirBody = Bundle | OperationOutcome
 
@@ -32,7 +30,7 @@ export type ResponseFunc = (
   fhirBody: FhirBody,
   traceIDs: TraceIDs,
   statusUpdateData?: Array<StatusUpdateData>
-) => LambdaResult
+) => Promise<LambdaResult>
 
 export const HEADERS = {
   "Content-Type": "application/fhir+json",
@@ -182,13 +180,13 @@ export function createExcludedPrescriptionEntry(): BundleEntry {
   }
 }
 
-export function stateMachineLambdaResponse(
+export async function stateMachineLambdaResponse(
   logger: Logger,
   nhsNumber: string,
   fhirBody: FhirBody,
   traceIDs: TraceIDs,
   statusUpdateData?: Array<StatusUpdateData>
-): LambdaResult {
+): Promise<LambdaResult> {
   const body: StateMachineFunctionResponseBody = {
     fhir: fhirBody,
     getStatusUpdates: shouldGetStatusUpdates(),
@@ -203,13 +201,11 @@ export function stateMachineLambdaResponse(
   }
 
   const env = process.env["DEPLOYED_ENVIRONMENT"]
+  const isTC009 = await pfpConfig.isTC009(nhsNumber)
 
   if (
     env !== "prod"
-    && (
-      nhsNumber === TC009_MULTIPLE_EXCLUDED_PRESCRIPTIONS_NHS_NUMBER
-      || nhsNumber === TC009_SINGLE_EXCLUDED_PRESCRIPTION_NHS_NUMBER
-    )
+    && isTC009
   ) {
     // When testing with TC009, inject our dummy excluded‐prescription entry
     if ((body.fhir as Bundle).entry) {
@@ -219,7 +215,7 @@ export function stateMachineLambdaResponse(
       bundle.entry ??= []
 
       bundle.entry.push(createExcludedPrescriptionEntry())
-      if (nhsNumber === TC009_MULTIPLE_EXCLUDED_PRESCRIPTIONS_NHS_NUMBER) {
+      if (isTC009) {
         bundle.entry.push(createExcludedPrescriptionEntry())
       }
 
