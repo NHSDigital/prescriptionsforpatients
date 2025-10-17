@@ -27,7 +27,7 @@ import {extractNHSNumber, NHSNumberValidationError} from "./extractNHSNumber"
 import {deepCopy, hasTimedOut, jobWithTimeout} from "./utils"
 import {buildStatusUpdateData, shouldGetStatusUpdates} from "./statusUpdate"
 import {extractOdsCodes, isolateOperationOutcome} from "./fhirUtils"
-import {pfpConfig, PfPConfig} from "@common/config"
+import {pfpConfig, PfPConfig} from "@prescriptionsforpatients/common/config"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 export const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
@@ -141,10 +141,10 @@ async function eventHandler(
         timeout: SERVICE_SEARCH_TIMEOUT_MS,
         message: `The request to the distance selling service timed out after ${SERVICE_SEARCH_TIMEOUT_MS}ms.`
       })
-      return await successResponse(logger, nhsNumber, searchsetBundle, traceIDs, statusUpdateData)
+      return await successResponse(logger, nhsNumber, searchsetBundle, traceIDs, params.pfpConfig, statusUpdateData)
     }
 
-    return await successResponse(logger, nhsNumber, distanceSellingBundle, traceIDs, statusUpdateData)
+    return await successResponse(logger, nhsNumber, distanceSellingBundle, traceIDs, params.pfpConfig, statusUpdateData)
   } catch (error) {
     if (error instanceof NHSNumberValidationError) {
       return INVALID_NHS_NUMBER_RESPONSE

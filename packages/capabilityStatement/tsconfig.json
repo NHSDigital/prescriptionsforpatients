@@ -4,7 +4,6 @@
     "rootDir": ".",
     "outDir": "lib"
   },
-  "references": [{"path": "../common"}, {"path": "../common/tests"}],
   "include": ["src/**/*", "tests/**/*", "examples/CapabilityStatement/apim-medicines-prescriptionsforpatients.json"],
   "exclude": ["node_modules"]
 }

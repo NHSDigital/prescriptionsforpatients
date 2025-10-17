@@ -1,5 +1,5 @@
 {
-  "name": "@common",
+  "name": "@prescriptionsforpatients/common",
   "version": "1.0.0",
   "description": "prescriptionsforpatients common",
   "main": "lib/index.js",
@@ -8,7 +8,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "unit": "POWERTOOLS_DEV=true NODE_OPTIONS=--experimental-vm-modules jest --no-cache --coverage",
+    "unit": "echo 'No tests in common package - it provides shared logic and test utilities only'",
     "lint": "eslint  --max-warnings 0 --fix --config ../../eslint.config.mjs .",
     "compile": "tsc",
     "test": "npm run compile && npm run unit",
@@ -16,10 +16,11 @@
   },
   "dependencies": {
     "@aws-lambda-powertools/logger": "^2.27.0",
+    "@aws-lambda-powertools/parameters": "^2.27.0",
+    "@aws-sdk/client-ssm": "^3.911.0",
     "@types/fhir": "^0.0.41"
   },
   "devDependencies": {
-    "@common/tests": "^1.0.0",
     "axios-mock-adapter": "^2.1.0"
   }
 }

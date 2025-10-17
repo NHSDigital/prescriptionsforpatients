@@ -4,7 +4,6 @@
   "files": [],
   // Building this project will build all of the following:
   "references": [
-    { "path": "packages/common/tests" },
     { "path": "packages/common/" },
     { "path": "packages/serviceSearchClient" },
     { "path": "packages/capabilityStatement" },

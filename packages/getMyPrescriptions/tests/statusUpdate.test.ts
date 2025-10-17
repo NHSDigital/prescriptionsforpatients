@@ -18,7 +18,7 @@ import {
   mockPharmacy2uResponse,
   mockPharmicaResponse,
   mockStateMachineInputEvent
-} from "@common/tests"
+} from "@prescriptionsforpatients/common"
 
 import {buildStatusUpdateData} from "../src/statusUpdate"
 import {StateMachineFunctionResponseBody} from "../src/responses"
