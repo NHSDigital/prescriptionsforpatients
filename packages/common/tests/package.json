@@ -4,7 +4,7 @@
     "description": "Common resources for testing prescriptionsforpatients",
     "author": "NHS Digital",
     "license": "MIT",
-    "main": "lib/src/index.js",
+    "main": "lib/index.js",
     "type": "module",
     "scripts": {
         "unit": "jest",
