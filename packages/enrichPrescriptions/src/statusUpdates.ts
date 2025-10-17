@@ -9,6 +9,7 @@ import {
   isolatePerformerReference,
   isolatePrescriptions
 } from "./fhirUtils"
+import {pfpConfig} from "@common"
 
 export const EXTENSION_URL = "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory"
 export const VALUE_CODING_SYSTEM = "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt"
@@ -19,8 +20,6 @@ export const NOT_ONBOARDED_DEFAULT_EXTENSION_STATUS = "With Pharmacy but Trackin
 export const TEMPORARILY_UNAVAILABLE_STATUS = "Tracking Temporarily Unavailable"
 export const APPROVED_STATUS = "Prescriber Approved"
 export const CANCELLED_STATUS = "Prescriber Cancelled"
-
-const TC007_NHS_NUMBER = "9992032499"
 
 export const expectStatusUpdates = () => process.env.EXPECT_STATUS_UPDATES === "true"
 
@@ -244,13 +243,15 @@ export enum UpdatesScenario {
   NotExpected
 }
 
-export function getUpdatesScenario(
+export async function getUpdatesScenario(
   logger: Logger,
   statusUpdates: StatusUpdates | undefined,
   nhsNumber: string
-): UpdatesScenario {
+): Promise<UpdatesScenario> {
   const env = process.env["DEPLOYED_ENVIRONMENT"]
-  if ((nhsNumber === TC007_NHS_NUMBER) && (env !== "prod")) {
+  const isTC007 = await pfpConfig.isTC007(nhsNumber)
+
+  if (isTC007 && (env !== "prod")) {
     // AEA-5653 | TC007: force timeout
     logger.info("Test NHS number corresponding to TC007 has been received. Returning a timeout response")
     return UpdatesScenario.ExpectedButAbsent

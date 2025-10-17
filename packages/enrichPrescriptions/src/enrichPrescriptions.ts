@@ -43,7 +43,7 @@ export async function lambdaHandler(event: EnrichPrescriptionsEvent) {
   logger.info("NHS number", {nhsNumber: `${nhsNumber}`})
 
   const statusUpdates = event.StatusUpdates?.Payload
-  const updatesScenario = getUpdatesScenario(logger, statusUpdates, nhsNumber)
+  const updatesScenario = await getUpdatesScenario(logger, statusUpdates, nhsNumber)
 
   switch (updatesScenario) {
     case UpdatesScenario.Present: {
