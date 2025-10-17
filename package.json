@@ -44,6 +44,6 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "esbuild": "^0.25.10"
+    "esbuild": "^0.25.11"
   }
 }
