@@ -28,9 +28,9 @@
     "@semantic-release/release-notes-generator": "^14.1.0",
     "@types/aws-lambda": "^8.10.155",
     "@types/jest": "^30.0.0",
-    "@types/node": "^24.8.0",
+    "@types/node": "^24.8.1",
     "@typescript-eslint/eslint-plugin": "^8.46.0",
-    "@typescript-eslint/parser": "^8.45.0",
+    "@typescript-eslint/parser": "^8.46.1",
     "aws-lambda": "^1.0.7",
     "conventional-changelog-eslint": "^6.0.0",
     "eslint": "^9.37.0",
@@ -44,6 +44,6 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "esbuild": "^0.25.10"
+    "esbuild": "^0.25.11"
   }
 }
