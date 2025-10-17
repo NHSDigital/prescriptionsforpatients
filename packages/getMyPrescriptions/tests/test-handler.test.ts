@@ -23,7 +23,7 @@ import {
   mockPharmicaResponse,
   helloworldContext,
   mockStateMachineInputEvent
-} from "@prescriptionsforpatients/common"
+} from "@/common"
 
 import {HEADERS, StateMachineFunctionResponseBody, TIMEOUT_RESPONSE} from "../src/responses"
 import "./toMatchJsonLogMessage"
