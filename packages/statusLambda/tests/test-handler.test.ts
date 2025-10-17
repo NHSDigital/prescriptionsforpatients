@@ -12,7 +12,7 @@ import MockAdapter from "axios-mock-adapter"
 import axios from "axios"
 
 import {handler} from "../src/statusLambda"
-import {mockAPIGatewayProxyEvent, helloworldContext} from "@common/tests"
+import {mockAPIGatewayProxyEvent, helloworldContext} from "@prescriptionsforpatients/common"
 
 const mock = new MockAdapter(axios)
 

@@ -4,7 +4,6 @@
     "rootDir": ".",
     "outDir": "lib"
   },
-  "references": [{"path": "../common"}, {"path": "../common/tests"}],
   "include": ["src/**/*", "tests/**/*", "tests/**/*.json"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "tests/setup.js"]
 }

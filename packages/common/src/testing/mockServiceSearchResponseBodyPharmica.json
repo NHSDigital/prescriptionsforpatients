@@ -1,0 +1,10 @@
+{
+    "@odata.context": "https://nhsuksearchproduks.search.windows.net/indexes('syndicationprofiles-2-4-c-prod')/$metadata#docs(*)",
+    "value": [
+        {
+            "@search.score": 13.098481,
+            "URL": "www.pharmica.co.uk",
+            "OrganisationSubType": "DistanceSelling"
+        }
+    ]
+}
