@@ -21,7 +21,6 @@
     "packages/statusLambda",
     "packages/serviceSearchClient",
     "packages/common",
-    "packages/common/tests",
     "packages/distanceSelling"
   ],
   "devDependencies": {

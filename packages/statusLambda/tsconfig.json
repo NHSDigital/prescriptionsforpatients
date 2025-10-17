@@ -6,7 +6,6 @@
   },
   "references": [
     { "path": "../common" },
-    { "path": "../common/tests" }
   ],
   "include": ["src/**/*", "tests/**/*"],
   "exclude": ["node_modules"]

@@ -497,7 +497,7 @@ describe("Unit tests for statusUpdate", function () {
     const statusUpdates = updatesPresent ? {isSuccess: true, prescriptions: [], schemaVersion: 1} : undefined
     const nhsNumber = "9990236291"
 
-    const scenario = getUpdatesScenario(logger, statusUpdates, nhsNumber)
+    const scenario = await getUpdatesScenario(logger, statusUpdates, nhsNumber)
 
     expect(scenario).toEqual(expected)
   })

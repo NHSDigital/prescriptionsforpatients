@@ -9,7 +9,7 @@ import {
   isolatePerformerReference,
   isolatePrescriptions
 } from "./fhirUtils"
-import {pfpConfig} from "@common"
+import {pfpConfig} from "@prescriptionsforpatients/common"
 
 export const EXTENSION_URL = "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory"
 export const VALUE_CODING_SYSTEM = "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt"

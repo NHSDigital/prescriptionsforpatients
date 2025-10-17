@@ -23,7 +23,7 @@ import {
   mockPharmicaResponse,
   helloworldContext,
   mockStateMachineInputEvent
-} from "@common/tests"
+} from "@prescriptionsforpatients/common"
 
 import {HEADERS, StateMachineFunctionResponseBody, TIMEOUT_RESPONSE} from "../src/responses"
 import "./toMatchJsonLogMessage"
@@ -113,7 +113,7 @@ type spineFailureTestData = {
   errorResponse: object
   expectedHttpResponse: number
   scenarioDescription: string
-}
+};
 
 describe("Unit test for app handler", function () {
   let testEnv: ReturnType<typeof setupTestEnvironment>

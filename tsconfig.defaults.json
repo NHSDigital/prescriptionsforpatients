@@ -16,10 +16,8 @@
     "allowJs": true,
     "baseUrl": ".",
     "paths": {
-      "@common": ["./packages/common/lib/index.d.ts", "./packages/common/index.ts"],
-      "@common/*": ["./packages/common/lib/*.d.ts", "./packages/common/*"],
-      "@common/tests": ["./packages/common/tests/lib/index.d.ts", "./packages/common/tests/src/index.ts"],
-      "@common/tests/*": ["./packages/common/tests/lib/*.d.ts", "./packages/common/tests/src/*"]
+      "@prescriptionsforpatients/common": ["./packages/common/lib/index.d.ts", "./packages/common/src/index.ts"],
+      "@prescriptionsforpatients/common/*": ["./packages/common/lib/*.d.ts", "./packages/common/src/*"]
     },
   }
 }

@@ -1,12 +1,10 @@
 {
   "extends": "../../tsconfig.defaults.json",
   "compilerOptions": {
-    "rootDir": ".",
-    "outDir": "lib"
+    "rootDir": "src",
+    "outDir": "lib",
+    "resolveJsonModule": true
   },
-  "references": [
-    { "path": "./tests" }
-  ],
-  "include": ["src/**/*", "index.ts", "config.ts"],
-  "exclude": ["node_modules", "tests"]
+  "include": ["src/**/*", "src/**/*.json"],
+  "exclude": ["node_modules"]
 }
