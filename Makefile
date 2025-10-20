@@ -166,7 +166,7 @@ clean:
 	rm -rf packages/distanceSelling/lib
 	rm -rf packages/statusLambda/lib
 	rm -rf packages/getSecretLayer/lib
-	rm -rf packages/common/lib
+	rm -rf packages/common/utilities/lib
 	rm -rf packages/common/tests/lib
 	rm -rf .aws-sam
 

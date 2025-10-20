@@ -16,10 +16,10 @@
     "allowJs": true,
     "baseUrl": ".",
     "paths": {
-      "@/common": ["./packages/common/lib/index.d.ts", "./packages/common/src/index.ts"],
-      "@/common/*": ["./packages/common/lib/*.d.ts", "./packages/common/src/*"],
-      "@/common/tests": ["./packages/common/tests/lib/index.d.ts", "./packages/common/tests/src/index.ts"],
-      "@/common/tests/*": ["./packages/common/tests/lib/*.d.ts", "./packages/common/tests/src/*"]
+      "@common/utilities": ["./packages/common/utilities/lib/index.d.ts", "./packages/common/utilities/src/index.ts"],
+      "@common/utilities/*": ["./packages/common/utilities/lib/*.d.ts", "./packages/common/utilities/src/*"],
+      "@common/tests": ["./packages/common/tests/lib/index.d.ts", "./packages/common/tests/src/index.ts"],
+      "@common/tests/*": ["./packages/common/tests/lib/*.d.ts", "./packages/common/tests/src/*"]
     },
   }
 }

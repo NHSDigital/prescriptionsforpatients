@@ -21,6 +21,6 @@
     "@nhs/fhir-middy-error-handler": "^2.1.54"
   },
   "devDependencies": {
-    "@/common/tests": "^1.0.0"
+    "@common/tests": "^1.0.0"
   }
 }

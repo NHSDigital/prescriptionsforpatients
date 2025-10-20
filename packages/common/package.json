@@ -1,5 +1,5 @@
 {
-  "name": "@/common",
+  "name": "@common/utilities",
   "version": "1.0.0",
   "description": "prescriptionsforpatients common",
   "main": "lib/index.js",
