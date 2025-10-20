@@ -22,6 +22,8 @@ const mockInteractionResponseBody = _mockInteractionResponseBody
 import _mockAPIResponseBody from "./mockAPIResponseBody.json"
 const mockAPIResponseBody = _mockAPIResponseBody
 
+import {createMockedPfPConfig, setupTestEnvironment} from "./test_fixtures"
+
 export {
   mockAPIGatewayProxyEvent,
   mockStateMachineInputEvent,
@@ -31,5 +33,10 @@ export {
   mockAPIResponseBody,
   test_mime_type,
   test_append_trace_ids,
-  helloworldContext
+  helloworldContext,
+  createMockedPfPConfig,
+  setupTestEnvironment
 }
+
+// Type-only exports
+export type {MockedPfPConfig} from "./test_fixtures"
