@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "@/common": "^1.0.0",
-    "@/common-tests": "^1.0.0",
+    "@/common/tests": "^1.0.0",
     "axios-mock-adapter": "^2.1.0"
   }
 }
