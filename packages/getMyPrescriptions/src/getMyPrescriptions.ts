@@ -27,7 +27,7 @@ import {extractNHSNumber, NHSNumberValidationError} from "./extractNHSNumber"
 import {deepCopy, hasTimedOut, jobWithTimeout} from "./utils"
 import {buildStatusUpdateData, shouldGetStatusUpdates} from "./statusUpdate"
 import {extractOdsCodes, isolateOperationOutcome} from "./fhirUtils"
-import {pfpConfig, PfPConfig} from "@prescriptionsforpatients/common/config"
+import {pfpConfig, PfPConfig} from "@/common/config"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 export const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
