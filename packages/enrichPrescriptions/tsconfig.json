@@ -5,5 +5,5 @@
     "outDir": "lib"
   },
   "include": ["src/**/*", "tests/**/*", "tests/**/*.json"],
-  "exclude": ["node_modules", "tests/setup.js"]
+  "exclude": ["node_modules", "tests/setup.ts"]
 }
