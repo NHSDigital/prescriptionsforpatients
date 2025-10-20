@@ -92,6 +92,7 @@ async function eventHandler(
   logger.appendKeys(traceIDs)
 
   const applicationName = headers["nhsd-application-name"] ?? "unknown"
+  logger.info("extracted applicationName", {applicationName})
 
   try {
     const isCertificateConfigured = spineClient.isCertificateConfigured()
