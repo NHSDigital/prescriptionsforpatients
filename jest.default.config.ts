@@ -13,8 +13,8 @@ const jestConfig: JestConfigWithTsJest = {
     "^(\\.{1,2}/.*)\\.js$": "$1",
     "^@common/tests$": "<rootDir>/../../packages/common/tests/lib/index.js",
     "^@common/tests/(.*)$": "<rootDir>/../../packages/common/tests/lib/$1.js",
-    "^@common/utilities$": "<rootDir>/../../packages/common/lib/index.js",
-    "^@common/utilities(.*)$": "<rootDir>/../../packages/common/lib/$1.js"
+    "^@common/utilities$": "<rootDir>/../../packages/common/utilities/lib/index.js",
+    "^@common/utilities/(.*)$": "<rootDir>/../../packages/common/utilities/lib/$1.js"
   },
   transform: {
     "^.+\\.ts?$": [
