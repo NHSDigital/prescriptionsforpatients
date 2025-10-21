@@ -18,8 +18,8 @@
     "paths": {
       "@common/utilities": ["./packages/common/utilities/lib/index.d.ts"],
       "@common/utilities/*": ["./packages/common/utilities/lib/*"],
-      "@common/testing": ["./packages/common/tests/lib/index.d.ts"],
-      "@common/testing/*": ["./packages/common/tests/lib/*"]
+      "@common/testing": ["./packages/common/testing/lib/index.d.ts"],
+      "@common/testing/*": ["./packages/common/testing/lib/*"]
     }
   }
 }

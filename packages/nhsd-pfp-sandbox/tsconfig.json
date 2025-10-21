@@ -6,7 +6,7 @@
   },
   "references": [
     { "path": "../common/utilities" },
-    { "path": "../common/tests" }
+    { "path": "../common/testing" }
   ],
   "include": ["src/**/*", "tests/**/*", "examples/GetMyPrescriptions/Bundle/success.json"],
   "exclude": ["node_modules"]

@@ -6,7 +6,7 @@
   },
   "references": [
     { "path": "../common/utilities" },
-    { "path": "../common/tests" }
+    { "path": "../common/testing" }
   ],
   "include": ["src/**/*", "tests/**/*", "tests/**/*.json"],
   "exclude": ["node_modules", "tests/setup.ts"]

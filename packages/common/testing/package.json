@@ -7,7 +7,7 @@
     "main": "lib/index.js",
     "type": "module",
     "scripts": {
-        "unit": "echo 'No tests in common/tests package - it provides test utilities only'",
+        "unit": "echo 'No tests in common/testing package - it provides test utilities only'",
         "lint": "eslint  --max-warnings 0 --fix --config ../../../eslint.config.mjs .",
         "compile": "tsc",
         "test": "npm run compile && npm run unit",

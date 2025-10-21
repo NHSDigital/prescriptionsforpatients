@@ -11,8 +11,8 @@ const jestConfig: JestConfigWithTsJest = {
   moduleFileExtensions: ["js", "json", "ts", "d.ts"],
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.js$": "$1",
-    "^@common/testing$": "<rootDir>/../../packages/common/tests/lib/index.js",
-    "^@common/testing/(.*)$": "<rootDir>/../../packages/common/tests/lib/$1.js",
+    "^@common/testing$": "<rootDir>/../../packages/common/testing/lib/index.js",
+    "^@common/testing/(.*)$": "<rootDir>/../../packages/common/testing/lib/$1.js",
     "^@common/utilities$": "<rootDir>/../../packages/common/utilities/lib/index.js",
     "^@common/utilities/(.*)$": "<rootDir>/../../packages/common/utilities/lib/$1.js"
   },

@@ -5,7 +5,7 @@
   // Building this project will build all of the following:
   "references": [
     { "path": "packages/common/utilities" },
-    { "path": "packages/common/tests" },
+    { "path": "packages/common/testing" },
     { "path": "packages/serviceSearchClient" },
     { "path": "packages/capabilityStatement" },
     { "path": "packages/getMyPrescriptions" },
