@@ -20,6 +20,6 @@
     "@nhs/fhir-middy-error-handler": "^2.1.54"
   },
   "devDependencies": {
-    "@common/testing": "^1.0.0"
+    "@pfp-common/testing": "^1.0.0"
   }
 }

@@ -20,7 +20,7 @@
     "axios-retry": "^4.5.0"
   },
   "devDependencies": {
-    "@common/testing": "^1.0.0",
+    "@pfp-common/testing": "^1.0.0",
     "axios-mock-adapter": "^2.1.0"
   }
 }

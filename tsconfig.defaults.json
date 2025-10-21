@@ -16,10 +16,10 @@
     "allowJs": true,
     "baseUrl": ".",
     "paths": {
-      "@common/utilities": ["./packages/common/utilities/lib/index.d.ts"],
-      "@common/utilities/*": ["./packages/common/utilities/lib/*"],
-      "@common/testing": ["./packages/common/testing/lib/index.d.ts"],
-      "@common/testing/*": ["./packages/common/testing/lib/*"]
+      "@pfp-common/utilities": ["./packages/common/utilities/lib/index.d.ts"],
+      "@pfp-common/utilities/*": ["./packages/common/utilities/lib/*"],
+      "@pfp-common/testing": ["./packages/common/testing/lib/index.d.ts"],
+      "@pfp-common/testing/*": ["./packages/common/testing/lib/*"]
     }
   }
 }

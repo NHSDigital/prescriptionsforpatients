@@ -2,7 +2,7 @@ import {Bundle, BundleEntry, OperationOutcome} from "fhir/r4"
 import {StatusUpdateData, shouldGetStatusUpdates} from "./statusUpdate"
 import {APIGatewayProxyResult as LambdaResult} from "aws-lambda"
 import {Logger} from "@aws-lambda-powertools/logger"
-import {PfPConfig} from "@common/utilities"
+import {PfPConfig} from "@pfp-common/utilities"
 
 export type FhirBody = Bundle | OperationOutcome
 
