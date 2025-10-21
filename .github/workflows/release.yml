@@ -19,95 +19,34 @@ jobs:
         run: |
           echo "commit_id=${{ github.sha }}" >> "$GITHUB_OUTPUT"
 
-  tag_release:
-    needs: quality_checks
+  get_asdf_version:
     runs-on: ubuntu-22.04
     outputs:
-      version_tag: ${{steps.output_version_tag.outputs.VERSION_TAG}}
+      asdf_version: ${{ steps.asdf-version.outputs.version }}
+      tag_format: ${{ steps.load-config.outputs.TAG_FORMAT }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
-        with:
-          ref: main
-          fetch-depth: 0
 
-      # using git commit sha for version of action to ensure we have stable version
-      - name: Install asdf
-        uses: asdf-vm/actions/setup@1902764435ca0dd2f3388eea723a4f92a4eb8302
-        with:
-          asdf_branch: v0.11.3
-
-      - name: Cache asdf
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.asdf
-          key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
-          restore-keys: |
-            ${{ runner.os }}-asdf-
-      - name: Install asdf dependencies in .tool-versions
-        uses: asdf-vm/actions/install@1902764435ca0dd2f3388eea723a4f92a4eb8302
-        with:
-          asdf_branch: v0.11.3
-        env:
-          PYTHON_CONFIGURE_OPTS: --enable-shared
-
-      - name: Setting up .npmrc
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Get asdf version
+        id: asdf-version
+        run: echo "version=$(awk '!/^#/ && NF {print $1; exit}' .tool-versions.asdf)" >> "$GITHUB_OUTPUT"
+      - name: Load config value
+        id: load-config
         run: |
-          echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
-          echo "@NHSDigital:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          TAG_FORMAT=$(yq '.TAG_FORMAT' .github/config/settings.yml)
+          echo "TAG_FORMAT=$TAG_FORMAT" >> "$GITHUB_OUTPUT"
 
-      - name: Install node packages
-        run: |
-          make install-node
-
-      - name: Set VERSION_TAG env var to be short git SHA and get next tag version
-        id: output_version_tag
-        run: |
-          VERSION_TAG=$(git rev-parse --short HEAD)
-          NEXT_VERSION=$(npx semantic-release --dry-run | grep -i 'The next release version is' | sed -E 's/.* ([[:digit:].]+)$/\1/')
-          tagFormat=$(node -e "const config=require('./release.config.js'); console.log(config.tagFormat)")
-          if [ "${tagFormat}" = "null" ]
-          then
-            tagFormat="v\${version}"
-          fi
-          # disabling shellcheck as replace does not work
-          # shellcheck disable=SC2001
-          VERSION_TAG=$(echo "$tagFormat" | sed "s/\${version}/$NEXT_VERSION/")
-          echo "## VERSION TAG : ${VERSION_TAG}" >> "$GITHUB_STEP_SUMMARY"
-          echo "VERSION_TAG=${VERSION_TAG}" >> "$GITHUB_OUTPUT"
-          echo "VERSION_TAG=${VERSION_TAG}" >> "$GITHUB_ENV"
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-
-      - name: tag release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          npx semantic-release
-
-      - name: Get release for editing
-        id: get_release
-        # version 1.2.4
-        uses: cardinalby/git-get-release-action@5172c3a026600b1d459b117738c605fabc9e4e44
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          tag: ${{ env.VERSION_TAG }}
-
-      - name: Edit Release
-        # version 1.2.0
-        uses: irongut/EditRelease@ccf529ad26dddf9996e7dd0f24ca5da4ea507cc2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          id: ${{ steps.get_release.outputs.id }}
-          body: |
-            ## Info
-            [See code diff](${{ github.event.compare }})
-            [Release workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-            It was initialized by [${{ github.event.sender.login }}](${{ github.event.sender.html_url }})
+  tag_release:
+    needs: [quality_checks, get_commit_id, get_asdf_version]
+    uses: NHSDigital/eps-workflow-semantic-release/.github/workflows/tag-release.yml@2a3f4ab96e04b7547c4ee5b786745b98809c89be
+    with:
+      dry_run: false
+      asdfVersion: ${{ needs.get_asdf_version.outputs.asdf_version }}
+      branch_name: main
+      publish_package: false
+      tag_format: ${{ needs.get_asdf_version.outputs.tag_format }}
+    secrets: inherit
 
   package_code:
     needs: tag_release
