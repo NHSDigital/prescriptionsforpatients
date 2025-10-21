@@ -8,15 +8,12 @@ Parameters:
 
   TC007NHSNumberValue:
     Type: String
-    Default: "123" # overcome space only issue
 
   TC008NHSNumberValue:
     Type: String
-    Default: "123"
 
   TC009NHSNumberValue:
     Type: String
-    Default: "123"
 
 Resources:
   TC007NHSNumberParameter:
