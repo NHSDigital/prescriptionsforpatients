@@ -8,15 +8,15 @@ Parameters:
 
   TC007NHSNumberValue:
     Type: String
-    Default: "8396901627,9661034524" # 9992387920 can be used for a default
+    Default: "123" # overcome space only issue
 
   TC008NHSNumberValue:
     Type: String
-    Default: "8618341568,7419356033" # 9992387920 can be used for a default
+    Default: "123"
 
   TC009NHSNumberValue:
     Type: String
-    Default: "8548472367,2627847198" # 9992387920 can be used for a default
+    Default: "123"
 
 Resources:
   TC007NHSNumberParameter:

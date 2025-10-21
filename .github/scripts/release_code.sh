@@ -48,4 +48,7 @@ sam deploy \
       Env="$TARGET_ENVIRONMENT" \
       ToggleGetStatusUpdates="$TOGGLE_GET_STATUS_UPDATES" \
       EnableAlerts="$ENABLE_ALERTS" \
-      StateMachineLogLevel="$STATE_MACHINE_LOG_LEVEL"
+      StateMachineLogLevel="$STATE_MACHINE_LOG_LEVEL" \
+      TC007NHSNumberValue="$TC007_NHS_NUMBERS" \
+      TC008NHSNumberValue="$TC008_NHS_NUMBERS" \
+      TC009NHSNumberValue="$TC009_NHS_NUMBERS"
