@@ -65,6 +65,22 @@ Parameters:
     Type: String
 
 Resources:
+  SSMParameterPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: "Allows reading of project shared SSM parameters"
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - ssm:GetParameter
+              - ssm:GetParameters
+            Resource:
+              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${StackName}-TC007NHSNumber
+              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${StackName}-TC008NHSNumber
+              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${StackName}-TC008NHSNumber
+
   GetSecretsLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
@@ -116,6 +132,7 @@ Resources:
         AdditionalPolicies: !Join
           - ","
           - - !ImportValue account-resources:LambdaAccessSecretsPolicy
+          - - !Ref SSMParameterPolicy
         LogRetentionInDays: !Ref LogRetentionInDays
         CloudWatchKMSKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
         EnableSplunk: !Ref EnableSplunk
@@ -154,6 +171,9 @@ Resources:
     Type: AWS::Serverless::Application
     Properties:
       Location: lambda_resources.yaml
+      AdditionalPolicies: !Join
+        - ","
+        - - !Ref SSMParameterPolicy
       Parameters:
         StackName: !Ref StackName
         LambdaName: !Sub ${StackName}-EnrichPrescriptions
