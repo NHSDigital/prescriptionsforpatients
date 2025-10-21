@@ -125,7 +125,8 @@ lint-node: compile-node
 	npm run lint --workspace packages/nhsd-pfp-sandbox
 	npm run lint --workspace packages/statusLambda
 	npm run lint --workspace packages/serviceSearchClient
-	npm run lint --workspace packages/common
+	npm run lint --workspace packages/common/utilities
+	npm run lint --workspace packages/common/tests
 	npm run lint --workspace packages/distanceSelling
 
 lint-samtemplates:
@@ -147,7 +148,8 @@ test: compile
 	npm run test --workspace packages/statusLambda
 	npm run test --workspace packages/serviceSearchClient
 	npm run test --workspace packages/distanceSelling
-	npm run test --workspace packages/common
+	npm run test --workspace packages/common/utilities
+	npm run test --workspace packages/common/tests
 
 clean:
 	rm -rf packages/capabilityStatement/coverage

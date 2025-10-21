@@ -20,7 +20,8 @@
     "packages/nhsd-pfp-sandbox",
     "packages/statusLambda",
     "packages/serviceSearchClient",
-    "packages/common",
+    "packages/common/utilities",
+    "packages/common/tests",
     "packages/distanceSelling"
   ],
   "devDependencies": {

@@ -5,7 +5,9 @@
     "outDir": "lib",
     "esModuleInterop": true
   },
-  "references": [],
+  "references": [
+    { "path": "../utilities" }
+  ],
   "include": ["src/**/*", "src/**/*.json"],
   "exclude": ["node_modules"]
 }
