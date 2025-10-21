@@ -8,15 +8,15 @@ Parameters:
 
   TC007NHSNumberValue:
     Type: String
-    Default: " "
+    Default: "8396901627,9661034524" # 9992387920 can be used for a default
 
   TC008NHSNumberValue:
     Type: String
-    Default: " "
+    Default: "8618341568,7419356033" # 9992387920 can be used for a default
 
   TC009NHSNumberValue:
     Type: String
-    Default: " "
+    Default: "8548472367,2627847198" # 9992387920 can be used for a default
 
 Resources:
   TC007NHSNumberParameter:
