@@ -66,6 +66,15 @@ on:
       FORWARD_CSOC_LOGS:
         required: true
         type: boolean
+      TC007_NHS_NUMBERS:
+        required: false
+        type: string
+      TC008_NHS_NUMBERS:
+        required: false
+        type: string
+      TC009_NHS_NUMBERS:
+        required: false
+        type: string
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
@@ -146,6 +155,9 @@ jobs:
           ENABLE_ALERTS: ${{ inputs.ENABLE_ALERTS }}
           STATE_MACHINE_LOG_LEVEL: ${{ inputs.STATE_MACHINE_LOG_LEVEL }}
           FORWARD_CSOC_LOGS: ${{ inputs.FORWARD_CSOC_LOGS }}
+          TC007_NHS_NUMBERS: ${{ inputs.TC007_NHS_NUMBERS }}
+          TC008_NHS_NUMBERS: ${{ inputs.TC008_NHS_NUMBERS }}
+          TC009_NHS_NUMBERS: ${{ inputs.TC009_NHS_NUMBERS }}
         run: ./release_code.sh
 
       - name: create_int_release_notes
