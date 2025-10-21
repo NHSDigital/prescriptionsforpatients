@@ -9,7 +9,7 @@
   },
   "references": [
     { "path": "../common/utilities" },
-    { "path": "../common/tests" }
+    { "path": "../common/testing" }
   ],
   "include": ["src/**/*", "tests/**/*"],
   "exclude": ["node_modules"]
