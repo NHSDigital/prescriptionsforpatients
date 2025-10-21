@@ -1,4 +1,4 @@
-import {createMockedPfPConfig, setupTestEnvironment, MockedPfPConfig} from "@common/tests"
+import {createMockedPfPConfig, setupTestEnvironment, MockedPfPConfig} from "@common/testing"
 import {
   expect,
   describe,

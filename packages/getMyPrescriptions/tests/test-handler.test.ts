@@ -23,7 +23,7 @@ import {
   mockPharmicaResponse,
   helloworldContext,
   mockStateMachineInputEvent
-} from "@common/tests"
+} from "@common/testing"
 
 import {HEADERS, StateMachineFunctionResponseBody, TIMEOUT_RESPONSE} from "../src/responses"
 import "./toMatchJsonLogMessage"
@@ -31,7 +31,7 @@ import {EXPECTED_TRACE_IDS} from "./utils"
 import {LogLevel} from "@aws-lambda-powertools/logger/types"
 import {createSpineClient} from "@NHSDigital/eps-spine-client"
 import {MiddyfiedHandler} from "@middy/core"
-import {createMockedPfPConfig, MockedPfPConfig, setupTestEnvironment} from "@common/tests"
+import {createMockedPfPConfig, MockedPfPConfig, setupTestEnvironment} from "@common/testing"
 
 const TC008_NHS_NUMBER = "9992387920"
 
