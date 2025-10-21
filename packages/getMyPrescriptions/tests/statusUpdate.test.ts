@@ -18,7 +18,7 @@ import {
   mockPharmacy2uResponse,
   mockPharmicaResponse,
   mockStateMachineInputEvent
-} from "@common/testing"
+} from "@pfp-common/testing"
 
 import {buildStatusUpdateData} from "../src/statusUpdate"
 import {StateMachineFunctionResponseBody} from "../src/responses"
@@ -30,7 +30,7 @@ import {
   stateMachineEventHandler
 } from "../src/getMyPrescriptions"
 import {EXPECTED_TRACE_IDS, SERVICE_SEARCH_PARAMS} from "./utils"
-import {createMockedPfPConfig, MockedPfPConfig, setupTestEnvironment} from "@common/testing"
+import {createMockedPfPConfig, MockedPfPConfig, setupTestEnvironment} from "@pfp-common/testing"
 import {LogLevel} from "@aws-lambda-powertools/logger/types"
 import {Logger} from "@aws-lambda-powertools/logger"
 import {createSpineClient} from "@NHSDigital/eps-spine-client"

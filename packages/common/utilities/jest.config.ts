@@ -6,10 +6,10 @@ const jestConfig: JestConfigWithTsJest = {
   rootDir: "./",
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.js$": "$1",
-    "^@common/testing$": "<rootDir>/../testing/lib/index.js",
-    "^@common/testing/(.*)$": "<rootDir>/../testing/lib/$1.js",
-    "^@common/utilities$": "<rootDir>/lib/index.js",
-    "^@common/utilities/(.*)$": "<rootDir>/lib/$1.js"
+    "^@pfp-common/testing$": "<rootDir>/../testing/lib/index.js",
+    "^@pfp-common/testing/(.*)$": "<rootDir>/../testing/lib/$1.js",
+    "^@pfp-common/utilities$": "<rootDir>/lib/index.js",
+    "^@pfp-common/utilities/(.*)$": "<rootDir>/lib/$1.js"
   }
 }
 

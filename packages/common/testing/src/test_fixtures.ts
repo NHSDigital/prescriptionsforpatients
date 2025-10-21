@@ -1,5 +1,5 @@
 import {jest} from "@jest/globals"
-import {PfPConfig} from "@common/utilities"
+import {PfPConfig} from "@pfp-common/utilities"
 import {SSMProvider} from "@aws-lambda-powertools/parameters/ssm"
 
 export interface MockedPfPConfig {
