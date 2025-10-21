@@ -21,7 +21,7 @@ It is called by an Apigee proxy that is defined at <https://github.com/NHSDigita
 - `packages/capabilityStatement/` Returns a static capability statement.
 - `packages/serviceSearchClient/` Module for connecting to service search.
 - `packages/distanceSelling/` Module for using Service Search client and enriching the data being returned.
-- `packages/common` Module containing commonly referenced functions, data types and configuration data.
+- `packages/common/utilities` Module containing commonly referenced functions, data types and configuration data.
 - `packages/common/tests` Module that contains some test data used for tests in other modules.
 - `postman/` Contains a postman collection for interacting with the API.
 - `scripts/` Utilities helpful to developers of this specification.

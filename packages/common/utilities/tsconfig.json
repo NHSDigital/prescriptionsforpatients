@@ -6,5 +6,5 @@
     "resolveJsonModule": true
   },
   "include": ["src/**/*", "src/**/*.json"],
-  "exclude": ["node_modules", "testing"]
+  "exclude": ["node_modules", "tests"]
 }

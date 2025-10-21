@@ -3,7 +3,14 @@ import defaultConfig from "../../../jest.default.config"
 
 const jestConfig: JestConfigWithTsJest = {
   ...defaultConfig,
-  rootDir: "./"
+  rootDir: "./",
+  moduleNameMapper: {
+    "^(\\.{1,2}/.*)\\.js$": "$1",
+    "^@common/tests$": "<rootDir>/../tests/lib/index.js",
+    "^@common/tests/(.*)$": "<rootDir>/../tests/lib/$1.js",
+    "^@common/utilities$": "<rootDir>/lib/index.js",
+    "^@common/utilities/(.*)$": "<rootDir>/lib/$1.js"
+  }
 }
 
 export default jestConfig
