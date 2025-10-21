@@ -5,6 +5,7 @@
     "outDir": "lib"
   },
   "references": [
+    {"path": "../distanceSelling"},
     { "path": "../common/utilities" },
     { "path": "../common/testing" }
   ],
