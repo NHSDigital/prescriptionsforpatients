@@ -167,6 +167,9 @@ Resources:
         VersionNumber: !Ref VersionNumber
         CommitId: !Ref CommitId
         ToggleGetStatusUpdates: !Ref ToggleGetStatusUpdates
+        TC007NHSNumberValue: !Ref TC007NHSNumberValue
+        TC008NHSNumberValue: !Ref TC008NHSNumberValue
+        TC009NHSNumberValue: !Ref TC009NHSNumberValue
 
   StateMachines:
     Type: AWS::Serverless::Application

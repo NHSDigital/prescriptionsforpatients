@@ -65,6 +65,15 @@ Parameters:
   ToggleGetStatusUpdates:
     Type: String
 
+  TC007NHSNumberValue:
+    Type: String
+
+  TC008NHSNumberValue:
+    Type: String
+
+  TC009NHSNumberValue:
+    Type: String
+
 Resources:
   SSMParameterPolicy:
     Type: AWS::IAM::ManagedPolicy
