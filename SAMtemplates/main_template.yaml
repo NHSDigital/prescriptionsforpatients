@@ -156,9 +156,6 @@ Resources:
     Type: AWS::Serverless::Application
     Properties:
       Location: functions/main.yaml
-      Environment:
-        Variables:
-          STACK_NAME: !Ref StackName
       Parameters:
         StackName: !Ref AWS::StackName
         Env: !Ref Env
