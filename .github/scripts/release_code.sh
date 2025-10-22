@@ -48,4 +48,5 @@ sam deploy \
       Env="$TARGET_ENVIRONMENT" \
       ToggleGetStatusUpdates="$TOGGLE_GET_STATUS_UPDATES" \
       EnableAlerts="$ENABLE_ALERTS" \
-      StateMachineLogLevel="$STATE_MACHINE_LOG_LEVEL"
+      StateMachineLogLevel="$STATE_MACHINE_LOG_LEVEL" \
+      ForwardCsocLogs="$FORWARD_CSOC_LOGS"

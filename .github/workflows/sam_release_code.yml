@@ -63,6 +63,9 @@ on:
         type: string
       REGRESSION_TEST_PRODUCT:
         type: string
+      FORWARD_CSOC_LOGS:
+        required: true
+        type: boolean
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
@@ -142,6 +145,7 @@ jobs:
           TOGGLE_GET_STATUS_UPDATES: ${{ inputs.TOGGLE_GET_STATUS_UPDATES }}
           ENABLE_ALERTS: ${{ inputs.ENABLE_ALERTS }}
           STATE_MACHINE_LOG_LEVEL: ${{ inputs.STATE_MACHINE_LOG_LEVEL }}
+          FORWARD_CSOC_LOGS: ${{ inputs.FORWARD_CSOC_LOGS }}
         run: ./release_code.sh
 
       - name: create_int_release_notes
