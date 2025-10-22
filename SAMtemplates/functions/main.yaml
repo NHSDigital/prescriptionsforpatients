@@ -77,9 +77,9 @@ Resources:
               - ssm:GetParameter
               - ssm:GetParameters
             Resource:
-              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${StackName}-TC007NHSNumber
-              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${StackName}-TC008NHSNumber
-              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${StackName}-TC008NHSNumber
+              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${StackName}-${TC007NHSNumberParameter}
+              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${StackName}-${TC008NHSNumberParameter}
+              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${StackName}-${TC009NHSNumberParameter}
 
   GetSecretsLayer:
     Type: AWS::Serverless::LayerVersion
