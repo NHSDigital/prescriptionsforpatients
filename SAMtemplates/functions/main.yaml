@@ -65,32 +65,10 @@ Parameters:
   ToggleGetStatusUpdates:
     Type: String
 
-  TC007NHSNumberValue:
-    Type: String
-
-  TC008NHSNumberValue:
-    Type: String
-
-  TC009NHSNumberValue:
+  SSMParameterPolicy:
     Type: String
 
 Resources:
-  SSMParameterPolicy:
-    Type: AWS::IAM::ManagedPolicy
-    Properties:
-      Description: "Allows reading of project shared SSM parameters"
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Action:
-              - ssm:GetParameter
-              - ssm:GetParameters
-            Resource:
-              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${StackName}-${TC007NHSNumberParameter}
-              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${StackName}-${TC008NHSNumberParameter}
-              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${StackName}-${TC009NHSNumberParameter}
-
   GetSecretsLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
