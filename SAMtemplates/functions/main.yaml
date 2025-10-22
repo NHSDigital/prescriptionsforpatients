@@ -183,7 +183,7 @@ Resources:
         IncludeAdditionalPolicies: true
         AdditionalPolicies: !Join
           - ","
-          - [ !Ref SSMParameterPolicy ]
+          - - !Sub arn:aws:iam::${AWS::AccountId}:policy/${SSMParameterPolicy}
 
   CapabilityStatement:
     Type: AWS::Serverless::Function
