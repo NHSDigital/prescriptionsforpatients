@@ -51,4 +51,5 @@ sam deploy \
       StateMachineLogLevel="$STATE_MACHINE_LOG_LEVEL" \
       TC007NHSNumberValue="$TC007_NHS_NUMBERS" \
       TC008NHSNumberValue="$TC008_NHS_NUMBERS" \
-      TC009NHSNumberValue="$TC009_NHS_NUMBERS"
+      TC009NHSNumberValue="$TC009_NHS_NUMBERS" \
+      ForwardCsocLogs="$FORWARD_CSOC_LOGS"

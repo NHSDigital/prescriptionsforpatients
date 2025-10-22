@@ -18,11 +18,17 @@ Parameters:
 
   EnableSplunk:
     Type: String
+  ForwardCsocLogs:
+    Type: String
+    Default: false
 
 Conditions:
   ShouldUseSplunk: !Equals
     - true
     - !Ref EnableSplunk
+  ShouldForwardCsocLogs: !Equals
+    - true
+    - !Ref ForwardCsocLogs
 
 Resources:
   ApiGwRole:
@@ -64,6 +70,15 @@ Resources:
       LogGroupName: !Ref ApiGwAccessLogs
       FilterPattern: ""
       DestinationArn: !ImportValue lambda-resources:SplunkDeliveryStream
+
+  ApiGwAccessLogsCsocSubscriptionFilter:
+    Condition: ShouldForwardCsocLogs
+    Type: AWS::Logs::SubscriptionFilter
+    Properties:
+      RoleArn: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
+      LogGroupName: !Ref ApiGwAccessLogs
+      FilterPattern: ""
+      DestinationArn: "arn:aws:logs:eu-west-2:693466633220:destination:api_gateway_log_destination"
 
 Outputs:
   ApiGwRoleArn:
