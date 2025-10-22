@@ -171,9 +171,6 @@ Resources:
     Type: AWS::Serverless::Application
     Properties:
       Location: lambda_resources.yaml
-      AdditionalPolicies: !Join
-        - ","
-        - - !Ref SSMParameterPolicy
       Parameters:
         StackName: !Ref StackName
         LambdaName: !Sub ${StackName}-EnrichPrescriptions
@@ -183,6 +180,10 @@ Resources:
         EnableSplunk: !Ref EnableSplunk
         SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
         SplunkDeliveryStreamArn: !ImportValue lambda-resources:SplunkDeliveryStream
+        IncludeAdditionalPolicies: true
+        AdditionalPolicies: !Join
+          - ","
+          - - !Ref SSMParameterPolicy
 
   CapabilityStatement:
     Type: AWS::Serverless::Function
