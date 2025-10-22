@@ -52,9 +52,9 @@ Resources:
               - ssm:GetParameter
               - ssm:GetParameters
             Resource:
-              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${StackName}-TC007-NHS-Number
-              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${StackName}-TC008-NHS-Number
-              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${StackName}-TC009-NHS-Number
+              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${TC007NHSNumberParameter}
+              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${TC008NHSNumberParameter}
+              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${TC009NHSNumberParameter}
 
 Outputs:
   TC007NHSNumberParameterName:
