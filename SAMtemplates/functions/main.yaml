@@ -181,8 +181,9 @@ Resources:
         SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
         SplunkDeliveryStreamArn: !ImportValue lambda-resources:SplunkDeliveryStream
         IncludeAdditionalPolicies: true
-        AdditionalPolicies:
-          - !Ref SSMParameterPolicy
+        AdditionalPolicies: !Join
+          - ","
+          - [ !Ref SSMParameterPolicy ]
 
   CapabilityStatement:
     Type: AWS::Serverless::Function
