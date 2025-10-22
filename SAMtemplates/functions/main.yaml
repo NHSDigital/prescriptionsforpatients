@@ -132,7 +132,7 @@ Resources:
         AdditionalPolicies: !Join
           - ","
           - - !ImportValue account-resources:LambdaAccessSecretsPolicy
-          - - !Ref SSMParameterPolicy
+          - - !Sub arn:aws:iam::${AWS::AccountId}:policy/${SSMParameterPolicy}
         LogRetentionInDays: !Ref LogRetentionInDays
         CloudWatchKMSKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
         EnableSplunk: !Ref EnableSplunk
