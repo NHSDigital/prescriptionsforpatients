@@ -14,11 +14,11 @@
   },
   "dependencies": {
     "@aws-lambda-powertools/commons": "^2.24.1",
-    "@aws-lambda-powertools/logger": "^2.27.0",
-    "@aws-lambda-powertools/parameters": "^2.27.0",
+    "@aws-lambda-powertools/logger": "^2.28.0",
+    "@aws-lambda-powertools/parameters": "^2.28.0",
     "@middy/core": "^6.4.5",
     "@middy/input-output-logger": "^6.4.5",
-    "@nhs/fhir-middy-error-handler": "^2.1.53",
-    "@NHSDigital/eps-spine-client": "^2.1.58"
+    "@nhs/fhir-middy-error-handler": "^2.1.54",
+    "@NHSDigital/eps-spine-client": "^2.1.62"
   }
 }
