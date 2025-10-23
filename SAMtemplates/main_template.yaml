@@ -96,6 +96,13 @@ Parameters:
   StateMachineLogLevel:
     Type: String
 
+  ForwardCsocLogs:
+    Type: String
+    Default: false
+    AllowedValues:
+      - true
+      - false
+
 Resources:
   Apis:
     Type: AWS::Serverless::Application
@@ -114,6 +121,7 @@ Resources:
         StatusFunctionArn: !GetAtt Functions.Outputs.StatusFunctionArn
         LogRetentionInDays: !Ref LogRetentionInDays
         EnableSplunk: !Ref EnableSplunk
+        ForwardCsocLogs: !Ref ForwardCsocLogs
 
   Functions:
     Type: AWS::Serverless::Application
