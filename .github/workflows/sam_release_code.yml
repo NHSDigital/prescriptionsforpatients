@@ -155,9 +155,9 @@ jobs:
           ENABLE_ALERTS: ${{ inputs.ENABLE_ALERTS }}
           STATE_MACHINE_LOG_LEVEL: ${{ inputs.STATE_MACHINE_LOG_LEVEL }}
           FORWARD_CSOC_LOGS: ${{ inputs.FORWARD_CSOC_LOGS }}
-          TC007_NHS_NUMBERS: ${{ inputs.TC007_NHS_NUMBERS }}
-          TC008_NHS_NUMBERS: ${{ inputs.TC008_NHS_NUMBERS }}
-          TC009_NHS_NUMBERS: ${{ inputs.TC009_NHS_NUMBERS }}
+          TC007_NHS_NUMBERS: ${{ inputs.TC007_NHS_NUMBERS || '9992387920' }}
+          TC008_NHS_NUMBERS: ${{ inputs.TC008_NHS_NUMBERS || '9992387920' }}
+          TC009_NHS_NUMBERS: ${{ inputs.TC009_NHS_NUMBERS || '9992387920' }}
         run: ./release_code.sh
 
       - name: create_int_release_notes
