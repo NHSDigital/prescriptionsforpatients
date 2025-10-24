@@ -10,7 +10,11 @@ const jestConfig: JestConfigWithTsJest = {
   preset: "ts-jest/presets/default-esm",
   moduleFileExtensions: ["js", "json", "ts", "d.ts"],
   moduleNameMapper: {
-    "^(\\.{1,2}/.*)\\.js$": "$1"
+    "^(\\.{1,2}/.*)\\.js$": "$1",
+    "^@pfp-common/testing$": "<rootDir>/../../packages/common/testing/lib/index.js",
+    "^@pfp-common/testing/(.*)$": "<rootDir>/../../packages/common/testing/lib/$1.js",
+    "^@pfp-common/utilities$": "<rootDir>/../../packages/common/utilities/lib/index.js",
+    "^@pfp-common/utilities/(.*)$": "<rootDir>/../../packages/common/utilities/lib/$1.js"
   },
   transform: {
     "^.+\\.ts?$": [

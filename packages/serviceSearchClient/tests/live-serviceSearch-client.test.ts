@@ -3,7 +3,7 @@ import {jest} from "@jest/globals"
 import MockAdapter from "axios-mock-adapter"
 import axios, {AxiosError, AxiosRequestConfig, AxiosResponse} from "axios"
 import {Logger} from "@aws-lambda-powertools/logger"
-import {mockPharmacy2uResponse} from "@prescriptionsforpatients_common/testing"
+import {mockPharmacy2uResponse} from "@pfp-common/testing"
 
 const mock = new MockAdapter(axios)
 

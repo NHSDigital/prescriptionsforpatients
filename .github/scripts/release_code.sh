@@ -49,4 +49,7 @@ sam deploy \
       ToggleGetStatusUpdates="$TOGGLE_GET_STATUS_UPDATES" \
       EnableAlerts="$ENABLE_ALERTS" \
       StateMachineLogLevel="$STATE_MACHINE_LOG_LEVEL" \
-      ForwardCsocLogs="$FORWARD_CSOC_LOGS"
+      ForwardCsocLogs="$FORWARD_CSOC_LOGS" \
+      TC007NHSNumberValue="$TC007_NHS_NUMBERS" \
+      TC008NHSNumberValue="$TC008_NHS_NUMBERS" \
+      TC009NHSNumberValue="$TC009_NHS_NUMBERS"

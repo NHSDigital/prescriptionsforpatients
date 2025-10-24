@@ -4,7 +4,11 @@
     "rootDir": ".",
     "outDir": "lib"
   },
-  "references": [{"path": "../distanceSelling"}, {"path": "../common/testing"}],
+  "references": [
+    {"path": "../distanceSelling"},
+    { "path": "../common/utilities" },
+    { "path": "../common/testing" }
+  ],
   "include": ["src/**/*", "tests/**/*"],
   "exclude": ["node_modules"]
 }

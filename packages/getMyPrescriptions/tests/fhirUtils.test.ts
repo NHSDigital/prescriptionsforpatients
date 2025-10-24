@@ -3,7 +3,7 @@
 import "jest"
 import {Bundle, Organization} from "fhir/r4"
 
-import {mockInteractionResponseBody} from "@prescriptionsforpatients_common/testing"
+import {mockInteractionResponseBody} from "@pfp-common/testing"
 
 import {
   Entry,

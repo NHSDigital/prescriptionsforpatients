@@ -3,11 +3,8 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "lib",
-    "esModuleInterop": true
+    "resolveJsonModule": true
   },
-  "references": [
-    { "path": "../utilities" }
-  ],
   "include": ["src/**/*", "src/**/*.json"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "tests"]
 }

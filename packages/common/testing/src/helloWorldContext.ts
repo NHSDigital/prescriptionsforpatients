@@ -1,5 +1,6 @@
-/* eslint-disable no-undef */
-const helloworldContext = {
+import {Context} from "aws-lambda"
+
+const helloworldContext: Context = {
   callbackWaitsForEmptyEventLoop: true,
   functionVersion: "$LATEST",
   functionName: "foo-bar-function",

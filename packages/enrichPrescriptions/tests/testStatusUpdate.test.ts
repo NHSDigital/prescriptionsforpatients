@@ -38,13 +38,24 @@ import {
 import {Bundle, MedicationRequest} from "fhir/r4"
 import {Logger} from "@aws-lambda-powertools/logger"
 import {isolateMedicationRequests, isolatePrescriptions} from "../src/fhirUtils"
+import {createMockedPfPConfig, MockedPfPConfig, setupTestEnvironment} from "@pfp-common/testing"
+
+const TC007_NHS_NUMBER = "9992032499"
 
 describe("Unit tests for statusUpdate", function () {
   let logger: Logger
+  let testEnv: ReturnType<typeof setupTestEnvironment>
+  let mockedConfig: MockedPfPConfig
 
   beforeEach(() => {
     jest.useFakeTimers().setSystemTime(SYSTEM_DATETIME)
     logger = new Logger({serviceName: "testStatusUpdate", logLevel: "INFO"})
+    testEnv = setupTestEnvironment()
+    mockedConfig = createMockedPfPConfig([TC007_NHS_NUMBER])
+  })
+
+  afterEach(() => {
+    testEnv.restoreEnvironment()
   })
 
   it("when no update is present for a prescription, the not-onboarded update is applied", async () => {
@@ -267,6 +278,15 @@ describe("Unit tests for statusUpdate", function () {
 
     expect(requestBundle).toEqual(simpleResponseBundle())
     expect(medicationRequest.extension[0].extension!.length).toEqual(2)
+  })
+
+  it("returns TC007 error when TC007 test NHS number is received in non-production environment", async () => {
+    process.env.DEPLOYMENT_ENVIRONMENT = "dev"
+    // Mock SSMProvider.get() to return a comma-separated string containing the TC007_NHS_NUMBER
+    mockedConfig.mockGet.mockResolvedValue(`${TC007_NHS_NUMBER},1234567890,0987654321`)
+    const result = await mockedConfig.pfpConfig.isTC007(TC007_NHS_NUMBER)
+    expect(result).toBe(true)
+    expect(mockedConfig.mockGet).toHaveBeenCalledWith("/pfp-TC007NHSNumber")
   })
 
   describe("Delay WithPharmacy status", () => {
@@ -497,7 +517,7 @@ describe("Unit tests for statusUpdate", function () {
     const statusUpdates = updatesPresent ? {isSuccess: true, prescriptions: [], schemaVersion: 1} : undefined
     const nhsNumber = "9990236291"
 
-    const scenario = getUpdatesScenario(logger, statusUpdates, nhsNumber)
+    const scenario = await getUpdatesScenario(logger, statusUpdates, nhsNumber)
 
     expect(scenario).toEqual(expected)
   })

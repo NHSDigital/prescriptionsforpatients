@@ -4,7 +4,10 @@
     "rootDir": ".",
     "outDir": "lib"
   },
-  "references": [{"path": "../serviceSearchClient"}, {"path": "../common/testing"}],
+  "references": [
+    { "path": "../common/utilities" },
+    { "path": "../common/testing" }
+  ],
   "include": ["src/**/*", "tests/**/*"],
   "exclude": ["node_modules"]
 }

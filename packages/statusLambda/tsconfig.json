@@ -4,6 +4,10 @@
     "rootDir": ".",
     "outDir": "lib"
   },
+  "references": [
+    { "path": "../common/utilities" },
+    { "path": "../common/testing" }
+  ],
   "include": ["src/**/*", "tests/**/*"],
   "exclude": ["node_modules"]
 }

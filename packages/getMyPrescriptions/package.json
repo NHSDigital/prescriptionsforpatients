@@ -27,7 +27,8 @@
     "@types/fhir": "^0.0.41"
   },
   "devDependencies": {
-    "@prescriptionsforpatients_common/testing": "^1.0.0",
+    "@pfp-common/utilities": "^1.0.0",
+    "@pfp-common/testing": "^1.0.0",
     "axios-mock-adapter": "^2.1.0"
   }
 }

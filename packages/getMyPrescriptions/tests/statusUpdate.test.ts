@@ -18,7 +18,7 @@ import {
   mockPharmacy2uResponse,
   mockPharmicaResponse,
   mockStateMachineInputEvent
-} from "@prescriptionsforpatients_common/testing"
+} from "@pfp-common/testing"
 
 import {buildStatusUpdateData} from "../src/statusUpdate"
 import {StateMachineFunctionResponseBody} from "../src/responses"
@@ -30,6 +30,7 @@ import {
   stateMachineEventHandler
 } from "../src/getMyPrescriptions"
 import {EXPECTED_TRACE_IDS, SERVICE_SEARCH_PARAMS} from "./utils"
+import {createMockedPfPConfig, MockedPfPConfig, setupTestEnvironment} from "@pfp-common/testing"
 import {LogLevel} from "@aws-lambda-powertools/logger/types"
 import {Logger} from "@aws-lambda-powertools/logger"
 import {createSpineClient} from "@NHSDigital/eps-spine-client"
@@ -110,7 +111,12 @@ describe("Unit tests for statusUpdate", () => {
 describe("Unit tests for statusUpdate, via handler", function () {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let handler: MiddyfiedHandler<GetMyPrescriptionsEvent, LambdaResult, Error, Context, any>
+  let testEnv: ReturnType<typeof setupTestEnvironment>
+  let mockedConfig: MockedPfPConfig
+
   beforeEach(() => {
+    testEnv = setupTestEnvironment()
+    mockedConfig = createMockedPfPConfig([])
     process.env.TargetSpineServer = "spine"
     process.env.TargetServiceSearchServer = "service-search"
     process.env.SpinePublicCertificate = "public-certificate"
@@ -120,13 +126,17 @@ describe("Unit tests for statusUpdate, via handler", function () {
     const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
     const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
     const _spineClient = createSpineClient(logger)
-    const handlerParams = {...DEFAULT_HANDLER_PARAMS, spineClient: _spineClient}
+    const handlerParams = {...DEFAULT_HANDLER_PARAMS, spineClient: _spineClient, pfpConfig: mockedConfig.pfpConfig}
     handler = newHandler({
       handlerFunction: stateMachineEventHandler,
       params: handlerParams,
       middleware: STATE_MACHINE_MIDDLEWARE
     })
     jest.useFakeTimers()
+  })
+
+  afterEach(() => {
+    testEnv.restoreEnvironment()
   })
 
   it("when event is processed, statusUpdateData is included in the response", async () => {

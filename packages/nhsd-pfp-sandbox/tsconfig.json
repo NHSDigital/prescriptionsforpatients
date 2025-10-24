@@ -4,7 +4,10 @@
     "rootDir": ".",
     "outDir": "lib"
   },
-  "references": [{"path": "../common/testing"}],
+  "references": [
+    { "path": "../common/utilities" },
+    { "path": "../common/testing" }
+  ],
   "include": ["src/**/*", "tests/**/*", "examples/GetMyPrescriptions/Bundle/success.json"],
   "exclude": ["node_modules"]
 }

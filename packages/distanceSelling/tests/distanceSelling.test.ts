@@ -6,7 +6,7 @@ import {
   Organization
 } from "fhir/r4"
 import {DistanceSelling, Entry, ServicesCache} from "../src/distanceSelling"
-import {mockInteractionResponseBody, mockPharmacy2uResponse} from "@prescriptionsforpatients_common/testing"
+import {mockInteractionResponseBody, mockPharmacy2uResponse} from "@pfp-common/testing"
 import MockAdapter from "axios-mock-adapter"
 import axios from "axios"
 import {Logger} from "@aws-lambda-powertools/logger"

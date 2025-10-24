@@ -13,6 +13,13 @@
     "forceConsistentCasingInFileNames": true,
     "preserveConstEnums": true,
     "resolveJsonModule": true,
-    "allowJs": true
+    "allowJs": true,
+    "baseUrl": ".",
+    "paths": {
+      "@pfp-common/utilities": ["./packages/common/utilities/lib/index.d.ts"],
+      "@pfp-common/utilities/*": ["./packages/common/utilities/lib/*"],
+      "@pfp-common/testing": ["./packages/common/testing/lib/index.d.ts"],
+      "@pfp-common/testing/*": ["./packages/common/testing/lib/*"]
+    }
   }
 }

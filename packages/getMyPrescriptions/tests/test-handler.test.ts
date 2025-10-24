@@ -4,8 +4,7 @@ import {
   newHandler,
   GetMyPrescriptionsEvent,
   stateMachineEventHandler,
-  STATE_MACHINE_MIDDLEWARE,
-  TC008_NHS_NUMBER
+  STATE_MACHINE_MIDDLEWARE
 } from "../src/getMyPrescriptions"
 import {Logger} from "@aws-lambda-powertools/logger"
 import axios from "axios"
@@ -24,19 +23,17 @@ import {
   mockPharmicaResponse,
   helloworldContext,
   mockStateMachineInputEvent
-} from "@prescriptionsforpatients_common/testing"
+} from "@pfp-common/testing"
 
-import {
-  HEADERS,
-  StateMachineFunctionResponseBody,
-  TIMEOUT_RESPONSE,
-  TC008_ERROR_RESPONSE
-} from "../src/responses"
+import {HEADERS, StateMachineFunctionResponseBody, TIMEOUT_RESPONSE} from "../src/responses"
 import "./toMatchJsonLogMessage"
 import {EXPECTED_TRACE_IDS} from "./utils"
 import {LogLevel} from "@aws-lambda-powertools/logger/types"
 import {createSpineClient} from "@NHSDigital/eps-spine-client"
 import {MiddyfiedHandler} from "@middy/core"
+import {createMockedPfPConfig, MockedPfPConfig, setupTestEnvironment} from "@pfp-common/testing"
+
+const TC008_NHS_NUMBER = "9992387920"
 
 const dummyContext = helloworldContext
 const mock = new MockAdapter(axios)
@@ -116,9 +113,20 @@ type spineFailureTestData = {
   errorResponse: object
   expectedHttpResponse: number
   scenarioDescription: string
-}
+};
 
 describe("Unit test for app handler", function () {
+  let testEnv: ReturnType<typeof setupTestEnvironment>
+  let mockedConfig: MockedPfPConfig
+
+  beforeEach(() => {
+    testEnv = setupTestEnvironment()
+    mockedConfig = createMockedPfPConfig([TC008_NHS_NUMBER])
+  })
+
+  afterEach(() => {
+    testEnv.restoreEnvironment()
+  })
   const ENV = process.env
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let handler: MiddyfiedHandler<GetMyPrescriptionsEvent, LambdaResult, Error, Context, any>
@@ -130,7 +138,7 @@ describe("Unit test for app handler", function () {
     const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
     const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
     const _spineClient = createSpineClient(logger)
-    const handlerParams = {...DEFAULT_HANDLER_PARAMS, spineClient: _spineClient}
+    const handlerParams = {...DEFAULT_HANDLER_PARAMS, spineClient: _spineClient, pfpConfig: mockedConfig.pfpConfig}
     handler = newHandler({
       handlerFunction: stateMachineEventHandler,
       params: handlerParams,
@@ -300,7 +308,12 @@ describe("Unit test for app handler", function () {
     const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
     const _spineClient = createSpineClient(logger)
 
-    const handlerParams = {...DEFAULT_HANDLER_PARAMS, lambdaTimeoutMs: 1_000, spineClient: _spineClient}
+    const handlerParams = {
+      ...DEFAULT_HANDLER_PARAMS,
+      lambdaTimeoutMs: 1_000,
+      spineClient: _spineClient,
+      pfpConfig: mockedConfig.pfpConfig
+    }
     const handler = newHandler({
       handlerFunction: stateMachineEventHandler,
       params: handlerParams,
@@ -326,20 +339,21 @@ describe("Unit test for app handler", function () {
     expect(mockErrorLogger).toHaveBeenCalledWith("Lambda handler has timed out. Returning error response.")
   })
 
-  it("returns TC007 error when TC007 test NHS number is received in non-production environment", async () => {
+  it("returns TC008 error when TC008 test NHS number is received in non-production environment", async () => {
     process.env.DEPLOYMENT_ENVIRONMENT = "dev"
-    const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
-    event.headers["nhsd-nhslogin-user"] = `P9:${TC008_NHS_NUMBER}`
-    const result: LambdaResult = await handler(event, dummyContext)
-    expect(result.statusCode).toBe(500)
-    expect(result.headers).toEqual(HEADERS)
-    expect(JSON.parse(result.body)).toEqual(JSON.parse(TC008_ERROR_RESPONSE.body))
+    // Mock SSMProvider.get() to return a comma-separated string containing the TC008_NHS_NUMBER
+    mockedConfig.mockGet.mockResolvedValue(`${TC008_NHS_NUMBER},1234567890,0987654321`)
+    const result = await mockedConfig.pfpConfig.isTC008(TC008_NHS_NUMBER)
+    expect(result).toBe(true)
+    expect(mockedConfig.mockGet).toHaveBeenCalledWith("/pfp-TC008NHSNumber")
   })
 })
 
 describe("Unit tests for app handler including service search", function () {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let handler: MiddyfiedHandler<GetMyPrescriptionsEvent, LambdaResult, Error, Context, any>
+  let testEnv: ReturnType<typeof setupTestEnvironment>
+  let mockedConfig: MockedPfPConfig
 
   const queryParams = {
     "api-version": 2,
@@ -350,6 +364,8 @@ describe("Unit tests for app handler including service search", function () {
   }
 
   beforeEach(() => {
+    testEnv = setupTestEnvironment()
+    mockedConfig = createMockedPfPConfig([TC008_NHS_NUMBER])
     mock.reset()
     mock.resetHistory()
     jest.useFakeTimers()
@@ -361,7 +377,7 @@ describe("Unit tests for app handler including service search", function () {
     const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
     const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
     const _spineClient = createSpineClient(logger)
-    const handlerParams = {...DEFAULT_HANDLER_PARAMS, spineClient: _spineClient}
+    const handlerParams = {...DEFAULT_HANDLER_PARAMS, spineClient: _spineClient, pfpConfig: mockedConfig.pfpConfig}
     handler = newHandler({
       handlerFunction: stateMachineEventHandler,
       params: handlerParams,
@@ -370,6 +386,7 @@ describe("Unit tests for app handler including service search", function () {
   })
 
   afterEach(() => {
+    testEnv.restoreEnvironment()
     jest.clearAllTimers()
   })
 
@@ -482,6 +499,8 @@ describe("Unit tests for app handler including service search", function () {
 describe("Unit tests for logging functionality", function () {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let handler: MiddyfiedHandler<GetMyPrescriptionsEvent, LambdaResult, Error, Context, any>
+  let testEnv: ReturnType<typeof setupTestEnvironment>
+  let mockedConfig: MockedPfPConfig
 
   const queryParams = {
     "api-version": 2,
@@ -492,6 +511,8 @@ describe("Unit tests for logging functionality", function () {
   }
 
   beforeEach(() => {
+    testEnv = setupTestEnvironment()
+    mockedConfig = createMockedPfPConfig([TC008_NHS_NUMBER])
     mock.reset()
     mock.resetHistory()
     jest.useFakeTimers()
@@ -503,7 +524,7 @@ describe("Unit tests for logging functionality", function () {
     const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
     const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
     const _spineClient = createSpineClient(logger)
-    const handlerParams = {...DEFAULT_HANDLER_PARAMS, spineClient: _spineClient}
+    const handlerParams = {...DEFAULT_HANDLER_PARAMS, spineClient: _spineClient, pfpConfig: mockedConfig.pfpConfig}
     handler = newHandler({
       handlerFunction: stateMachineEventHandler,
       params: handlerParams,
@@ -512,6 +533,7 @@ describe("Unit tests for logging functionality", function () {
   })
 
   afterEach(() => {
+    testEnv.restoreEnvironment()
     jest.clearAllTimers()
   })
 

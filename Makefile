@@ -125,6 +125,7 @@ lint-node: compile-node
 	npm run lint --workspace packages/nhsd-pfp-sandbox
 	npm run lint --workspace packages/statusLambda
 	npm run lint --workspace packages/serviceSearchClient
+	npm run lint --workspace packages/common/utilities
 	npm run lint --workspace packages/common/testing
 	npm run lint --workspace packages/distanceSelling
 
@@ -147,6 +148,8 @@ test: compile
 	npm run test --workspace packages/statusLambda
 	npm run test --workspace packages/serviceSearchClient
 	npm run test --workspace packages/distanceSelling
+	npm run test --workspace packages/common/utilities
+	npm run test --workspace packages/common/testing
 
 clean:
 	rm -rf packages/capabilityStatement/coverage
@@ -165,6 +168,7 @@ clean:
 	rm -rf packages/distanceSelling/lib
 	rm -rf packages/statusLambda/lib
 	rm -rf packages/getSecretLayer/lib
+	rm -rf packages/common/utilities/lib
 	rm -rf packages/common/testing/lib
 	rm -rf .aws-sam
 

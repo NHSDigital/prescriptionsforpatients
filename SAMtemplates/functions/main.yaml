@@ -12,6 +12,7 @@ Globals:
     Runtime: nodejs20.x
     Environment:
       Variables:
+        STACK_NAME: !Ref StackName
         NODE_OPTIONS: "--enable-source-maps"
         TargetSpineServer: !Ref TargetSpineServer
         TargetServiceSearchServer: !Ref TargetServiceSearchServer
@@ -62,6 +63,9 @@ Parameters:
     Type: String
 
   ToggleGetStatusUpdates:
+    Type: String
+
+  SSMParameterPolicy:
     Type: String
 
 Resources:
@@ -116,6 +120,7 @@ Resources:
         AdditionalPolicies: !Join
           - ","
           - - !ImportValue account-resources:LambdaAccessSecretsPolicy
+            - !Ref SSMParameterPolicy
         LogRetentionInDays: !Ref LogRetentionInDays
         CloudWatchKMSKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
         EnableSplunk: !Ref EnableSplunk
@@ -163,6 +168,10 @@ Resources:
         EnableSplunk: !Ref EnableSplunk
         SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
         SplunkDeliveryStreamArn: !ImportValue lambda-resources:SplunkDeliveryStream
+        IncludeAdditionalPolicies: true
+        AdditionalPolicies: !Join
+          - ","
+          - - !Ref SSMParameterPolicy
 
   CapabilityStatement:
     Type: AWS::Serverless::Function
