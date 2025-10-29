@@ -130,7 +130,7 @@ jobs:
           role-session-name: aws-pfp-release-code
 
       - name: download build artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: ${{ inputs.BUILD_ARTIFACT }}
           path: .
