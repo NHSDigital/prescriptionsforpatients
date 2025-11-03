@@ -75,19 +75,16 @@ async function eventHandler(
   successResponse: ResponseFunc,
   includeStatusUpdateData: boolean = false
 ): Promise<LambdaResult> {
-  const xRequestId = headers["x-request-id"]
-  const requestId = headers["apigw-request-id"]
-  const spineClient = params.spineClient
-
   const traceIDs: TraceIDs = {
     "nhsd-correlation-id": headers["nhsd-correlation-id"],
-    "x-request-id": xRequestId,
+    "x-request-id": headers["x-request-id"],
     "nhsd-request-id": headers["nhsd-request-id"],
     "x-correlation-id": headers["x-correlation-id"],
-    "apigw-request-id": requestId
+    "apigw-request-id": headers["apigw-request-id"]
   }
   logger.appendKeys(traceIDs)
 
+  const spineClient = params.spineClient
   const applicationName = headers["nhsd-application-name"] ?? "unknown"
 
   try {
@@ -111,7 +108,7 @@ async function eventHandler(
       return TIMEOUT_RESPONSE
     }
     const searchsetBundle: Bundle = response.data
-    searchsetBundle.id = xRequestId
+    searchsetBundle.id = traceIDs["x-request-id"] || "unknown"
 
     const operationOutcomes = isolateOperationOutcome(searchsetBundle)
     operationOutcomes.forEach((operationOutcome) => {
