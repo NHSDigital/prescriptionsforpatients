@@ -1,0 +1,54 @@
+@startuml
+title: AEA-5947: Proxy Access Flow for Get My Prescriptions
+
+participant User
+participant "NHS App" as App
+participant "NHS App Backend" as AppBackend
+participant "Apigee" as Apigee
+participant "ProxyRules" as ProxyRules
+participant "Step Functions StateMachine" as StateMachine
+participant "GetMyPrescriptions Lambda" as GmpLambda
+participant "psu Get Status Updates Lambda" as GsuLambda
+participant "EnrichPrescriptions Lambda" as EpLambda
+participant SpineClient
+participant Spine
+
+User -> App: Request
+App -> AppBackend: Request API
+AppBackend -> Apigee: Call PfP API
+Apigee -> ProxyRules: Forward request
+ProxyRules -> ProxyRules: Preflow
+note right
+  Sets delegated-access.enabled to false
+end note
+ProxyRules -> ProxyRules: AddPatientAccessHeader
+note right
+  Sets NHSD-NHSLogin-User to PX:JWT claim NHS number
+  TODO proofing level is always 9 here?
+end note
+ProxyRules -> ProxyRules: OverridePatientAccessHeader
+note right
+  Overwrites NHSD-NHSLogin-User with P9:request header X-NHS-NUMBER
+  TODO who sets X-NHS-NUMBER? Is it trusted?
+  TODO given this is within an Azure pipeline condition does it ever get called?
+end note
+ProxyRules -> StateMachine: Forward request
+StateMachine -> GmpLambda: Forward request
+GmpLambda -> GmpLambda: extractNHSNumber(headers["nhsd-nhslogin-user"])
+GmpLambda -> SpineClient: getPrescriptions(*all* headers)
+SpineClient -> Spine: get request
+Spine -> SpineClient: Response
+SpineClient -> StateMachine: Response
+StateMachine -> GsuLambda: Forward response
+GsuLambda -> SpineClient: getStatus(*all* headers)
+SpineClient -> Spine: get request
+Spine -> SpineClient: Response
+SpineClient -> StateMachine: Response
+GsuLambda -> StateMachine: 
+StateMachine -> EpLambda: Forward response
+EpLambda -> StateMachine: 
+StateMachine -> ProxyRules: Response
+ProxyRules -> Apigee: Response
+Apigee -> App: Forward response
+App -> User: Display result
+@enduml

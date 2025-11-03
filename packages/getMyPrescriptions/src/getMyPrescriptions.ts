@@ -93,10 +93,12 @@ async function eventHandler(
       return SPINE_CERT_NOT_CONFIGURED_RESPONSE
     }
 
-    const nhsNumber = extractNHSNumber(headers["nhsd-nhslogin-user"])
-    logger.info(`nhsNumber: ${nhsNumber}`, {nhsNumber})
-    headers["nhsNumber"] = nhsNumber
-    if (await params.pfpConfig.isTC008(nhsNumber)) {
+    // TODO AEA-3344 introduces delegated access using different headers
+    // ...user replaced with subject and actor
+    const subNhsNumber = extractNHSNumber(headers["nhsd-nhslogin-user"])
+    logger.info(`actorNhsNumber: ${subNhsNumber}`, {nhsNumber: subNhsNumber})
+    headers["nhsNumber"] = subNhsNumber
+    if (await params.pfpConfig.isTC008(subNhsNumber)) {
       logger.info("Test NHS number corresponding to TC008 has been received. Returning a 500 response")
       return TC008_ERROR_RESPONSE
     }
@@ -121,7 +123,7 @@ async function eventHandler(
       + "They have these relevant ODS codes, and the PfP request was made via this apigee application.",
       {
         ODSCodes,
-        nhsNumber,
+        nhsNumber: subNhsNumber,
         applicationName
       }
     )
@@ -138,10 +140,13 @@ async function eventHandler(
         timeout: SERVICE_SEARCH_TIMEOUT_MS,
         message: `The request to the distance selling service timed out after ${SERVICE_SEARCH_TIMEOUT_MS}ms.`
       })
-      return await successResponse(logger, nhsNumber, searchsetBundle, traceIDs, params.pfpConfig, statusUpdateData)
+      return await successResponse(logger, subNhsNumber, searchsetBundle, traceIDs, params.pfpConfig, statusUpdateData)
     }
 
-    return await successResponse(logger, nhsNumber, distanceSellingBundle, traceIDs, params.pfpConfig, statusUpdateData)
+    return await successResponse(
+      logger, subNhsNumber, distanceSellingBundle, traceIDs,
+      params.pfpConfig, statusUpdateData
+    )
   } catch (error) {
     if (error instanceof NHSNumberValidationError) {
       return INVALID_NHS_NUMBER_RESPONSE
