@@ -3,7 +3,9 @@
   "build": {
     "dockerfile": "Dockerfile",
     "context": "..",
-    "args": {}
+    "args": {
+      "DOCKER_GID": "${env:DOCKER_GID:}"
+    }
   },
   "mounts": [
     "source=${env:HOME}${env:USERPROFILE}/.aws,target=/home/vscode/.aws,type=bind",
