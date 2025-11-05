@@ -1,10 +1,15 @@
 FROM mcr.microsoft.com/devcontainers/base:ubuntu
 
+# provide DOCKER_GID via build args if you need to force group id to match host
+ARG DOCKER_GID
 ARG TARGETARCH
 ENV TARGETARCH=${TARGETARCH}
 
 ARG ASDF_VERSION
 COPY .tool-versions.asdf /tmp/.tool-versions.asdf
+
+# Anticipate and resolve potential permission issues with apt
+RUN mkdir -p /tmp && chmod 1777 /tmp
 
 RUN apt-get update \
     && export DEBIAN_FRONTEND=noninteractive \
@@ -18,7 +23,7 @@ RUN apt-get update \
     xz-utils tk-dev liblzma-dev netcat-traditional libyaml-dev
 
 # Download correct AWS CLI for arch
-RUN if [ "$TARGETARCH" = "arm64" ] || [ "$TARGETARCH" == "aarch64" ]; then \
+RUN if [ "$TARGETARCH" = "arm64" ] || [ "$TARGETARCH" = "aarch64" ]; then \
       wget -O /tmp/awscliv2.zip "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip"; \
     else \
       wget -O /tmp/awscliv2.zip "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"; \
@@ -28,7 +33,7 @@ RUN if [ "$TARGETARCH" = "arm64" ] || [ "$TARGETARCH" == "aarch64" ]; then \
     rm /tmp/awscliv2.zip && rm -rf /tmp/aws-cli
 
 # Download correct SAM CLI for arch
-RUN if [ "$TARGETARCH" = "arm64" ] || [ "$TARGETARCH" == "aarch64" ]; then \
+RUN if [ "$TARGETARCH" = "arm64" ] || [ "$TARGETARCH" = "aarch64" ]; then \
       wget -O /tmp/aws-sam-cli.zip "https://github.com/aws/aws-sam-cli/releases/latest/download/aws-sam-cli-linux-arm64.zip"; \
     else \
       wget -O /tmp/aws-sam-cli.zip "https://github.com/aws/aws-sam-cli/releases/latest/download/aws-sam-cli-linux-x86_64.zip"; \
@@ -43,6 +48,16 @@ RUN ASDF_VERSION=$(awk '!/^#/ && NF {print $1; exit}' /tmp/.tool-versions.asdf) 
     tar -xvzf /tmp/asdf.tar.gz; \
     mv asdf /usr/bin
 
+# specify DOCKER_GID to force container docker group id to match host
+RUN if [ -n "${DOCKER_GID}" ]; then \
+      if ! getent group docker; then \
+        groupadd -g ${DOCKER_GID} docker; \
+      else \
+        groupmod -g ${DOCKER_GID} docker; \
+      fi && \
+      usermod -aG docker vscode; \
+    fi
+
 USER vscode
 
 ENV PATH="/home/vscode/.asdf/shims/:$PATH"
@@ -54,15 +69,15 @@ RUN \
     echo 'export PATH="$HOME/gems/bin:$PATH"' >> ~/.bashrc;
 
 # Install ASDF plugins
-RUN asdf plugin add python; \
-    asdf plugin add poetry https://github.com/asdf-community/asdf-poetry.git; \
-    asdf plugin add shellcheck https://github.com/luizm/asdf-shellcheck.git; \
-    asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git; \
-    asdf plugin add java; \
-    asdf plugin add direnv; \
-    asdf plugin add golang https://github.com/kennyp/asdf-golang.git; \
-    asdf plugin add golangci-lint https://github.com/hypnoglow/asdf-golangci-lint.git; \
-    asdf plugin add actionlint; \
+RUN asdf plugin add python && \
+    asdf plugin add poetry https://github.com/asdf-community/asdf-poetry.git && \
+    asdf plugin add shellcheck https://github.com/luizm/asdf-shellcheck.git && \
+    asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git && \
+    asdf plugin add java && \
+    asdf plugin add direnv && \
+    asdf plugin add golang https://github.com/kennyp/asdf-golang.git && \
+    asdf plugin add golangci-lint https://github.com/hypnoglow/asdf-golangci-lint.git && \
+    asdf plugin add actionlint && \
     asdf plugin add ruby https://github.com/asdf-vm/asdf-ruby.git
 
 
@@ -71,5 +86,5 @@ ADD .tool-versions /workspaces/prescriptionsforpatients/.tool-versions
 ADD .tool-versions /home/vscode/.tool-versions
 
 # install python before poetry to ensure correct python version is used
-RUN asdf install python; \
+RUN asdf install python && \
     asdf install
