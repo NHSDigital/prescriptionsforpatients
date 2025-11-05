@@ -1,5 +1,5 @@
 @startuml
-title: AEA-5947: Proxy Access Flow for Get My Prescriptions
+title: AEA-5947: (AS IS) Proxy Access Flow for Get My Prescriptions
 
 participant User
 participant "NHS App" as App
@@ -11,7 +11,7 @@ participant "GetMyPrescriptions Lambda" as GmpLambda
 participant "psu Get Status Updates Lambda" as GsuLambda
 participant "EnrichPrescriptions Lambda" as EpLambda
 participant SpineClient
-participant Spine
+participant "Spine Patient Facing Prescriptions" as Spine
 
 User -> App: Request
 App -> AppBackend: Request API
@@ -19,12 +19,11 @@ AppBackend -> Apigee: Call PfP API
 Apigee -> ProxyRules: Forward request
 ProxyRules -> ProxyRules: Preflow
 note right
-  Sets delegated-access.enabled to false
+  Includes OAuth token validation etc.
 end note
 ProxyRules -> ProxyRules: AddPatientAccessHeader
 note right
   Sets NHSD-NHSLogin-User to PX:JWT claim NHS number
-  TODO proofing level is always 9 here?
 end note
 ProxyRules -> ProxyRules: OverridePatientAccessHeader
 note right
@@ -34,11 +33,19 @@ note right
 end note
 ProxyRules -> StateMachine: Forward request
 StateMachine -> GmpLambda: Forward request
+activate GmpLambda
 GmpLambda -> GmpLambda: extractNHSNumber(headers["nhsd-nhslogin-user"])
 GmpLambda -> SpineClient: getPrescriptions(*all* headers)
 SpineClient -> Spine: get request
+activate Spine
+Spine -> Spine: _createContext
+== other calls, not least the actual query ==
+Spine -> Spine: auditSarAccessRequest
 Spine -> SpineClient: Response
-SpineClient -> StateMachine: Response
+deactivate Spine
+SpineClient -> GmpLambda
+GmpLambda -> StateMachine: Response
+deactivate GmpLambda
 StateMachine -> GsuLambda: Forward response
 GsuLambda -> SpineClient: getStatus(*all* headers)
 SpineClient -> Spine: get request
