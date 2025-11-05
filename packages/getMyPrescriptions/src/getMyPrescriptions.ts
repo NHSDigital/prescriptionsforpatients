@@ -93,12 +93,8 @@ async function eventHandler(
       return SPINE_CERT_NOT_CONFIGURED_RESPONSE
     }
 
-    // TODO AEA-3344 introduces delegated access using different headers
-    // ...user replaced with subject and actor
-    const subNhsNumber = extractNHSNumber(headers["nhsd-nhslogin-user"])
-    logger.info(`actorNhsNumber: ${subNhsNumber}`, {nhsNumber: subNhsNumber})
-    headers["nhsNumber"] = subNhsNumber
-    if (await params.pfpConfig.isTC008(subNhsNumber)) {
+    adaptHeadersToSpine(params, headers)
+    if (await params.pfpConfig.isTC008(headers["nhsNumber"]!)) {
       logger.info("Test NHS number corresponding to TC008 has been received. Returning a 500 response")
       return TC008_ERROR_RESPONSE
     }
@@ -123,7 +119,8 @@ async function eventHandler(
       + "They have these relevant ODS codes, and the PfP request was made via this apigee application.",
       {
         ODSCodes,
-        nhsNumber: subNhsNumber,
+        actorNhsNumber: headers["nhsd-nhslogin-user"],
+        subjectNhsNumber: headers["nhsNumber"],
         applicationName
       }
     )
@@ -140,11 +137,13 @@ async function eventHandler(
         timeout: SERVICE_SEARCH_TIMEOUT_MS,
         message: `The request to the distance selling service timed out after ${SERVICE_SEARCH_TIMEOUT_MS}ms.`
       })
-      return await successResponse(logger, subNhsNumber, searchsetBundle, traceIDs, params.pfpConfig, statusUpdateData)
+      return await successResponse(
+        logger, headers["nhsNumber"]!, searchsetBundle, traceIDs, params.pfpConfig, statusUpdateData
+      )
     }
 
     return await successResponse(
-      logger, subNhsNumber, distanceSellingBundle, traceIDs,
+      logger, headers["nhsNumber"]!, distanceSellingBundle, traceIDs,
       params.pfpConfig, statusUpdateData
     )
   } catch (error) {
@@ -154,6 +153,27 @@ async function eventHandler(
       throw error
     }
   }
+}
+
+export function adaptHeadersToSpine(params: HandlerParams, headers: EventHeaders): EventHeaders {
+  // AEA-3344 introduces delegated access using different headers
+  if (!headers["nhsd-delegated-access"] || headers["nhsd-delegated-access"] !== "true") {
+    logger.info("Non-delegated access request detected")
+    headers["nhsNumber"] = extractNHSNumber(headers["nhsd-nhslogin-user"])
+  } else {
+    logger.info("Delegated access request detected")
+    const subjectNHSNumber = headers["x-nhsd-subject-nhs-number"]
+    const actorNHSNumber = headers["x-nhsd-actor-nhs-number"]
+    const userNHSNumber = extractNHSNumber(headers["nhsd-nhslogin-user"])
+    if (actorNHSNumber !== userNHSNumber) {
+      throw new NHSNumberValidationError(
+        `Actor NHS number ${actorNHSNumber} does not match NHS number of logged in user ${userNHSNumber}`
+      )
+    }
+    headers["nhsNumber"] = subjectNHSNumber
+  }
+  logger.info(`actor: ${headers["nhsd-nhslogin-user"]}, subject: ${headers["nhsNumber"]}`, {headers})
+  return headers
 }
 
 type HandlerConfig<T> = {
