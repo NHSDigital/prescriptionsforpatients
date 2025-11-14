@@ -15,7 +15,7 @@ jobs:
       tag_format: ${{ steps.load-config.outputs.TAG_FORMAT }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
 
       - name: Get asdf version
         id: asdf-version
@@ -26,7 +26,7 @@ jobs:
           TAG_FORMAT=$(yq '.TAG_FORMAT' .github/config/settings.yml)
           echo "TAG_FORMAT=$TAG_FORMAT" >> "$GITHUB_OUTPUT"
   quality_checks:
-    uses: NHSDigital/eps-workflow-quality-checks/.github/workflows/quality-checks.yml@v5.1.3
+    uses: NHSDigital/eps-common-workflows/.github/workflows/quality-checks.yml@8243c6b1e493c00f2285339039ab8748b4212a64
     needs: [get_asdf_version]
     with:
       asdfVersion: ${{ needs.get_asdf_version.outputs.asdf_version }}
@@ -45,7 +45,7 @@ jobs:
 
   tag_release:
     needs: [quality_checks, get_commit_id, get_asdf_version]
-    uses: NHSDigital/eps-workflow-semantic-release/.github/workflows/tag-release.yml@f3d071da30cd01dc0e4472ac0e2d7452db78d1c7
+    uses: NHSDigital/eps-common-workflows/.github/workflows/tag-release.yml@8243c6b1e493c00f2285339039ab8748b4212a64
     with:
       dry_run: true
       asdfVersion: ${{ needs.get_asdf_version.outputs.asdf_version }}
