@@ -75,19 +75,16 @@ async function eventHandler(
   successResponse: ResponseFunc,
   includeStatusUpdateData: boolean = false
 ): Promise<LambdaResult> {
-  const xRequestId = headers["x-request-id"]
-  const requestId = headers["apigw-request-id"]
-  const spineClient = params.spineClient
-
   const traceIDs: TraceIDs = {
     "nhsd-correlation-id": headers["nhsd-correlation-id"],
-    "x-request-id": xRequestId,
+    "x-request-id": headers["x-request-id"],
     "nhsd-request-id": headers["nhsd-request-id"],
     "x-correlation-id": headers["x-correlation-id"],
-    "apigw-request-id": requestId
+    "apigw-request-id": headers["apigw-request-id"]
   }
   logger.appendKeys(traceIDs)
 
+  const spineClient = params.spineClient
   const applicationName = headers["nhsd-application-name"] ?? "unknown"
 
   try {
@@ -96,10 +93,8 @@ async function eventHandler(
       return SPINE_CERT_NOT_CONFIGURED_RESPONSE
     }
 
-    const nhsNumber = extractNHSNumber(headers["nhsd-nhslogin-user"])
-    logger.info(`nhsNumber: ${nhsNumber}`, {nhsNumber})
-    headers["nhsNumber"] = nhsNumber
-    if (await params.pfpConfig.isTC008(nhsNumber)) {
+    adaptHeadersToSpine(params, headers)
+    if (await params.pfpConfig.isTC008(headers["nhsNumber"]!)) {
       logger.info("Test NHS number corresponding to TC008 has been received. Returning a 500 response")
       return TC008_ERROR_RESPONSE
     }
@@ -111,7 +106,7 @@ async function eventHandler(
       return TIMEOUT_RESPONSE
     }
     const searchsetBundle: Bundle = response.data
-    searchsetBundle.id = xRequestId
+    searchsetBundle.id = traceIDs["x-request-id"] || "unknown"
 
     const operationOutcomes = isolateOperationOutcome(searchsetBundle)
     operationOutcomes.forEach((operationOutcome) => {
@@ -124,7 +119,8 @@ async function eventHandler(
       + "They have these relevant ODS codes, and the PfP request was made via this apigee application.",
       {
         ODSCodes,
-        nhsNumber,
+        actorNhsNumber: headers["nhsd-nhslogin-user"],
+        subjectNhsNumber: headers["nhsNumber"],
         applicationName
       }
     )
@@ -141,10 +137,15 @@ async function eventHandler(
         timeout: SERVICE_SEARCH_TIMEOUT_MS,
         message: `The request to the distance selling service timed out after ${SERVICE_SEARCH_TIMEOUT_MS}ms.`
       })
-      return await successResponse(logger, nhsNumber, searchsetBundle, traceIDs, params.pfpConfig, statusUpdateData)
+      return await successResponse(
+        logger, headers["nhsNumber"]!, searchsetBundle, traceIDs, params.pfpConfig, statusUpdateData
+      )
     }
 
-    return await successResponse(logger, nhsNumber, distanceSellingBundle, traceIDs, params.pfpConfig, statusUpdateData)
+    return await successResponse(
+      logger, headers["nhsNumber"]!, distanceSellingBundle, traceIDs,
+      params.pfpConfig, statusUpdateData
+    )
   } catch (error) {
     if (error instanceof NHSNumberValidationError) {
       return INVALID_NHS_NUMBER_RESPONSE
@@ -152,6 +153,27 @@ async function eventHandler(
       throw error
     }
   }
+}
+
+export function adaptHeadersToSpine(params: HandlerParams, headers: EventHeaders): EventHeaders {
+  // AEA-3344 introduces delegated access using different headers
+  if (!headers["nhsd-delegated-access"] || headers["nhsd-delegated-access"] !== "true") {
+    logger.info("Non-delegated access request detected")
+    headers["nhsNumber"] = extractNHSNumber(headers["nhsd-nhslogin-user"])
+  } else {
+    logger.info("Delegated access request detected")
+    const subjectNHSNumber = headers["x-nhsd-subject-nhs-number"]
+    const actorNHSNumber = headers["x-nhsd-actor-nhs-number"]
+    const userNHSNumber = extractNHSNumber(headers["nhsd-nhslogin-user"])
+    if (actorNHSNumber !== userNHSNumber) {
+      throw new NHSNumberValidationError(
+        `Actor NHS number ${actorNHSNumber} does not match NHS number of logged in user ${userNHSNumber}`
+      )
+    }
+    headers["nhsNumber"] = subjectNHSNumber
+  }
+  logger.info(`actor: ${headers["nhsd-nhslogin-user"]}, subject: ${headers["nhsNumber"]}`, {headers})
+  return headers
 }
 
 type HandlerConfig<T> = {
