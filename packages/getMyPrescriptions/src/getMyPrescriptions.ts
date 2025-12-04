@@ -157,6 +157,7 @@ async function eventHandler(
 
 export function adaptHeadersToSpine(params: HandlerParams, headers: EventHeaders): EventHeaders {
   // AEA-3344 introduces delegated access using different headers
+  logger.debug("Testing if delegated access enabled", {headers})
   if (!headers["nhsd-delegated-access"] || headers["nhsd-delegated-access"] !== "true") {
     logger.info("Non-delegated access request detected")
     headers["nhsNumber"] = extractNHSNumber(headers["nhsd-nhslogin-user"])
