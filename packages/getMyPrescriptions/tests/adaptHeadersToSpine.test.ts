@@ -79,8 +79,7 @@ describe("adaptHeadersToSpine", () => {
       const headers: EventHeaders = {
         "nhsd-delegated-access": "true",
         "nhsd-nhslogin-user": "P9:9999681778",
-        "x-nhsd-subject-nhs-number": "9912003071",
-        "x-nhsd-actor-nhs-number": "9999681778"
+        "x-nhsd-subject-nhs-number": "9912003071"
       }
 
       const result = adaptHeadersToSpine(DEFAULT_HANDLER_PARAMS, headers)
@@ -94,50 +93,11 @@ describe("adaptHeadersToSpine", () => {
       )
     })
 
-    it("should throw NHSNumberValidationError for invalid x-nhsd-subject-nhs-number in delegated access", () => {
-      const headers: EventHeaders = {
-        "nhsd-delegated-access": "true",
-        "nhsd-nhslogin-user": "P9:9999681778",
-        "x-nhsd-subject-nhs-number": "invalid-subject",
-        "x-nhsd-actor-nhs-number": "9912003072"
-      }
-
-      expect(() => adaptHeadersToSpine(DEFAULT_HANDLER_PARAMS, headers))
-        .toThrow(NHSNumberValidationError)
-    })
-
-    it("should throw NHSNumberValidationError for invalid x-nhsd-actor-nhs-number in delegated access", () => {
-      const headers: EventHeaders = {
-        "nhsd-delegated-access": "true",
-        "nhsd-nhslogin-user": "P9:9999681778",
-        "x-nhsd-subject-nhs-number": "9912003071",
-        "x-nhsd-actor-nhs-number": "invalid-actor"
-      }
-
-      expect(() => adaptHeadersToSpine(DEFAULT_HANDLER_PARAMS, headers))
-        .toThrow(NHSNumberValidationError)
-    })
-
-    it("should throw NHSNumberValidationError when actor NHS number does not match logged in user", () => {
-      const headers: EventHeaders = {
-        "nhsd-delegated-access": "true",
-        "nhsd-nhslogin-user": "P9:9912003071", // Logged in user
-        "x-nhsd-subject-nhs-number": "9999681778",
-        "x-nhsd-actor-nhs-number": "9999681778" // Different from logged in user
-      }
-
-      expect(() => adaptHeadersToSpine(DEFAULT_HANDLER_PARAMS, headers))
-        .toThrow(NHSNumberValidationError)
-      expect(() => adaptHeadersToSpine(DEFAULT_HANDLER_PARAMS, headers))
-        .toThrow("Actor NHS number 9999681778 does not match NHS number of logged in user 9912003071")
-    })
-
     it("should preserve other headers in delegated access", () => {
       const headers: EventHeaders = {
         "nhsd-delegated-access": "true",
         "nhsd-nhslogin-user": "P9:9999681778",
         "x-nhsd-subject-nhs-number": "9912003071",
-        "x-nhsd-actor-nhs-number": "9999681778",
         "x-request-id": "test-request-id",
         "nhsd-correlation-id": "test-correlation-id"
       }

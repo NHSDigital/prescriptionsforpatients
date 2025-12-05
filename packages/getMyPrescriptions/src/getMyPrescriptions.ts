@@ -164,13 +164,6 @@ export function adaptHeadersToSpine(params: HandlerParams, headers: EventHeaders
   } else {
     logger.info("Delegated access request detected")
     const subjectNHSNumber = headers["x-nhsd-subject-nhs-number"]
-    const actorNHSNumber = headers["x-nhsd-actor-nhs-number"]
-    const userNHSNumber = extractNHSNumber(headers["nhsd-nhslogin-user"])
-    if (actorNHSNumber !== userNHSNumber) {
-      throw new NHSNumberValidationError(
-        `Actor NHS number ${actorNHSNumber} does not match NHS number of logged in user ${userNHSNumber}`
-      )
-    }
     headers["nhsNumber"] = subjectNHSNumber
   }
   logger.info(`actor: ${headers["nhsd-nhslogin-user"]}, subject: ${headers["nhsNumber"]}`, {headers})
