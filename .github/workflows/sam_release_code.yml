@@ -103,7 +103,7 @@ jobs:
 
     steps:
       - name: Checkout local github actions
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
         with:
           ref: ${{ env.BRANCH_NAME }}
           fetch-depth: 0
@@ -190,7 +190,7 @@ jobs:
           DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
 
       - name: Checkout gh-pages
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
         with:
           ref: gh-pages
           path: gh-pages
