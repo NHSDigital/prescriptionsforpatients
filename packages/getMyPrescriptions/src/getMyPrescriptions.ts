@@ -23,7 +23,7 @@ import {
   TraceIDs,
   ResponseFunc
 } from "./responses"
-import {extractNHSNumber, NHSNumberValidationError} from "./extractNHSNumber"
+import {extractNHSNumber, NHSNumberValidationError, validateNHSNumber} from "./extractNHSNumber"
 import {deepCopy, hasTimedOut, jobWithTimeout} from "./utils"
 import {buildStatusUpdateData, shouldGetStatusUpdates} from "./statusUpdate"
 import {extractOdsCodes, isolateOperationOutcome} from "./fhirUtils"
@@ -38,6 +38,8 @@ const servicesCache: ServicesCache = {}
 const LAMBDA_TIMEOUT_MS = 10_000
 const SPINE_TIMEOUT_MS = 9_000
 const SERVICE_SEARCH_TIMEOUT_MS = 5_000
+export const DELEGATED_ACCESS_HDR = "delegatedaccess"
+export const DELEGATED_ACCESS_SUB_HDR = "x-nhsd-subject-nhs-number"
 
 type EventHeaders = Record<string, string | undefined>
 
@@ -158,13 +160,20 @@ async function eventHandler(
 export function adaptHeadersToSpine(params: HandlerParams, headers: EventHeaders): EventHeaders {
   // AEA-3344 introduces delegated access using different headers
   logger.debug("Testing if delegated access enabled", {headers})
-  if (!headers["nhsd-delegated-access"] || headers["nhsd-delegated-access"] !== "true") {
-    logger.info("Non-delegated access request detected")
+  if (!headers[DELEGATED_ACCESS_HDR] || headers[DELEGATED_ACCESS_HDR].toLowerCase() !== "true") {
+    logger.info("Subject access request detected")
     headers["nhsNumber"] = extractNHSNumber(headers["nhsd-nhslogin-user"])
   } else {
     logger.info("Delegated access request detected")
-    const subjectNHSNumber = headers["x-nhsd-subject-nhs-number"]
-    headers["nhsNumber"] = subjectNHSNumber
+    let subjectNHSNumber = headers[DELEGATED_ACCESS_SUB_HDR]
+    if (!subjectNHSNumber) {
+      throw new NHSNumberValidationError(`${DELEGATED_ACCESS_SUB_HDR} header not present for delegated access`)
+    }
+    if (subjectNHSNumber.indexOf(":") > -1) {
+      logger.warn(`${DELEGATED_ACCESS_SUB_HDR} is not expected to be prefixed by proofing level, but is, removing it`)
+      subjectNHSNumber = subjectNHSNumber.split(":")[1]
+    }
+    headers["nhsNumber"] = validateNHSNumber(subjectNHSNumber)
   }
   logger.info(`actor: ${headers["nhsd-nhslogin-user"]}, subject: ${headers["nhsNumber"]}`, {headers})
   return headers

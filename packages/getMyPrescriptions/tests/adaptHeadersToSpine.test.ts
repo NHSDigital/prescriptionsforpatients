@@ -1,5 +1,10 @@
 import {Logger} from "@aws-lambda-powertools/logger"
-import {adaptHeadersToSpine, DEFAULT_HANDLER_PARAMS} from "../src/getMyPrescriptions"
+import {
+  adaptHeadersToSpine,
+  DEFAULT_HANDLER_PARAMS,
+  DELEGATED_ACCESS_HDR,
+  DELEGATED_ACCESS_SUB_HDR
+} from "../src/getMyPrescriptions"
 import {NHSNumberValidationError} from "../src/extractNHSNumber"
 import {setupTestEnvironment} from "@pfp-common/testing"
 import {
@@ -37,17 +42,17 @@ describe("adaptHeadersToSpine", () => {
 
       expect(result.nhsNumber).toBe("9912003071")
       expect(result["nhsd-nhslogin-user"]).toBe("P9:9912003071")
-      expect(mockLoggerInfo).toHaveBeenCalledWith("Non-delegated access request detected")
+      expect(mockLoggerInfo).toHaveBeenCalledWith("Subject access request detected")
       expect(mockLoggerInfo).toHaveBeenCalledWith(
         "actor: P9:9912003071, subject: 9912003071",
         {headers: result}
       )
     })
 
-    it("should process non-delegated access when nhsd-delegated-access is false", () => {
+    it("should process subject access when delegated access is false", () => {
       const mockLoggerInfo = jest.spyOn(Logger.prototype, "info")
       const headers: EventHeaders = {
-        "nhsd-delegated-access": "false",
+        [DELEGATED_ACCESS_HDR]: "false",
         "nhsd-nhslogin-user": "P9:9912003071"
       }
 
@@ -55,10 +60,10 @@ describe("adaptHeadersToSpine", () => {
 
       expect(result.nhsNumber).toBe("9912003071")
       expect(result["nhsd-nhslogin-user"]).toBe("P9:9912003071")
-      expect(mockLoggerInfo).toHaveBeenCalledWith("Non-delegated access request detected")
+      expect(mockLoggerInfo).toHaveBeenCalledWith("Subject access request detected")
     })
 
-    it("should preserve other headers in non-delegated access", () => {
+    it("should preserve other headers in subject access", () => {
       const headers: EventHeaders = {
         "nhsd-nhslogin-user": "P9:9912003071",
         "x-request-id": "test-request-id",
@@ -77,9 +82,10 @@ describe("adaptHeadersToSpine", () => {
     it("should process delegated access when nhsd-delegated-access is true", () => {
       const mockLoggerInfo = jest.spyOn(Logger.prototype, "info")
       const headers: EventHeaders = {
-        "nhsd-delegated-access": "true",
+        [DELEGATED_ACCESS_HDR]: "true",
         "nhsd-nhslogin-user": "P9:9999681778",
-        "x-nhsd-subject-nhs-number": "9912003071"
+        [DELEGATED_ACCESS_SUB_HDR]: "9912003071",
+        "other-header": "value"
       }
 
       const result = adaptHeadersToSpine(DEFAULT_HANDLER_PARAMS, headers)
@@ -95,9 +101,9 @@ describe("adaptHeadersToSpine", () => {
 
     it("should preserve other headers in delegated access", () => {
       const headers: EventHeaders = {
-        "nhsd-delegated-access": "true",
+        [DELEGATED_ACCESS_HDR]: "true",
         "nhsd-nhslogin-user": "P9:9999681778",
-        "x-nhsd-subject-nhs-number": "9912003071",
+        [DELEGATED_ACCESS_SUB_HDR]: "9912003071",
         "x-request-id": "test-request-id",
         "nhsd-correlation-id": "test-correlation-id"
       }
@@ -114,41 +120,42 @@ describe("adaptHeadersToSpine", () => {
   describe("return value and mutations", () => {
     it("should return the same headers object (mutated)", () => {
       const headers: EventHeaders = {
-        "nhsd-nhslogin-user": "P9:9912003071",
+        "nhsd-nhslogin-user": "P9:9999681778",
         "original-header": "value"
       }
 
       const result = adaptHeadersToSpine(DEFAULT_HANDLER_PARAMS, headers)
 
       expect(result).toBe(headers) // Same object reference
-      expect(result.nhsNumber).toBe("9912003071")
+      expect(result.nhsNumber).toBe("9999681778")
       expect(result["original-header"]).toBe("value")
     })
 
     it("should mutate the original headers object", () => {
       const headers: EventHeaders = {
-        "nhsd-nhslogin-user": "P9:9912003071"
+        "nhsd-nhslogin-user": "P9:9999681778"
       }
 
       adaptHeadersToSpine(DEFAULT_HANDLER_PARAMS, headers)
 
-      expect(headers.nhsNumber).toBe("9912003071")
+      expect(headers.nhsNumber).toBe("9999681778")
     })
   })
 
   describe("edge cases", () => {
-    it("should handle case sensitivity for delegated access flag", () => {
+    it("should be case insensitive for delegated access flag", () => {
       const mockLoggerInfo = jest.spyOn(Logger.prototype, "info")
       const headers: EventHeaders = {
-        "nhsd-delegated-access": "TRUE", // Different case
-        "nhsd-nhslogin-user": "P9:9912003071"
+        [DELEGATED_ACCESS_HDR]: "TrUe", // permit any case
+        "nhsd-nhslogin-user": "P9:9999681778",
+        [DELEGATED_ACCESS_SUB_HDR]: "2219685934"
       }
 
       const result = adaptHeadersToSpine(DEFAULT_HANDLER_PARAMS, headers)
 
-      // Should be treated as non-delegated since it's not exactly "true"
-      expect(result.nhsNumber).toBe("9912003071")
-      expect(mockLoggerInfo).toHaveBeenCalledWith("Non-delegated access request detected")
+      // Should be treated as delegated
+      expect(result.nhsNumber).toBe("2219685934")
+      expect(mockLoggerInfo).toHaveBeenCalledWith("Delegated access request detected")
     })
 
     it("should handle missing headers gracefully by throwing appropriate errors", () => {
