@@ -8,6 +8,13 @@ env:
   BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
 
 jobs:
+  dependabot-auto-approve-and-merge:
+    needs: quality_checks
+    uses: NHSDigital/eps-common-workflows/.github/workflows/dependabot-auto-approve-and-merge.yml@41e3450a9869f278be0e431a4b47b5c77bd55559
+    secrets:
+      AUTOMERGE_APP_ID: ${{ secrets.AUTOMERGE_APP_ID }}
+      AUTOMERGE_PEM: ${{ secrets.AUTOMERGE_PEM }}
+
   get_asdf_version:
     runs-on: ubuntu-22.04
     outputs:
@@ -15,7 +22,7 @@ jobs:
       tag_format: ${{ steps.load-config.outputs.TAG_FORMAT }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
 
       - name: Get asdf version
         id: asdf-version
@@ -27,7 +34,7 @@ jobs:
           echo "TAG_FORMAT=$TAG_FORMAT" >> "$GITHUB_OUTPUT"
 
   quality_checks:
-    uses: NHSDigital/eps-workflow-quality-checks/.github/workflows/quality-checks.yml@v5.1.3
+    uses: NHSDigital/eps-common-workflows/.github/workflows/quality-checks.yml@41e3450a9869f278be0e431a4b47b5c77bd55559
     needs: [get_asdf_version]
     with:
       asdfVersion: ${{ needs.get_asdf_version.outputs.asdf_version }}
@@ -35,7 +42,7 @@ jobs:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   pr_title_format_check:
-    uses: NHSDigital/eps-workflow-semantic-release/.github/workflows/pr_title_check.yml@56891c92a8c3840f4d38464a421acaf323debbb3
+    uses: NHSDigital/eps-common-workflows/.github/workflows/pr_title_check.yml@41e3450a9869f278be0e431a4b47b5c77bd55559
 
   get_issue_number:
     runs-on: ubuntu-22.04
@@ -66,7 +73,7 @@ jobs:
 
   tag_release:
     needs: [get_asdf_version]
-    uses: NHSDigital/eps-workflow-semantic-release/.github/workflows/tag-release.yml@56891c92a8c3840f4d38464a421acaf323debbb3
+    uses: NHSDigital/eps-common-workflows/.github/workflows/tag-release.yml@41e3450a9869f278be0e431a4b47b5c77bd55559
     with:
       dry_run: true
       asdfVersion: ${{ needs.get_asdf_version.outputs.asdf_version }}

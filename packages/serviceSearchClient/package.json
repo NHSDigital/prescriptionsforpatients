@@ -15,8 +15,8 @@
   "author": "NHS Digital",
   "license": "MIT",
   "dependencies": {
-    "@aws-lambda-powertools/logger": "^2.28.0",
-    "axios": "^1.13.1",
+    "@aws-lambda-powertools/logger": "^2.29.0",
+    "axios": "^1.13.2",
     "axios-retry": "^4.5.0"
   },
   "devDependencies": {
