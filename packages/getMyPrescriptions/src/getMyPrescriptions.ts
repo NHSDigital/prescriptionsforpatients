@@ -95,7 +95,7 @@ async function eventHandler(
       return SPINE_CERT_NOT_CONFIGURED_RESPONSE
     }
 
-    adaptHeadersToSpine(params, headers)
+    headers = adaptHeadersToSpine(headers)
     if (await params.pfpConfig.isTC008(headers["nhsNumber"]!)) {
       logger.info("Test NHS number corresponding to TC008 has been received. Returning a 500 response")
       return TC008_ERROR_RESPONSE
@@ -157,7 +157,7 @@ async function eventHandler(
   }
 }
 
-export function adaptHeadersToSpine(params: HandlerParams, headers: EventHeaders): EventHeaders {
+export function adaptHeadersToSpine(headers: EventHeaders): EventHeaders {
   // AEA-3344 introduces delegated access using different headers
   logger.debug("Testing if delegated access enabled", {headers})
   if (!headers[DELEGATED_ACCESS_HDR] || headers[DELEGATED_ACCESS_HDR].toLowerCase() !== "true") {
@@ -175,7 +175,7 @@ export function adaptHeadersToSpine(params: HandlerParams, headers: EventHeaders
     }
     headers["nhsNumber"] = validateNHSNumber(subjectNHSNumber)
   }
-  logger.info(`actor: ${headers["nhsd-nhslogin-user"]}, subject: ${headers["nhsNumber"]}`, {headers})
+  logger.info(`after setting subject nhsNumber`, {headers})
   return headers
 }
 

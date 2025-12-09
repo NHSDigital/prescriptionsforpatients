@@ -1,10 +1,5 @@
 import {Logger} from "@aws-lambda-powertools/logger"
-import {
-  adaptHeadersToSpine,
-  DEFAULT_HANDLER_PARAMS,
-  DELEGATED_ACCESS_HDR,
-  DELEGATED_ACCESS_SUB_HDR
-} from "../src/getMyPrescriptions"
+import {adaptHeadersToSpine, DELEGATED_ACCESS_HDR, DELEGATED_ACCESS_SUB_HDR} from "../src/getMyPrescriptions"
 import {NHSNumberValidationError} from "../src/extractNHSNumber"
 import {setupTestEnvironment} from "@pfp-common/testing"
 import {
@@ -38,13 +33,13 @@ describe("adaptHeadersToSpine", () => {
         "other-header": "value"
       }
 
-      const result = adaptHeadersToSpine(DEFAULT_HANDLER_PARAMS, headers)
+      const result = adaptHeadersToSpine(headers)
 
       expect(result.nhsNumber).toBe("9912003071")
       expect(result["nhsd-nhslogin-user"]).toBe("P9:9912003071")
       expect(mockLoggerInfo).toHaveBeenCalledWith("Subject access request detected")
       expect(mockLoggerInfo).toHaveBeenCalledWith(
-        "actor: P9:9912003071, subject: 9912003071",
+        "after setting subject nhsNumber",
         {headers: result}
       )
     })
@@ -56,7 +51,7 @@ describe("adaptHeadersToSpine", () => {
         "nhsd-nhslogin-user": "P9:9912003071"
       }
 
-      const result = adaptHeadersToSpine(DEFAULT_HANDLER_PARAMS, headers)
+      const result = adaptHeadersToSpine(headers)
 
       expect(result.nhsNumber).toBe("9912003071")
       expect(result["nhsd-nhslogin-user"]).toBe("P9:9912003071")
@@ -70,7 +65,7 @@ describe("adaptHeadersToSpine", () => {
         "nhsd-correlation-id": "test-correlation-id"
       }
 
-      const result = adaptHeadersToSpine(DEFAULT_HANDLER_PARAMS, headers)
+      const result = adaptHeadersToSpine(headers)
 
       expect(result["x-request-id"]).toBe("test-request-id")
       expect(result["nhsd-correlation-id"]).toBe("test-correlation-id")
@@ -88,13 +83,13 @@ describe("adaptHeadersToSpine", () => {
         "other-header": "value"
       }
 
-      const result = adaptHeadersToSpine(DEFAULT_HANDLER_PARAMS, headers)
+      const result = adaptHeadersToSpine(headers)
 
       expect(result.nhsNumber).toBe("9912003071")
       expect(result["nhsd-nhslogin-user"]).toBe("P9:9999681778")
       expect(mockLoggerInfo).toHaveBeenCalledWith("Delegated access request detected")
       expect(mockLoggerInfo).toHaveBeenNthCalledWith(2,
-        "actor: P9:9999681778, subject: 9912003071",
+        "after setting subject nhsNumber",
         {headers: result}
       )
     })
@@ -108,7 +103,7 @@ describe("adaptHeadersToSpine", () => {
         "nhsd-correlation-id": "test-correlation-id"
       }
 
-      const result = adaptHeadersToSpine(DEFAULT_HANDLER_PARAMS, headers)
+      const result = adaptHeadersToSpine(headers)
 
       expect(result["x-request-id"]).toBe("test-request-id")
       expect(result["nhsd-correlation-id"]).toBe("test-correlation-id")
@@ -123,9 +118,9 @@ describe("adaptHeadersToSpine", () => {
         // Missing DELEGATED_ACCESS_SUB_HDR
       }
 
-      expect(() => adaptHeadersToSpine(DEFAULT_HANDLER_PARAMS, headers))
+      expect(() => adaptHeadersToSpine(headers))
         .toThrow(NHSNumberValidationError)
-      expect(() => adaptHeadersToSpine(DEFAULT_HANDLER_PARAMS, headers))
+      expect(() => adaptHeadersToSpine(headers))
         .toThrow(`${DELEGATED_ACCESS_SUB_HDR} header not present for delegated access`)
     })
   })
@@ -137,7 +132,7 @@ describe("adaptHeadersToSpine", () => {
         "original-header": "value"
       }
 
-      const result = adaptHeadersToSpine(DEFAULT_HANDLER_PARAMS, headers)
+      const result = adaptHeadersToSpine(headers)
 
       expect(result).toBe(headers) // Same object reference
       expect(result.nhsNumber).toBe("9999681778")
@@ -149,7 +144,7 @@ describe("adaptHeadersToSpine", () => {
         "nhsd-nhslogin-user": "P9:9999681778"
       }
 
-      adaptHeadersToSpine(DEFAULT_HANDLER_PARAMS, headers)
+      adaptHeadersToSpine(headers)
 
       expect(headers.nhsNumber).toBe("9999681778")
     })
@@ -164,7 +159,7 @@ describe("adaptHeadersToSpine", () => {
         [DELEGATED_ACCESS_SUB_HDR]: "2219685934"
       }
 
-      const result = adaptHeadersToSpine(DEFAULT_HANDLER_PARAMS, headers)
+      const result = adaptHeadersToSpine(headers)
 
       // Should be treated as delegated
       expect(result.nhsNumber).toBe("2219685934")
@@ -174,7 +169,7 @@ describe("adaptHeadersToSpine", () => {
     it("should handle missing headers gracefully by throwing appropriate errors", () => {
       const headers: EventHeaders = {}
 
-      expect(() => adaptHeadersToSpine(DEFAULT_HANDLER_PARAMS, headers))
+      expect(() => adaptHeadersToSpine(headers))
         .toThrow(NHSNumberValidationError)
     })
   })
