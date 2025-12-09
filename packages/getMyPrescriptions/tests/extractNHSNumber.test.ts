@@ -1,4 +1,4 @@
-import {extractNHSNumber, NHSNumberValidationError} from "../src/extractNHSNumber"
+import {extractNHSNumber, NHSNumberValidationError, validateNHSNumber} from "../src/extractNHSNumber"
 import "jest"
 
 type failureTestData = {nhsdLoginUser: string | undefined; errorMessage: string; scenarioDescription: string}
@@ -44,5 +44,20 @@ describe("failureTestData nhs number", () => {
   test("should return nhs number for valid input", () => {
     const nhsNumber = extractNHSNumber("P9:9912003071")
     expect(nhsNumber).toBe("9912003071")
+  })
+})
+
+describe("validateNHSNumber function", () => {
+  it("should reject 991003072", () => {
+    const nhsNumber = "991003072"
+    expect(() => {
+      validateNHSNumber(nhsNumber)
+    }).toThrow(new NHSNumberValidationError(`Invalid check digit in NHS number ${nhsNumber}`))
+  })
+  it("should reject 991003074", () => {
+    const nhsNumber = "991003074"
+    expect(() => {
+      validateNHSNumber(nhsNumber)
+    }).toThrow(new NHSNumberValidationError(`Invalid check digit in NHS number ${nhsNumber}`))
   })
 })
