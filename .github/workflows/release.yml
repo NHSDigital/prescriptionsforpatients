@@ -64,6 +64,7 @@ jobs:
       TARGET_ENVIRONMENT: dev
       APIGEE_ENVIRONMENT: internal-dev
       ENABLE_MUTUAL_TLS: true
+      MTLS_KEY: prescriptions-for-patients-mtls-1
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: pfp-truststore.pem
       VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
@@ -90,7 +91,7 @@ jobs:
       INT_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.INT_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
       PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
       DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
-
+      PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PTL_ROLE }}
   release_dev_sandbox:
     needs: [tag_release, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
@@ -100,6 +101,7 @@ jobs:
       TARGET_ENVIRONMENT: dev
       APIGEE_ENVIRONMENT: internal-dev-sandbox
       ENABLE_MUTUAL_TLS: true
+      MTLS_KEY: prescriptions-for-patients-mtls-1
       BUILD_ARTIFACT: packaged_sandbox_code
       TRUSTSTORE_FILE: pfp-sandbox-truststore.pem
       VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
@@ -117,6 +119,7 @@ jobs:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: sandbox
       TARGET_SERVICE_SEARCH_SERVER: sandbox
+      PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PTL_ROLE }}
 
   release_ref:
     needs:
@@ -134,6 +137,7 @@ jobs:
       TARGET_ENVIRONMENT: ref
       APIGEE_ENVIRONMENT: ref
       ENABLE_MUTUAL_TLS: true
+      MTLS_KEY: prescriptions-for-patients-mtls-1
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: pfp-truststore.pem
       VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
@@ -153,7 +157,7 @@ jobs:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.REF_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.REF_TARGET_SPINE_SERVER }}
       TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.REF_TARGET_SERVICE_SEARCH_SERVER }}
-
+      PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PTL_ROLE }}
   release_qa:
     needs:
       [
@@ -170,6 +174,7 @@ jobs:
       TARGET_ENVIRONMENT: qa
       APIGEE_ENVIRONMENT: internal-qa
       ENABLE_MUTUAL_TLS: true
+      MTLS_KEY: prescriptions-for-patients-mtls-1
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: pfp-truststore.pem
       VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
@@ -190,7 +195,7 @@ jobs:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.QA_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.QA_TARGET_SPINE_SERVER }}
       TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.QA_TARGET_SERVICE_SEARCH_SERVER }}
-
+      PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PTL_ROLE }}
   release_int:
     needs: [tag_release, release_qa, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
@@ -200,6 +205,7 @@ jobs:
       TARGET_ENVIRONMENT: int
       APIGEE_ENVIRONMENT: int
       ENABLE_MUTUAL_TLS: true
+      MTLS_KEY: prescriptions-for-patients-mtls-1
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: pfp-truststore.pem
       VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
@@ -226,7 +232,7 @@ jobs:
       INT_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.INT_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
       PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
       DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
-
+      PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PTL_ROLE }}
   release_sandbox:
     needs: [tag_release, release_qa, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
@@ -236,6 +242,7 @@ jobs:
       TARGET_ENVIRONMENT: int
       APIGEE_ENVIRONMENT: int-sandbox
       ENABLE_MUTUAL_TLS: true
+      MTLS_KEY: prescriptions-for-patients-mtls-1
       BUILD_ARTIFACT: packaged_sandbox_code
       TRUSTSTORE_FILE: pfp-sandbox-truststore.pem
       VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
@@ -250,6 +257,7 @@ jobs:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: sandbox
       TARGET_SERVICE_SEARCH_SERVER: sandbox
+      PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PTL_ROLE }}
 
   release_prod:
     needs:
@@ -261,6 +269,7 @@ jobs:
       TARGET_ENVIRONMENT: prod
       APIGEE_ENVIRONMENT: prod
       ENABLE_MUTUAL_TLS: true
+      MTLS_KEY: prescriptions-for-patients-mtls-1
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: pfp-truststore.pem
       VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
@@ -283,3 +292,4 @@ jobs:
       INT_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.INT_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
       PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
       DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
+      PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PROD_ROLE }}

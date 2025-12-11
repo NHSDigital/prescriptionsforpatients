@@ -1,0 +1,83 @@
+type: object
+description: |
+  Outcome of an operation that does not result in a resource or bundle being returned.
+  For example - error, async/batch submission.
+properties:
+  resourceType:
+    type: string
+    description: FHIR Resource Type.
+    enum: [OperationOutcome]
+  id:
+    type: string
+    description: ID to link the request and response (Lambda request ID)
+  meta:
+    type: object
+    required: [lastUpdated]
+    description: Metadata regarding the request
+    properties:
+      lastUpdated:
+        type: string
+        description: Timestamp at which the response was generated
+  issue:
+    type: array
+    description: List of issues that have occurred.
+    minItems: 1
+    items:
+      type: object
+      required: [severity, code]
+      properties:
+        severity:
+          type: string
+          enum: [fatal, error, warning, information]
+          description: Severity of the error.
+        code:
+          type: string
+          description: FHIR error code.
+          enum:
+            - business-rule
+            - code-invalid
+            - conflict
+            - deleted
+            - duplicate
+            - exception
+            - expired
+            - extension
+            - forbidden
+            - incomplete
+            - informational
+            - invalid
+            - invariant
+            - lock-error
+            - login
+            - multiple-matches
+            - no-store
+            - not-supported
+            - not-found
+            - processing
+            - required
+            - structure
+            - security
+            - suppressed
+            - throttled
+            - timeout
+            - too-costly
+            - too-long
+            - transient
+            - unknown
+            - value
+        details:
+          type: object
+          description: Internal error code.
+          properties:
+            coding:
+              type: array
+              items:
+                $ref: ../fragments/codes.yaml#/SpineErrorOrWarningCode
+        expression:
+          type: string
+          description: FHIR Path of element(s) related to the error.
+          example: Patient.name.given
+        diagnostics:
+          type: string
+          description: A description of the reasoning for including an OperationOutcome
+          example: Some prescriptions have been invalidated so could not be returned.

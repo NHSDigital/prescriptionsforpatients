@@ -3,6 +3,9 @@ name: sam release code
 on:
   workflow_call:
     inputs:
+      IS_PULL_REQUEST:
+        type: boolean
+        default: false
       STACK_NAME:
         required: true
         type: string
@@ -75,6 +78,12 @@ on:
       TC009_NHS_NUMBERS:
         required: false
         type: string
+      DEPLOY_APIGEE:
+        type: boolean
+        default: true
+      MTLS_KEY:
+        type: string
+        required: true
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
@@ -91,6 +100,8 @@ on:
       DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE:
         required: false
       REGRESSION_TESTS_PEM:
+        required: true
+      PROXYGEN_ROLE:
         required: true
 
 jobs:
@@ -159,6 +170,47 @@ jobs:
           TC008_NHS_NUMBERS: ${{ inputs.TC008_NHS_NUMBERS || '9992387920' }}
           TC009_NHS_NUMBERS: ${{ inputs.TC009_NHS_NUMBERS || '9992387920' }}
         run: ./release_code.sh
+
+      - name: get mtls secrets
+        shell: bash
+        run: |
+          mkdir -p ~/.proxygen/tmp
+          client_private_key_arn=$(aws cloudformation list-exports --query "Exports[?Name=='account-resources:PfpClientKeySecret'].Value" --output text)
+          client_cert_arn=$(aws cloudformation list-exports --query "Exports[?Name=='account-resources:PfpClientCertSecret'].Value" --output text)
+          aws secretsmanager get-secret-value --secret-id "${client_private_key_arn}" --query SecretString --output text > ~/.proxygen/tmp/client_private_key
+          aws secretsmanager get-secret-value --secret-id "${client_cert_arn}" --query SecretString --output text > ~/.proxygen/tmp/client_cert
+
+      - name: Configure AWS Credentials for api release
+        uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708
+        with:
+          aws-region: eu-west-2
+          role-to-assume: ${{ secrets.PROXYGEN_ROLE }}
+          role-session-name: pfp-api-proxygen
+
+      - name: Deploy PFP API to Apigee
+        shell: bash
+        if: ${{ inputs.DEPLOY_APIGEE == true && always() && !failure() && !cancelled() }}
+        env:
+          API_TYPE: standard
+          VERSION_NUMBER: ${{ inputs.VERSION_NUMBER }}
+          SPEC_PATH: ./.build/packages/specification/dist/prescriptions-for-patients.resolved.json
+          STACK_NAME: ${{ inputs.STACK_NAME }}
+          AWS_ENVIRONMENT: ${{ inputs.TARGET_ENVIRONMENT }}
+          APIGEE_ENVIRONMENT: ${{ inputs.APIGEE_ENVIRONMENT }}
+          PROXYGEN_PRIVATE_KEY_NAME: PrescriptonsForPatientsProxygenPrivateKey
+          PROXYGEN_KID: prescriptions-for-patients
+          DRY_RUN: false
+          ENABLE_MUTUAL_TLS: ${{ inputs.ENABLE_MUTUAL_TLS }}
+          MTLS_KEY: ${{ inputs.MTLS_KEY }}
+          IS_PULL_REQUEST: ${{ inputs.IS_PULL_REQUEST }}
+        run: ./.github/scripts/deploy_api.sh
+
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
+        name: Upload specs
+        with:
+          name: ${{ inputs.APIGEE_ENVIRONMENT }}-specs
+          path: |
+            ./.build/packages/specification/dist/prescriptions-for-patients.resolved.json
 
       - name: create_int_release_notes
         uses: ./.github/actions/update_confluence_jira

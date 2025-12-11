@@ -1,0 +1,47 @@
+type: object
+properties:
+  use:
+    type: string
+    description: The purpose of the address.
+    default: work
+    enum: [home, work, billing, temp]
+  type:
+    type: string
+    description: The type of address.
+    default: both
+    enum: [postal, physical, both]
+  line:
+    type: array
+    description: |
+      All lines of the address, and optionally postal code.
+      Systems will apply the following formatting convention when adding or replacing addresses lines:
+      If any of the lines are blank, they are not returned due to FHIR conformance constraints.
+    items:
+      type: string
+    example:
+      - 1 Trevelyan Square
+      - Boar Lane
+      - City Centre
+  text:
+    type: string
+    description: |
+      A plain text string address, optionally including the postal code.
+    example: IVESON APPROACH, LEEDS, WEST YORKSHIRE, ENGLAND, LS16 6FR
+  city:
+    type: string
+    description: |
+      The city of the address.
+      Note: This will not be populated by existing prescriptions.
+    example: Leeds
+  district:
+    type: string
+    description: |
+      The district of the address.
+      Note: This will not be populated by existing prescriptions.
+    example: West Yorkshire
+  postalCode:
+    type: string
+    description: |
+      The postal code of the address.
+      Note: This is an optionally populated field. Postal code may be included in line or text if absent.
+    example: LS1 6AE
