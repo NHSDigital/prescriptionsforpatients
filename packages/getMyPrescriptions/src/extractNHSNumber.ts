@@ -20,6 +20,10 @@ export function extractNHSNumber(nhsloginUser: string | undefined): string {
   if (authLevel !== "P9") {
     throw new NHSNumberValidationError("Identity proofing level is not P9")
   }
+  return validateNHSNumber(nhsNumber)
+}
+
+export function validateNHSNumber(nhsNumber: string): string {
   // convert numbers to strings, for internal consistency
   if (Number.isInteger(nhsNumber)) {
     nhsNumber = nhsNumber.toString()
@@ -42,7 +46,7 @@ export function extractNHSNumber(nhsloginUser: string | undefined): string {
 
   // Do the check digits match?
   if (checkDigit !== Number(providedCheckDigit)) {
-    throw new NHSNumberValidationError("invalid check digit in NHS number")
+    throw new NHSNumberValidationError(`Invalid check digit in NHS number ${nhsNumber}`)
   }
   return nhsNumber
 }

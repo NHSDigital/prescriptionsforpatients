@@ -35,7 +35,8 @@
         "timonwong.shellcheck",
         "mkhl.direnv",
         "github.vscode-github-actions",
-        "Orta.vscode-jest"
+        "Orta.vscode-jest",
+        "jebbs.plantuml"
       ],
       "settings": {
         "python.defaultInterpreterPath": "/workspaces/prescriptionsforpatients/.venv/bin/python",
