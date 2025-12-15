@@ -93,7 +93,7 @@ echo
 echo "Retrieving proxygen credentials"
 
 # Retrieve the proxygen private key and client private key and cert from AWS Secrets Manager
-proxygen_private_key_arn=$(aws cloudformation list-exports --query "Exports[?Name=='account-resources:${PROXYGEN_PRIVATE_KEY_NAME}'].Value" --output text)
+proxygen_private_key_arn=$(aws cloudformation list-exports --query "Exports[?Name=='secrets:${PROXYGEN_PRIVATE_KEY_NAME}'].Value" --output text)
 
 if [[ "${ENABLE_MUTUAL_TLS}" == "true" ]]; then
     echo

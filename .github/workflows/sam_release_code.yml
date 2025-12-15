@@ -197,7 +197,7 @@ jobs:
           STACK_NAME: ${{ inputs.STACK_NAME }}
           AWS_ENVIRONMENT: ${{ inputs.TARGET_ENVIRONMENT }}
           APIGEE_ENVIRONMENT: ${{ inputs.APIGEE_ENVIRONMENT }}
-          PROXYGEN_PRIVATE_KEY_NAME: PrescriptonsForPatientsProxygenPrivateKey
+          PROXYGEN_PRIVATE_KEY_NAME: PrescriptionsForPatientsProxygenPrivateKey
           PROXYGEN_KID: prescriptions-for-patients
           DRY_RUN: false
           ENABLE_MUTUAL_TLS: ${{ inputs.ENABLE_MUTUAL_TLS }}
