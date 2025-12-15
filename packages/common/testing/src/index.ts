@@ -23,6 +23,7 @@ import _mockAPIResponseBody from "./mockAPIResponseBody.json"
 const mockAPIResponseBody = _mockAPIResponseBody
 
 import {createMockedPfPConfig, setupTestEnvironment} from "./test_fixtures"
+import type {MockedPfPConfig} from "./test_fixtures"
 
 export {
   mockAPIGatewayProxyEvent,
@@ -39,4 +40,4 @@ export {
 }
 
 // Type-only exports
-export type {MockedPfPConfig} from "./test_fixtures"
+export type {MockedPfPConfig}

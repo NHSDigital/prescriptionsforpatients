@@ -12,7 +12,6 @@
     { "path": "packages/enrichPrescriptions" },
     { "path": "packages/nhsd-pfp-sandbox" },
     { "path": "packages/statusLambda" },
-    { "path": "packages/distanceSelling" },
-    { "path": "packages/specification" }
+    { "path": "packages/distanceSelling" }
   ]
 }

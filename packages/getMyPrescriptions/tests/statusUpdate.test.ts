@@ -30,7 +30,8 @@ import {
   stateMachineEventHandler
 } from "../src/getMyPrescriptions"
 import {EXPECTED_TRACE_IDS, SERVICE_SEARCH_PARAMS} from "./utils"
-import {createMockedPfPConfig, MockedPfPConfig, setupTestEnvironment} from "@pfp-common/testing"
+import {createMockedPfPConfig, setupTestEnvironment} from "@pfp-common/testing"
+import type {MockedPfPConfig} from "@pfp-common/testing"
 import {LogLevel} from "@aws-lambda-powertools/logger/types"
 import {Logger} from "@aws-lambda-powertools/logger"
 import {createSpineClient} from "@NHSDigital/eps-spine-client"
