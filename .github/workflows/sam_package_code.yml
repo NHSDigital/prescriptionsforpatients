@@ -53,6 +53,7 @@ jobs:
       - name: make install
         run: |
           make install
+          make compile
 
       - shell: bash
         name: package code
@@ -91,3 +92,4 @@ jobs:
           path: |
             .aws-sam/build
             packages/getSecretLayer/lib/get-secrets-layer.zip
+            packages/specification/dist/prescriptions-for-patients.resolved.json
