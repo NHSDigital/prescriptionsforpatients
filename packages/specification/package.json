@@ -12,7 +12,7 @@
   },
   "scripts": {
     "lint": "redocly lint --extends=recommended --config ./redocly.yaml",
-    "resolve": "redocly bundle prescriptions-for-patients.yaml -d -o dist/prescriptions-for-patients.resolved.json",
+    "compile": "redocly bundle prescriptions-for-patients.yaml -d -o dist/prescriptions-for-patients.resolved.json",
     "clean": "rm -rf lib coverage",
     "check-licenses": "license-checker --failOn GPL --failOn LGPL --start ../.."
   },
