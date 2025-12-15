@@ -1,0 +1,78 @@
+@startuml
+title: AEA-5947: (TO BE) Proxy Access Flow for Get My Prescriptions
+
+participant User
+participant "NHS App" as App
+participant "NHS App Backend" as AppBackend
+participant "Apigee" as Apigee
+participant "ProxyRules" as ProxyRules
+participant "Step Functions StateMachine" as StateMachine
+participant "GetMyPrescriptions Lambda" as GmpLambda
+participant "psu Get Status Updates Lambda" as GsuLambda
+participant "EnrichPrescriptions Lambda" as EpLambda
+participant SpineClient
+participant Spine
+
+User -> App: Request
+App -> AppBackend: Request API
+AppBackend -> Apigee: Call PfP API
+Apigee -> ProxyRules: Forward request
+ProxyRules -> ProxyRules: Preflow
+note right #FF9999
+  Oauth token validation etc. is unchanged
+  NEW: Sets delegated-access.enabled and IgnoreUnresolvedVariables to true
+end note
+ProxyRules -> ProxyRules: AddPatientAccessHeader
+note right
+  Sets NHSD-NHSLogin-User to PX:JWT claim NHS number
+end note
+ProxyRules -> ProxyRules: AM-Add-Delegation-Headers
+note right #FF9999
+  NEW: Sets new headers, completely separate to NHSD-NHSLogin-User 
+end note
+ProxyRules -> ProxyRules: OverridePatientAccessHeader
+note right
+  Overwrites NHSD-NHSLogin-User with P9:request header X-NHS-NUMBER
+end note
+ProxyRules -> StateMachine: Forward request
+StateMachine -> GmpLambda: Forward request
+activate GmpLambda
+GmpLambda -> GmpLambda: adaptHeadersToSpine(headers)
+note right #FF9999
+  As well as the existing behaviour that sends spine the same values for
+  both NHSD-NHSLogin-User (actor) and nhsNumber (subject)
+  these are now separated if delegated-access.enabled is true
+end note
+GmpLambda -> SpineClient: getPrescriptions(*all* headers)
+SpineClient -> Spine: get request
+activate Spine
+Spine -> Spine: _createContext
+note right #FF9999
+  NEW: Add actor to context
+end note
+== other calls, not least the actual query ==
+Spine -> Spine: auditSarAccessRequest
+note right #FF9999
+  NEW: Add actor to SAR0001 log
+end note
+Spine -> SpineClient: Response
+deactivate Spine
+SpineClient -> GmpLambda
+GmpLambda -> StateMachine: Response
+deactivate GmpLambda
+StateMachine -> GsuLambda: Forward response
+GsuLambda -> SpineClient: getStatus(*all* headers)
+SpineClient -> Spine: get request
+Spine -> SpineClient: Response
+SpineClient -> StateMachine: Response
+GsuLambda -> StateMachine: 
+StateMachine -> EpLambda: Forward response
+EpLambda -> StateMachine: 
+StateMachine -> ProxyRules: Response
+note right #FF9999
+  NEW: This is happy path but we must add RaiseFault flow too 
+end note
+ProxyRules -> Apigee: Response
+Apigee -> App: Forward response
+App -> User: Display result
+@enduml

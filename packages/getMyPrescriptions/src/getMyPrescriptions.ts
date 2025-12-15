@@ -23,7 +23,7 @@ import {
   TraceIDs,
   ResponseFunc
 } from "./responses"
-import {extractNHSNumber, NHSNumberValidationError} from "./extractNHSNumber"
+import {extractNHSNumber, NHSNumberValidationError, validateNHSNumber} from "./extractNHSNumber"
 import {deepCopy, hasTimedOut, jobWithTimeout} from "./utils"
 import {buildStatusUpdateData, shouldGetStatusUpdates} from "./statusUpdate"
 import {extractOdsCodes, isolateOperationOutcome} from "./fhirUtils"
@@ -38,6 +38,8 @@ const servicesCache: ServicesCache = {}
 const LAMBDA_TIMEOUT_MS = 10_000
 const SPINE_TIMEOUT_MS = 9_000
 const SERVICE_SEARCH_TIMEOUT_MS = 5_000
+export const DELEGATED_ACCESS_HDR = "delegatedaccess"
+export const DELEGATED_ACCESS_SUB_HDR = "x-nhsd-subject-nhs-number"
 
 type EventHeaders = Record<string, string | undefined>
 
@@ -75,19 +77,16 @@ async function eventHandler(
   successResponse: ResponseFunc,
   includeStatusUpdateData: boolean = false
 ): Promise<LambdaResult> {
-  const xRequestId = headers["x-request-id"]
-  const requestId = headers["apigw-request-id"]
-  const spineClient = params.spineClient
-
   const traceIDs: TraceIDs = {
     "nhsd-correlation-id": headers["nhsd-correlation-id"],
-    "x-request-id": xRequestId,
+    "x-request-id": headers["x-request-id"],
     "nhsd-request-id": headers["nhsd-request-id"],
     "x-correlation-id": headers["x-correlation-id"],
-    "apigw-request-id": requestId
+    "apigw-request-id": headers["apigw-request-id"]
   }
   logger.appendKeys(traceIDs)
 
+  const spineClient = params.spineClient
   const applicationName = headers["nhsd-application-name"] ?? "unknown"
 
   try {
@@ -96,10 +95,8 @@ async function eventHandler(
       return SPINE_CERT_NOT_CONFIGURED_RESPONSE
     }
 
-    const nhsNumber = extractNHSNumber(headers["nhsd-nhslogin-user"])
-    logger.info(`nhsNumber: ${nhsNumber}`, {nhsNumber})
-    headers["nhsNumber"] = nhsNumber
-    if (await params.pfpConfig.isTC008(nhsNumber)) {
+    headers = adaptHeadersToSpine(headers)
+    if (await params.pfpConfig.isTC008(headers["nhsNumber"]!)) {
       logger.info("Test NHS number corresponding to TC008 has been received. Returning a 500 response")
       return TC008_ERROR_RESPONSE
     }
@@ -111,7 +108,7 @@ async function eventHandler(
       return TIMEOUT_RESPONSE
     }
     const searchsetBundle: Bundle = response.data
-    searchsetBundle.id = xRequestId
+    searchsetBundle.id = traceIDs["x-request-id"] || "unknown"
 
     const operationOutcomes = isolateOperationOutcome(searchsetBundle)
     operationOutcomes.forEach((operationOutcome) => {
@@ -124,7 +121,8 @@ async function eventHandler(
       + "They have these relevant ODS codes, and the PfP request was made via this apigee application.",
       {
         ODSCodes,
-        nhsNumber,
+        actorNhsNumber: headers["nhsd-nhslogin-user"],
+        subjectNhsNumber: headers["nhsNumber"],
         applicationName
       }
     )
@@ -141,10 +139,15 @@ async function eventHandler(
         timeout: SERVICE_SEARCH_TIMEOUT_MS,
         message: `The request to the distance selling service timed out after ${SERVICE_SEARCH_TIMEOUT_MS}ms.`
       })
-      return await successResponse(logger, nhsNumber, searchsetBundle, traceIDs, params.pfpConfig, statusUpdateData)
+      return await successResponse(
+        logger, headers["nhsNumber"]!, searchsetBundle, traceIDs, params.pfpConfig, statusUpdateData
+      )
     }
 
-    return await successResponse(logger, nhsNumber, distanceSellingBundle, traceIDs, params.pfpConfig, statusUpdateData)
+    return await successResponse(
+      logger, headers["nhsNumber"]!, distanceSellingBundle, traceIDs,
+      params.pfpConfig, statusUpdateData
+    )
   } catch (error) {
     if (error instanceof NHSNumberValidationError) {
       return INVALID_NHS_NUMBER_RESPONSE
@@ -152,6 +155,28 @@ async function eventHandler(
       throw error
     }
   }
+}
+
+export function adaptHeadersToSpine(headers: EventHeaders): EventHeaders {
+  // AEA-3344 introduces delegated access using different headers
+  logger.debug("Testing if delegated access enabled", {headers})
+  if (!headers[DELEGATED_ACCESS_HDR] || headers[DELEGATED_ACCESS_HDR].toLowerCase() !== "true") {
+    logger.info("Subject access request detected")
+    headers["nhsNumber"] = extractNHSNumber(headers["nhsd-nhslogin-user"])
+  } else {
+    logger.info("Delegated access request detected")
+    let subjectNHSNumber = headers[DELEGATED_ACCESS_SUB_HDR]
+    if (!subjectNHSNumber) {
+      throw new NHSNumberValidationError(`${DELEGATED_ACCESS_SUB_HDR} header not present for delegated access`)
+    }
+    if (subjectNHSNumber.indexOf(":") > -1) {
+      logger.warn(`${DELEGATED_ACCESS_SUB_HDR} is not expected to be prefixed by proofing level, but is, removing it`)
+      subjectNHSNumber = subjectNHSNumber.split(":")[1]
+    }
+    headers["nhsNumber"] = validateNHSNumber(subjectNHSNumber)
+  }
+  logger.info(`after setting subject nhsNumber`, {headers})
+  return headers
 }
 
 type HandlerConfig<T> = {
