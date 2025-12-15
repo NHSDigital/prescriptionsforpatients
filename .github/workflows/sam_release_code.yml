@@ -193,7 +193,7 @@ jobs:
         env:
           API_TYPE: standard
           VERSION_NUMBER: ${{ inputs.VERSION_NUMBER }}
-          SPEC_PATH: ./.build/packages/specification/dist/prescriptions-for-patients.resolved.json
+          SPEC_PATH: ./packages/specification/dist/prescriptions-for-patients.resolved.json
           STACK_NAME: ${{ inputs.STACK_NAME }}
           AWS_ENVIRONMENT: ${{ inputs.TARGET_ENVIRONMENT }}
           APIGEE_ENVIRONMENT: ${{ inputs.APIGEE_ENVIRONMENT }}
