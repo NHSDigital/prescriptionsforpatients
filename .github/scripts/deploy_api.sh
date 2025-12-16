@@ -97,31 +97,6 @@ echo "Retrieving proxygen credentials"
 # Retrieve the proxygen private key and client private key and cert from AWS Secrets Manager
 proxygen_private_key_arn=$(aws cloudformation list-exports --query "Exports[?Name=='secrets:${PROXYGEN_PRIVATE_KEY_NAME}'].Value" --output text)
 
-echo
-echo "Deploy the API instance using Proxygen proxy lambda"
-if [[ "${DRY_RUN}" == "false" ]]; then
-
-    jq -n --argfile spec "${SPEC_PATH}" \
-        --arg apiName "${apigee_api}" \
-        --arg apiClient "${apigee_client}" \
-        --arg environment "${APIGEE_ENVIRONMENT}" \
-        --arg instance "${instance}" \
-        --arg kid "${PROXYGEN_KID}" \
-        --arg proxygenSecretName "${proxygen_private_key_arn}" \
-        '{apiName: $apiName, apiClient: $apiClient, environment: $environment, specDefinition: $spec, instance: $instance, kid: $kid, proxygenSecretName: $proxygenSecretName}' > payload.json
-
-    aws lambda invoke --function-name "${instance_put_lambda}" --cli-binary-format raw-in-base64-out --payload file://payload.json out.txt > response.json
-
-    if eval "cat response.json | jq -e '.FunctionError' >/dev/null"; then
-        echo 'Error calling lambda'
-        cat out.txt
-        exit 1
-    fi
-    echo "Instance deployed"
-else
-    echo "Would call ${instance_put_lambda}"
-fi
-
 if [[ "${ENABLE_MUTUAL_TLS}" == "true" ]]; then
     echo
     echo "Store the secret used for mutual TLS to AWS using Proxygen proxy lambda"
@@ -146,6 +121,31 @@ if [[ "${ENABLE_MUTUAL_TLS}" == "true" ]]; then
     else
         echo "Would call ${put_secret_lambda}"
     fi
+fi
+
+echo
+echo "Deploy the API instance using Proxygen proxy lambda"
+if [[ "${DRY_RUN}" == "false" ]]; then
+
+    jq -n --argfile spec "${SPEC_PATH}" \
+        --arg apiName "${apigee_api}" \
+        --arg apiClient "${apigee_client}" \
+        --arg environment "${APIGEE_ENVIRONMENT}" \
+        --arg instance "${instance}" \
+        --arg kid "${PROXYGEN_KID}" \
+        --arg proxygenSecretName "${proxygen_private_key_arn}" \
+        '{apiName: $apiName, apiClient: $apiClient, environment: $environment, specDefinition: $spec, instance: $instance, kid: $kid, proxygenSecretName: $proxygenSecretName}' > payload.json
+
+    aws lambda invoke --function-name "${instance_put_lambda}" --cli-binary-format raw-in-base64-out --payload file://payload.json out.txt > response.json
+
+    if eval "cat response.json | jq -e '.FunctionError' >/dev/null"; then
+        echo 'Error calling lambda'
+        cat out.txt
+        exit 1
+    fi
+    echo "Instance deployed"
+else
+    echo "Would call ${instance_put_lambda}"
 fi
 
 # if [[ "${APIGEE_ENVIRONMENT}" == "int" ]]; then
