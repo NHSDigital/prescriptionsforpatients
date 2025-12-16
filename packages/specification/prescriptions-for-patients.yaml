@@ -2,8 +2,7 @@
 # for the Prescriptions API
 # owned by NHS Digital (https://digital.nhs.uk/)
 
-openapi: 3.0.0
-x-nhs-api-spec-guid: 816f3e79-1d81-4ae7-af54-dcd4a739d01a
+openapi: 3.0.3
 info:
   title: Prescriptions for Patients API
   version: "0.0.1"
@@ -123,6 +122,8 @@ paths:
         - $ref: "#/components/parameters/BearerAuthorisation"
         - $ref: "#/components/parameters/RequestID"
         - $ref: "#/components/parameters/CorrelationID"
+      security:
+        - nhs-login-p9: []
       responses:
         "200":
           description: Successful retrieval.

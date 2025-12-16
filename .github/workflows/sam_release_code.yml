@@ -206,6 +206,7 @@ jobs:
         run: ./.github/scripts/deploy_api.sh
 
       - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
+        if: always() && !cancelled()
         name: Upload specs
         with:
           name: ${{ inputs.APIGEE_ENVIRONMENT }}-specs
