@@ -43,10 +43,12 @@ fi
 
 # Determine the proxy instance based on the provided $STACK_NAME
 apigee_api=pfp-proxygen
+apigee_client=prescriptions-for-patients
 instance="pfp-proxygen${instance_suffix}"
 
 echo "Proxy instance: ${instance}"
 echo "Apigee api: ${apigee_api}"
+echo "Apigee client: ${apigee_client}"
 
 echo
 
@@ -100,6 +102,7 @@ if [[ "${ENABLE_MUTUAL_TLS}" == "true" ]]; then
     echo "Store the secret used for mutual TLS to AWS using Proxygen proxy lambda"
     if [[ "${DRY_RUN}" == "false" ]]; then
         jq -n --arg apiName "${apigee_api}" \
+            --arg apiClient "${apigee_client}" \
             --arg environment "${APIGEE_ENVIRONMENT}" \
             --arg secretName "${MTLS_KEY}" \
             --arg secretKey "${client_private_key}" \
@@ -126,6 +129,7 @@ if [[ "${DRY_RUN}" == "false" ]]; then
 
     jq -n --argfile spec "${SPEC_PATH}" \
         --arg apiName "${apigee_api}" \
+        --arg apiClient "${apigee_client}" \
         --arg environment "${APIGEE_ENVIRONMENT}" \
         --arg instance "${instance}" \
         --arg kid "${PROXYGEN_KID}" \
@@ -150,6 +154,7 @@ fi
 #     if [[ "${DRY_RUN}" == "false" ]]; then
 #         jq -n --argfile spec "${SPEC_PATH}" \
 #             --arg apiName "${apigee_api}" \
+#             --arg apiClient "${apigee_client}" \
 #             --arg environment "prod" \
 #             --arg instance "${instance}" \
 #             --arg kid "${PROXYGEN_KID}" \
@@ -175,6 +180,7 @@ if [[ "${APIGEE_ENVIRONMENT}" == "internal-dev" && "${IS_PULL_REQUEST}" == "fals
     if [[ "${DRY_RUN}" == "false" ]]; then
         jq -n --argfile spec "${SPEC_PATH}" \
             --arg apiName "${apigee_api}" \
+            --arg apiClient "${apigee_client}" \
             --arg environment "uat" \
             --arg instance "${instance}" \
             --arg kid "${PROXYGEN_KID}" \
