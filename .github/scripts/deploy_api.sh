@@ -109,7 +109,7 @@ if [[ "${ENABLE_MUTUAL_TLS}" == "true" ]]; then
             --arg secretCert "${client_cert}" \
             --arg kid "${PROXYGEN_KID}" \
             --arg proxygenSecretName "${proxygen_private_key_arn}" \
-            '{apiName: $apiName, environment: $environment, secretName: $secretName, secretKey: $secretKey, secretCert: $secretCert, kid, $kid, proxygenSecretName: $proxygenSecretName}' > payload.json
+            '{apiName: $apiName, apiClient: $apiClient, environment: $environment, secretName: $secretName, secretKey: $secretKey, secretCert: $secretCert, kid, $kid, proxygenSecretName: $proxygenSecretName}' > payload.json
 
         aws lambda invoke --function-name "${put_secret_lambda}" --cli-binary-format raw-in-base64-out --payload file://payload.json out.txt > response.json
         if eval "cat response.json | jq -e '.FunctionError' >/dev/null"; then
@@ -134,7 +134,7 @@ if [[ "${DRY_RUN}" == "false" ]]; then
         --arg instance "${instance}" \
         --arg kid "${PROXYGEN_KID}" \
         --arg proxygenSecretName "${proxygen_private_key_arn}" \
-        '{apiName: $apiName, environment: $environment, specDefinition: $spec, instance: $instance, kid: $kid, proxygenSecretName: $proxygenSecretName}' > payload.json
+        '{apiName: $apiName, apiClient: $apiClient, environment: $environment, specDefinition: $spec, instance: $instance, kid: $kid, proxygenSecretName: $proxygenSecretName}' > payload.json
 
     aws lambda invoke --function-name "${instance_put_lambda}" --cli-binary-format raw-in-base64-out --payload file://payload.json out.txt > response.json
 
@@ -159,7 +159,7 @@ fi
 #             --arg instance "${instance}" \
 #             --arg kid "${PROXYGEN_KID}" \
 #             --arg proxygenSecretName "${proxygen_private_key_arn}" \
-#             '{apiName: $apiName, environment: $environment, specDefinition: $spec, instance: $instance, kid: $kid, proxygenSecretName: $proxygenSecretName}' > payload.json
+#             '{apiName: $apiName, apiClient: $apiClient, environment: $environment, specDefinition: $spec, instance: $instance, kid: $kid, proxygenSecretName: $proxygenSecretName}' > payload.json
 
 #         aws lambda invoke --function-name "${spec_publish_lambda}" --cli-binary-format raw-in-base64-out --payload file://payload.json out.txt > response.json
 
@@ -185,7 +185,7 @@ if [[ "${APIGEE_ENVIRONMENT}" == "internal-dev" && "${IS_PULL_REQUEST}" == "fals
             --arg instance "${instance}" \
             --arg kid "${PROXYGEN_KID}" \
             --arg proxygenSecretName "${proxygen_private_key_arn}" \
-            '{apiName: $apiName, environment: $environment, specDefinition: $spec, instance: $instance, kid: $kid, proxygenSecretName: $proxygenSecretName}' > payload.json
+            '{apiName: $apiName, apiClient: $apiClient, environment: $environment, specDefinition: $spec, instance: $instance, kid: $kid, proxygenSecretName: $proxygenSecretName}' > payload.json
 
         aws lambda invoke --function-name "${spec_publish_lambda}" --cli-binary-format raw-in-base64-out --payload file://payload.json out.txt > response.json
 
