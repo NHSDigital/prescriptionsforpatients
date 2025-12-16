@@ -42,7 +42,7 @@ if [[ "${IS_PULL_REQUEST}" == "true" ]]; then
 fi
 
 # Determine the proxy instance based on the provided $STACK_NAME
-apigee_api=pfp-proxygen
+apigee_api=prescriptions-for-patients
 apigee_client=prescriptions-for-patients
 instance="pfp-proxygen${instance_suffix}"
 
