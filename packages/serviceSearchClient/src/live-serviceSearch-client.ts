@@ -164,6 +164,12 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
   }
 
   private getServiceSearchEndpoint() {
-    return `${this.SERVICE_SEARCH_URL_SCHEME}://${this.SERVICE_SEARCH_ENDPOINT}/service-search`
+    const baseUrl = `${this.SERVICE_SEARCH_URL_SCHEME}://${this.SERVICE_SEARCH_ENDPOINT}`
+    if (this.SERVICE_SEARCH_ENDPOINT?.toLowerCase().includes("api.service.nhs.uk")) {
+      // service search v3
+      return `${baseUrl}/service-search-api/`
+    }
+    // service search v2
+    return `${baseUrl}/service-search`
   }
 }

@@ -121,7 +121,7 @@ jobs:
       REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.DEV_TARGET_SPINE_SERVER }}
-      TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.DEV_TARGET_SERVICE_SEARCH_SERVER }}
+      TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.DEV_TARGET_SERVICE_SEARCH_v3_SERVER }}
 
   release_sandbox_code:
     needs: [get_issue_number, package_code, get_commit_id]
