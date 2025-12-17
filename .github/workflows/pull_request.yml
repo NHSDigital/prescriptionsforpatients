@@ -103,7 +103,7 @@ jobs:
       IS_PULL_REQUEST: true
       STACK_NAME: pfp-pr-${{needs.get_issue_number.outputs.issue_number}}
       ARTIFACT_BUCKET_PREFIX: PR-${{needs.get_issue_number.outputs.issue_number}}
-      TARGET_ENVIRONMENT: dev-pr
+      TARGET_ENVIRONMENT: dev
       APIGEE_ENVIRONMENT: internal-dev
       ENABLE_MUTUAL_TLS: false
       MTLS_KEY: prescriptions-for-patients-mtls-1
