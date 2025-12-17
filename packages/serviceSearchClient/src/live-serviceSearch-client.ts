@@ -88,7 +88,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       "Subscription-Key": process.env.ServiceSearchApiKey
     }
     this.baseQueryParams = {
-      "api-version": 2,
+      "api-version": 3,
       "searchFields": "ODSCode",
       "$filter": "OrganisationTypeId eq 'PHA' and OrganisationSubType eq 'DistanceSelling'",
       "$select": "URL,OrganisationSubType",
