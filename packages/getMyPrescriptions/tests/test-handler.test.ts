@@ -1,12 +1,6 @@
 import {APIGatewayProxyResult as LambdaResult, Context} from "aws-lambda"
-import {
-  DEFAULT_HANDLER_PARAMS,
-  newHandler,
-  GetMyPrescriptionsEvent,
-  stateMachineEventHandler,
-  STATE_MACHINE_MIDDLEWARE
-} from "../src/getMyPrescriptions"
 import {Logger} from "@aws-lambda-powertools/logger"
+import {LogLevel} from "@aws-lambda-powertools/logger/types"
 import axios from "axios"
 import MockAdapter from "axios-mock-adapter"
 import {
@@ -15,23 +9,35 @@ import {
   it,
   jest
 } from "@jest/globals"
+import {createSpineClient} from "@NHSDigital/eps-spine-client"
+import {MiddyfiedHandler} from "@middy/core"
 
 import {
+  createMockedPfPConfig,
   mockAPIResponseBody as mockResponseBody,
   mockInteractionResponseBody,
   mockPharmacy2uResponse,
   mockPharmicaResponse,
   helloworldContext,
-  mockStateMachineInputEvent
+  mockStateMachineInputEvent,
+  MockedPfPConfig,
+  setupTestEnvironment
 } from "@pfp-common/testing"
+import {
+  SERVICE_SEARCH_BASE_QUERY_PARAMS,
+  getServiceSearchEndpoint
+} from "@prescriptionsforpatients/serviceSearchClient"
 
+import {
+  DEFAULT_HANDLER_PARAMS,
+  newHandler,
+  GetMyPrescriptionsEvent,
+  stateMachineEventHandler,
+  STATE_MACHINE_MIDDLEWARE
+} from "../src/getMyPrescriptions"
 import {HEADERS, StateMachineFunctionResponseBody, TIMEOUT_RESPONSE} from "../src/responses"
 import "./toMatchJsonLogMessage"
-import {EXPECTED_TRACE_IDS, getServiceSearchEndpoint, SERVICE_SEARCH_PARAMS} from "./utils"
-import {LogLevel} from "@aws-lambda-powertools/logger/types"
-import {createSpineClient} from "@NHSDigital/eps-spine-client"
-import {MiddyfiedHandler} from "@middy/core"
-import {createMockedPfPConfig, MockedPfPConfig, setupTestEnvironment} from "@pfp-common/testing"
+import {EXPECTED_TRACE_IDS} from "./utils"
 
 const TC008_NHS_NUMBER = "9992387920"
 
@@ -386,11 +392,11 @@ describe("Unit tests for app handler including service search", function () {
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
 
     mock
-      .onGet(getServiceSearchEndpoint(), {params: {...SERVICE_SEARCH_PARAMS, search: "flm49"}})
+      .onGet(getServiceSearchEndpoint(), {params: {...SERVICE_SEARCH_BASE_QUERY_PARAMS, search: "flm49"}})
       .reply(200, JSON.parse(pharmacy2uResponse))
 
     mock
-      .onGet(getServiceSearchEndpoint(), {params: {...SERVICE_SEARCH_PARAMS, search: "few08"}})
+      .onGet(getServiceSearchEndpoint(), {params: {...SERVICE_SEARCH_BASE_QUERY_PARAMS, search: "few08"}})
       .reply(200, JSON.parse(pharmicaResponse))
 
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, JSON.parse(exampleInteractionResponse))
@@ -426,11 +432,11 @@ describe("Unit tests for app handler including service search", function () {
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, interactionResponse)
 
     mock
-      .onGet(getServiceSearchEndpoint(), {params: {...SERVICE_SEARCH_PARAMS, search: "flm49"}})
+      .onGet(getServiceSearchEndpoint(), {params: {...SERVICE_SEARCH_BASE_QUERY_PARAMS, search: "flm49"}})
       .reply(200, JSON.parse(pharmacy2uResponse))
 
     mock
-      .onGet(getServiceSearchEndpoint(), {params: {...SERVICE_SEARCH_PARAMS, search: "few08"}})
+      .onGet(getServiceSearchEndpoint(), {params: {...SERVICE_SEARCH_BASE_QUERY_PARAMS, search: "few08"}})
       .reply(200, JSON.parse(pharmicaResponse))
 
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
@@ -574,11 +580,11 @@ describe("Unit tests for logging functionality", function () {
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, interactionResponse)
 
     mock
-      .onGet(getServiceSearchEndpoint(), {params: {...SERVICE_SEARCH_PARAMS, search: "flm49"}})
+      .onGet(getServiceSearchEndpoint(), {params: {...SERVICE_SEARCH_BASE_QUERY_PARAMS, search: "flm49"}})
       .reply(200, JSON.parse(pharmacy2uResponse))
 
     mock
-      .onGet(getServiceSearchEndpoint(), {params: {...SERVICE_SEARCH_PARAMS, search: "few08"}})
+      .onGet(getServiceSearchEndpoint(), {params: {...SERVICE_SEARCH_BASE_QUERY_PARAMS, search: "few08"}})
       .reply(200, JSON.parse(pharmicaResponse))
 
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
