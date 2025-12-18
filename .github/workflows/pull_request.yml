@@ -105,7 +105,7 @@ jobs:
       ARTIFACT_BUCKET_PREFIX: PR-${{needs.get_issue_number.outputs.issue_number}}
       TARGET_ENVIRONMENT: dev
       APIGEE_ENVIRONMENT: internal-dev
-      ENABLE_MUTUAL_TLS: true
+      ENABLE_MUTUAL_TLS: false
       MTLS_KEY: prescriptions-for-patients-mtls-1
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: pfp-truststore-pr.pem # temporary
