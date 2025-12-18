@@ -434,10 +434,10 @@ x-nhsd-apim:
       header: "nhs-login-identity-proofing-level"
   target-attributes:
     - name: developer.app.name
-      required: true
+      required: false
       header: "nhsd-application-name"
     - name: developer.app.id
-      required: true
+      required: false
       header: "nhsd-application-id"
   ratelimiting:
     proxy:
