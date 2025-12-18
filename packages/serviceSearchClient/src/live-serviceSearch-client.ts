@@ -49,17 +49,17 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
     axiosRetry(this.axiosInstance, {retries: 3})
 
     this.axiosInstance.interceptors.request.use((config) => {
-      config.headers["request-startTime"] = new Date().getTime()
+      config.headers["request-startTime"] = Date.now()
       return config
     })
     this.axiosInstance.interceptors.response.use((response) => {
-      const currentTime = new Date().getTime()
+      const currentTime = Date.now()
       const startTime = response.config.headers["request-startTime"]
       this.logger.info("serviceSearch request duration", {serviceSearch_duration: currentTime - startTime})
 
       return response
     }, (error) => {
-      const currentTime = new Date().getTime()
+      const currentTime = Date.now()
       const startTime = error.config?.headers["request-startTime"]
       this.logger.info("serviceSearch request duration", {serviceSearch_duration: currentTime - startTime})
 
