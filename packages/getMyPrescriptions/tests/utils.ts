@@ -1,6 +1,10 @@
 import {jest} from "@jest/globals"
 import {Organization} from "fhir/r4"
 import {TraceIDs} from "../src/responses"
+import {
+  SERVICE_SEARCH_BASE_QUERY_PARAMS,
+  getServiceSearchEndpoint
+} from "@prescriptionsforpatients/serviceSearchClient"
 
 // Uses unstable jest method to enable mocking while using ESM. To be replaced in future.
 export function mockInternalDependency(modulePath: string, module: object, dependency: string) {
@@ -12,13 +16,9 @@ export function mockInternalDependency(modulePath: string, module: object, depen
   return mockDependency
 }
 
-export const SERVICE_SEARCH_PARAMS = {
-  "api-version": 2,
-  searchFields: "ODSCode",
-  $filter: "OrganisationTypeId eq 'PHA' and OrganisationSubType eq 'DistanceSelling'",
-  $select: "URL,OrganisationSubType",
-  $top: 1
-}
+// Re-export for convenience in tests
+export const SERVICE_SEARCH_PARAMS = SERVICE_SEARCH_BASE_QUERY_PARAMS
+export {getServiceSearchEndpoint}
 
 export const EXPECTED_TRACE_IDS: TraceIDs = {
   "apigw-request-id": "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",

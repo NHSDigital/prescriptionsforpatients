@@ -29,7 +29,7 @@ import {
   newHandler,
   stateMachineEventHandler
 } from "../src/getMyPrescriptions"
-import {EXPECTED_TRACE_IDS, SERVICE_SEARCH_PARAMS} from "./utils"
+import {EXPECTED_TRACE_IDS, SERVICE_SEARCH_PARAMS, getServiceSearchEndpoint} from "./utils"
 import {createMockedPfPConfig, MockedPfPConfig, setupTestEnvironment} from "@pfp-common/testing"
 import {LogLevel} from "@aws-lambda-powertools/logger/types"
 import {Logger} from "@aws-lambda-powertools/logger"
@@ -143,10 +143,10 @@ describe("Unit tests for statusUpdate, via handler", function () {
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleEvent)
 
     mock
-      .onGet("https://service-search/service-search", {params: {...SERVICE_SEARCH_PARAMS, search: "flm49"}})
+      .onGet(getServiceSearchEndpoint(), {params: {...SERVICE_SEARCH_PARAMS, search: "flm49"}})
       .reply(200, JSON.parse(pharmacy2uResponse))
     mock
-      .onGet("https://service-search/service-search", {params: {...SERVICE_SEARCH_PARAMS, search: "few08"}})
+      .onGet(getServiceSearchEndpoint(), {params: {...SERVICE_SEARCH_PARAMS, search: "few08"}})
       .reply(200, JSON.parse(pharmicaResponse))
 
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, JSON.parse(exampleInteractionResponse))

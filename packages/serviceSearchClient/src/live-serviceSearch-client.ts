@@ -18,19 +18,29 @@ export type ServiceSearchData = {
   "value": Array<Service>
 }
 
+export const SERVICE_SEARCH_BASE_QUERY_PARAMS = {
+  "api-version": 3,
+  "searchFields": "ODSCode",
+  "$filter": "OrganisationTypeId eq 'PHA' and OrganisationSubType eq 'DistanceSelling'",
+  "$select": "URL,OrganisationSubType",
+  "$top": 1
+} as const
+
+export function getServiceSearchEndpoint(targetServer?: string): string {
+  const endpoint = targetServer || process.env.TargetServiceSearchServer || "service-search"
+  const baseUrl = `https://${endpoint}`
+  if (endpoint.toLowerCase().includes("api.service.nhs.uk")) {
+    // service search v3
+    return `${baseUrl}/service-search-api/`
+  }
+  // service search v2
+  return `${baseUrl}/service-search`
+}
+
 export class LiveServiceSearchClient implements ServiceSearchClient {
-  private readonly SERVICE_SEARCH_URL_SCHEME = "https"
-  private readonly SERVICE_SEARCH_ENDPOINT = process.env.TargetServiceSearchServer
   private readonly axiosInstance: AxiosInstance
   private readonly logger: Logger
   private readonly outboundHeaders: {"Subscription-Key": string | undefined}
-  private readonly baseQueryParams: {
-    "api-version": number,
-    "searchFields": string,
-    "$filter": string,
-    "$select": string,
-    "$top": number
-  }
 
   constructor(logger: Logger) {
     this.logger = logger
@@ -87,19 +97,12 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
     this.outboundHeaders = {
       "Subscription-Key": process.env.ServiceSearchApiKey
     }
-    this.baseQueryParams = {
-      "api-version": 3,
-      "searchFields": "ODSCode",
-      "$filter": "OrganisationTypeId eq 'PHA' and OrganisationSubType eq 'DistanceSelling'",
-      "$select": "URL,OrganisationSubType",
-      "$top": 1
-    }
   }
 
   async searchService(odsCode: string): Promise<URL | undefined> {
     try {
-      const address = this.getServiceSearchEndpoint()
-      const queryParams = {...this.baseQueryParams, search: odsCode}
+      const address = getServiceSearchEndpoint()
+      const queryParams = {...SERVICE_SEARCH_BASE_QUERY_PARAMS, search: odsCode}
 
       this.logger.info(`making request to ${address} with ods code ${odsCode}`, {odsCode: odsCode})
       const response = await this.axiosInstance.get(address, {
@@ -161,15 +164,5 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
     if (error.request?.headers) {
       delete error.request.headers[headerKey]
     }
-  }
-
-  private getServiceSearchEndpoint() {
-    const baseUrl = `${this.SERVICE_SEARCH_URL_SCHEME}://${this.SERVICE_SEARCH_ENDPOINT}`
-    if (this.SERVICE_SEARCH_ENDPOINT?.toLowerCase().includes("api.service.nhs.uk")) {
-      // service search v3
-      return `${baseUrl}/service-search-api/`
-    }
-    // service search v2
-    return `${baseUrl}/service-search`
   }
 }

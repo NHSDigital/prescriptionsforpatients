@@ -27,7 +27,7 @@ import {
 
 import {HEADERS, StateMachineFunctionResponseBody, TIMEOUT_RESPONSE} from "../src/responses"
 import "./toMatchJsonLogMessage"
-import {EXPECTED_TRACE_IDS} from "./utils"
+import {EXPECTED_TRACE_IDS, getServiceSearchEndpoint, SERVICE_SEARCH_PARAMS} from "./utils"
 import {LogLevel} from "@aws-lambda-powertools/logger/types"
 import {createSpineClient} from "@NHSDigital/eps-spine-client"
 import {MiddyfiedHandler} from "@middy/core"
@@ -355,14 +355,6 @@ describe("Unit tests for app handler including service search", function () {
   let testEnv: ReturnType<typeof setupTestEnvironment>
   let mockedConfig: MockedPfPConfig
 
-  const queryParams = {
-    "api-version": 2,
-    searchFields: "ODSCode",
-    $filter: "OrganisationTypeId eq 'PHA' and OrganisationSubType eq 'DistanceSelling'",
-    $select: "URL,OrganisationSubType",
-    $top: 1
-  }
-
   beforeEach(() => {
     testEnv = setupTestEnvironment()
     mockedConfig = createMockedPfPConfig([TC008_NHS_NUMBER])
@@ -394,11 +386,11 @@ describe("Unit tests for app handler including service search", function () {
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
 
     mock
-      .onGet("https://service-search/service-search", {params: {...queryParams, search: "flm49"}})
+      .onGet(getServiceSearchEndpoint(), {params: {...SERVICE_SEARCH_PARAMS, search: "flm49"}})
       .reply(200, JSON.parse(pharmacy2uResponse))
 
     mock
-      .onGet("https://service-search/service-search", {params: {...queryParams, search: "few08"}})
+      .onGet(getServiceSearchEndpoint(), {params: {...SERVICE_SEARCH_PARAMS, search: "few08"}})
       .reply(200, JSON.parse(pharmicaResponse))
 
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, JSON.parse(exampleInteractionResponse))
@@ -434,11 +426,11 @@ describe("Unit tests for app handler including service search", function () {
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, interactionResponse)
 
     mock
-      .onGet("https://service-search/service-search", {params: {...queryParams, search: "flm49"}})
+      .onGet(getServiceSearchEndpoint(), {params: {...SERVICE_SEARCH_PARAMS, search: "flm49"}})
       .reply(200, JSON.parse(pharmacy2uResponse))
 
     mock
-      .onGet("https://service-search/service-search", {params: {...queryParams, search: "few08"}})
+      .onGet(getServiceSearchEndpoint(), {params: {...SERVICE_SEARCH_PARAMS, search: "few08"}})
       .reply(200, JSON.parse(pharmicaResponse))
 
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
@@ -465,7 +457,7 @@ describe("Unit tests for app handler including service search", function () {
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, exampleResponse)
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    mock.onGet("https://service-search/service-search").reply(function (config) {
+    mock.onGet(getServiceSearchEndpoint()).reply(function (config) {
       return new Promise((resolve) => setTimeout(() => resolve([200, {}]), 15_000))
     })
 
@@ -501,14 +493,6 @@ describe("Unit tests for logging functionality", function () {
   let handler: MiddyfiedHandler<GetMyPrescriptionsEvent, LambdaResult, Error, Context, any>
   let testEnv: ReturnType<typeof setupTestEnvironment>
   let mockedConfig: MockedPfPConfig
-
-  const queryParams = {
-    "api-version": 2,
-    searchFields: "ODSCode",
-    $filter: "OrganisationTypeId eq 'PHA' and OrganisationSubType eq 'DistanceSelling'",
-    $select: "URL,OrganisationSubType",
-    $top: 1
-  }
 
   beforeEach(() => {
     testEnv = setupTestEnvironment()
@@ -590,11 +574,11 @@ describe("Unit tests for logging functionality", function () {
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, interactionResponse)
 
     mock
-      .onGet("https://service-search/service-search", {params: {...queryParams, search: "flm49"}})
+      .onGet(getServiceSearchEndpoint(), {params: {...SERVICE_SEARCH_PARAMS, search: "flm49"}})
       .reply(200, JSON.parse(pharmacy2uResponse))
 
     mock
-      .onGet("https://service-search/service-search", {params: {...queryParams, search: "few08"}})
+      .onGet(getServiceSearchEndpoint(), {params: {...SERVICE_SEARCH_PARAMS, search: "few08"}})
       .reply(200, JSON.parse(pharmicaResponse))
 
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
