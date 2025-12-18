@@ -429,7 +429,7 @@ x-nhsd-apim:
       secret: prescriptions-for-patients-mtls-1
   target-identity:
     - name: nhs-login-nhs-number
-      header: "nhs-login-nhs-number"
+      header: "nhsd-login-user"
   ratelimiting:
     proxy:
       limit: 20000
