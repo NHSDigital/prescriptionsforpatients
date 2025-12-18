@@ -1,9 +1,19 @@
+import type {EventHeaders} from "./types"
+
 export class NHSNumberValidationError extends Error {
   constructor(msg: string) {
     super(msg)
 
     // Set the prototype explicitly.
     Object.setPrototypeOf(this, NHSNumberValidationError.prototype)
+  }
+}
+
+export function extractNHSNumberFromHeaders(headers: EventHeaders): string {
+  if (headers["nhs-login-identity-proofing-level"]) {
+    return validateNHSNumber(headers["nhsd-nhslogin-user"]!)
+  } else {
+    return extractNHSNumber(headers["nhsd-nhslogin-user"])
   }
 }
 

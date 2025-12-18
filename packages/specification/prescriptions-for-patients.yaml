@@ -430,6 +430,8 @@ x-nhsd-apim:
   target-identity:
     - name: nhs-login-nhs-number
       header: "nhsd-nhslogin-user"
+    - name: nhs-login-identity-proofing-level
+      header: "nhs-login-identity-proofing-level"
   ratelimiting:
     proxy:
       limit: 20000
