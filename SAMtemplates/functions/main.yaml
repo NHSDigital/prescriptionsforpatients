@@ -22,6 +22,7 @@ Globals:
         SpinePartyKeyARN: !ImportValue account-resources:SpinePartyKey
         SpineCAChainARN: !ImportValue account-resources:SpineCAChain
         ServiceSearchApiKeyARN: !ImportValue account-resources:ServiceSearchApiKey
+        ServiceSearch3ApiKeyARN: !Ref ServiceSearch3ApiKeyARN
     Layers:
       - !Sub arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:52
 
@@ -29,6 +30,10 @@ Parameters:
   StackName:
     Type: String
     Default: none
+
+  ServiceSearch3ApiKeyARN:
+    Type: String
+    Description: ARN of the Service Search API v3 Key Secret
 
   Env:
     Type: String
@@ -67,6 +72,14 @@ Parameters:
 
   SSMParameterPolicy:
     Type: String
+
+  SecretsPolicy:
+    Type: String
+    Description: ARN of the policy to read secrets
+
+  KMSPolicy:
+    Type: String
+    Description: ARN of the policy to use KMS key
 
 Resources:
   GetSecretsLayer:
@@ -121,6 +134,8 @@ Resources:
           - ","
           - - !ImportValue account-resources:LambdaAccessSecretsPolicy
             - !Ref SSMParameterPolicy
+            - !Ref SecretsPolicy
+            - !Ref KMSPolicy
         LogRetentionInDays: !Ref LogRetentionInDays
         CloudWatchKMSKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
         EnableSplunk: !Ref EnableSplunk

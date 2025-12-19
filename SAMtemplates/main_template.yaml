@@ -168,6 +168,16 @@ Resources:
         CommitId: !Ref CommitId
         ToggleGetStatusUpdates: !Ref ToggleGetStatusUpdates
         SSMParameterPolicy: !GetAtt Parameters.Outputs.GetPfPParameterPolicy
+        ServiceSearch3ApiKeyARN: !GetAtt Secrets.Outputs.PfPServiceSearchApiKeySecret
+        SecretsPolicy: !GetAtt Secrets.Outputs.GetPfPSecretPolicy
+        KMSPolicy: !GetAtt Secrets.Outputs.UsePfPSecretsKMSKeyPolicyArn
+
+  Secrets:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: secrets/main.yaml
+      Parameters:
+        StackName: !Ref AWS::StackName
 
   StateMachines:
     Type: AWS::Serverless::Application
