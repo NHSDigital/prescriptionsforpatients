@@ -133,7 +133,7 @@ jobs:
     with:
       STACK_NAME: pfp-pr-${{needs.get_issue_number.outputs.issue_number}}-sandbox
       ARTIFACT_BUCKET_PREFIX: PR-sandbox-${{needs.get_issue_number.outputs.issue_number}}
-      TARGET_ENVIRONMENT: dev-pr
+      TARGET_ENVIRONMENT: dev
       APIGEE_ENVIRONMENT: internal-dev-sandbox
       ENABLE_MUTUAL_TLS: false
       MTLS_KEY: prescriptions-for-patients-mtls-1
