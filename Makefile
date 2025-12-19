@@ -199,3 +199,8 @@ aws-login:
 
 cfn-guard:
 	./scripts/run_cfn_guard.sh
+
+create-npmrc:
+	gh auth login --scopes "read:packages"; \
+	echo "//npm.pkg.github.com/:_authToken=$$(gh auth token)" > .npmrc
+	echo "@nhsdigital:registry=https://npm.pkg.github.com" >> .npmrc
