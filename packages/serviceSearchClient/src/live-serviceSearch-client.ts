@@ -40,7 +40,7 @@ export function getServiceSearchEndpoint(targetServer?: string): string {
 export class LiveServiceSearchClient implements ServiceSearchClient {
   private readonly axiosInstance: AxiosInstance
   private readonly logger: Logger
-  private readonly outboundHeaders: {"Subscription-Key": string | undefined}
+  private readonly outboundHeaders: {"apikey": string | undefined, "Subscription-Key": string | undefined}
 
   constructor(logger: Logger) {
     this.logger = logger
@@ -95,7 +95,8 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
     })
 
     this.outboundHeaders = {
-      "Subscription-Key": process.env.ServiceSearchApiKey
+      "Subscription-Key": process.env.ServiceSearchApiKey,
+      "apikey": process.env.ServiceSearch3ApiKey
     }
   }
 
@@ -157,12 +158,14 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
   }
 
   stripApiKeyFromHeaders(error: AxiosError) {
-    const headerKey = "subscription-key"
-    if (error.response?.headers) {
-      delete error.response.headers[headerKey]
-    }
-    if (error.request?.headers) {
-      delete error.request.headers[headerKey]
-    }
+    const headerKeys = ["subscription-key", "apikey"]
+    headerKeys.forEach((key) => {
+      if (error.response?.headers) {
+        delete error.response.headers[key]
+      }
+      if (error.request?.headers) {
+        delete error.request.headers[key]
+      }
+    })
   }
 }
