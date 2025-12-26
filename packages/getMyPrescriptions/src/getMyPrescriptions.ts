@@ -23,11 +23,12 @@ import {
   TraceIDs,
   ResponseFunc
 } from "./responses"
-import {extractNHSNumber, NHSNumberValidationError, validateNHSNumber} from "./extractNHSNumber"
+import {extractNHSNumberFromHeaders, NHSNumberValidationError, validateNHSNumber} from "./extractNHSNumber"
 import {deepCopy, hasTimedOut, jobWithTimeout} from "./utils"
 import {buildStatusUpdateData, shouldGetStatusUpdates} from "./statusUpdate"
 import {extractOdsCodes, isolateOperationOutcome} from "./fhirUtils"
 import {pfpConfig, PfPConfig} from "@pfp-common/utilities"
+import type {EventHeaders} from "./types"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 export const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
@@ -40,8 +41,6 @@ const SPINE_TIMEOUT_MS = 9_000
 const SERVICE_SEARCH_TIMEOUT_MS = 5_000
 export const DELEGATED_ACCESS_HDR = "delegatedaccess"
 export const DELEGATED_ACCESS_SUB_HDR = "x-nhsd-subject-nhs-number"
-
-type EventHeaders = Record<string, string | undefined>
 
 export type GetMyPrescriptionsEvent = {
   rawHeaders: Record<string, string>
@@ -149,6 +148,7 @@ async function eventHandler(
       params.pfpConfig, statusUpdateData
     )
   } catch (error) {
+    logger.info("Error caught in getMyPrescriptions handler", {error})
     if (error instanceof NHSNumberValidationError) {
       return INVALID_NHS_NUMBER_RESPONSE
     } else {
@@ -162,7 +162,7 @@ export function adaptHeadersToSpine(headers: EventHeaders): EventHeaders {
   logger.debug("Testing if delegated access enabled", {headers})
   if (!headers[DELEGATED_ACCESS_HDR] || headers[DELEGATED_ACCESS_HDR].toLowerCase() !== "true") {
     logger.info("Subject access request detected")
-    headers["nhsNumber"] = extractNHSNumber(headers["nhsd-nhslogin-user"])
+    headers["nhsNumber"] = extractNHSNumberFromHeaders(headers)
   } else {
     logger.info("Delegated access request detected")
     let subjectNHSNumber = headers[DELEGATED_ACCESS_SUB_HDR]

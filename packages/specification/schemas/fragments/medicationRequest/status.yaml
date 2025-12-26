@@ -1,0 +1,50 @@
+type: object
+description: |
+  The status of the line item within the prescription.
+  * 'Prescriber Approved' means the item has been approved by a prescriber and is waiting to be released from Spine by the pharmacy.
+  * 'Prescriber Cancelled' means the item has been cancelled by the prescriber. A cancelled item can be included in a prescription where other items have not been cancelled. The patient should be advised to contact their prescriber to find out the reason for cancellation.
+  * 'With Pharmacy' means the item has been downloaded by the pharmacy and is being prepared but is not ready to collect.
+  * 'With Pharmacy but Tracking not Supported' means that there is no prescription tracking data for the prescription item. This is because the pharmacy is not yet using a dispensing system which is onboarded to the National Patient Prescription Tracking Service.
+  * 'With Pharmacy - Preparing Remainder' means the prescription item has been partially dispensed, but the remaining part of the item is still with the pharmacy to prepare and dispense.
+  * 'Ready to Collect' means the pharmacy has prepared the prescription
+    item and it's ready to collect.
+  * 'Ready to Collect - Partial' means the prescription item has been partially dispensed and is ready to collect, but the remaining part of the item is still with the pharmacy to prepare and dispense.
+  * 'Ready to Dispatch' means the prescription item is in a holding area ready for collection by a delivery courier. This status will be set based on activity triggered by the pharmacy dispensing process. This might be the scanning of the prescription package barcode, or another action performed only against the item/s when they are placed in a holding area.
+  * 'Ready to Dispatch - Partial' means part of the prescription item is in a holding area ready for collection by a delivery courier. This status will be set based on activity triggered by the pharmacy dispensing process. This might be the scanning of the prescription package barcode, or another action performed only against the item/s when they are placed in a holding area. This status reflects the full medication item dosage isn't in stock.
+  * 'Not Dispensed' means the prescription item has not been dispensed, which may be for several reasons including the pharmacist deciding it's clinically unsuitable or the patient has reported side effects. The patient should be advised that the dispenser set the 'not dispensed' status so they know to contact their pharmacy should they have any questions.
+  * 'Dispatched' means the pharmacy has prepared the prescription item and it has been dispatched for delivery by a courier service.
+  * 'Collected' means that the patient or patient proxy has collected the prescription item.
+  * 'Tracking Temporarily Unavailable' means that the system was temporarily unable to obtain the status update for the item. This would happen in the event of the service going down.
+required:
+  - url
+  - valueCoding
+properties:
+  url:
+    type: string
+    enum: ["status"]
+  valueCoding:
+    type: object
+    required:
+      - code
+      - system
+    properties:
+      code:
+        type: string
+        enum:
+          - Prescriber Approved
+          - Prescriber Cancelled
+          - With Pharmacy
+          - With Pharmacy but Tracking not Supported
+          - With Pharmacy - Preparing Remainder
+          - Ready to Collect
+          - Ready to Collect - Partial
+          - Ready to Dispatch
+          - Ready to Dispatch - Partial
+          - Not Dispensed
+          - Dispatched
+          - Collected
+          - Tracking Temporarily Unavailable
+
+      system:
+        type: string
+        enum: ["https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt"]

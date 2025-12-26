@@ -1,0 +1,30 @@
+type: object
+description: Details of the organisation.
+properties:
+  resourceType:
+    type: string
+    description: FHIR resource type.
+    default: Organization
+  identifier:
+    type: array
+    description: An array containing the ODS code of the organisation.
+    items:
+      $ref: ../fragments/identifiers.yaml#/OdsOrganisationCode
+  name:
+    type: string
+    description: Organisation name.
+  address:
+    type: array
+    description: |
+      Organisation address.
+      One of line or text, and optionally postalCode, will be populated.
+      If postalCode is not populated, the organization's postalCode may be included in line or text, if they are populated.
+      So address will contain use and type, along with one of: line, line and postalCode, text, text and postalCode, postalCode.
+      Note: city and district will not be populated by existing prescriptions.
+    items:
+      $ref: ../fragments/address.yaml
+  telecom:
+    type: array
+    description: The telephone number or Website URL associated with the organisation.
+    items:
+      $ref: ../fragments/telecom.yaml

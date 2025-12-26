@@ -1,0 +1,3 @@
+apis:
+  pfp:
+    root: ./dist/prescriptions-for-patients.resolved.json

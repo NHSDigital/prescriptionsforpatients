@@ -1,0 +1,21 @@
+type: object
+required: [resourceType, name]
+description: Details of the prescriber of a prescription.
+properties:
+  resourceType:
+    type: string
+    description: FHIR resource type.
+    enum: [Practitioner]
+  name:
+    type: array
+    description: The prescriber's name.
+    items:
+      oneOf:
+        - $ref: ../fragments/structuredName.yaml
+        - type: object
+          description: An unstructured name
+          properties:
+            text:
+              type: string
+              description: Text representation of the full name
+              example: Dr John Paul Smith MD

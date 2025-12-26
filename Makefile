@@ -112,7 +112,10 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 compile-node:
 	npx tsc --build tsconfig.build.json
 
-compile: compile-node
+compile: compile-node compile-specification
+
+compile-specification:
+	npm run compile --workspace packages/specification
 
 download-get-secrets-layer:
 	mkdir -p packages/getSecretLayer/lib
