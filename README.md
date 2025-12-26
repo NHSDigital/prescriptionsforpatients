@@ -121,6 +121,32 @@ This can be obtained from [SonarCloud](https://sonarcloud.io/)
 as described [here](https://docs.sonarsource.com/sonarqube/latest/user-guide/user-account/generating-and-using-tokens/).
 You will need the "Execute Analysis" permission for the project (NHSDigital_prescriptionsforpatients) in order for the token to work.
 
+### Upstream dependencies
+
+#### Directory of Healthcare Services API (aka Service Search) - version 3 
+
+[Service Search v3](https://digital.nhs.uk/developer/api-catalogue/directory-of-healthcare-services/version-3) uses
+[application-restricted RESTful API - API key authentication](https://digital.nhs.uk/developer/guides-and-documentation/security-and-authorisation/application-restricted-restful-apis-api-key-authentication).
+To achieve this the following applications have been created on the
+[Int/Prod onboarding portal](https://onboarding.prod.api.platform.nhs.uk/):
+
+* `PFP-INTERNAL-DEV-DOHS` - managed by [EPS_team](https://onboarding.prod.api.platform.nhs.uk/MyApplications/Teams/TeamDetails?id=060896ea-ba43-4df8-a011-7cb0f45fd8ed) - connected to [Service Search - REST API (Integration Testing Environment)](https://int.api.service.nhs.uk/service-search-api/search)
+* `PFP-QA-DOHS` - managed by [EPS_team](https://onboarding.prod.api.platform.nhs.uk/MyApplications/Teams/TeamDetails?id=060896ea-ba43-4df8-a011-7cb0f45fd8ed) - connected to [Service Search - REST API (Integration Testing Environment)](https://int.api.service.nhs.uk/service-search-api/search)
+* `PFP-REF-DOHS` - managed by [EPS_team](https://onboarding.prod.api.platform.nhs.uk/MyApplications/Teams/TeamDetails?id=060896ea-ba43-4df8-a011-7cb0f45fd8ed) - connected to [Service Search - REST API (Integration Testing Environment)](https://int.api.service.nhs.uk/service-search-api/search)
+* `PFP-INT-DOHS` - managed by EPS_Team_Prod - connected to [Service Search - REST API (Production Environment)](https://api.service.nhs.uk/service-search-api/search)
+* `PFP-PROD-DOHS` - managed by EPS_Team_Prod - connected to [Service Search - REST API (Production Environment)](https://api.service.nhs.uk/service-search-api/search)
+
+After `IaC` creates the secret `pfp-PfP-ServiceSearch-API-Key`
+its value must be set manually to the API key from the appropriate app.
+
+In addition the Service Search URL must be set as a GitHub secret:
+
+* DEV_TARGET_SERVICE_SEARCH_V3_SERVER: <https://int.api.service.nhs.uk/service-search-api/search>
+* QA_TARGET_SERVICE_SEARCH_V3_SERVER: <https://int.api.service.nhs.uk/service-search-api/search>
+* REF_TARGET_SERVICE_SEARCH_V3_SERVER: <https://int.api.service.nhs.uk/service-search-api/search>
+* INT_TARGET_SERVICE_SEARCH_V3_SERVER: <https://api.service.nhs.uk/service-search-api/search>
+* PROD_TARGET_SERVICE_SEARCH_V3_SERVER: <https://api.service.nhs.uk/service-search-api/search>
+
 ### GitHub Packages Setup
 
 To work with the GitHub Package Registry, you need to generate a [personal access token (classic)](https://docs.github.com/en/enterprise-cloud@latest/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#personal-access-tokens-classic) with appropriate permissions.
