@@ -24,7 +24,7 @@ import {
   ResponseFunc
 } from "./responses"
 import {extractNHSNumber, NHSNumberValidationError, validateNHSNumber} from "./extractNHSNumber"
-import {deepCopy, hasTimedOut, jobWithTimeout} from "./utils"
+import {hasTimedOut, jobWithTimeout} from "./utils"
 import {buildStatusUpdateData, shouldGetStatusUpdates} from "./statusUpdate"
 import {extractOdsCodes, isolateOperationOutcome} from "./fhirUtils"
 import {pfpConfig, PfPConfig} from "@pfp-common/utilities"
@@ -130,7 +130,7 @@ async function eventHandler(
     const statusUpdateData = includeStatusUpdateData ? buildStatusUpdateData(logger, searchsetBundle) : undefined
 
     const distanceSelling = new DistanceSelling(servicesCache, logger)
-    const distanceSellingBundle = deepCopy(searchsetBundle)
+    const distanceSellingBundle = structuredClone(searchsetBundle)
     const distanceSellingCallout = distanceSelling.search(distanceSellingBundle)
 
     const distanceSellingResponse = await jobWithTimeout(params.serviceSearchTimeoutMs, distanceSellingCallout)
