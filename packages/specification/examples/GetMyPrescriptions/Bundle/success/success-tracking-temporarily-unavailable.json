@@ -1,0 +1,232 @@
+{
+    "resourceType": "Bundle",
+    "id": "155e1102-9e71-4f19-9453-b905c0bbc494",
+    "meta": {
+        "lastUpdated": "2022-11-21T14:00:00+00:00"
+    },
+    "type": "searchset",
+    "link": [
+        {
+            "relation": "self",
+            "url": "https://sandbox.api.service.nhs.uk/electronic-prescriptions/Bundle"
+        }
+    ],
+    "total": 1,
+    "entry": [
+        {
+            "fullUrl": "urn:uuid:0cb82cfa-76c8-4fb2-a08e-bf0e326e5487",
+            "search": {
+                "mode": "match"
+            },
+            "resource": {
+                "resourceType": "Bundle",
+                "id": "0cb82cfa-76c8-4fb2-a08e-bf0e326e5487",
+                "type": "collection",
+                "entry": [
+                    {
+                        "fullUrl": "urn:uuid:a54219b8-f741-4c47-b662-e4f8dfa49ab6",
+                        "resource": {
+                            "resourceType": "MedicationRequest",
+                            "status": "active",
+                            "intent": "order",
+                            "medicationCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://snomed.info/sct",
+                                        "code": "39732311000001104",
+                                        "display": "Amoxicillin 250mg capsules"
+                                    }
+                                ]
+                            },
+                            "subject": {
+                                "identifier": {
+                                    "system": "https://fhir.nhs.uk/Id/nhs-number",
+                                    "value": "9449304130"
+                                }
+                            },
+                            "requester": {
+                                "reference": "urn:uuid:56166769-c1c4-4d07-afa8-132b5dfca666"
+                            },
+                            "groupIdentifier": {
+                                "system": "https://fhir.nhs.uk/Id/prescription-order-number",
+                                "value": "24F5DA-A83008-7EFE6Z"
+                            },
+                            "courseOfTherapyType": {
+                                "coding": [
+                                    {
+                                        "system": "http://terminology.hl7.org/CodeSystem/medicationrequest-course-of-therapy",
+                                        "code": "acute",
+                                        "display": "Short course (acute) therapy"
+                                    }
+                                ]
+                            },
+                            "dispenseRequest": {
+                                "validityPeriod": {
+                                    "start": "2023-11-14"
+                                },
+                                "quantity": {
+                                    "value": 20,
+                                    "unit": "tablet",
+                                    "system": "http://snomed.info/sct",
+                                    "code": "428673006"
+                                },
+                                "performer": {
+                                    "reference": "urn:uuid:afb07f8b-e8d7-4cad-895d-494e6b35b2a1"
+                                }
+                            },
+                            "substitution": {
+                                "allowedBoolean": false
+                            },
+                            "extension": [
+                                {
+                                    "url": "https://fhir.nhs.uk/StructureDefinition/Extension-DM-PrescriptionStatusHistory",
+                                    "extension": [
+                                        {
+                                            "url": "statusDate",
+                                            "valueDateTime": "2023-12-02T15:27:53Z"
+                                        },
+                                        {
+                                            "url": "status",
+                                            "valueCoding": {
+                                                "system": "https://fhir.nhs.uk/CodeSystem/task-businessStatus-nppt",
+                                                "code": "Tracking Temporarily Unavailable"
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "fullUrl": "urn:uuid:56166769-c1c4-4d07-afa8-132b5dfca666",
+                        "resource": {
+                            "resourceType": "PractitionerRole",
+                            "id": "56166769-c1c4-4d07-afa8-132b5dfca666",
+                            "practitioner": {
+                                "reference": "urn:uuid:a8c85454-f8cb-498d-9629-78e2cb5fa47a"
+                            },
+                            "organization": {
+                                "reference": "urn:uuid:3b4b03a5-52ba-4ba6-9b82-70350aa109d8"
+                            }
+                        }
+                    },
+                    {
+                        "fullUrl": "urn:uuid:a8c85454-f8cb-498d-9629-78e2cb5fa47a",
+                        "resource": {
+                            "resourceType": "Practitioner",
+                            "id": "a8c85454-f8cb-498d-9629-78e2cb5fa47a",
+                            "name": [
+                                {
+                                    "family": "BOIN",
+                                    "given": [
+                                        "C"
+                                    ],
+                                    "prefix": [
+                                        "DR"
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "fullUrl": "urn:uuid:3b4b03a5-52ba-4ba6-9b82-70350aa109d8",
+                        "resource": {
+                            "resourceType": "Organization",
+                            "id": "3b4b03a5-52ba-4ba6-9b82-70350aa109d8",
+                            "identifier": [
+                                {
+                                    "system": "https://fhir.nhs.uk/Id/ods-organization-code",
+                                    "value": "A83008"
+                                }
+                            ],
+                            "name": "HALLGARTH SURGERY",
+                            "telecom": [
+                                {
+                                    "system": "phone",
+                                    "use": "work",
+                                    "value": "0115 9737320"
+                                }
+                            ],
+                            "address": [
+                                {
+                                    "use": "work",
+                                    "type": "both",
+                                    "line": [
+                                        "HALLGARTH SURGERY",
+                                        "CHEAPSIDE"
+                                    ],
+                                    "city": "SHILDON",
+                                    "district": "COUNTY DURHAM",
+                                    "postalCode": "DL4 2HP"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "fullUrl": "urn:uuid:afb07f8b-e8d7-4cad-895d-494e6b35b2a1",
+                        "resource": {
+                            "resourceType": "Organization",
+                            "id": "afb07f8b-e8d7-4cad-895d-494e6b35b2a1",
+                            "identifier": [
+                                {
+                                    "system": "https://fhir.nhs.uk/Id/ods-organization-code",
+                                    "value": "VNE51"
+                                }
+                            ],
+                            "name": "Social Care Site - HEALTH AND CARE AT HOME",
+                            "telecom": [
+                                {
+                                    "system": "phone",
+                                    "use": "work",
+                                    "value": "0115 9999999"
+                                }
+                            ],
+                            "address": [
+                                {
+                                    "use": "work",
+                                    "type": "both",
+                                    "line": [
+                                        "THE HEALTH AND WELLBEING INNOVATION C",
+                                        "TRELISKE"
+                                    ],
+                                    "city": "TRURO",
+                                    "district": "CORNWALL",
+                                    "postalCode": "TR1 3FF"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "fullUrl": "urn:uuid:fedef61e-bc62-452e-91c0-6f44ad2d5c0c",
+            "search": {
+                "mode": "outcome"
+            },
+            "resource": {
+                "resourceType": "OperationOutcome",
+                "id": "fedef61e-bc62-452e-91c0-6f44ad2d5c0c",
+                "meta": {
+                    "lastUpdated": "2023-09-29T10:52:00+00:00"
+                },
+                "issue": [
+                    {
+                        "code": "business-rule",
+                        "severity": "warning",
+                        "details": {
+                            "coding": [
+                                {
+                                    "system": "https://fhir.nhs.uk/CodeSystem/Spine-ErrorOrWarningCode",
+                                    "code": "INVALIDATED_RESOURCE",
+                                    "display": "Invalidated resource"
+                                }
+                            ]
+                        },
+                        "diagnostics": "Prescription with short form ID CDF34E-A99968-4FF3BQ has been invalidated so could not be returned."
+                    }
+                ]
+            }
+        }
+    ]
+}
