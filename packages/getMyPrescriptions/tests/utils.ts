@@ -12,14 +12,6 @@ export function mockInternalDependency(modulePath: string, module: object, depen
   return mockDependency
 }
 
-export const SERVICE_SEARCH_PARAMS = {
-  "api-version": 2,
-  searchFields: "ODSCode",
-  $filter: "OrganisationTypeId eq 'PHA' and OrganisationSubType eq 'DistanceSelling'",
-  $select: "URL,OrganisationSubType",
-  $top: 1
-}
-
 export const EXPECTED_TRACE_IDS: TraceIDs = {
   "apigw-request-id": "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
   "nhsd-correlation-id": "test-request-id.test-correlation-id.rrt-5789322914740101037-b-aet2-20145-482635-2",
