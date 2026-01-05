@@ -35,6 +35,10 @@
 		{
 			"name": "packages/common",
 			"path": "../packages/common"
+		},
+		{
+			"name": "packages/specification",
+			"path": "../packages/specification"
 		}
 	],
 	"settings": {
