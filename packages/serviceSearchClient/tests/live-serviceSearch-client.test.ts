@@ -28,9 +28,10 @@ describe("live serviceSearch client", () => {
     jest.restoreAllMocks()
   })
 
-  // Private helper tests
-  test("getServiceSearchEndpoint returns correct URL", () => {
-    const endpoint = client["getServiceSearchEndpoint"]()
+  // Helper function tests
+  test("getServiceSearchEndpoint returns correct URL", async () => {
+    const {getServiceSearchEndpoint} = await import("../src/live-serviceSearch-client.js")
+    const endpoint = getServiceSearchEndpoint()
     expect(endpoint).toBe(serviceSearchUrl)
   })
 
