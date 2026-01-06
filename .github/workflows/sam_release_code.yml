@@ -84,6 +84,9 @@ on:
       MTLS_KEY:
         type: string
         required: true
+      ALLOW_NHS_NUMBER_OVERRIDE:
+        required: true
+        type: boolean
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
@@ -169,6 +172,7 @@ jobs:
           TC007_NHS_NUMBERS: ${{ inputs.TC007_NHS_NUMBERS || '9992387920' }}
           TC008_NHS_NUMBERS: ${{ inputs.TC008_NHS_NUMBERS || '9992387920' }}
           TC009_NHS_NUMBERS: ${{ inputs.TC009_NHS_NUMBERS || '9992387920' }}
+          ALLOW_NHS_NUMBER_OVERRIDE: ${{ inputs.ALLOW_NHS_NUMBER_OVERRIDE }}
         run: ./release_code.sh
 
       - name: get mtls secrets

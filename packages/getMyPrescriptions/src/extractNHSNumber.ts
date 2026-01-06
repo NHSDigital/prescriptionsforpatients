@@ -1,5 +1,5 @@
 import type {EventHeaders} from "./types"
-
+import {NHS_LOGIN_HEADER} from "./utils"
 export class NHSNumberValidationError extends Error {
   constructor(msg: string) {
     super(msg)
@@ -15,9 +15,9 @@ export function extractNHSNumberFromHeaders(headers: EventHeaders): string {
     if (headers["nhs-login-identity-proofing-level"] !== "P9") {
       throw new NHSNumberValidationError("Identity proofing level is not P9")
     }
-    return validateNHSNumber(headers["nhsd-nhslogin-user"]!)
+    return validateNHSNumber(headers[NHS_LOGIN_HEADER]!)
   } else {
-    return extractNHSNumber(headers["nhsd-nhslogin-user"])
+    return extractNHSNumber(headers[NHS_LOGIN_HEADER])
   }
 }
 

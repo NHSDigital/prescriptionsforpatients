@@ -24,7 +24,12 @@ import {
   ResponseFunc
 } from "./responses"
 import {extractNHSNumberFromHeaders, NHSNumberValidationError, validateNHSNumber} from "./extractNHSNumber"
-import {deepCopy, hasTimedOut, jobWithTimeout} from "./utils"
+import {
+  deepCopy,
+  hasTimedOut,
+  jobWithTimeout,
+  NHS_LOGIN_HEADER
+} from "./utils"
 import {buildStatusUpdateData, shouldGetStatusUpdates} from "./statusUpdate"
 import {extractOdsCodes, isolateOperationOutcome} from "./fhirUtils"
 import {pfpConfig, PfPConfig} from "@pfp-common/utilities"
@@ -120,7 +125,7 @@ async function eventHandler(
       + "They have these relevant ODS codes, and the PfP request was made via this apigee application.",
       {
         ODSCodes,
-        actorNhsNumber: headers["nhsd-nhslogin-user"],
+        actorNhsNumber: headers[NHS_LOGIN_HEADER],
         subjectNhsNumber: headers["nhsNumber"],
         applicationName
       }
@@ -155,6 +160,16 @@ async function eventHandler(
       throw error
     }
   }
+}
+
+export function setNonProductionHeadersForSpine(headers: EventHeaders): EventHeaders {
+  // Used in non-prod environments to set the nhsNumber header for testing purposes
+  logger.info("Setting non production headers for Spine call", {headers})
+  if (headers["x-nhs-number"] && process.env.ALLOW_NHS_NUMBER_OVERRIDE) {
+    headers[NHS_LOGIN_HEADER] = headers["x-nhs-number"]
+    logger.info("Set non production headers for Spine call", {headers})
+  }
+  return headers
 }
 
 export function adaptHeadersToSpine(headers: EventHeaders): EventHeaders {
