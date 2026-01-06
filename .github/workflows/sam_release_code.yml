@@ -87,6 +87,9 @@ on:
       ALLOW_NHS_NUMBER_OVERRIDE:
         required: true
         type: boolean
+      REGRESSION_TEST_NON_PROXYGEN:
+        type: boolean
+
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
@@ -276,5 +279,6 @@ jobs:
       ENVIRONMENT: ${{ inputs.APIGEE_ENVIRONMENT }}
       VERSION_NUMBER: ${{ inputs.VERSION_NUMBER }}
       REGRESSION_TEST_PRODUCT: ${{ inputs.REGRESSION_TEST_PRODUCT }}
+      REGRESSION_TEST_NON_PROXYGEN: ${{ inputs.REGRESSION_TEST_NON_PROXYGEN }}
     secrets:
       REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}

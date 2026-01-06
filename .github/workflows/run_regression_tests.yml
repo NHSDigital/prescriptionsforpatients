@@ -13,6 +13,9 @@ on:
         type: string
       REGRESSION_TEST_PRODUCT:
         type: string
+
+      REGRESSION_TEST_NON_PROXYGEN:
+        type: boolean
     secrets:
       REGRESSION_TESTS_PEM:
         required: true
@@ -67,8 +70,9 @@ jobs:
         env:
           PYTHON_CONFIGURE_OPTS: --enable-shared
 
-      - name: Run Regression Testing Non-Proxygen
+      - name: Run Regression Testing Apigee Non-Proxygen
         working-directory: scripts
+        if: ${{ inputs.REGRESSION_TEST_NON_PROXYGEN == 'true' }}
         env:
           TARGET_ENVIRONMENT: ${{ inputs.ENVIRONMENT }}
           VERSION_NUMBER: ${{ inputs.VERSION_NUMBER }}
@@ -109,7 +113,7 @@ jobs:
             --regression_test_workflow_tag "${REGRESSION_TEST_WORKFLOW_TAG}"
           fi
 
-      - name: Run Regression Testing Proxygen
+      - name: Run Regression Testing Proxygen API
         working-directory: scripts
         env:
           TARGET_ENVIRONMENT: ${{ inputs.ENVIRONMENT }}
