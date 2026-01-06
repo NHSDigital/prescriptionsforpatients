@@ -99,6 +99,7 @@ async function eventHandler(
       return SPINE_CERT_NOT_CONFIGURED_RESPONSE
     }
 
+    headers = setNonProductionHeadersForSpine(headers)
     headers = adaptHeadersToSpine(headers)
     if (await params.pfpConfig.isTC008(headers["nhsNumber"]!)) {
       logger.info("Test NHS number corresponding to TC008 has been received. Returning a 500 response")
