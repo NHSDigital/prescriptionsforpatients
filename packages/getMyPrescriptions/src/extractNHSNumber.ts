@@ -12,6 +12,9 @@ export class NHSNumberValidationError extends Error {
 export function extractNHSNumberFromHeaders(headers: EventHeaders): string {
   if (headers["nhs-login-identity-proofing-level"]) {
     // Proxygen spec will include proofing level header, whereas non-proxygen API will not
+    if (headers["nhs-login-identity-proofing-level"] !== "P9") {
+      throw new NHSNumberValidationError("Identity proofing level is not P9")
+    }
     return validateNHSNumber(headers["nhsd-nhslogin-user"]!)
   } else {
     return extractNHSNumber(headers["nhsd-nhslogin-user"])
