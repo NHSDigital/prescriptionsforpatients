@@ -108,7 +108,7 @@ jobs:
       ENABLE_MUTUAL_TLS: false
       MTLS_KEY: prescriptions-for-patients-mtls-1
       BUILD_ARTIFACT: packaged_code
-      TRUSTSTORE_FILE: pfp-truststore-pr.pem # temporary
+      TRUSTSTORE_FILE: pfp-truststore-pr.pem
       VERSION_NUMBER: PR-${{ needs.get_issue_number.outputs.issue_number }}
       COMMIT_ID: ${{ needs.get_commit_id.outputs.commit_id }}
       LOG_LEVEL: DEBUG
@@ -119,7 +119,7 @@ jobs:
       RUN_REGRESSION_TESTS: true
       REGRESSION_TEST_PRODUCT: PFP-AWS
       FORWARD_CSOC_LOGS: false
-      DEPLOY_APIGEE: true # temporary
+      DEPLOY_APIGEE: true
     secrets:
       REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
