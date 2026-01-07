@@ -67,6 +67,7 @@ jobs:
       TARGET_ENVIRONMENT: dev
       APIGEE_ENVIRONMENT: internal-dev
       ENABLE_MUTUAL_TLS: true
+      MTLS_KEY: prescriptions-for-patients-mtls-1
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: pfp-truststore.pem
       VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
@@ -81,6 +82,8 @@ jobs:
       RUN_REGRESSION_TESTS: true
       REGRESSION_TEST_PRODUCT: PFP-APIGEE
       FORWARD_CSOC_LOGS: false
+      ALLOW_NHS_NUMBER_OVERRIDE: true
+      REGRESSION_TEST_NON_PROXYGEN: true
     secrets:
       REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
@@ -90,6 +93,7 @@ jobs:
       INT_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.INT_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
       PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
       DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
+      PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PTL_ROLE }}
 
   release_dev_sandbox:
     needs: [tag_release, package_code, get_commit_id]
@@ -100,6 +104,7 @@ jobs:
       TARGET_ENVIRONMENT: dev
       APIGEE_ENVIRONMENT: internal-dev-sandbox
       ENABLE_MUTUAL_TLS: true
+      MTLS_KEY: prescriptions-for-patients-mtls-1
       BUILD_ARTIFACT: packaged_sandbox_code
       TRUSTSTORE_FILE: pfp-sandbox-truststore.pem
       VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
@@ -109,11 +114,13 @@ jobs:
       STATE_MACHINE_LOG_LEVEL: ALL
       RUN_REGRESSION_TESTS: false
       FORWARD_CSOC_LOGS: false
+      ALLOW_NHS_NUMBER_OVERRIDE: true
     secrets:
       REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: sandbox
       TARGET_SERVICE_SEARCH_SERVER: sandbox
+      PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PTL_ROLE }}
 
   release_qa:
     needs:
@@ -131,6 +138,7 @@ jobs:
       TARGET_ENVIRONMENT: qa
       APIGEE_ENVIRONMENT: internal-qa
       ENABLE_MUTUAL_TLS: true
+      MTLS_KEY: prescriptions-for-patients-mtls-1
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: pfp-truststore.pem
       VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
@@ -143,8 +151,11 @@ jobs:
       RUN_REGRESSION_TESTS: true
       REGRESSION_TEST_PRODUCT: PFP-APIGEE
       FORWARD_CSOC_LOGS: false
+      ALLOW_NHS_NUMBER_OVERRIDE: true
+      REGRESSION_TEST_NON_PROXYGEN: true
     secrets:
       REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.QA_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.QA_TARGET_SPINE_SERVER }}
       TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.QA_TARGET_SERVICE_SEARCH_SERVER }}
+      PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PTL_ROLE }}
