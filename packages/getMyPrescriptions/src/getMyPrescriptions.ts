@@ -166,7 +166,7 @@ async function eventHandler(
 export function setNonProductionHeadersForSpine(headers: EventHeaders): EventHeaders {
   // Used in non-prod environments to set the nhsNumber header for testing purposes
   logger.info("Setting non production headers for Spine call", {headers})
-  if (headers["x-nhs-number"] && process.env.ALLOW_NHS_NUMBER_OVERRIDE) {
+  if (headers["x-nhs-number"] && process.env.ALLOW_NHS_NUMBER_OVERRIDE === "true") {
     headers[NHS_LOGIN_HEADER] = headers["x-nhs-number"]
     logger.info("Set non production headers for Spine call", {headers})
   }
