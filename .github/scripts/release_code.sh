@@ -21,6 +21,7 @@ if [[ "$STACK_NAME" =~ -pr-[0-9]+$ ]]; then
   CFN_DRIFT_DETECTION_GROUP="pfp-pull-request"
 fi
 
+# shellcheck disable=SC2086
 sam deploy \
   --template-file "$TEMPLATE_FILE" \
   --stack-name "$STACK_NAME" \
@@ -53,4 +54,4 @@ sam deploy \
       TC007NHSNumberValue="$TC007_NHS_NUMBERS" \
       TC008NHSNumberValue="$TC008_NHS_NUMBERS" \
       TC009NHSNumberValue="$TC009_NHS_NUMBERS" \
-      AllowNHSNumberOverride="$ALLOW_NHS_NUMBER_OVERRIDE"
+      AllowNHSNumberOverride=$ALLOW_NHS_NUMBER_OVERRIDE
