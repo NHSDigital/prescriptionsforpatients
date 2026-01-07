@@ -100,13 +100,15 @@ jobs:
     needs: [get_issue_number, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
+      IS_PULL_REQUEST: true
       STACK_NAME: pfp-pr-${{needs.get_issue_number.outputs.issue_number}}
       ARTIFACT_BUCKET_PREFIX: PR-${{needs.get_issue_number.outputs.issue_number}}
-      TARGET_ENVIRONMENT: dev-pr
+      TARGET_ENVIRONMENT: dev
       APIGEE_ENVIRONMENT: internal-dev
       ENABLE_MUTUAL_TLS: false
+      MTLS_KEY: prescriptions-for-patients-mtls-1
       BUILD_ARTIFACT: packaged_code
-      TRUSTSTORE_FILE: pfp-truststore.pem
+      TRUSTSTORE_FILE: pfp-truststore-pr.pem
       VERSION_NUMBER: PR-${{ needs.get_issue_number.outputs.issue_number }}
       COMMIT_ID: ${{ needs.get_commit_id.outputs.commit_id }}
       LOG_LEVEL: DEBUG
@@ -117,21 +119,24 @@ jobs:
       RUN_REGRESSION_TESTS: true
       REGRESSION_TEST_PRODUCT: PFP-AWS
       FORWARD_CSOC_LOGS: false
+      DEPLOY_APIGEE: true
+      ALLOW_NHS_NUMBER_OVERRIDE: true
     secrets:
       REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: ${{ secrets.DEV_TARGET_SPINE_SERVER }}
       TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.DEV_TARGET_SERVICE_SEARCH_SERVER }}
-
+      PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PTL_ROLE }}
   release_sandbox_code:
     needs: [get_issue_number, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
       STACK_NAME: pfp-pr-${{needs.get_issue_number.outputs.issue_number}}-sandbox
       ARTIFACT_BUCKET_PREFIX: PR-sandbox-${{needs.get_issue_number.outputs.issue_number}}
-      TARGET_ENVIRONMENT: dev-pr
+      TARGET_ENVIRONMENT: dev
       APIGEE_ENVIRONMENT: internal-dev-sandbox
       ENABLE_MUTUAL_TLS: false
+      MTLS_KEY: prescriptions-for-patients-mtls-1
       BUILD_ARTIFACT: packaged_sandbox_code
       TRUSTSTORE_FILE: pfp-sandbox-truststore.pem
       VERSION_NUMBER: PR-${{ needs.get_issue_number.outputs.issue_number }}
@@ -141,8 +146,11 @@ jobs:
       STATE_MACHINE_LOG_LEVEL: ALL
       RUN_REGRESSION_TESTS: false
       FORWARD_CSOC_LOGS: false
+      DEPLOY_APIGEE: false
+      ALLOW_NHS_NUMBER_OVERRIDE: true
     secrets:
       REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: sandbox
       TARGET_SERVICE_SEARCH_SERVER: sandbox
+      PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PTL_ROLE }}

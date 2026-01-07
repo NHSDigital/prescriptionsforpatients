@@ -31,7 +31,8 @@ import {EXPECTED_TRACE_IDS} from "./utils"
 import {LogLevel} from "@aws-lambda-powertools/logger/types"
 import {createSpineClient} from "@NHSDigital/eps-spine-client"
 import {MiddyfiedHandler} from "@middy/core"
-import {createMockedPfPConfig, MockedPfPConfig, setupTestEnvironment} from "@pfp-common/testing"
+import {createMockedPfPConfig, setupTestEnvironment} from "@pfp-common/testing"
+import type {MockedPfPConfig} from "@pfp-common/testing"
 
 const TC008_NHS_NUMBER = "9992387920"
 
