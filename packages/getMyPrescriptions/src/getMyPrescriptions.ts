@@ -165,9 +165,16 @@ async function eventHandler(
 
 export function setNonProductionHeadersForSpine(headers: EventHeaders): EventHeaders {
   // Used in non-prod environments to set the nhsNumber header for testing purposes
-  logger.info("Setting non production headers for Spine call", {headers})
-  if (headers["x-nhs-number"] && process.env.ALLOW_NHS_NUMBER_OVERRIDE === "true") {
-    headers[NHS_LOGIN_HEADER] = headers["x-nhs-number"]
+  if (
+    process.env.ALLOW_NHS_NUMBER_OVERRIDE === "true"
+    && headers[NHS_LOGIN_HEADER]?.startsWith("P9:") === false
+    && headers["x-nhs-number"]
+  ) {
+    logger.info("Setting non production headers for Spine call", {headers})
+    // For proxygen based testing, we need to prepend the proofing level to match non-proxygen implementation
+    // See prescriptions-for-patients repo for AssignMessage.OverridePatientAccessHeader.xml
+    headers[NHS_LOGIN_HEADER] =
+    `${headers["nhs-login-identity-proofing-level"]}:${headers["x-nhs-number"]}`
     logger.info("Set non production headers for Spine call", {headers})
   }
   return headers
