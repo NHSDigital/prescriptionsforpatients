@@ -1,5 +1,5 @@
 nodejs 20.19.5
-python 3.14.2
+python 3.12.12
 poetry 2.2.1
 shellcheck 0.11.0
 java openjdk-20
