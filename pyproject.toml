@@ -20,9 +20,8 @@ requests = "^2.32.3"
 argparse = "^1.4.0"
 pre-commit = "^4.1.0"
 cfn-lint = "^1.27.0"
-pip-licenses = "^5.5.0"
 
-[poetry.group.dev.dependencies]
+[tool.poetry.group.dev.dependencies]
 pre-commit = "^4.1.0"
 cfn-lint = "^1.27.0"
 black = "^25.1.0"
