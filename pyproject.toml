@@ -1,5 +1,5 @@
 [project]
-python = "^3.12"
+python = "^3.14"
 name = "prescriptionsforpatients"
 
 [tool.poetry]
@@ -15,14 +15,13 @@ repository = "https://github.com/NHSDigital/prescriptionsforpatients"
 package-mode = false
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.14"
 requests = "^2.32.3"
 argparse = "^1.4.0"
 pre-commit = "^4.1.0"
 cfn-lint = "^1.27.0"
-pip-licenses = "^5.5.0"
 
-[poetry.group.dev.dependencies]
+[tool.poetry.group.dev.dependencies]
 pre-commit = "^4.1.0"
 cfn-lint = "^1.27.0"
 black = "^25.1.0"
