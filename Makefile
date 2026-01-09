@@ -206,4 +206,4 @@ cfn-guard:
 create-npmrc:
 	gh auth login --scopes "read:packages"; \
 	echo "//npm.pkg.github.com/:_authToken=$$(gh auth token)" > .npmrc
-	echo "@nhsdigital:registry=https://npm.pkg.github.com" >> .npmrc
+	echo "@NHSDigital:registry=https://npm.pkg.github.com" >> .npmrc
