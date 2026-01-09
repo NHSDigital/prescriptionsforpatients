@@ -26,7 +26,7 @@ jobs:
           TAG_FORMAT=$(yq '.TAG_FORMAT' .github/config/settings.yml)
           echo "TAG_FORMAT=$TAG_FORMAT" >> "$GITHUB_OUTPUT"
   quality_checks:
-    uses: NHSDigital/eps-common-workflows/.github/workflows/quality-checks.yml@2b3ddfd1e59daf9905522d0140c6cd08e2547432
+    uses: NHSDigital/eps-common-workflows/.github/workflows/quality-checks.yml@2fe6bc6cd974efb4d55a2a7b665385f7a2d28950
     needs: [get_asdf_version]
     with:
       asdfVersion: ${{ needs.get_asdf_version.outputs.asdf_version }}
