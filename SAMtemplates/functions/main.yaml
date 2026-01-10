@@ -9,7 +9,7 @@ Globals:
     MemorySize: 256
     Architectures:
       - x86_64
-    Runtime: nodejs20.x
+    Runtime: nodejs24.x
     Environment:
       Variables:
         STACK_NAME: !Ref StackName
