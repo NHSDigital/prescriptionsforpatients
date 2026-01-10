@@ -20,7 +20,7 @@
     "@aws-sdk/client-secrets-manager": "^3.966.0",
     "@middy/core": "^6.4.5",
     "@middy/http-header-normalizer": "^7.0.2",
-    "@middy/input-output-logger": "^6.4.5",
+    "@middy/input-output-logger": "^7.0.2",
     "@nhs/fhir-middy-error-handler": "^2.1.66",
     "@NHSDigital/eps-spine-client": "^2.1.74",
     "@prescriptionsforpatients/distanceSelling": "^1.0.0",
