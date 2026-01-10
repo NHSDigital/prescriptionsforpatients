@@ -239,7 +239,7 @@ const MIDDLEWARE = {
   errorHandler: errorHandler({logger: logger})
 }
 
-export const STATE_MACHINE_MIDDLEWARE = [
+export const STATE_MACHINE_MIDDLEWARE: Array<middy.MiddlewareObj> = [
   MIDDLEWARE.injectLambdaContext,
   MIDDLEWARE.httpHeaderNormalizer,
   MIDDLEWARE.inputOutputLogger,

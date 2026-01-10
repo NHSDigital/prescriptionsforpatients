@@ -174,6 +174,9 @@ clean:
 	rm -rf packages/common/utilities/lib
 	rm -rf packages/common/testing/lib
 	rm -rf .aws-sam
+	find . -name 'lib' -type d -prune -exec rm -rf '{}' +
+	find . -name 'coverage' -type d -prune -exec rm -rf '{}' +
+	find . -name 'tsconfig.tsbuildinfo' -type f -prune -exec rm '{}' +
 
 deep-clean: clean
 	rm -rf .venv
