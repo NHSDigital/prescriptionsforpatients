@@ -171,7 +171,6 @@ export function setNonProductionHeadersForSpine(headers: EventHeaders): EventHea
     && headers[NHS_LOGIN_HEADER]?.startsWith(`${PROOFING_LEVEL}:`) === false
     && headers["x-nhs-number"]
   ) {
-    logger.info("Setting non production headers for Spine call", {headers})
     // For proxygen based testing, we need to prepend the proofing level to match non-proxygen implementation
     // See prescriptions-for-patients repo for AssignMessage.OverridePatientAccessHeader.xml
     headers[NHS_LOGIN_HEADER] =
