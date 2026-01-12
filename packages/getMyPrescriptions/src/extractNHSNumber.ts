@@ -1,5 +1,5 @@
 import type {EventHeaders} from "./types"
-import {NHS_LOGIN_HEADER} from "./utils"
+import {NHS_LOGIN_HEADER, PROOFING_LEVEL} from "./utils"
 export class NHSNumberValidationError extends Error {
   constructor(msg: string) {
     super(msg)
@@ -12,8 +12,8 @@ export class NHSNumberValidationError extends Error {
 export function extractNHSNumberFromHeaders(headers: EventHeaders): string {
   if (headers["nhs-login-identity-proofing-level"]) {
     // Proxygen spec will include proofing level header, whereas non-proxygen API will not
-    if (headers["nhs-login-identity-proofing-level"] !== "P9") {
-      throw new NHSNumberValidationError("Identity proofing level is not P9")
+    if (headers["nhs-login-identity-proofing-level"] !== PROOFING_LEVEL) {
+      throw new NHSNumberValidationError(`Identity proofing level is not ${PROOFING_LEVEL}`)
     }
     return validateNHSNumber(headers[NHS_LOGIN_HEADER]!)
   } else {
@@ -33,8 +33,8 @@ export function extractNHSNumber(nhsloginUser: string | undefined): string {
     throw new NHSNumberValidationError("NHS Number failed preflight checks")
   }
 
-  if (authLevel !== "P9") {
-    throw new NHSNumberValidationError("Identity proofing level is not P9")
+  if (authLevel !== PROOFING_LEVEL) {
+    throw new NHSNumberValidationError(`Identity proofing level is not ${PROOFING_LEVEL}`)
   }
   return validateNHSNumber(nhsNumber)
 }
