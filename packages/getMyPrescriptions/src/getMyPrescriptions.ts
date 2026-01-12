@@ -99,7 +99,7 @@ async function eventHandler(
       return SPINE_CERT_NOT_CONFIGURED_RESPONSE
     }
 
-    headers = setNonProductionHeadersForSpine(headers)
+    headers = overrideNonProductionHeadersForProxygenRequests(headers)
     headers = adaptHeadersToSpine(headers)
     if (await params.pfpConfig.isTC008(headers["nhsNumber"]!)) {
       logger.info("Test NHS number corresponding to TC008 has been received. Returning a 500 response")
@@ -163,10 +163,14 @@ async function eventHandler(
   }
 }
 
-export function setNonProductionHeadersForSpine(headers: EventHeaders): EventHeaders {
+export function overrideNonProductionHeadersForProxygenRequests(headers: EventHeaders): EventHeaders {
   // Used in non-prod environments to set the nhsNumber header for testing purposes
-  logger.info("Setting non production headers for Spine call", {headers})
-  if (headers["x-nhs-number"] && process.env.ALLOW_NHS_NUMBER_OVERRIDE === "true") {
+  if (headers["x-nhs-number"]
+      && process.env.ALLOW_NHS_NUMBER_OVERRIDE === "true"
+      && headers["nhs-login-identity-proofing-level"]
+  ) {
+    // For proxygen based testing, we need to prepend the proofing level to match non-proxygen implementation
+    // See prescriptions-for-patients repo for AssignMessage.OverridePatientAccessHeader.xml
     headers[NHS_LOGIN_HEADER] = headers["x-nhs-number"]
     logger.info("Set non production headers for Spine call", {headers})
   }
