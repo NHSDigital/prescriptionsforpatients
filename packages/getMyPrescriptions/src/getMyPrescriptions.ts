@@ -28,7 +28,8 @@ import {
   deepCopy,
   hasTimedOut,
   jobWithTimeout,
-  NHS_LOGIN_HEADER
+  NHS_LOGIN_HEADER,
+  PROOFING_LEVEL
 } from "./utils"
 import {buildStatusUpdateData, shouldGetStatusUpdates} from "./statusUpdate"
 import {extractOdsCodes, isolateOperationOutcome} from "./fhirUtils"
@@ -167,7 +168,7 @@ export function setNonProductionHeadersForSpine(headers: EventHeaders): EventHea
   // Used in non-prod environments to set the nhsNumber header for testing purposes
   if (
     process.env.ALLOW_NHS_NUMBER_OVERRIDE === "true"
-    && headers[NHS_LOGIN_HEADER]?.startsWith("P9:") === false
+    && headers[NHS_LOGIN_HEADER]?.startsWith(`${PROOFING_LEVEL}:`) === false
     && headers["x-nhs-number"]
   ) {
     logger.info("Setting non production headers for Spine call", {headers})
