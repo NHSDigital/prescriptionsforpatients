@@ -248,7 +248,7 @@ jobs:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: pfp-sandbox
       TARGET_ENVIRONMENT: int
-      APIGEE_ENVIRONMENT: int-sandbox
+      APIGEE_ENVIRONMENT: sandbox
       ENABLE_MUTUAL_TLS: true
       MTLS_KEY: prescriptions-for-patients-mtls-1
       BUILD_ARTIFACT: packaged_sandbox_code
