@@ -19,3 +19,4 @@ export function hasTimedOut<T>(response: T | Timeout): response is Timeout{
 }
 
 export const NHS_LOGIN_HEADER = "nhsd-nhslogin-user"
+export const PROOFING_LEVEL = "P9"
