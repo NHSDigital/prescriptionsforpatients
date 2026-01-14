@@ -191,7 +191,7 @@ export function adaptHeadersToSpine(headers: EventHeaders): EventHeaders {
     if (!subjectNHSNumber) {
       throw new NHSNumberValidationError(`${DELEGATED_ACCESS_SUB_HDR} header not present for delegated access`)
     }
-    if (subjectNHSNumber.indexOf(":") > -1) {
+    if (subjectNHSNumber.includes(":")) {
       logger.warn(`${DELEGATED_ACCESS_SUB_HDR} is not expected to be prefixed by proofing level, but is, removing it`)
       subjectNHSNumber = subjectNHSNumber.split(":")[1]
     }
