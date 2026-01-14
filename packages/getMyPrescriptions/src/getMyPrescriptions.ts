@@ -33,7 +33,12 @@ import {
 import {buildStatusUpdateData, shouldGetStatusUpdates} from "./statusUpdate"
 import {extractOdsCodes, isolateOperationOutcome} from "./fhirUtils"
 import {pfpConfig, PfPConfig} from "@pfp-common/utilities"
-import type {EventHeaders} from "./types"
+import {
+  PrescriptionTimeoutError,
+  SpineCertNotConfiguredError,
+  TC008TestError,
+  type EventHeaders
+} from "./types"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 export const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
@@ -81,6 +86,7 @@ async function eventHandler(
   successResponse: ResponseFunc,
   includeStatusUpdateData: boolean = false
 ): Promise<LambdaResult> {
+  // intentionally no try-catch here, allow middleware to handle errors
   const traceIDs: TraceIDs = {
     "nhsd-correlation-id": headers["nhsd-correlation-id"],
     "x-request-id": headers["x-request-id"],
@@ -90,76 +96,72 @@ async function eventHandler(
   }
   logger.appendKeys(traceIDs)
 
-  const spineClient = params.spineClient
-  const applicationName = headers["nhsd-application-name"] ?? "unknown"
+  checkSpineCertificate(params.spineClient)
 
-  try {
-    const isCertificateConfigured = spineClient.isCertificateConfigured()
-    if (!isCertificateConfigured) {
-      return SPINE_CERT_NOT_CONFIGURED_RESPONSE
+  headers = overrideNonProductionHeadersForProxygenRequests(headers)
+  headers = adaptHeadersToSpine(headers)
+  await handleTestCase008(params, headers)
+
+  const spineCallout = params.spineClient.getPrescriptions(headers)
+  const response = await jobWithTimeout(params.spineTimeoutMs, spineCallout)
+  if (hasTimedOut(response)) {
+    logger.error("Call to Spine has timed out. Returning error response.")
+    throw new PrescriptionTimeoutError("Call to Spine has timed out. Returning error response.")
+  }
+  const searchsetBundle: Bundle = response.data
+  searchsetBundle.id = traceIDs["x-request-id"] || "unknown"
+
+  const operationOutcomes = isolateOperationOutcome(searchsetBundle)
+  operationOutcomes.forEach((operationOutcome) => {
+    logger.error("Operation outcome returned from spine", {operationOutcome})
+  })
+
+  const ODSCodes = extractOdsCodes(logger, searchsetBundle)
+  logger.info(
+    "Processing PfP get prescriptions request for patient. "
+    + "They have these relevant ODS codes, and the PfP request was made via this apigee application.",
+    {
+      ODSCodes,
+      actorNhsNumber: headers[NHS_LOGIN_HEADER],
+      subjectNhsNumber: headers["nhsNumber"],
+      applicationName: headers["nhsd-application-name"] ?? "unknown"
     }
+  )
 
-    headers = overrideNonProductionHeadersForProxygenRequests(headers)
-    headers = adaptHeadersToSpine(headers)
-    if (await params.pfpConfig.isTC008(headers["nhsNumber"]!)) {
-      logger.info("Test NHS number corresponding to TC008 has been received. Returning a 500 response")
-      return TC008_ERROR_RESPONSE
-    }
+  const statusUpdateData = includeStatusUpdateData ? buildStatusUpdateData(logger, searchsetBundle) : undefined
 
-    const spineCallout = spineClient.getPrescriptions(headers)
-    const response = await jobWithTimeout(params.spineTimeoutMs, spineCallout)
-    if (hasTimedOut(response)) {
-      logger.error("Call to Spine has timed out. Returning error response.")
-      return TIMEOUT_RESPONSE
-    }
-    const searchsetBundle: Bundle = response.data
-    searchsetBundle.id = traceIDs["x-request-id"] || "unknown"
+  const distanceSelling = new DistanceSelling(servicesCache, logger)
+  const distanceSellingBundle = deepCopy(searchsetBundle)
+  const distanceSellingCallout = distanceSelling.search(distanceSellingBundle)
 
-    const operationOutcomes = isolateOperationOutcome(searchsetBundle)
-    operationOutcomes.forEach((operationOutcome) => {
-      logger.error("Operation outcome returned from spine", {operationOutcome})
+  const distanceSellingResponse = await jobWithTimeout(params.serviceSearchTimeoutMs, distanceSellingCallout)
+  if (hasTimedOut(distanceSellingResponse)) {
+    logger.warn("serviceSearch request timed out", {
+      timeout: SERVICE_SEARCH_TIMEOUT_MS,
+      message: `The request to the distance selling service timed out after ${SERVICE_SEARCH_TIMEOUT_MS}ms.`
     })
-
-    const ODSCodes = extractOdsCodes(logger, searchsetBundle)
-    logger.info(
-      "Processing PfP get prescriptions request for patient. "
-      + "They have these relevant ODS codes, and the PfP request was made via this apigee application.",
-      {
-        ODSCodes,
-        actorNhsNumber: headers[NHS_LOGIN_HEADER],
-        subjectNhsNumber: headers["nhsNumber"],
-        applicationName
-      }
-    )
-
-    const statusUpdateData = includeStatusUpdateData ? buildStatusUpdateData(logger, searchsetBundle) : undefined
-
-    const distanceSelling = new DistanceSelling(servicesCache, logger)
-    const distanceSellingBundle = deepCopy(searchsetBundle)
-    const distanceSellingCallout = distanceSelling.search(distanceSellingBundle)
-
-    const distanceSellingResponse = await jobWithTimeout(params.serviceSearchTimeoutMs, distanceSellingCallout)
-    if (hasTimedOut(distanceSellingResponse)) {
-      logger.warn("serviceSearch request timed out", {
-        timeout: SERVICE_SEARCH_TIMEOUT_MS,
-        message: `The request to the distance selling service timed out after ${SERVICE_SEARCH_TIMEOUT_MS}ms.`
-      })
-      return await successResponse(
-        logger, headers["nhsNumber"]!, searchsetBundle, traceIDs, params.pfpConfig, statusUpdateData
-      )
-    }
-
     return await successResponse(
-      logger, headers["nhsNumber"]!, distanceSellingBundle, traceIDs,
-      params.pfpConfig, statusUpdateData
+      logger, headers["nhsNumber"]!, searchsetBundle, traceIDs, params.pfpConfig, statusUpdateData
     )
-  } catch (error) {
-    logger.info("Error caught in getMyPrescriptions handler", {error})
-    if (error instanceof NHSNumberValidationError) {
-      return INVALID_NHS_NUMBER_RESPONSE
-    } else {
-      throw error
-    }
+  }
+
+  return await successResponse(
+    logger, headers["nhsNumber"]!, distanceSellingBundle, traceIDs,
+    params.pfpConfig, statusUpdateData
+  )
+}
+
+async function handleTestCase008(params: HandlerParams, headers: EventHeaders) {
+  if (await params.pfpConfig.isTC008(headers["nhsNumber"]!)) {
+    logger.info("Test NHS number corresponding to TC008 has been received. Returning a 500 response")
+    throw new TC008TestError()
+  }
+}
+
+function checkSpineCertificate(spineClient: SpineClient) {
+  const isCertificateConfigured = spineClient.isCertificateConfigured()
+  if (!isCertificateConfigured) {
+    throw new SpineCertNotConfiguredError()
   }
 }
 
@@ -228,6 +230,24 @@ export const newHandler = <T>(handlerConfig: HandlerConfig<T>) => {
   return newHandler
 }
 
+// Custom middleware to handle our domain-specific errors
+const customErrorHandler = (): middy.MiddlewareObj => ({
+  onError: async (request) => {
+    const error = request.error
+    logger.error("Known error caught", {error})
+    if (error instanceof SpineCertNotConfiguredError) {
+      request.response = SPINE_CERT_NOT_CONFIGURED_RESPONSE
+    } else if (error instanceof TC008TestError) {
+      request.response = TC008_ERROR_RESPONSE
+    } else if (error instanceof PrescriptionTimeoutError) {
+      request.response = TIMEOUT_RESPONSE
+    } else if (error instanceof NHSNumberValidationError) {
+      request.response = INVALID_NHS_NUMBER_RESPONSE
+    }
+    // Let other errors propagate to the generic error handler
+  }
+})
+
 const MIDDLEWARE = {
   injectLambdaContext: injectLambdaContext(logger, {clearState: true}),
   httpHeaderNormalizer: httpHeaderNormalizer() as middy.MiddlewareObj,
@@ -240,6 +260,7 @@ const MIDDLEWARE = {
       }
     }
   }),
+  customErrorHandler: customErrorHandler(),
   errorHandler: errorHandler({logger: logger})
 }
 
@@ -247,6 +268,7 @@ export const STATE_MACHINE_MIDDLEWARE: Array<middy.MiddlewareObj> = [
   MIDDLEWARE.injectLambdaContext,
   MIDDLEWARE.httpHeaderNormalizer,
   MIDDLEWARE.inputOutputLogger,
+  MIDDLEWARE.customErrorHandler,
   MIDDLEWARE.errorHandler
 ]
 export const handler = newHandler({
