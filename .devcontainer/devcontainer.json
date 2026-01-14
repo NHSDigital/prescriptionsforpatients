@@ -36,7 +36,8 @@
         "mkhl.direnv",
         "github.vscode-github-actions",
         "Orta.vscode-jest",
-        "jebbs.plantuml"
+        "jebbs.plantuml",
+        "sonarsource.sonarlint-vscode"
       ],
       "settings": {
         "python.defaultInterpreterPath": "/workspaces/prescriptionsforpatients/.venv/bin/python",
