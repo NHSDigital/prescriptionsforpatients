@@ -266,7 +266,7 @@ jobs:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: sandbox
       TARGET_SERVICE_SEARCH_SERVER: sandbox
-      PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PTL_ROLE }}
+      PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PROD_ROLE }}
 
   release_prod:
     needs:
