@@ -218,7 +218,7 @@ jobs:
         with:
           name: ${{ inputs.APIGEE_ENVIRONMENT }}-specs
           path: |
-            ./.build/packages/specification/dist/prescriptions-for-patients.resolved.json
+            ./packages/specification/dist/prescriptions-for-patients.resolved.json
 
       - name: create_int_release_notes
         uses: ./.github/actions/update_confluence_jira
