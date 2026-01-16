@@ -1,3 +1,7 @@
 apis:
   pfp:
-    root: ./dist/prescriptions-for-patients.resolved.json
+    root: ./prescriptions-for-patients.yaml
+
+resolve:
+  http:
+    headers: []
