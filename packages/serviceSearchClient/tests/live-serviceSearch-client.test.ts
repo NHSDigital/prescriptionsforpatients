@@ -11,7 +11,7 @@ process.env.TargetServiceSearchServer = "live"
 process.env.ServiceSearchApiKey = "test-key"
 const serviceSearchUrl = "https://live/service-search"
 
-type ServiceSearchTestData = {
+interface ServiceSearchTestData {
   scenarioDescription: string
   serviceSearchData: ServiceSearchData
   expected: URL | undefined
@@ -28,9 +28,10 @@ describe("live serviceSearch client", () => {
     jest.restoreAllMocks()
   })
 
-  // Private helper tests
-  test("getServiceSearchEndpoint returns correct URL", () => {
-    const endpoint = client["getServiceSearchEndpoint"]()
+  // Helper function tests
+  test("getServiceSearchEndpoint returns correct URL", async () => {
+    const {getServiceSearchEndpoint} = await import("../src/live-serviceSearch-client.js")
+    const endpoint = getServiceSearchEndpoint()
     expect(endpoint).toBe(serviceSearchUrl)
   })
 

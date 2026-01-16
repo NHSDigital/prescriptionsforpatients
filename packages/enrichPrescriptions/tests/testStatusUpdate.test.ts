@@ -242,7 +242,7 @@ describe("Unit tests for statusUpdate", function () {
 
     const statusUpdates = simpleStatusUpdatesPayload()
 
-    const responseBundle = JSON.parse(JSON.stringify(requestBundle))
+    const responseBundle = structuredClone(requestBundle)
 
     applyStatusUpdates(logger, requestBundle, statusUpdates)
 
@@ -410,7 +410,7 @@ describe("Unit tests for statusUpdate", function () {
       const statusUpdateRequest = createStatusUpdateRequest([{odsCode: "FLM49", prescriptionID: prescriptionID}])
 
       applyTemporaryStatusUpdates(logger, requestBundle, statusUpdateRequest)
-      const statusExtension = medicationRequest.extension![0].extension!.filter((e) => e.url === "status")[0]
+      const statusExtension = medicationRequest.extension![0].extension!.find((e) => e.url === "status")!
 
       expect(statusExtension.valueCoding!.code!).toEqual(TEMPORARILY_UNAVAILABLE_STATUS)
       expect(medicationRequest.status).toEqual("active")
@@ -451,7 +451,7 @@ describe("Unit tests for statusUpdate", function () {
         const statusUpdateRequest = createStatusUpdateRequest([{odsCode: "FLM49", prescriptionID: prescriptionID}])
 
         applyTemporaryStatusUpdates(logger, requestBundle, statusUpdateRequest)
-        const statusExtension = medicationRequest.extension![0].extension!.filter((e) => e.url === "status")[0]
+        const statusExtension = medicationRequest.extension![0].extension!.find((e) => e.url === "status")!
 
         expect(statusExtension.valueCoding!.code!).toEqual(shouldUpdate ? TEMPORARILY_UNAVAILABLE_STATUS : status)
       }
@@ -487,10 +487,10 @@ describe("Unit tests for statusUpdate", function () {
     applyTemporaryStatusUpdates(logger, requestBundle, statusUpdateRequest)
 
     const tempStatusUpdateFilter = (medicationRequest: MedicationRequest) => {
-      const outerExtension = medicationRequest.extension?.filter(
+      const outerExtension = medicationRequest.extension?.find(
         (extension) => extension.url === OUTER_EXTENSION_URL
-      )[0]
-      const statusExtension = outerExtension?.extension?.filter((extension) => extension.url === "status")[0]
+      )
+      const statusExtension = outerExtension?.extension?.find((extension) => extension.url === "status")
       return statusExtension?.valueCoding!.code === TEMPORARILY_UNAVAILABLE_STATUS
     }
 
