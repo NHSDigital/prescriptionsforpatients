@@ -19,18 +19,19 @@ export type ServiceSearchData = {
 }
 
 export const SERVICE_SEARCH_BASE_QUERY_PARAMS = {
-  "api-version": 3,
+  "api-version": 2,
   "searchFields": "ODSCode",
   "$filter": "OrganisationTypeId eq 'PHA' and OrganisationSubType eq 'DistanceSelling'",
   "$select": "URL,OrganisationSubType",
   "$top": 1
-} as const
+}
 
 export function getServiceSearchEndpoint(targetServer?: string): string {
   const endpoint = targetServer || process.env.TargetServiceSearchServer || "service-search"
   const baseUrl = `https://${endpoint}`
   if (endpoint.toLowerCase().includes("api.service.nhs.uk")) {
     // service search v3
+    SERVICE_SEARCH_BASE_QUERY_PARAMS["api-version"] = 3
     return `${baseUrl}/service-search-api/`
   }
   // service search v2
