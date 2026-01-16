@@ -11,7 +11,7 @@ process.env.TargetServiceSearchServer = "live"
 process.env.ServiceSearchApiKey = "test-key"
 const serviceSearchUrl = "https://live/service-search"
 
-type ServiceSearchTestData = {
+interface ServiceSearchTestData {
   scenarioDescription: string
   serviceSearchData: ServiceSearchData
   expected: URL | undefined

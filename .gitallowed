@@ -15,3 +15,4 @@ console\.log\(`access token : \${access_token}`\)
 .*nhsd-rules-deny.txt.*
 .*\.venv.*
 .*node_modules.*
+poetry\.lock

@@ -112,7 +112,10 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 compile-node:
 	npx tsc --build tsconfig.build.json
 
-compile: compile-node
+compile: compile-node compile-specification
+
+compile-specification:
+	npm run compile --workspace packages/specification
 
 download-get-secrets-layer:
 	mkdir -p packages/getSecretLayer/lib
@@ -171,6 +174,9 @@ clean:
 	rm -rf packages/common/utilities/lib
 	rm -rf packages/common/testing/lib
 	rm -rf .aws-sam
+	find . -name 'lib' -type d -prune -exec rm -rf '{}' +
+	find . -name 'coverage' -type d -prune -exec rm -rf '{}' +
+	find . -name 'tsconfig.tsbuildinfo' -type f -prune -exec rm '{}' +
 
 deep-clean: clean
 	rm -rf .venv

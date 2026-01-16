@@ -22,6 +22,7 @@ Globals:
         SpinePartyKeyARN: !ImportValue account-resources:SpinePartyKey
         SpineCAChainARN: !ImportValue account-resources:SpineCAChain
         ServiceSearchApiKeyARN: !ImportValue account-resources:ServiceSearchApiKey
+        ServiceSearch3ApiKeyARN: !Ref ServiceSearch3ApiKeyARN
     Layers:
       - !Sub arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:52
 
@@ -29,6 +30,10 @@ Parameters:
   StackName:
     Type: String
     Default: none
+
+  ServiceSearch3ApiKeyARN:
+    Type: String
+    Description: ARN of the Service Search API v3 Key Secret
 
   Env:
     Type: String
@@ -68,6 +73,22 @@ Parameters:
   SSMParameterPolicy:
     Type: String
 
+  SecretsPolicy:
+    Type: String
+    Description: ARN of the policy to read secrets
+
+  KMSPolicy:
+    Type: String
+    Description: ARN of the policy to use KMS key
+
+  AllowNHSNumberOverride:
+    Type: String
+    Description: Allow nhs number override from x-nhs-number header in non-prod environments
+    Default: false
+    AllowedValues:
+      - true
+      - false
+
 Resources:
   GetSecretsLayer:
     Type: AWS::Serverless::LayerVersion
@@ -90,6 +111,7 @@ Resources:
           LOG_LEVEL: !Ref LogLevel
           DEPLOYMENT_ENVIRONMENT: !Ref Env
           GET_STATUS_UPDATES: !Ref ToggleGetStatusUpdates
+          ALLOW_NHS_NUMBER_OVERRIDE: !Ref AllowNHSNumberOverride
       Layers:
         - !Ref GetSecretsLayer
     Metadata:
@@ -121,6 +143,8 @@ Resources:
           - ","
           - - !ImportValue account-resources:LambdaAccessSecretsPolicy
             - !Ref SSMParameterPolicy
+            - !Ref SecretsPolicy
+            - !Ref KMSPolicy
         LogRetentionInDays: !Ref LogRetentionInDays
         CloudWatchKMSKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
         EnableSplunk: !Ref EnableSplunk

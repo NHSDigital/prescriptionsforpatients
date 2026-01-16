@@ -1,4 +1,9 @@
-import {extractNHSNumber, NHSNumberValidationError, validateNHSNumber} from "../src/extractNHSNumber"
+import {
+  extractNHSNumber,
+  extractNHSNumberFromHeaders,
+  NHSNumberValidationError,
+  validateNHSNumber
+} from "../src/extractNHSNumber"
 import "jest"
 
 type failureTestData = {nhsdLoginUser: string | undefined; errorMessage: string; scenarioDescription: string}
@@ -59,5 +64,41 @@ describe("validateNHSNumber function", () => {
     expect(() => {
       validateNHSNumber(nhsNumber)
     }).toThrow(new NHSNumberValidationError(`Invalid check digit in NHS number ${nhsNumber}`))
+  })
+})
+
+describe("extractNHSNumberFromHeaders function", () => {
+  it("should extract NHS number using validateNHSNumber when proofing level header is present", () => {
+    const headers = {
+      "nhs-login-identity-proofing-level": "P9",
+      "nhsd-nhslogin-user": "9912003071"
+    }
+    const result = extractNHSNumberFromHeaders(headers)
+    expect(result).toBe("9912003071")
+  })
+
+  it("should extract NHS number using extractNHSNumber when proofing level header is absent", () => {
+    const headers = {
+      "nhsd-nhslogin-user": "P9:9912003071"
+    }
+    const result = extractNHSNumberFromHeaders(headers)
+    expect(result).toBe("9912003071")
+  })
+
+  it("should throw error when proofing level header is present but NHS number is invalid", () => {
+    const headers = {
+      "nhs-login-identity-proofing-level": "P9",
+      "nhsd-nhslogin-user": "9912003072"
+    }
+    expect(() => {
+      extractNHSNumberFromHeaders(headers)
+    }).toThrow(new NHSNumberValidationError("Invalid check digit in NHS number 9912003072"))
+  })
+
+  it("should throw error when proofing level header is absent and nhsd-nhslogin-user is undefined", () => {
+    const headers = {}
+    expect(() => {
+      extractNHSNumberFromHeaders(headers)
+    }).toThrow(new NHSNumberValidationError("nhsdloginUser not passed in"))
   })
 })

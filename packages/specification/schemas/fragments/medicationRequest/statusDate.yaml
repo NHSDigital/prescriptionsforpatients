@@ -1,0 +1,14 @@
+type: object
+description: |
+  Date and time at which the item status was updated
+required:
+  - url
+  - valueDateTime
+properties:
+  url:
+    type: string
+    enum: ["statusDate"]
+  valueDateTime: 
+    type: string
+    format: date-time
+    example: "2024-03-01T08:27:14Z"

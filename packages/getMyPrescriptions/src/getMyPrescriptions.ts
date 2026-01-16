@@ -23,11 +23,12 @@ import {
   TraceIDs,
   ResponseFunc
 } from "./responses"
-import {extractNHSNumber, NHSNumberValidationError, validateNHSNumber} from "./extractNHSNumber"
-import {hasTimedOut, jobWithTimeout} from "./utils"
+import {extractNHSNumberFromHeaders, NHSNumberValidationError, validateNHSNumber} from "./extractNHSNumber"
+import {hasTimedOut, jobWithTimeout, NHS_LOGIN_HEADER} from "./utils"
 import {buildStatusUpdateData, shouldGetStatusUpdates} from "./statusUpdate"
 import {extractOdsCodes, isolateOperationOutcome} from "./fhirUtils"
 import {pfpConfig, PfPConfig} from "@pfp-common/utilities"
+import type {EventHeaders} from "./types"
 
 const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
 export const logger = new Logger({serviceName: "getMyPrescriptions", logLevel: LOG_LEVEL})
@@ -40,8 +41,6 @@ const SPINE_TIMEOUT_MS = 9_000
 const SERVICE_SEARCH_TIMEOUT_MS = 5_000
 export const DELEGATED_ACCESS_HDR = "delegatedaccess"
 export const DELEGATED_ACCESS_SUB_HDR = "x-nhsd-subject-nhs-number"
-
-type EventHeaders = Record<string, string | undefined>
 
 export type GetMyPrescriptionsEvent = {
   rawHeaders: Record<string, string>
@@ -95,6 +94,7 @@ async function eventHandler(
       return SPINE_CERT_NOT_CONFIGURED_RESPONSE
     }
 
+    headers = overrideNonProductionHeadersForProxygenRequests(headers)
     headers = adaptHeadersToSpine(headers)
     if (await params.pfpConfig.isTC008(headers["nhsNumber"]!)) {
       logger.info("Test NHS number corresponding to TC008 has been received. Returning a 500 response")
@@ -121,7 +121,7 @@ async function eventHandler(
       + "They have these relevant ODS codes, and the PfP request was made via this apigee application.",
       {
         ODSCodes,
-        actorNhsNumber: headers["nhsd-nhslogin-user"],
+        actorNhsNumber: headers[NHS_LOGIN_HEADER],
         subjectNhsNumber: headers["nhsNumber"],
         applicationName
       }
@@ -149,6 +149,7 @@ async function eventHandler(
       params.pfpConfig, statusUpdateData
     )
   } catch (error) {
+    logger.info("Error caught in getMyPrescriptions handler", {error})
     if (error instanceof NHSNumberValidationError) {
       return INVALID_NHS_NUMBER_RESPONSE
     } else {
@@ -157,19 +158,33 @@ async function eventHandler(
   }
 }
 
+export function overrideNonProductionHeadersForProxygenRequests(headers: EventHeaders): EventHeaders {
+  // Used in non-prod environments to set the nhsNumber header for testing purposes
+  if (headers["x-nhs-number"]
+      && process.env.ALLOW_NHS_NUMBER_OVERRIDE === "true"
+      && headers["nhs-login-identity-proofing-level"]
+  ) {
+    // For proxygen based testing, we need to prepend the proofing level to match non-proxygen implementation
+    // See prescriptions-for-patients repo for AssignMessage.OverridePatientAccessHeader.xml
+    headers[NHS_LOGIN_HEADER] = headers["x-nhs-number"]
+    logger.info("Set non production headers for Spine call", {headers})
+  }
+  return headers
+}
+
 export function adaptHeadersToSpine(headers: EventHeaders): EventHeaders {
   // AEA-3344 introduces delegated access using different headers
   logger.debug("Testing if delegated access enabled", {headers})
   if (!headers[DELEGATED_ACCESS_HDR] || headers[DELEGATED_ACCESS_HDR].toLowerCase() !== "true") {
     logger.info("Subject access request detected")
-    headers["nhsNumber"] = extractNHSNumber(headers["nhsd-nhslogin-user"])
+    headers["nhsNumber"] = extractNHSNumberFromHeaders(headers)
   } else {
     logger.info("Delegated access request detected")
     let subjectNHSNumber = headers[DELEGATED_ACCESS_SUB_HDR]
     if (!subjectNHSNumber) {
       throw new NHSNumberValidationError(`${DELEGATED_ACCESS_SUB_HDR} header not present for delegated access`)
     }
-    if (subjectNHSNumber.indexOf(":") > -1) {
+    if (subjectNHSNumber.includes(":")) {
       logger.warn(`${DELEGATED_ACCESS_SUB_HDR} is not expected to be prefixed by proofing level, but is, removing it`)
       subjectNHSNumber = subjectNHSNumber.split(":")[1]
     }
@@ -223,7 +238,7 @@ const MIDDLEWARE = {
   errorHandler: errorHandler({logger: logger})
 }
 
-export const STATE_MACHINE_MIDDLEWARE = [
+export const STATE_MACHINE_MIDDLEWARE: Array<middy.MiddlewareObj> = [
   MIDDLEWARE.injectLambdaContext,
   MIDDLEWARE.httpHeaderNormalizer,
   MIDDLEWARE.inputOutputLogger,

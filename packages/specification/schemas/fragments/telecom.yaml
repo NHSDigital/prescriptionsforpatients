@@ -1,0 +1,19 @@
+type: object
+required:
+  - use
+  - value
+properties:
+  system:
+    description: Means of communication, such as phone or URL.
+    type: string
+    enum: [phone, URL, other]
+    default: phone
+  use:
+    type: string
+    description: Location associated with the contact details provided.
+    enum: [home, work, temp, mobile]
+    default: work
+  value:
+    description: Phone number, URL.
+    type: string
+    example: "01234567890"

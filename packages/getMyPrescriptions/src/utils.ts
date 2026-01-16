@@ -13,3 +13,6 @@ export async function jobWithTimeout<T>(timeoutMS: number, job: Promise<T>): Pro
 export function hasTimedOut<T>(response: T | Timeout): response is Timeout{
   return !!(response as Timeout)?.isTimeout
 }
+
+export const NHS_LOGIN_HEADER = "nhsd-nhslogin-user"
+export const PROOFING_LEVEL = "P9"

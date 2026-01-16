@@ -1,6 +1,6 @@
 nodejs 20.19.5
-python 3.8.20
-poetry 1.6.1
+python 3.12.12
+poetry 2.2.1
 shellcheck 0.11.0
 java openjdk-20
 direnv 2.37.1

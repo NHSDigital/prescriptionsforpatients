@@ -1,0 +1,25 @@
+type: object
+description: A structured name
+properties:
+  family:
+    type: string
+    description: Family name (often called Surname).
+    example: Smith
+  given:
+    type: array
+    description: Given names, including any middle names.
+    items:
+      type: string
+      example: John
+  prefix:
+    type: array
+    description: Name prefixes, titles, and prenominals.
+    items:
+      type: string
+      example: Dr
+  suffix:
+    type: array
+    description: Part of the name that is acquired as a title due to academic, legal, employment or nobility status, etc. and that appears at the end of the name.
+    items:
+      type: string
+      example: MD

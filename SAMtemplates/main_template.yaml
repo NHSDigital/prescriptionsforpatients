@@ -122,6 +122,14 @@ Parameters:
       - true
       - false
 
+  AllowNHSNumberOverride:
+    Type: String
+    Description: Allow nhs number override from x-nhs-number header in non-prod environments
+    Default: false
+    AllowedValues:
+      - true
+      - false
+
 Resources:
   Apis:
     Type: AWS::Serverless::Application
@@ -168,6 +176,17 @@ Resources:
         CommitId: !Ref CommitId
         ToggleGetStatusUpdates: !Ref ToggleGetStatusUpdates
         SSMParameterPolicy: !GetAtt Parameters.Outputs.GetPfPParameterPolicy
+        ServiceSearch3ApiKeyARN: !GetAtt Secrets.Outputs.PfPServiceSearchApiKeySecret
+        SecretsPolicy: !GetAtt Secrets.Outputs.GetPfPSecretPolicy
+        KMSPolicy: !GetAtt Secrets.Outputs.UsePfPSecretsKMSKeyPolicyArn
+        AllowNHSNumberOverride: !Ref AllowNHSNumberOverride
+
+  Secrets:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: secrets/main.yaml
+      Parameters:
+        StackName: !Ref AWS::StackName
 
   StateMachines:
     Type: AWS::Serverless::Application
