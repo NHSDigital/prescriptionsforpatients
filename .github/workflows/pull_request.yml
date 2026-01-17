@@ -78,7 +78,6 @@ jobs:
       dry_run: true
       asdfVersion: ${{ needs.get_asdf_version.outputs.asdf_version }}
       branch_name: ${{ github.event.pull_request.head.ref }}
-      publish_package: false
       tag_format: ${{ needs.get_asdf_version.outputs.tag_format }}
     secrets: inherit
 

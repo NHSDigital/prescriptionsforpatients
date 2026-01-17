@@ -50,7 +50,6 @@ jobs:
       dry_run: true
       asdfVersion: ${{ needs.get_asdf_version.outputs.asdf_version }}
       branch_name: main
-      publish_package: false
       tag_format: ${{ needs.get_asdf_version.outputs.tag_format }}
     secrets: inherit
 
