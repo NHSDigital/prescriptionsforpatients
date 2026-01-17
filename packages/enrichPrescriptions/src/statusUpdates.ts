@@ -187,6 +187,10 @@ export function applyStatusUpdates(logger: Logger, searchsetBundle: Bundle, stat
       const itemUpdates = prescriptionUpdate.items.filter((item) => item.itemId === medicationRequestID)
       if (itemUpdates.length > 0) {
         logger.info(`Update found for MedicationRequest with id ${medicationRequestID}. Applying.`)
+        // there may be > 1 updates, ensure picking the most recent
+        itemUpdates.sort((a, b) =>
+          moment(b.lastUpdateDateTime).utc().valueOf() - moment(a.lastUpdateDateTime).utc().valueOf()
+        )
         updateMedicationRequest(logger, medicationRequest, itemUpdates[0])
       } else {
         logger.info(`No update found for MedicationRequest with id ${medicationRequestID}. Applying default.`)
