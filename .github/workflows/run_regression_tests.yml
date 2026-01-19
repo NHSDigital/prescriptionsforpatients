@@ -55,7 +55,7 @@ jobs:
           asdf_version: ${{ steps.asdf-version.outputs.version }}
 
       - name: Cache asdf
-        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb
+        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7
         with:
           path: |
             ~/.asdf
@@ -113,44 +113,44 @@ jobs:
             --regression_test_workflow_tag "${REGRESSION_TEST_WORKFLOW_TAG}"
           fi
 
-      # - name: Run Regression Testing Proxygen API
-      #   working-directory: scripts
-      #   env:
-      #     TARGET_ENVIRONMENT: ${{ inputs.ENVIRONMENT }}
-      #     VERSION_NUMBER: ${{ inputs.VERSION_NUMBER }}
-      #     GITHUB-TOKEN: ${{ steps.generate-token.outputs.token }}
-      #   run: |
-      #     if [[ "$TARGET_ENVIRONMENT" != "prod" && "$TARGET_ENVIRONMENT" != "ref" ]]; then
-      #       REGRESSION_TEST_REPO_TAG="v3.7.12" # This is the tag or branch of the regression test code to run, usually a version tag like v3.1.0 or a branch name
-      #       REGRESSION_TEST_WORKFLOW_TAG="v3.7.12" # This is the tag of the github workflow to run, usually the same as REGRESSION_TEST_REPO_TAG
+      - name: Run Regression Testing Proxygen API
+        working-directory: scripts
+        env:
+          TARGET_ENVIRONMENT: ${{ inputs.ENVIRONMENT }}
+          VERSION_NUMBER: ${{ inputs.VERSION_NUMBER }}
+          GITHUB-TOKEN: ${{ steps.generate-token.outputs.token }}
+        run: |
+          if [[ "$TARGET_ENVIRONMENT" != "prod" && "$TARGET_ENVIRONMENT" != "ref" ]]; then
+            REGRESSION_TEST_REPO_TAG="v3.7.12" # This is the tag or branch of the regression test code to run, usually a version tag like v3.1.0 or a branch name
+            REGRESSION_TEST_WORKFLOW_TAG="v3.7.12" # This is the tag of the github workflow to run, usually the same as REGRESSION_TEST_REPO_TAG
 
-      #       if [[ -z "$REGRESSION_TEST_REPO_TAG" || -z "$REGRESSION_TEST_WORKFLOW_TAG" ]]; then
-      #         echo "Error: One or both tag variables are not set" >&2
-      #         exit 1
-      #       fi
+            if [[ -z "$REGRESSION_TEST_REPO_TAG" || -z "$REGRESSION_TEST_WORKFLOW_TAG" ]]; then
+              echo "Error: One or both tag variables are not set" >&2
+              exit 1
+            fi
 
-      #       # HELPER IF STATEMENT - It will automatically determine the correct Git URL to use based on the REGRESSION_TEST_WORKFLOW_TAG value
-      #       if [[ "$REGRESSION_TEST_WORKFLOW_TAG" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
-      #         echo "REGRESSION_TEST_WORKFLOW_TAG is a version tag, using tag link"
-      #         curl "https://raw.githubusercontent.com/NHSDigital/electronic-prescription-service-api-regression-tests/refs/tags/${REGRESSION_TEST_WORKFLOW_TAG}/scripts/run_regression_tests.py" -o run_regression_tests.py
-      #       else
-      #         echo "REGRESSION_TEST_WORKFLOW_TAG doesn't look like a version tag, using branch link"
-      #         curl "https://raw.githubusercontent.com/NHSDigital/electronic-prescription-service-api-regression-tests/refs/heads/${REGRESSION_TEST_REPO_TAG}/scripts/run_regression_tests.py" -o run_regression_tests.py
-      #       fi
+            # HELPER IF STATEMENT - It will automatically determine the correct Git URL to use based on the REGRESSION_TEST_WORKFLOW_TAG value
+            if [[ "$REGRESSION_TEST_WORKFLOW_TAG" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+              echo "REGRESSION_TEST_WORKFLOW_TAG is a version tag, using tag link"
+              curl "https://raw.githubusercontent.com/NHSDigital/electronic-prescription-service-api-regression-tests/refs/tags/${REGRESSION_TEST_WORKFLOW_TAG}/scripts/run_regression_tests.py" -o run_regression_tests.py
+            else
+              echo "REGRESSION_TEST_WORKFLOW_TAG doesn't look like a version tag, using branch link"
+              curl "https://raw.githubusercontent.com/NHSDigital/electronic-prescription-service-api-regression-tests/refs/heads/${REGRESSION_TEST_REPO_TAG}/scripts/run_regression_tests.py" -o run_regression_tests.py
+            fi
 
-      #       if [[ ! -f run_regression_tests.py ]]; then
-      #         echo "Error: run_regression_tests.py not found" >&2
-      #         exit 1
-      #       fi
+            if [[ ! -f run_regression_tests.py ]]; then
+              echo "Error: run_regression_tests.py not found" >&2
+              exit 1
+            fi
 
-      #       poetry install
-      #       echo Running regression tests in the "$TARGET_ENVIRONMENT" environment
-      #       poetry run python -u run_regression_tests.py \
-      #       --env="$TARGET_ENVIRONMENT" \
-      #       --pr_label="$VERSION_NUMBER" \
-      #       --token=${{ steps.generate-token.outputs.token }} \
-      #       --is_called_from_github=true \
-      #       --product="PFP-PROXYGEN" \
-      #       --regression_test_repo_tag "${REGRESSION_TEST_REPO_TAG}" \
-      #       --regression_test_workflow_tag "${REGRESSION_TEST_WORKFLOW_TAG}"
-      #     fi
+            poetry install
+            echo Running regression tests in the "$TARGET_ENVIRONMENT" environment
+            poetry run python -u run_regression_tests.py \
+            --env="$TARGET_ENVIRONMENT" \
+            --pr_label="$VERSION_NUMBER" \
+            --token=${{ steps.generate-token.outputs.token }} \
+            --is_called_from_github=true \
+            --product="PFP-PROXYGEN" \
+            --regression_test_repo_tag "${REGRESSION_TEST_REPO_TAG}" \
+            --regression_test_workflow_tag "${REGRESSION_TEST_WORKFLOW_TAG}"
+          fi
