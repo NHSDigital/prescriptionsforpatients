@@ -12,8 +12,8 @@
   },
   "scripts": {
     "lint": "redocly lint --extends=recommended --config ./redocly.yaml",
-    "compile": "redocly bundle prescriptions-for-patients.yaml -d -o dist/prescriptions-for-patients.resolved.json",
-    "clean": "rm -rf lib coverage",
+    "compile": "node resolve-examples.js && redocly bundle prescriptions-for-patients.preprocessed.yaml -o dist/prescriptions-for-patients.resolved.json",
+    "clean": "rm -rf lib coverage prescriptions-for-patients.preprocessed.yaml",
     "check-licenses": "license-checker --failOn GPL --failOn LGPL --start ../.."
   },
   "devDependencies": {

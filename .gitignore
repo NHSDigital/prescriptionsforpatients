@@ -27,3 +27,4 @@ _site/
 .jekyll-metadata
 vendor
 .npmrc
+*.preprocessed.yaml
