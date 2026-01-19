@@ -158,4 +158,4 @@ repos:
         language: system
 
 fail_fast: true
-default_stages: [pre-commit]
+default_stages: [commit]
