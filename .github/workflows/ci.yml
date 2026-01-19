@@ -43,19 +43,19 @@ jobs:
         run: |
           echo "commit_id=${{ github.sha }}" >> "$GITHUB_OUTPUT"
 
-  tag_release:
-    needs: [quality_checks, get_commit_id, get_asdf_version]
-    uses: NHSDigital/eps-common-workflows/.github/workflows/tag-release.yml@9791a77de7b005056b4ddfb9789306f5179f53da
-    with:
-      dry_run: true
-      asdfVersion: ${{ needs.get_asdf_version.outputs.asdf_version }}
-      branch_name: main
-      publish_package: false
-      tag_format: ${{ needs.get_asdf_version.outputs.tag_format }}
-    secrets: inherit
+  # tag_release:
+  #   needs: [quality_checks, get_commit_id, get_asdf_version]
+  #   uses: NHSDigital/eps-common-workflows/.github/workflows/tag-release.yml@9791a77de7b005056b4ddfb9789306f5179f53da
+  #   with:
+  #     dry_run: true
+  #     asdfVersion: ${{ needs.get_asdf_version.outputs.asdf_version }}
+  #     branch_name: main
+  #     publish_package: false
+  #     tag_format: ${{ needs.get_asdf_version.outputs.tag_format }}
+  #   secrets: inherit
 
   package_code:
-    needs: tag_release
+    # needs: tag_release
     uses: ./.github/workflows/sam_package_code.yml
 
   release_dev:
