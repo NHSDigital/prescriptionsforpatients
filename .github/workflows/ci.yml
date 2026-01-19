@@ -2,7 +2,9 @@ name: merge to main workflow
 
 on:
   push:
-    branches: [main, AEA-6162-test2]
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 env:
   BRANCH_NAME: ${{ github.ref_name }}
