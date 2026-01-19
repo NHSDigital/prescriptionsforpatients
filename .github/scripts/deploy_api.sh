@@ -44,7 +44,7 @@ fi
 # Determine the proxy instance based on the provided $STACK_NAME
 apigee_api=prescriptions-for-patients-proxygen
 apigee_client=prescriptions-for-patients-proxygen
-instance="prescriptions-for-patients${instance_suffix}"
+instance="prescriptions-for-patients-adjusted${instance_suffix}"
 
 echo "Proxy instance: ${instance}"
 echo "Apigee api: ${apigee_api}"
