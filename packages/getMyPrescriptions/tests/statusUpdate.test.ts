@@ -12,7 +12,7 @@ import {Bundle, MedicationRequest} from "fhir/r4"
 import {APIGatewayProxyResult as LambdaResult, Context} from "aws-lambda"
 import {LogLevel} from "@aws-lambda-powertools/logger/types"
 import {Logger} from "@aws-lambda-powertools/logger"
-import {createSpineClient} from "@NHSDigital/eps-spine-client"
+import {createSpineClient} from "@nhsdigital/eps-spine-client"
 import {MiddyfiedHandler} from "@middy/core"
 
 import {
