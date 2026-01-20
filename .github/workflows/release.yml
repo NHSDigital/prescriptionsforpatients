@@ -101,7 +101,7 @@ jobs:
       STACK_NAME: pfp-sandbox
       TARGET_ENVIRONMENT: dev
       APIGEE_ENVIRONMENT: internal-dev-sandbox
-      ENABLE_MUTUAL_TLS: true
+      ENABLE_MUTUAL_TLS: false
       MTLS_KEY: prescriptions-for-patients-mtls-1
       BUILD_ARTIFACT: packaged_sandbox_code
       TRUSTSTORE_FILE: pfp-sandbox-truststore.pem
