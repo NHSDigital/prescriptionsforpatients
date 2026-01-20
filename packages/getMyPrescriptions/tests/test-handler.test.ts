@@ -9,7 +9,7 @@ import {
   it,
   jest
 } from "@jest/globals"
-import {createSpineClient} from "@NHSDigital/eps-spine-client"
+import {createSpineClient} from "@nhsdigital/eps-spine-client"
 import {MiddyfiedHandler} from "@middy/core"
 
 import {
