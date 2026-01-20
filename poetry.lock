@@ -174,14 +174,14 @@ files = [
 
 [[package]]
 name = "cfn-lint"
-version = "1.43.2"
+version = "1.43.3"
 description = "Checks CloudFormation templates for practices and behaviour that could potentially be improved"
 optional = false
 python-versions = ">=3.9"
 groups = ["main", "dev"]
 files = [
-    {file = "cfn_lint-1.43.2-py3-none-any.whl", hash = "sha256:e86181a94fa0c474a7bdd653b63758c1e9f5962391ff4b04a2e80ae646cc6f05"},
-    {file = "cfn_lint-1.43.2.tar.gz", hash = "sha256:c27a2e0b2665925af03e5140236dcd0c117233e224a6d2209bf0930c88fc0271"},
+    {file = "cfn_lint-1.43.3-py3-none-any.whl", hash = "sha256:bf839130964903566e0d3ae738884c84b1a1aba60853aeca2240caca405d8e63"},
+    {file = "cfn_lint-1.43.3.tar.gz", hash = "sha256:28ad830a84355c8b93bc557524df06131a7dd5d3c7e2cc7352a9903beeb4f704"},
 ]
 
 [package.dependencies]
@@ -364,14 +364,14 @@ files = [
 
 [[package]]
 name = "filelock"
-version = "3.20.2"
+version = "3.20.3"
 description = "A platform independent file lock."
 optional = false
 python-versions = ">=3.10"
 groups = ["main", "dev"]
 files = [
-    {file = "filelock-3.20.2-py3-none-any.whl", hash = "sha256:fbba7237d6ea277175a32c54bb71ef814a8546d8601269e1bfc388de333974e8"},
-    {file = "filelock-3.20.2.tar.gz", hash = "sha256:a2241ff4ddde2a7cebddf78e39832509cb045d18ec1a09d7248d6bfc6bfbbe64"},
+    {file = "filelock-3.20.3-py3-none-any.whl", hash = "sha256:4b0dda527ee31078689fc205ec4f1c1bf7d56cf88b6dc9426c4f230e46c2dce1"},
+    {file = "filelock-3.20.3.tar.gz", hash = "sha256:18c57ee915c7ec61cff0ecf7f0f869936c7c30191bb0cf406f1341778d0834e1"},
 ]
 
 [[package]]
@@ -1353,14 +1353,14 @@ zstd = ["backports-zstd (>=1.0.0) ; python_version < \"3.14\""]
 
 [[package]]
 name = "virtualenv"
-version = "20.36.0"
+version = "20.36.1"
 description = "Virtual Python Environment builder"
 optional = false
 python-versions = ">=3.8"
 groups = ["main", "dev"]
 files = [
-    {file = "virtualenv-20.36.0-py3-none-any.whl", hash = "sha256:e7ded577f3af534fd0886d4ca03277f5542053bedb98a70a989d3c22cfa5c9ac"},
-    {file = "virtualenv-20.36.0.tar.gz", hash = "sha256:a3601f540b515a7983508113f14e78993841adc3d83710fa70f0ac50f43b23ed"},
+    {file = "virtualenv-20.36.1-py3-none-any.whl", hash = "sha256:575a8d6b124ef88f6f51d56d656132389f961062a9177016a50e4f507bbcc19f"},
+    {file = "virtualenv-20.36.1.tar.gz", hash = "sha256:8befb5c81842c641f8ee658481e42641c68b5eab3521d8e092d18320902466ba"},
 ]
 
 [package.dependencies]
@@ -1387,4 +1387,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "1119fa6587f1f7844f4c3dd4fb18a839e7e4c9575fbd2ab2747dd4a4647ff1b4"
+content-hash = "615be5bb281c76ebb189649bb0fb25732243da51eeef0d74aeea700629013ae4"
