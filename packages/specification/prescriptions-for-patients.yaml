@@ -15,7 +15,7 @@ info:
     Use this API to retrieve prescriptions data for individual patients from the [Electronic Prescription Service (EPS)](https://digital.nhs.uk/developer/api-catalogue/electronic-prescription-service-fhir).
 
     For use in patient-facing applications such as NHS App, to allow patients to view their digital prescriptions.
-        
+
     Patients can use their digital prescriptions to collect their medication at any pharmacy in England.
     Patients will be able to view:
     * repeat and acute prescriptions created using the [Electronic Prescription Service](https://digital.nhs.uk/developer/api-catalogue/electronic-prescription-service-fhir)
@@ -23,13 +23,13 @@ info:
     * limited information about the status of their prescriptions
 
     ## Who can use this API
-    Currently, this API is for [internal use only](https://digital.nhs.uk/developer/guides-and-documentation/reference-guide#statuses) - the only API consumer is the NHS App. 
+    Currently, this API is for [internal use only](https://digital.nhs.uk/developer/guides-and-documentation/reference-guide#statuses) - the only API consumer is the NHS App.
 
-    It is not currently available for integration by external third parties. 
-        
+    It is not currently available for integration by external third parties.
+
     ## Related APIs
-    The following APIs are related to this API: 
-    * [Electronic Prescriptions Service](https://digital.nhs.uk/developer/api-catalogue/electronic-prescription-service-fhir): The national service for creating and dispensing prescriptions across health and social care. 
+    The following APIs are related to this API:
+    * [Electronic Prescriptions Service](https://digital.nhs.uk/developer/api-catalogue/electronic-prescription-service-fhir): The national service for creating and dispensing prescriptions across health and social care.
     * [Personal Demographics Service](https://digital.nhs.uk/developer/api-catalogue/personal-demographics-service-fhir): the national service for storing and retrieving NHS patient details such as name, address, date of birth, related people, registered GP and NHS number.
 
     ## API status and roadmap
@@ -66,9 +66,9 @@ info:
     This API is [user-restricted](https://digital.nhs.uk/developer/guides-and-documentation/security-and-authorisation#user-restricted-apis), meaning an end user must be present, authenticated and authorised.
 
     The end user must be:
-    * a patient who receives health and social care or makes use of NHS services 
+    * a patient who receives health and social care or makes use of NHS services
     * strongly authenticated to a P9 level, using [NHS login - separate authentication and authorisation](https://digital.nhs.uk/developer/guides-and-documentation/security-and-authorisation/user-restricted-restful-apis-nhs-login-separate-authentication-and-authorisation)
-     
+
     To use this API, use the following security pattern:
 
     |	Security pattern		                                                                                                                                                                                                          |	Technical details	                                  |	Advantages	                                                | Disadvantages                                           |
@@ -282,7 +282,7 @@ components:
         total:
           type: number
           description: |
-            The number of prescription bundles contained within the searchset
+            The number of prescription bundles contained within the searchset, limited to 25 prescriptions.
 
             Note that this excludes OperationOutcomes.
         entry:
