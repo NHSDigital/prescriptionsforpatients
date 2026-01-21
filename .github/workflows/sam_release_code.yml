@@ -212,13 +212,13 @@ jobs:
           IS_PULL_REQUEST: ${{ inputs.IS_PULL_REQUEST }}
         run: ./.github/scripts/deploy_api.sh
 
-      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         if: always() && !cancelled()
         name: Upload specs
         with:
           name: ${{ inputs.APIGEE_ENVIRONMENT }}-specs
           path: |
-            ./.build/packages/specification/dist/prescriptions-for-patients.resolved.json
+            ./packages/specification/dist/prescriptions-for-patients.resolved.json
 
       - name: create_int_release_notes
         uses: ./.github/actions/update_confluence_jira

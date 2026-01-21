@@ -10,8 +10,8 @@ import httpHeaderNormalizer from "@middy/http-header-normalizer"
 import errorHandler from "@nhs/fhir-middy-error-handler"
 import type {Bundle} from "fhir/r4"
 
-import {createSpineClient} from "@NHSDigital/eps-spine-client"
-import {SpineClient} from "@NHSDigital/eps-spine-client/lib/spine-client"
+import {createSpineClient} from "@nhsdigital/eps-spine-client"
+import {SpineClient} from "@nhsdigital/eps-spine-client/lib/spine-client"
 
 import {DistanceSelling, ServicesCache} from "@prescriptionsforpatients/distanceSelling"
 import {
@@ -93,7 +93,7 @@ async function eventHandler(
 
   checkSpineCertificateConfiguration(spineClient)
   await handleTestCaseIfApplicable(params, headers)
-  headers = setNonProductionHeadersForSpine(headers)
+  headers = overrideNonProductionHeadersForProxygenRequests(headers)
   headers = adaptHeadersToSpine(headers)
 
   const response = await makeSpinePrescriptionCall(spineClient, headers, params)
@@ -181,10 +181,14 @@ async function handleTestCaseIfApplicable(params: HandlerParams, headers: EventH
   }
 }
 
-export function setNonProductionHeadersForSpine(headers: EventHeaders): EventHeaders {
+export function overrideNonProductionHeadersForProxygenRequests(headers: EventHeaders): EventHeaders {
   // Used in non-prod environments to set the nhsNumber header for testing purposes
-  logger.info("Setting non production headers for Spine call", {headers})
-  if (headers["x-nhs-number"] && process.env.ALLOW_NHS_NUMBER_OVERRIDE === "true") {
+  if (headers["x-nhs-number"]
+      && process.env.ALLOW_NHS_NUMBER_OVERRIDE === "true"
+      && headers["nhs-login-identity-proofing-level"]
+  ) {
+    // For proxygen based testing, we need to prepend the proofing level to match non-proxygen implementation
+    // See prescriptions-for-patients repo for AssignMessage.OverridePatientAccessHeader.xml
     headers[NHS_LOGIN_HEADER] = headers["x-nhs-number"]
     logger.info("Set non production headers for Spine call", {headers})
   }
@@ -275,7 +279,7 @@ const MIDDLEWARE = {
   errorHandler: errorHandler({logger: logger})
 }
 
-export const STATE_MACHINE_MIDDLEWARE = [
+export const STATE_MACHINE_MIDDLEWARE: Array<middy.MiddlewareObj> = [
   MIDDLEWARE.injectLambdaContext,
   MIDDLEWARE.httpHeaderNormalizer,
   MIDDLEWARE.inputOutputLogger,
