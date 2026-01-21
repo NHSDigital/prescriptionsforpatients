@@ -88,7 +88,6 @@ async function eventHandler(
 ): Promise<LambdaResult> {
   const traceIDs: TraceIDs = logTraceIds(headers)
   const spineClient = params.spineClient
-  // TODO include application name in traceIDs?
   const applicationName = headers["nhsd-application-name"] ?? "unknown"
 
   checkSpineCertificateConfiguration(spineClient)
