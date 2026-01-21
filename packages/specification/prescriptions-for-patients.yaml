@@ -133,7 +133,7 @@ paths:
                 $ref: "#/components/schemas/bundle-response"
               examples:
                 prescriptions-present:
-                  description: A successful response to a GetMyPrescriptions/Bundle request, containing one prescription.
+                  description: A successful response to a GetMyPrescriptions/Bundle request, containing one prescription made up of four medications.
                   value:
                     $ref: "examples/GetMyPrescriptions/Bundle/success/success.json"
                 prescriptions-present-multiple:
