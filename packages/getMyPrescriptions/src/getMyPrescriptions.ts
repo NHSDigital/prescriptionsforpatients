@@ -283,6 +283,7 @@ export const STATE_MACHINE_MIDDLEWARE: Array<middy.MiddlewareObj> = [
   MIDDLEWARE.injectLambdaContext,
   MIDDLEWARE.httpHeaderNormalizer,
   MIDDLEWARE.inputOutputLogger,
+  MIDDLEWARE.customErrorHandler,
   MIDDLEWARE.errorHandler
 ]
 export const handler = newHandler({
