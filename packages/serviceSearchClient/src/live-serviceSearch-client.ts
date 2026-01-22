@@ -18,19 +18,30 @@ export type ServiceSearchData = {
   "value": Array<Service>
 }
 
+export const SERVICE_SEARCH_BASE_QUERY_PARAMS = {
+  "api-version": 2,
+  "searchFields": "ODSCode",
+  "$filter": "OrganisationTypeId eq 'PHA' and OrganisationSubType eq 'DistanceSelling'",
+  "$select": "URL,OrganisationSubType",
+  "$top": 1
+}
+
+export function getServiceSearchEndpoint(): string {
+  const endpoint = process.env.TargetServiceSearchServer || "service-search"
+  const baseUrl = `https://${endpoint}`
+  if (endpoint.toLowerCase().includes("api.service.nhs.uk")) {
+    // service search v3
+    SERVICE_SEARCH_BASE_QUERY_PARAMS["api-version"] = 3
+    return `${baseUrl}/service-search-api/`
+  }
+  // service search v2
+  return `${baseUrl}/service-search`
+}
+
 export class LiveServiceSearchClient implements ServiceSearchClient {
-  private readonly SERVICE_SEARCH_URL_SCHEME = "https"
-  private readonly SERVICE_SEARCH_ENDPOINT = process.env.TargetServiceSearchServer
   private readonly axiosInstance: AxiosInstance
   private readonly logger: Logger
-  private readonly outboundHeaders: {"Subscription-Key": string | undefined}
-  private readonly baseQueryParams: {
-    "api-version": number,
-    "searchFields": string,
-    "$filter": string,
-    "$select": string,
-    "$top": number
-  }
+  private readonly outboundHeaders: {"apikey": string | undefined, "Subscription-Key": string | undefined}
 
   constructor(logger: Logger) {
     this.logger = logger
@@ -39,17 +50,17 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
     axiosRetry(this.axiosInstance, {retries: 3})
 
     this.axiosInstance.interceptors.request.use((config) => {
-      config.headers["request-startTime"] = new Date().getTime()
+      config.headers["request-startTime"] = Date.now()
       return config
     })
     this.axiosInstance.interceptors.response.use((response) => {
-      const currentTime = new Date().getTime()
+      const currentTime = Date.now()
       const startTime = response.config.headers["request-startTime"]
       this.logger.info("serviceSearch request duration", {serviceSearch_duration: currentTime - startTime})
 
       return response
     }, (error) => {
-      const currentTime = new Date().getTime()
+      const currentTime = Date.now()
       const startTime = error.config?.headers["request-startTime"]
       this.logger.info("serviceSearch request duration", {serviceSearch_duration: currentTime - startTime})
 
@@ -85,21 +96,15 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
     })
 
     this.outboundHeaders = {
-      "Subscription-Key": process.env.ServiceSearchApiKey
-    }
-    this.baseQueryParams = {
-      "api-version": 2,
-      "searchFields": "ODSCode",
-      "$filter": "OrganisationTypeId eq 'PHA' and OrganisationSubType eq 'DistanceSelling'",
-      "$select": "URL,OrganisationSubType",
-      "$top": 1
+      "Subscription-Key": process.env.ServiceSearchApiKey,
+      "apikey": process.env.ServiceSearch3ApiKey
     }
   }
 
   async searchService(odsCode: string): Promise<URL | undefined> {
     try {
-      const address = this.getServiceSearchEndpoint()
-      const queryParams = {...this.baseQueryParams, search: odsCode}
+      const address = getServiceSearchEndpoint()
+      const queryParams = {...SERVICE_SEARCH_BASE_QUERY_PARAMS, search: odsCode}
 
       this.logger.info(`making request to ${address} with ods code ${odsCode}`, {odsCode: odsCode})
       const response = await this.axiosInstance.get(address, {
@@ -154,16 +159,14 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
   }
 
   stripApiKeyFromHeaders(error: AxiosError) {
-    const headerKey = "subscription-key"
-    if (error.response?.headers) {
-      delete error.response.headers[headerKey]
-    }
-    if (error.request?.headers) {
-      delete error.request.headers[headerKey]
-    }
-  }
-
-  private getServiceSearchEndpoint() {
-    return `${this.SERVICE_SEARCH_URL_SCHEME}://${this.SERVICE_SEARCH_ENDPOINT}/service-search`
+    const headerKeys = ["subscription-key", "apikey"]
+    headerKeys.forEach((key) => {
+      if (error.response?.headers) {
+        delete error.response.headers[key]
+      }
+      if (error.request?.headers) {
+        delete error.request.headers[key]
+      }
+    })
   }
 }
