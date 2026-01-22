@@ -26,8 +26,8 @@ export const SERVICE_SEARCH_BASE_QUERY_PARAMS = {
   "$top": 1
 }
 
-export function getServiceSearchEndpoint(targetServer?: string): string {
-  const endpoint = targetServer || process.env.TargetServiceSearchServer || "service-search"
+export function getServiceSearchEndpoint(): string {
+  const endpoint = process.env.TargetServiceSearchServer || "service-search"
   const baseUrl = `https://${endpoint}`
   if (endpoint.toLowerCase().includes("api.service.nhs.uk")) {
     // service search v3
