@@ -43,7 +43,7 @@ fi
 
 # Determine the proxy instance based on the provided $STACK_NAME
 apigee_api=prescriptions-for-patients-v2-prod
-apigee_client=prescriptions-for-patients-v2-prod-client
+apigee_client=prescriptions-for-patients-v2-prod
 instance="prescriptions-for-patients-v2${instance_suffix}"
 
 echo "Proxy instance: ${instance}"
