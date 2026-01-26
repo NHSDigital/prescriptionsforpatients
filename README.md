@@ -130,22 +130,22 @@ You will need the "Execute Analysis" permission for the project (NHSDigital_pres
 To achieve this the following applications have been created on the
 [Int/Prod onboarding portal](https://onboarding.prod.api.platform.nhs.uk/):
 
-* `PFP-INTERNAL-DEV-DOHS` - managed by [EPS_team](https://onboarding.prod.api.platform.nhs.uk/MyApplications/Teams/TeamDetails?id=060896ea-ba43-4df8-a011-7cb0f45fd8ed) - connected to [Service Search - REST API (Integration Testing Environment)](https://int.api.service.nhs.uk/service-search-api/search)
-* `PFP-QA-DOHS` - managed by [EPS_team](https://onboarding.prod.api.platform.nhs.uk/MyApplications/Teams/TeamDetails?id=060896ea-ba43-4df8-a011-7cb0f45fd8ed) - connected to [Service Search - REST API (Integration Testing Environment)](https://int.api.service.nhs.uk/service-search-api/search)
-* `PFP-REF-DOHS` - managed by [EPS_team](https://onboarding.prod.api.platform.nhs.uk/MyApplications/Teams/TeamDetails?id=060896ea-ba43-4df8-a011-7cb0f45fd8ed) - connected to [Service Search - REST API (Integration Testing Environment)](https://int.api.service.nhs.uk/service-search-api/search)
-* `PFP-INT-DOHS` - managed by EPS_Team_Prod - connected to [Service Search - REST API (Production Environment)](https://api.service.nhs.uk/service-search-api/search)
-* `PFP-PROD-DOHS` - managed by EPS_Team_Prod - connected to [Service Search - REST API (Production Environment)](https://api.service.nhs.uk/service-search-api/search)
+* `PFP-INTERNAL-DEV-DOHS` - managed by [EPS_team](https://onboarding.prod.api.platform.nhs.uk/MyApplications/Teams/TeamDetails?id=060896ea-ba43-4df8-a011-7cb0f45fd8ed) - connected to [Service Search - REST API (Integration Testing Environment)](https://int.api.service.nhs.uk/service-search-api/)
+* `PFP-QA-DOHS` - managed by [EPS_team](https://onboarding.prod.api.platform.nhs.uk/MyApplications/Teams/TeamDetails?id=060896ea-ba43-4df8-a011-7cb0f45fd8ed) - connected to [Service Search - REST API (Integration Testing Environment)](https://int.api.service.nhs.uk/service-search-api/)
+* `PFP-REF-DOHS` - managed by [EPS_team](https://onboarding.prod.api.platform.nhs.uk/MyApplications/Teams/TeamDetails?id=060896ea-ba43-4df8-a011-7cb0f45fd8ed) - connected to [Service Search - REST API (Integration Testing Environment)](https://int.api.service.nhs.uk/service-search-api/)
+* `PFP-INT-DOHS` - managed by EPS_Team_Prod - connected to [Service Search - REST API (Production Environment)](https://api.service.nhs.uk/service-search-api/)
+* `PFP-PROD-DOHS` - managed by EPS_Team_Prod - connected to [Service Search - REST API (Production Environment)](https://api.service.nhs.uk/service-search-api/)
 
 After `IaC` creates the secret `pfp-PfP-ServiceSearch-API-Key`
 its value must be set manually to the API key from the appropriate app.
 
 In addition the Service Search URL must be set as a GitHub secret:
 
-* DEV_TARGET_SERVICE_SEARCH_V3_SERVER: <https://int.api.service.nhs.uk/service-search-api/search>
-* QA_TARGET_SERVICE_SEARCH_V3_SERVER: <https://int.api.service.nhs.uk/service-search-api/search>
-* REF_TARGET_SERVICE_SEARCH_V3_SERVER: <https://int.api.service.nhs.uk/service-search-api/search>
-* INT_TARGET_SERVICE_SEARCH_V3_SERVER: <https://api.service.nhs.uk/service-search-api/search>
-* PROD_TARGET_SERVICE_SEARCH_V3_SERVER: <https://api.service.nhs.uk/service-search-api/search>
+* DEV_TARGET_SERVICE_SEARCH_SERVER: <https://int.api.service.nhs.uk/service-search-api/>
+* QA_TARGET_SERVICE_SEARCH_SERVER: <https://int.api.service.nhs.uk/service-search-api/>
+* REF_TARGET_SERVICE_SEARCH_SERVER: <https://int.api.service.nhs.uk/service-search-api/>
+* INT_TARGET_SERVICE_SEARCH_SERVER: <https://api.service.nhs.uk/service-search-api/>
+* PROD_TARGET_SERVICE_SEARCH_SERVER: <https://api.service.nhs.uk/service-search-api/>
 
 ### GitHub Packages Setup
 
