@@ -99,31 +99,31 @@ echo "Retrieving proxygen credentials"
 # Retrieve the proxygen private key and client private key and cert from AWS Secrets Manager
 proxygen_private_key_arn=$(aws cloudformation list-exports --query "Exports[?Name=='secrets:${PROXYGEN_PRIVATE_KEY_NAME}'].Value" --output text)
 
-if [[ "${ENABLE_MUTUAL_TLS}" == "true" ]]; then
-    echo
-    echo "Store the secret used for mutual TLS to AWS using Proxygen proxy lambda"
-    if [[ "${DRY_RUN}" == "false" ]]; then
-        jq -n --arg apiName "${apigee_api}" \
-            --arg apiClient "${apigee_client}" \
-            --arg environment "${APIGEE_ENVIRONMENT}" \
-            --arg secretName "${MTLS_KEY}" \
-            --arg secretKey "${client_private_key}" \
-            --arg secretCert "${client_cert}" \
-            --arg kid "${PROXYGEN_KID}" \
-            --arg proxygenSecretName "${proxygen_private_key_arn}" \
-            '{apiName: $apiName, apiClient: $apiClient, environment: $environment, secretName: $secretName, secretKey: $secretKey, secretCert: $secretCert, kid, $kid, proxygenSecretName: $proxygenSecretName}' > payload.json
+# if [[ "${ENABLE_MUTUAL_TLS}" == "true" ]]; then
+echo
+echo "Store the secret used for mutual TLS to AWS using Proxygen proxy lambda"
+if [[ "${DRY_RUN}" == "false" ]]; then
+    jq -n --arg apiName "${apigee_api}" \
+        --arg apiClient "${apigee_client}" \
+        --arg environment "${APIGEE_ENVIRONMENT}" \
+        --arg secretName "${MTLS_KEY}" \
+        --arg secretKey "${client_private_key}" \
+        --arg secretCert "${client_cert}" \
+        --arg kid "${PROXYGEN_KID}" \
+        --arg proxygenSecretName "${proxygen_private_key_arn}" \
+        '{apiName: $apiName, apiClient: $apiClient, environment: $environment, secretName: $secretName, secretKey: $secretKey, secretCert: $secretCert, kid, $kid, proxygenSecretName: $proxygenSecretName}' > payload.json
 
-        aws lambda invoke --function-name "${put_secret_lambda}" --cli-binary-format raw-in-base64-out --payload file://payload.json out.txt > response.json
-        if eval "cat response.json | jq -e '.FunctionError' >/dev/null"; then
-            echo 'Error calling lambda'
-            cat out.txt
-            exit 1
-        fi
-        echo "Secret stored successfully"
-    else
-        echo "Would call ${put_secret_lambda}"
+    aws lambda invoke --function-name "${put_secret_lambda}" --cli-binary-format raw-in-base64-out --payload file://payload.json out.txt > response.json
+    if eval "cat response.json | jq -e '.FunctionError' >/dev/null"; then
+        echo 'Error calling lambda'
+        cat out.txt
+        exit 1
     fi
+    echo "Secret stored successfully"
+else
+    echo "Would call ${put_secret_lambda}"
 fi
+# fi
 
 echo
 echo "Deploy the API instance using Proxygen proxy lambda"
