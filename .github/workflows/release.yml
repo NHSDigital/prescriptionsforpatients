@@ -11,7 +11,7 @@ jobs:
       tag_format: ${{ steps.load-config.outputs.TAG_FORMAT }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Get asdf version
         id: asdf-version
@@ -23,7 +23,7 @@ jobs:
           echo "TAG_FORMAT=$TAG_FORMAT" >> "$GITHUB_OUTPUT"
 
   quality_checks:
-    uses: NHSDigital/eps-common-workflows/.github/workflows/quality-checks.yml@9791a77de7b005056b4ddfb9789306f5179f53da
+    uses: NHSDigital/eps-common-workflows/.github/workflows/quality-checks.yml@b933ef1bb3527fd7e7d5a7629fbd4e4dd94bf1b4
     needs: [get_asdf_version]
     with:
       asdfVersion: ${{ needs.get_asdf_version.outputs.asdf_version }}
@@ -42,12 +42,11 @@ jobs:
 
   tag_release:
     needs: [quality_checks, get_commit_id, get_asdf_version]
-    uses: NHSDigital/eps-common-workflows/.github/workflows/tag-release.yml@9791a77de7b005056b4ddfb9789306f5179f53da
+    uses: NHSDigital/eps-common-workflows/.github/workflows/tag-release.yml@b933ef1bb3527fd7e7d5a7629fbd4e4dd94bf1b4
     with:
       dry_run: false
       asdfVersion: ${{ needs.get_asdf_version.outputs.asdf_version }}
       branch_name: main
-      publish_package: false
       tag_format: ${{ needs.get_asdf_version.outputs.tag_format }}
     secrets: inherit
 
