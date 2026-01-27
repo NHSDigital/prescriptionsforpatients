@@ -117,8 +117,8 @@ describe("live serviceSearch client", () => {
     const axiosErr = {
       isAxiosError: true,
       message: "reqfail",
-      config: {headers: {}},
-      request: {detail: "reqError"},
+      config: {headers: {"request-startTime": 1234}},
+      request: {detail: "reqError", headers: {}},
       response: undefined
     } as unknown as AxiosError
 
