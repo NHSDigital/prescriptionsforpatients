@@ -65,7 +65,7 @@ describe("live serviceSearch client", () => {
     expect(axiosErr.config!.headers).toHaveProperty("subscription-key")
     expect(axiosErr.config!.headers).toHaveProperty("keep", "yes")
     expect(axiosErr.response!.headers).toHaveProperty("subscription-key")
-    expect(axiosErr.response!.headers?.["subscription-key"]).toEqual("secre*****")
+    expect(axiosErr.response!.headers["subscription-key"]).toEqual("secre*****")
     expect(axiosErr.response!.headers).toHaveProperty("foo", "bar")
   })
 
@@ -117,8 +117,8 @@ describe("live serviceSearch client", () => {
     const axiosErr = {
       isAxiosError: true,
       message: "reqfail",
-      config: {headers: {"request-startTime": 1234}},
-      request: {detail: "reqError", headers: {}},
+      config: {headers: {}},
+      request: {detail: "reqError"},
       response: undefined
     } as unknown as AxiosError
 
