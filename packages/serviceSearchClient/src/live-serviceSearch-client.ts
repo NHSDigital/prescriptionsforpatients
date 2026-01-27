@@ -1,4 +1,5 @@
 import {Logger} from "@aws-lambda-powertools/logger"
+import {getSecret} from "@aws-lambda-powertools/parameters/secrets"
 import axios, {AxiosError, AxiosInstance} from "axios"
 import axiosRetry from "axios-retry"
 import {handleUrl} from "./handleUrl"
@@ -26,26 +27,39 @@ export const SERVICE_SEARCH_BASE_QUERY_PARAMS = {
   "$top": 1
 }
 
-export function getServiceSearchEndpoint(): string {
+export function getServiceSearchVersion(logger: Logger | null = null): number {
   const endpoint = process.env.TargetServiceSearchServer || "service-search"
-  const baseUrl = `https://${endpoint}`
   if (endpoint.toLowerCase().includes("api.service.nhs.uk")) {
-    // service search v3
+    logger?.info("Using service search v3 endpoint")
     SERVICE_SEARCH_BASE_QUERY_PARAMS["api-version"] = 3
-    return `${baseUrl}/service-search-api/`
+    return 3
   }
-  // service search v2
-  return `${baseUrl}/service-search`
+  logger?.warn("Using service search v2 endpoint")
+  return 2
+}
+
+export function getServiceSearchEndpoint(logger: Logger | null = null): string {
+  switch (getServiceSearchVersion(logger)) {
+    case 3:
+      return `https://${process.env.TargetServiceSearchServer}/service-search-api/`
+    case 2:
+    default:
+      return `https://${process.env.TargetServiceSearchServer}/service-search`
+  }
 }
 
 export class LiveServiceSearchClient implements ServiceSearchClient {
   private readonly axiosInstance: AxiosInstance
   private readonly logger: Logger
-  private readonly outboundHeaders: {"apikey": string | undefined, "Subscription-Key": string | undefined}
+  private readonly outboundHeaders: {"apikey"?: string, "Subscription-Key"?: string}
 
   constructor(logger: Logger) {
     this.logger = logger
-
+    this.logger.warn("ServiceSearchClient configured",
+      {
+        v2: process.env.ServiceSearchApiKey !== undefined,
+        v3: process.env.ServiceSearch3ApiKey !== undefined
+      })
     this.axiosInstance = axios.create()
     axiosRetry(this.axiosInstance, {retries: 3})
 
@@ -95,15 +109,49 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       return Promise.reject(err)
     })
 
-    this.outboundHeaders = {
-      "Subscription-Key": process.env.ServiceSearchApiKey,
-      "apikey": process.env.ServiceSearch3ApiKey
+    const version = getServiceSearchVersion(this.logger)
+    if (version === 3) {
+      this.outboundHeaders = {
+        "apikey": process.env.ServiceSearch3ApiKey
+      }
+    } else {
+      this.outboundHeaders = {
+        "Subscription-Key": process.env.ServiceSearchApiKey
+      }
+    }
+  }
+
+  private async loadApiKeyFromSecretsManager(): Promise<string | undefined> {
+    try {
+      const secretArn = process.env.ServiceSearch3ApiKeyARN
+      if (!secretArn) {
+        this.logger.error("ServiceSearch3ApiKeyARN environment variable is not set")
+        return undefined
+      }
+      this.logger.info("Loading ServiceSearch API key from Secrets Manager", {secretArn})
+
+      const secret = await getSecret(secretArn, {
+        maxAge: 300 // Cache for 5 minutes
+      })
+
+      this.logger.info("Successfully loaded ServiceSearch API key from Secrets Manager")
+      return secret as string
+    } catch (error) {
+      this.logger.error("Failed to load ServiceSearch API key from Secrets Manager", {error})
+      return undefined
     }
   }
 
   async searchService(odsCode: string): Promise<URL | undefined> {
     try {
-      const address = getServiceSearchEndpoint()
+      // Load API key if not set in environment (secrets layer is failing to load v3 key)
+      if (getServiceSearchVersion(this.logger) === 3 && !this.outboundHeaders.apikey) {
+        this.logger.info("API key not in environment, attempting to load from Secrets Manager")
+        this.logger.info("Current environment variables", {env: process.env})
+        this.outboundHeaders.apikey = await this.loadApiKeyFromSecretsManager()
+      }
+
+      const address = getServiceSearchEndpoint(this.logger)
       const queryParams = {...SERVICE_SEARCH_BASE_QUERY_PARAMS, search: odsCode}
 
       this.logger.info(`making request to ${address} with ods code ${odsCode}`, {odsCode: odsCode})
