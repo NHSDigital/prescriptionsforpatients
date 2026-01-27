@@ -134,7 +134,8 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
         maxAge: 300 // Cache for 5 minutes
       })
 
-      this.logger.info("Successfully loaded ServiceSearch API key from Secrets Manager")
+      this.logger.info("Successfully loaded ServiceSearch API key from Secrets Manager",
+        {secret: `${secret?.toString().substring(0, 5)}*****`})
       return secret as string
     } catch (error) {
       this.logger.error("Failed to load ServiceSearch API key from Secrets Manager", {error})
@@ -147,7 +148,6 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       // Load API key if not set in environment (secrets layer is failing to load v3 key)
       if (getServiceSearchVersion(this.logger) === 3 && !this.outboundHeaders.apikey) {
         this.logger.info("API key not in environment, attempting to load from Secrets Manager")
-        this.logger.info("Current environment variables", {env: process.env})
         this.outboundHeaders.apikey = await this.loadApiKeyFromSecretsManager()
       }
 
