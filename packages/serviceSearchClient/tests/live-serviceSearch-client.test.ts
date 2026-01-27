@@ -64,7 +64,8 @@ describe("live serviceSearch client", () => {
     // The config doesn't get touched by the stripping function
     expect(axiosErr.config!.headers).toHaveProperty("subscription-key")
     expect(axiosErr.config!.headers).toHaveProperty("keep", "yes")
-    expect(axiosErr.response!.headers).not.toHaveProperty("subscription-key")
+    expect(axiosErr.response!.headers).toHaveProperty("subscription-key")
+    expect(axiosErr.response!.headers["subscription-key"]).toEqual("secre*****")
     expect(axiosErr.response!.headers).toHaveProperty("foo", "bar")
   })
 

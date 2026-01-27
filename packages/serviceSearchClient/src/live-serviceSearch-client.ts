@@ -162,10 +162,10 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
     const headerKeys = ["subscription-key", "apikey"]
     headerKeys.forEach((key) => {
       if (error.response?.headers && error.response.headers[key]) {
-        error.response.headers[key] = error.response.headers[key].substring(0, 5)
+        error.response.headers[key] = `${error.response.headers[key].substring(0, 5)}*****`
       }
       if (error.request?.headers && error.request.headers[key]) {
-        error.request.headers[key] = error.request.headers[key].substring(0, 5)
+        error.request.headers[key] = `${error.request.headers[key].substring(0, 5)}*****`
       }
     })
   }
