@@ -47,6 +47,7 @@ sam-sync-sandbox: guard-stack_name compile download-get-secrets-layer
 
 sam-deploy: guard-AWS_DEFAULT_PROFILE guard-stack_name
 	sam deploy \
+		--template-file SAMtemplates/main_template.yaml \
 		--stack-name $$stack_name \
 		--parameter-overrides \
 			  EnableSplunk=false \

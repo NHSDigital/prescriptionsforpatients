@@ -201,7 +201,8 @@ Note - the command will keep running and should not be stopped.
 You can now call this api - note getMyPrescriptions requires an nhsd-nhslogin-user header
 
 ```bash
-curl --header "nhsd-nhslogin-user: P9:9446041481" https://${stack_name}.dev.prescriptionsforpatients.national.nhs.uk/Bundle
+curl --header "nhsd-nhslogin-user: P9:9446041481" --header "x-request-id: $(uuid)" \
+  https://${stack_name}.dev.eps.national.nhs.uk/Bundle
 ```
 
 You can also use the AWS vscode extension to invoke the API or lambda directly
