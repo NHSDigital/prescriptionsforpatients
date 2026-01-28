@@ -37,7 +37,7 @@ export const SERVICE_SEARCH_BASE_QUERY_PARAMS = {
   "api-version": 2,
   "searchFields": "ODSCode",
   "$filter": "OrganisationTypeId eq 'PHA' and OrganisationSubType eq 'DistanceSelling'",
-  "$select": "Contacts,OrganisationSubType",
+  "$select": "URL,OrganisationSubType",
   "$top": 1
 }
 
@@ -46,6 +46,7 @@ export function getServiceSearchVersion(logger: Logger | null = null): number {
   if (endpoint.toLowerCase().includes("api.service.nhs.uk")) {
     logger?.info("Using service search v3 endpoint")
     SERVICE_SEARCH_BASE_QUERY_PARAMS["api-version"] = 3
+    SERVICE_SEARCH_BASE_QUERY_PARAMS["$select"] = "Contacts,OrganisationSubType"
     return 3
   }
   logger?.warn("Using service search v2 endpoint")
