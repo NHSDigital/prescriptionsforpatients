@@ -416,6 +416,7 @@ components:
 x-nhsd-apim:
   temporary: false
   monitoring: true
+  delegatedaccess: true
   access:
     - title: User Restricted
       grants:

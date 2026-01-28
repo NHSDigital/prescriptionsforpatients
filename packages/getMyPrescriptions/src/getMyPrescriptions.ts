@@ -44,7 +44,7 @@ const servicesCache: ServicesCache = {}
 const LAMBDA_TIMEOUT_MS = 10_000
 const SPINE_TIMEOUT_MS = 9_000
 const SERVICE_SEARCH_TIMEOUT_MS = 5_000
-export const DELEGATED_ACCESS_HDR = "delegatedaccess"
+export const DELEGATED_ACCESS_HDR = "x-nhsd-delegated-access"
 export const DELEGATED_ACCESS_SUB_HDR = "x-nhsd-subject-nhs-number"
 
 export type GetMyPrescriptionsEvent = {
