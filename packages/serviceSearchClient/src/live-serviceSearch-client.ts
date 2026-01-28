@@ -23,7 +23,7 @@ export const SERVICE_SEARCH_BASE_QUERY_PARAMS = {
   "api-version": 2,
   "searchFields": "ODSCode",
   "$filter": "OrganisationTypeId eq 'PHA' and OrganisationSubType eq 'DistanceSelling'",
-  "$select": "URL,OrganisationSubType",
+  "$select": "OrganisationSubType",
   "$top": 1
 }
 
