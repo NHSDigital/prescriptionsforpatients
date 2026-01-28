@@ -55,7 +55,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
 
   constructor(logger: Logger) {
     this.logger = logger
-    this.logger.warn("ServiceSearchClient configured",
+    this.logger.info("ServiceSearchClient configured",
       {
         v2: process.env.ServiceSearchApiKey !== undefined,
         v3: process.env.ServiceSearch3ApiKey !== undefined
@@ -134,8 +134,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
         maxAge: 300 // Cache for 5 minutes
       })
 
-      this.logger.info("Successfully loaded ServiceSearch API key from Secrets Manager",
-        {secret: `${secret?.toString().substring(0, 5)}*****`})
+      this.logger.info("Successfully loaded ServiceSearch API key from Secrets Manager")
       return secret as string
     } catch (error) {
       this.logger.error("Failed to load ServiceSearch API key from Secrets Manager", {error})
@@ -210,10 +209,10 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
     const headerKeys = ["subscription-key", "apikey"]
     headerKeys.forEach((key) => {
       if (error.response?.headers?.[key]) {
-        error.response.headers[key] = `${error.response.headers[key].substring(0, 5)}*****`
+        delete error.response.headers[key]
       }
       if (error.request?.headers?.[key]) {
-        error.request.headers[key] = `${error.request.headers[key].substring(0, 5)}*****`
+        delete error.request.headers[key]
       }
     })
   }
