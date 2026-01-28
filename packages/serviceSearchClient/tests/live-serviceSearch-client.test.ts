@@ -29,13 +29,39 @@ describe("live serviceSearch client", () => {
   })
 
   // Helper function tests
-  test("getServiceSearchEndpoint returns correct URL", async () => {
+  test("getServiceSearchEndpoint returns correct URL for v2", async () => {
     const {getServiceSearchEndpoint} = await import("../src/live-serviceSearch-client.js")
     const endpoint = getServiceSearchEndpoint()
     expect(endpoint).toBe(serviceSearchUrl)
   })
 
-  test("stripApiKeyFromHeaders removes only subscription-key header", () => {
+  test("getServiceSearchEndpoint returns correct URL for v3", async () => {
+    process.env.TargetServiceSearchServer = "api.service.nhs.uk"
+    const {getServiceSearchEndpoint} = await import("../src/live-serviceSearch-client.js")
+    const endpoint = getServiceSearchEndpoint(logger)
+    expect(endpoint).toBe("https://api.service.nhs.uk/service-search-api/")
+    process.env.TargetServiceSearchServer = "live"
+  })
+
+  test("getServiceSearchVersion returns 3 and logs info for v3 endpoint", async () => {
+    process.env.TargetServiceSearchServer = "api.service.nhs.uk"
+    const infoSpy = jest.spyOn(Logger.prototype, "info")
+    const {getServiceSearchVersion} = await import("../src/live-serviceSearch-client.js")
+    const version = getServiceSearchVersion(logger)
+    expect(version).toBe(3)
+    expect(infoSpy).toHaveBeenCalledWith("Using service search v3 endpoint")
+    process.env.TargetServiceSearchServer = "live"
+  })
+
+  test("getServiceSearchVersion returns 2 and logs warn for v2 endpoint", async () => {
+    const warnSpy = jest.spyOn(Logger.prototype, "warn")
+    const {getServiceSearchVersion} = await import("../src/live-serviceSearch-client.js")
+    const version = getServiceSearchVersion(logger)
+    expect(version).toBe(2)
+    expect(warnSpy).toHaveBeenCalledWith("Using service search v2 endpoint")
+  })
+
+  test("stripKeyFromHeaders removes only subscription-key header", () => {
     const axiosErr: AxiosError = {
       isAxiosError: true,
       config: {
@@ -64,8 +90,46 @@ describe("live serviceSearch client", () => {
     // The config doesn't get touched by the stripping function
     expect(axiosErr.config!.headers).toHaveProperty("subscription-key")
     expect(axiosErr.config!.headers).toHaveProperty("keep", "yes")
-    expect(axiosErr.response!.headers).toHaveProperty("subscription-key")
-    expect(axiosErr.response!.headers["subscription-key"]).toEqual("secre*****")
+    expect(axiosErr.response!.headers).not.toHaveProperty("subscription-key")
+    expect(axiosErr.response!.headers).toHaveProperty("foo", "bar")
+  })
+
+  test("stripApiKeyFromHeaders removes only apikey header", () => {
+    const axiosErr: AxiosError = {
+      isAxiosError: true,
+      config: {
+        headers: new axios.AxiosHeaders({"apikey": "secret", keep: "yes"})
+      } satisfies AxiosRequestConfig,
+      response: {
+        headers: {"apikey": "secret", foo: "bar"},
+        data: null,
+        status: 200,
+        statusText: "",
+        config: {headers: new axios.AxiosHeaders()} satisfies AxiosRequestConfig,
+        request: {}
+      } satisfies AxiosResponse,
+      request: {
+        headers: {"apikey": "secret", keep: "yes"}
+      },
+      toJSON: function (): object {
+        throw new Error("Function not implemented.")
+      },
+      name: "",
+      message: ""
+    }
+
+    expect(axiosErr.config!.headers).toHaveProperty("apikey")
+    expect(axiosErr.request!.headers).toHaveProperty("apikey")
+    expect(axiosErr.response!.headers).toHaveProperty("apikey")
+
+    client.stripApiKeyFromHeaders(axiosErr)
+
+    // The config doesn't get touched by the stripping function
+    expect(axiosErr.config!.headers).toHaveProperty("apikey")
+    expect(axiosErr.config!.headers).toHaveProperty("keep", "yes")
+    expect(axiosErr.request!.headers).not.toHaveProperty("apikey")
+    expect(axiosErr.request!.headers).toHaveProperty("keep", "yes")
+    expect(axiosErr.response!.headers).not.toHaveProperty("apikey")
     expect(axiosErr.response!.headers).toHaveProperty("foo", "bar")
   })
 
@@ -128,6 +192,25 @@ describe("live serviceSearch client", () => {
     await expect(client.searchService("y")).rejects.toBe(axiosErr)
     expect(errSpy).toHaveBeenCalledWith(
       "error in request to serviceSearch", {error: axiosErr}
+    )
+  })
+
+  // Test AxiosError without response or request (general axios error)
+  test("searchService logs general axios error when no response or request", async () => {
+    const axiosErr = {
+      isAxiosError: true,
+      message: "generalfail",
+      config: {headers: {}},
+      request: undefined,
+      response: undefined
+    } as unknown as AxiosError
+
+    jest.spyOn(client["axiosInstance"], "get").mockRejectedValue(axiosErr)
+    const errSpy = jest.spyOn(Logger.prototype, "error")
+
+    await expect(client.searchService("y")).rejects.toBe(axiosErr)
+    expect(errSpy).toHaveBeenCalledWith(
+      "general error calling serviceSearch", {error: axiosErr}
     )
   })
 
@@ -256,5 +339,81 @@ describe("live serviceSearch client", () => {
       )
     })
 
+  })
+
+  describe("v3 service search integration", () => {
+    const v3ServiceSearchUrl = "https://api.service.nhs.uk/service-search-api/"
+    const validUrlData: ServiceSearchData = {
+      value: [
+        {URL: "https://example.com", OrganisationSubType: "DistanceSelling"}
+      ]
+    }
+
+    beforeEach(() => {
+      process.env.TargetServiceSearchServer = "api.service.nhs.uk"
+      process.env.ServiceSearch3ApiKey = "v3-test-key"
+    })
+
+    afterEach(() => {
+      process.env.TargetServiceSearchServer = "live"
+      delete process.env.ServiceSearch3ApiKey
+      jest.restoreAllMocks()
+    })
+
+    test("uses v3 endpoint and apikey header", async () => {
+      const infoSpy = jest.spyOn(Logger.prototype, "info")
+
+      const v3Client = new LiveServiceSearchClient(logger)
+      mock.onGet(v3ServiceSearchUrl).reply(200, validUrlData)
+
+      const result = await v3Client.searchService("test-ods")
+
+      expect(infoSpy).toHaveBeenCalledWith("Using service search v3 endpoint")
+      expect(infoSpy).toHaveBeenCalledWith(
+        "ServiceSearchClient configured",
+        {v2: true, v3: true}
+      )
+      expect(result).toEqual(new URL(validUrlData.value[0].URL))
+    })
+
+    test("logs error when API key ARN is not set and API key is missing", async () => {
+      delete process.env.ServiceSearch3ApiKey
+      delete process.env.ServiceSearch3ApiKeyARN
+
+      const errorSpy = jest.spyOn(Logger.prototype, "error")
+
+      const v3Client = new LiveServiceSearchClient(logger)
+      mock.onGet(v3ServiceSearchUrl).reply(200, validUrlData)
+
+      const result = await v3Client.searchService("test-ods")
+
+      expect(errorSpy).toHaveBeenCalledWith(
+        "ServiceSearch3ApiKeyARN environment variable is not set"
+      )
+      expect(result).toEqual(new URL(validUrlData.value[0].URL))
+    })
+
+    test("attempts to load from secrets manager when API key is not in environment", async () => {
+      delete process.env.ServiceSearch3ApiKey
+      process.env.ServiceSearch3ApiKeyARN = "arn:aws:secretsmanager:region:account:secret:test"
+
+      const infoSpy = jest.spyOn(Logger.prototype, "info")
+      const errorSpy = jest.spyOn(Logger.prototype, "error")
+
+      const v3Client = new LiveServiceSearchClient(logger)
+      mock.onGet(v3ServiceSearchUrl).reply(200, validUrlData)
+
+      const result = await v3Client.searchService("test-ods")
+
+      expect(infoSpy).toHaveBeenCalledWith(
+        "API key not in environment, attempting to load from Secrets Manager"
+      )
+      // Since getSecret will actually fail in the test environment, we should see an error
+      expect(errorSpy).toHaveBeenCalledWith(
+        "Failed to load ServiceSearch API key from Secrets Manager",
+        expect.objectContaining({error: expect.anything()})
+      )
+      expect(result).toEqual(new URL(validUrlData.value[0].URL))
+    })
   })
 })
