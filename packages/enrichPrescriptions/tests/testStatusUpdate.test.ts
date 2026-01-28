@@ -242,7 +242,7 @@ describe("Unit tests for statusUpdate", function () {
 
     const statusUpdates = simpleStatusUpdatesPayload()
 
-    const responseBundle = JSON.parse(JSON.stringify(requestBundle))
+    const responseBundle = structuredClone(requestBundle)
 
     applyStatusUpdates(logger, requestBundle, statusUpdates)
 
@@ -410,9 +410,9 @@ describe("Unit tests for statusUpdate", function () {
       const statusUpdateRequest = createStatusUpdateRequest([{odsCode: "FLM49", prescriptionID: prescriptionID}])
 
       applyTemporaryStatusUpdates(logger, requestBundle, statusUpdateRequest)
-      const statusExtension = medicationRequest.extension![0].extension!.filter((e) => e.url === "status")[0]
+      const statusExtension = medicationRequest.extension![0].extension!.find((e) => e.url === "status")
 
-      expect(statusExtension.valueCoding!.code!).toEqual(TEMPORARILY_UNAVAILABLE_STATUS)
+      expect(statusExtension!.valueCoding!.code!).toEqual(TEMPORARILY_UNAVAILABLE_STATUS)
       expect(medicationRequest.status).toEqual("active")
     })
 
@@ -451,9 +451,9 @@ describe("Unit tests for statusUpdate", function () {
         const statusUpdateRequest = createStatusUpdateRequest([{odsCode: "FLM49", prescriptionID: prescriptionID}])
 
         applyTemporaryStatusUpdates(logger, requestBundle, statusUpdateRequest)
-        const statusExtension = medicationRequest.extension![0].extension!.filter((e) => e.url === "status")[0]
+        const statusExtension = medicationRequest.extension![0].extension!.find((e) => e.url === "status")
 
-        expect(statusExtension.valueCoding!.code!).toEqual(shouldUpdate ? TEMPORARILY_UNAVAILABLE_STATUS : status)
+        expect(statusExtension!.valueCoding!.code!).toEqual(shouldUpdate ? TEMPORARILY_UNAVAILABLE_STATUS : status)
       }
     )
   })
@@ -487,10 +487,10 @@ describe("Unit tests for statusUpdate", function () {
     applyTemporaryStatusUpdates(logger, requestBundle, statusUpdateRequest)
 
     const tempStatusUpdateFilter = (medicationRequest: MedicationRequest) => {
-      const outerExtension = medicationRequest.extension?.filter(
+      const outerExtension = medicationRequest.extension?.find(
         (extension) => extension.url === OUTER_EXTENSION_URL
-      )[0]
-      const statusExtension = outerExtension?.extension?.filter((extension) => extension.url === "status")[0]
+      )
+      const statusExtension = outerExtension?.extension?.find((extension) => extension.url === "status")
       return statusExtension?.valueCoding!.code === TEMPORARILY_UNAVAILABLE_STATUS
     }
 
@@ -521,5 +521,45 @@ describe("Unit tests for statusUpdate", function () {
     const scenario = await getUpdatesScenario(logger, statusUpdates, nhsNumber)
 
     expect(scenario).toEqual(expected)
+  })
+
+  describe("Multiple updates for same item", () => {
+    it("when multiple updates exist for the same item, the most recent one is applied", async () => {
+      const requestBundle = simpleRequestBundle()
+      const statusUpdates = simpleStatusUpdatesPayload()
+
+      // Add multiple updates for the same item with different timestamps
+      const itemId = "E76812CF-C893-42FF-AB02-B19EA1FA11B4"
+      statusUpdates.prescriptions[0].items = [
+        {
+          isTerminalState: false,
+          itemId: itemId,
+          lastUpdateDateTime: "2023-09-11T08:00:00.000Z", // Earlier update
+          latestStatus: "With Pharmacy"
+        },
+        {
+          isTerminalState: false,
+          itemId: itemId,
+          lastUpdateDateTime: "2023-09-11T10:11:12.000Z", // Most recent update
+          latestStatus: "Ready to Collect"
+        },
+        {
+          isTerminalState: false,
+          itemId: itemId,
+          lastUpdateDateTime: "2023-09-11T09:00:00.000Z", // Middle update
+          latestStatus: "Being Prepared"
+        }
+      ]
+
+      applyStatusUpdates(logger, requestBundle, statusUpdates)
+
+      const prescriptionBundle = requestBundle.entry![0].resource as Bundle
+      const medicationRequest = prescriptionBundle.entry![0].resource as MedicationRequest
+      const statusExtension = medicationRequest.extension![0].extension!.find((e) => e.url === "status")
+
+      // Expect the most recent status
+      expect(statusExtension!.valueCoding!.code).toEqual("Ready to Collect")
+      expect(medicationRequest.extension![0].extension![1].valueDateTime).toEqual("2023-09-11T10:11:12.000Z")
+    })
   })
 })
