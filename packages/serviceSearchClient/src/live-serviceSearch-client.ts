@@ -1,6 +1,6 @@
 import {Logger} from "@aws-lambda-powertools/logger"
 import {getSecret} from "@aws-lambda-powertools/parameters/secrets"
-import axios, {AxiosError, AxiosInstance} from "axios"
+import axios, {AxiosError, AxiosInstance, AxiosResponse} from "axios"
 import axiosRetry from "axios-retry"
 import {handleUrl} from "./handleUrl"
 
@@ -15,15 +15,29 @@ type Service = {
   "OrganisationSubType": string
 }
 
+type Contact = {
+  "ContactMethodType": string
+  "ContactValue": string
+}
+
 export type ServiceSearchData = {
   "value": Array<Service>
+}
+
+export type ServiceSearch3Data = {
+  "@odata.context": string
+  "value": Array<{
+    "@search.score": number
+    "OrganisationSubType": string
+    "Contacts": Array<Contact>
+  }>
 }
 
 export const SERVICE_SEARCH_BASE_QUERY_PARAMS = {
   "api-version": 2,
   "searchFields": "ODSCode",
   "$filter": "OrganisationTypeId eq 'PHA' and OrganisationSubType eq 'DistanceSelling'",
-  "$select": "URL,OrganisationSubType",
+  "$select": "Contacts,OrganisationSubType",
   "$top": 1
 }
 
@@ -145,7 +159,8 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
   async searchService(odsCode: string): Promise<URL | undefined> {
     try {
       // Load API key if not set in environment (secrets layer is failing to load v3 key)
-      if (getServiceSearchVersion(this.logger) === 3 && !this.outboundHeaders.apikey) {
+      const apiVsn = getServiceSearchVersion(this.logger)
+      if (apiVsn === 3 && !this.outboundHeaders.apikey) {
         this.logger.info("API key not in environment, attempting to load from Secrets Manager")
         this.outboundHeaders.apikey = await this.loadApiKeyFromSecretsManager()
       }
@@ -160,22 +175,14 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
         timeout: SERVICE_SEARCH_TIMEOUT
       })
 
-      const serviceSearchResponse: ServiceSearchData = response.data
-      const services = serviceSearchResponse.value
-      if (services.length === 0) {
-        return undefined
+      this.logger.info(`received response from serviceSearch for ods code ${odsCode}`,
+        {odsCode: odsCode, status: response.status, data: response.data})
+      if (apiVsn === 2) {
+        return this.handleV2Response(response, odsCode)
+      } else {
+        return this.handleV3Response(response, odsCode)
       }
 
-      this.logger.info(`pharmacy with ods code ${odsCode} is of type ${DISTANCE_SELLING}`, {odsCode: odsCode})
-      const service = services[0]
-      const urlString = service["URL"]
-
-      if (urlString === null) {
-        this.logger.warn(`ods code ${odsCode} has no URL but is of type ${DISTANCE_SELLING}`, {odsCode: odsCode})
-        return undefined
-      }
-      const serviceUrl = handleUrl(urlString, odsCode, this.logger)
-      return serviceUrl
     } catch (error) {
       if (axios.isAxiosError(error)) {
         this.stripApiKeyFromHeaders(error)
@@ -203,6 +210,36 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       }
       throw error
     }
+  }
+  handleV3Response(response: AxiosResponse<ServiceSearch3Data>, odsCode: string): URL | undefined {
+    const contacts = response.data.value[0]?.Contacts
+    const websiteContact = contacts?.find((contact: Contact) => contact.ContactMethodType === "Website")
+    const websiteUrl = websiteContact?.ContactValue
+    if (!websiteUrl) {
+      this.logger.warn(`pharmacy with ods code ${odsCode} has no website`, {odsCode: odsCode})
+      return undefined
+    }
+    const serviceUrl = handleUrl(websiteUrl, odsCode, this.logger)
+    return serviceUrl
+  }
+
+  handleV2Response(response: AxiosResponse, odsCode: string): URL | undefined {
+    const serviceSearchResponse: ServiceSearchData = response.data
+    const services = serviceSearchResponse.value
+    if (services.length === 0) {
+      return undefined
+    }
+
+    this.logger.info(`pharmacy with ods code ${odsCode} is of type ${DISTANCE_SELLING}`, {odsCode: odsCode})
+    const service = services[0]
+    const urlString = service["URL"]
+
+    if (urlString === null) {
+      this.logger.warn(`ods code ${odsCode} has no URL but is of type ${DISTANCE_SELLING}`, {odsCode: odsCode})
+      return undefined
+    }
+    const serviceUrl = handleUrl(urlString, odsCode, this.logger)
+    return serviceUrl
   }
 
   stripApiKeyFromHeaders(error: AxiosError) {
