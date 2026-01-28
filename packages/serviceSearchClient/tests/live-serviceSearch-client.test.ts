@@ -1,4 +1,4 @@
-import {LiveServiceSearchClient, ServiceSearchData} from "../src/live-serviceSearch-client"
+import {LiveServiceSearchClient, ServiceSearchData, ServiceSearch3Data} from "../src/live-serviceSearch-client"
 import {jest} from "@jest/globals"
 import MockAdapter from "axios-mock-adapter"
 import axios, {AxiosError, AxiosRequestConfig, AxiosResponse} from "axios"
@@ -343,9 +343,16 @@ describe("live serviceSearch client", () => {
 
   describe("v3 service search integration", () => {
     const v3ServiceSearchUrl = "https://api.service.nhs.uk/service-search-api/"
-    const validUrlData: ServiceSearchData = {
+    const validV3Data: ServiceSearch3Data = {
+      "@odata.context": "https://api.service.nhs.uk/service-search-api/$metadata#Services",
       value: [
-        {URL: "https://example.com", OrganisationSubType: "DistanceSelling"}
+        {
+          "@search.score": 1.0,
+          OrganisationSubType: "DistanceSelling",
+          Contacts: [
+            {ContactMethodType: "Website", ContactValue: "https://example.com"}
+          ]
+        }
       ]
     }
 
@@ -364,7 +371,7 @@ describe("live serviceSearch client", () => {
       const infoSpy = jest.spyOn(Logger.prototype, "info")
 
       const v3Client = new LiveServiceSearchClient(logger)
-      mock.onGet(v3ServiceSearchUrl).reply(200, validUrlData)
+      mock.onGet(v3ServiceSearchUrl).reply(200, validV3Data)
 
       const result = await v3Client.searchService("test-ods")
 
@@ -373,7 +380,7 @@ describe("live serviceSearch client", () => {
         "ServiceSearchClient configured",
         {v2: true, v3: true}
       )
-      expect(result).toEqual(new URL(validUrlData.value[0].URL))
+      expect(result).toEqual(new URL("https://example.com"))
     })
 
     test("logs error when API key ARN is not set and API key is missing", async () => {
@@ -383,14 +390,14 @@ describe("live serviceSearch client", () => {
       const errorSpy = jest.spyOn(Logger.prototype, "error")
 
       const v3Client = new LiveServiceSearchClient(logger)
-      mock.onGet(v3ServiceSearchUrl).reply(200, validUrlData)
+      mock.onGet(v3ServiceSearchUrl).reply(200, validV3Data)
 
       const result = await v3Client.searchService("test-ods")
 
       expect(errorSpy).toHaveBeenCalledWith(
         "ServiceSearch3ApiKeyARN environment variable is not set"
       )
-      expect(result).toEqual(new URL(validUrlData.value[0].URL))
+      expect(result).toEqual(new URL("https://example.com"))
     })
 
     test("attempts to load from secrets manager when API key is not in environment", async () => {
@@ -401,7 +408,7 @@ describe("live serviceSearch client", () => {
       const errorSpy = jest.spyOn(Logger.prototype, "error")
 
       const v3Client = new LiveServiceSearchClient(logger)
-      mock.onGet(v3ServiceSearchUrl).reply(200, validUrlData)
+      mock.onGet(v3ServiceSearchUrl).reply(200, validV3Data)
 
       const result = await v3Client.searchService("test-ods")
 
@@ -413,7 +420,95 @@ describe("live serviceSearch client", () => {
         "Failed to load ServiceSearch API key from Secrets Manager",
         expect.objectContaining({error: expect.anything()})
       )
-      expect(result).toEqual(new URL(validUrlData.value[0].URL))
+      expect(result).toEqual(new URL("https://example.com"))
+    })
+
+    test("returns undefined when v3 response has no Contacts", async () => {
+      const noContactsData: ServiceSearch3Data = {
+        "@odata.context": "https://api.service.nhs.uk/service-search-api/$metadata#Services",
+        value: [
+          {
+            "@search.score": 1.0,
+            OrganisationSubType: "DistanceSelling",
+            Contacts: []
+          }
+        ]
+      }
+
+      const warnSpy = jest.spyOn(Logger.prototype, "warn")
+      const v3Client = new LiveServiceSearchClient(logger)
+      mock.onGet(v3ServiceSearchUrl).reply(200, noContactsData)
+
+      const result = await v3Client.searchService("test-ods")
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        "pharmacy with ods code test-ods has no website",
+        {odsCode: "test-ods"}
+      )
+      expect(result).toBeUndefined()
+    })
+
+    test("returns undefined when v3 response has no Website contact", async () => {
+      const noWebsiteData: ServiceSearch3Data = {
+        "@odata.context": "https://api.service.nhs.uk/service-search-api/$metadata#Services",
+        value: [
+          {
+            "@search.score": 1.0,
+            OrganisationSubType: "DistanceSelling",
+            Contacts: [
+              {ContactMethodType: "Phone", ContactValue: "01234567890"}
+            ]
+          }
+        ]
+      }
+
+      const warnSpy = jest.spyOn(Logger.prototype, "warn")
+      const v3Client = new LiveServiceSearchClient(logger)
+      mock.onGet(v3ServiceSearchUrl).reply(200, noWebsiteData)
+
+      const result = await v3Client.searchService("test-ods")
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        "pharmacy with ods code test-ods has no website",
+        {odsCode: "test-ods"}
+      )
+      expect(result).toBeUndefined()
+    })
+
+    test("handles v3 URL without protocol", async () => {
+      const noProtocolData: ServiceSearch3Data = {
+        "@odata.context": "https://api.service.nhs.uk/service-search-api/$metadata#Services",
+        value: [
+          {
+            "@search.score": 1.0,
+            OrganisationSubType: "DistanceSelling",
+            Contacts: [
+              {ContactMethodType: "Website", ContactValue: "example.com"}
+            ]
+          }
+        ]
+      }
+
+      const v3Client = new LiveServiceSearchClient(logger)
+      mock.onGet(v3ServiceSearchUrl).reply(200, noProtocolData)
+
+      const result = await v3Client.searchService("test-ods")
+
+      expect(result).toEqual(new URL("https://example.com"))
+    })
+
+    test("returns undefined when v3 response has empty value array", async () => {
+      const emptyData: ServiceSearch3Data = {
+        "@odata.context": "https://api.service.nhs.uk/service-search-api/$metadata#Services",
+        value: []
+      }
+
+      const v3Client = new LiveServiceSearchClient(logger)
+      mock.onGet(v3ServiceSearchUrl).reply(200, emptyData)
+
+      const result = await v3Client.searchService("test-ods")
+
+      expect(result).toBeUndefined()
     })
   })
 })
