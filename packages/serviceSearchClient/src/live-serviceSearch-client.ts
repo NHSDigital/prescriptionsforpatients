@@ -1,6 +1,6 @@
 import {Logger} from "@aws-lambda-powertools/logger"
 import {getSecret} from "@aws-lambda-powertools/parameters/secrets"
-import axios, {AxiosError, AxiosInstance, AxiosResponse} from "axios"
+import axios, {AxiosError, AxiosInstance} from "axios"
 import axiosRetry from "axios-retry"
 import {handleUrl} from "./handleUrl"
 
@@ -178,9 +178,9 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       this.logger.info(`received response from serviceSearch for ods code ${odsCode}`,
         {odsCode: odsCode, status: response.status, data: response.data})
       if (apiVsn === 2) {
-        return this.handleV2Response(response, odsCode)
+        return this.handleV2Response(odsCode, response.data)
       } else {
-        return this.handleV3Response(response, odsCode)
+        return this.handleV3Response(odsCode, response.data)
       }
 
     } catch (error) {
@@ -211,8 +211,8 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       throw error
     }
   }
-  handleV3Response(response: AxiosResponse<ServiceSearch3Data>, odsCode: string): URL | undefined {
-    const contacts = response.data.value[0]?.Contacts
+  handleV3Response(odsCode: string, data: ServiceSearch3Data): URL | undefined {
+    const contacts = data.value[0]?.Contacts
     const websiteContact = contacts?.find((contact: Contact) => contact.ContactMethodType === "Website")
     const websiteUrl = websiteContact?.ContactValue
     if (!websiteUrl) {
@@ -223,9 +223,8 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
     return serviceUrl
   }
 
-  handleV2Response(response: AxiosResponse, odsCode: string): URL | undefined {
-    const serviceSearchResponse: ServiceSearchData = response.data
-    const services = serviceSearchResponse.value
+  handleV2Response(odsCode: string, data: ServiceSearchData): URL | undefined {
+    const services = data.value
     if (services.length === 0) {
       return undefined
     }
