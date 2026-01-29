@@ -118,7 +118,7 @@ jobs:
       RUN_REGRESSION_TESTS: true
       REGRESSION_TEST_PRODUCT: PFP-AWS
       FORWARD_CSOC_LOGS: false
-      DEPLOY_APIGEE: false
+      DEPLOY_APIGEE: true
       ALLOW_NHS_NUMBER_OVERRIDE: true
     secrets:
       REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
@@ -152,4 +152,43 @@ jobs:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_SPINE_SERVER: sandbox
       TARGET_SERVICE_SEARCH_SERVER: sandbox
+      PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PTL_ROLE }}
+  release_dev:
+    needs: [tag_release, package_code, get_commit_id]
+    uses: ./.github/workflows/sam_release_code.yml
+    with:
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
+      STACK_NAME: pfp
+      TARGET_ENVIRONMENT: dev
+      APIGEE_ENVIRONMENT: internal-dev
+      ENABLE_MUTUAL_TLS: true
+      MTLS_KEY: prescriptions-for-patients-mtls-1
+      BUILD_ARTIFACT: packaged_code
+      TRUSTSTORE_FILE: pfp-truststore.pem
+      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
+      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
+      LOG_LEVEL: DEBUG
+      LOG_RETENTION_DAYS: 30
+      CREATE_INT_RELEASE_NOTES: true
+      CREATE_PROD_RELEASE_NOTES: true
+      TOGGLE_GET_STATUS_UPDATES: true
+      ENABLE_ALERTS: true
+      STATE_MACHINE_LOG_LEVEL: ALL
+      RUN_REGRESSION_TESTS: true
+      REGRESSION_TEST_NON_PROXYGEN: true
+      REGRESSION_TEST_PRODUCT: PFP-APIGEE
+      FORWARD_CSOC_LOGS: false
+      TC007_NHS_NUMBERS: ${{vars.TC007_NHS_NUMBERS}}
+      TC008_NHS_NUMBERS: ${{vars.TC008_NHS_NUMBERS}}
+      TC009_NHS_NUMBERS: ${{vars.TC009_NHS_NUMBERS}}
+      ALLOW_NHS_NUMBER_OVERRIDE: true
+    secrets:
+      REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_SPINE_SERVER: ${{ secrets.DEV_TARGET_SPINE_SERVER }}
+      TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.DEV_TARGET_SERVICE_SEARCH_SERVER }}
+      DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
+      INT_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.INT_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
+      PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
+      DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
       PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PTL_ROLE }}
