@@ -1,4 +1,4 @@
-import {LiveServiceSearchClient, ServiceSearchData} from "../src/live-serviceSearch-client"
+import {LiveServiceSearchClient, ServiceSearchData, ServiceSearch3Data} from "../src/live-serviceSearch-client"
 import {jest} from "@jest/globals"
 import MockAdapter from "axios-mock-adapter"
 import axios, {AxiosError, AxiosRequestConfig, AxiosResponse} from "axios"
@@ -29,13 +29,39 @@ describe("live serviceSearch client", () => {
   })
 
   // Helper function tests
-  test("getServiceSearchEndpoint returns correct URL", async () => {
+  test("getServiceSearchEndpoint returns correct URL for v2", async () => {
     const {getServiceSearchEndpoint} = await import("../src/live-serviceSearch-client.js")
     const endpoint = getServiceSearchEndpoint()
     expect(endpoint).toBe(serviceSearchUrl)
   })
 
-  test("stripApiKeyFromHeaders removes only subscription-key header", () => {
+  test("getServiceSearchEndpoint returns correct URL for v3", async () => {
+    process.env.TargetServiceSearchServer = "api.service.nhs.uk"
+    const {getServiceSearchEndpoint} = await import("../src/live-serviceSearch-client.js")
+    const endpoint = getServiceSearchEndpoint(logger)
+    expect(endpoint).toBe("https://api.service.nhs.uk/service-search-api/")
+    process.env.TargetServiceSearchServer = "live"
+  })
+
+  test("getServiceSearchVersion returns 3 and logs info for v3 endpoint", async () => {
+    process.env.TargetServiceSearchServer = "api.service.nhs.uk"
+    const infoSpy = jest.spyOn(Logger.prototype, "info")
+    const {getServiceSearchVersion} = await import("../src/live-serviceSearch-client.js")
+    const version = getServiceSearchVersion(logger)
+    expect(version).toBe(3)
+    expect(infoSpy).toHaveBeenCalledWith("Using service search v3 endpoint")
+    process.env.TargetServiceSearchServer = "live"
+  })
+
+  test("getServiceSearchVersion returns 2 and logs warn for v2 endpoint", async () => {
+    const warnSpy = jest.spyOn(Logger.prototype, "warn")
+    const {getServiceSearchVersion} = await import("../src/live-serviceSearch-client.js")
+    const version = getServiceSearchVersion(logger)
+    expect(version).toBe(2)
+    expect(warnSpy).toHaveBeenCalledWith("Using service search v2 endpoint")
+  })
+
+  test("stripKeyFromHeaders removes only subscription-key header", () => {
     const axiosErr: AxiosError = {
       isAxiosError: true,
       config: {
@@ -65,6 +91,45 @@ describe("live serviceSearch client", () => {
     expect(axiosErr.config!.headers).toHaveProperty("subscription-key")
     expect(axiosErr.config!.headers).toHaveProperty("keep", "yes")
     expect(axiosErr.response!.headers).not.toHaveProperty("subscription-key")
+    expect(axiosErr.response!.headers).toHaveProperty("foo", "bar")
+  })
+
+  test("stripApiKeyFromHeaders removes only apikey header", () => {
+    const axiosErr: AxiosError = {
+      isAxiosError: true,
+      config: {
+        headers: new axios.AxiosHeaders({"apikey": "secret", keep: "yes"})
+      } satisfies AxiosRequestConfig,
+      response: {
+        headers: {"apikey": "secret", foo: "bar"},
+        data: null,
+        status: 200,
+        statusText: "",
+        config: {headers: new axios.AxiosHeaders()} satisfies AxiosRequestConfig,
+        request: {}
+      } satisfies AxiosResponse,
+      request: {
+        headers: {"apikey": "secret", keep: "yes"}
+      },
+      toJSON: function (): object {
+        throw new Error("Function not implemented.")
+      },
+      name: "",
+      message: ""
+    }
+
+    expect(axiosErr.config!.headers).toHaveProperty("apikey")
+    expect(axiosErr.request!.headers).toHaveProperty("apikey")
+    expect(axiosErr.response!.headers).toHaveProperty("apikey")
+
+    client.stripApiKeyFromHeaders(axiosErr)
+
+    // The config doesn't get touched by the stripping function
+    expect(axiosErr.config!.headers).toHaveProperty("apikey")
+    expect(axiosErr.config!.headers).toHaveProperty("keep", "yes")
+    expect(axiosErr.request!.headers).not.toHaveProperty("apikey")
+    expect(axiosErr.request!.headers).toHaveProperty("keep", "yes")
+    expect(axiosErr.response!.headers).not.toHaveProperty("apikey")
     expect(axiosErr.response!.headers).toHaveProperty("foo", "bar")
   })
 
@@ -127,6 +192,25 @@ describe("live serviceSearch client", () => {
     await expect(client.searchService("y")).rejects.toBe(axiosErr)
     expect(errSpy).toHaveBeenCalledWith(
       "error in request to serviceSearch", {error: axiosErr}
+    )
+  })
+
+  // Test AxiosError without response or request (general axios error)
+  test("searchService logs general axios error when no response or request", async () => {
+    const axiosErr = {
+      isAxiosError: true,
+      message: "generalfail",
+      config: {headers: {}},
+      request: undefined,
+      response: undefined
+    } as unknown as AxiosError
+
+    jest.spyOn(client["axiosInstance"], "get").mockRejectedValue(axiosErr)
+    const errSpy = jest.spyOn(Logger.prototype, "error")
+
+    await expect(client.searchService("y")).rejects.toBe(axiosErr)
+    expect(errSpy).toHaveBeenCalledWith(
+      "general error calling serviceSearch", {error: axiosErr}
     )
   })
 
@@ -255,5 +339,120 @@ describe("live serviceSearch client", () => {
       )
     })
 
+  })
+
+  describe("handleV3Response", () => {
+    test("returns URL from Website contact", () => {
+      const data: ServiceSearch3Data = {
+        "@odata.context": "https://api.service.nhs.uk/service-search-api/$metadata#Services",
+        value: [
+          {
+            "@search.score": 1.0,
+            OrganisationSubType: "DistanceSelling",
+            Contacts: [
+              {ContactMethodType: "Website", ContactValue: "https://example.com"}
+            ]
+          }
+        ]
+      }
+
+      const result = client.handleV3Response("TEST123", data)
+      expect(result).toEqual(new URL("https://example.com"))
+    })
+
+    test("returns undefined when response has no Contacts", () => {
+      const data: ServiceSearch3Data = {
+        "@odata.context": "https://api.service.nhs.uk/service-search-api/$metadata#Services",
+        value: [
+          {
+            "@search.score": 1.0,
+            OrganisationSubType: "DistanceSelling",
+            Contacts: []
+          }
+        ]
+      }
+
+      const warnSpy = jest.spyOn(Logger.prototype, "warn")
+      const result = client.handleV3Response("TEST123", data)
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        "pharmacy with ods code TEST123 has no website",
+        {odsCode: "TEST123"}
+      )
+      expect(result).toBeUndefined()
+    })
+
+    test("returns undefined when response has no Website contact", () => {
+      const data: ServiceSearch3Data = {
+        "@odata.context": "https://api.service.nhs.uk/service-search-api/$metadata#Services",
+        value: [
+          {
+            "@search.score": 1.0,
+            OrganisationSubType: "DistanceSelling",
+            Contacts: [
+              {ContactMethodType: "Phone", ContactValue: "01234567890"},
+              {ContactMethodType: "Email", ContactValue: "test@example.com"}
+            ]
+          }
+        ]
+      }
+
+      const warnSpy = jest.spyOn(Logger.prototype, "warn")
+      const result = client.handleV3Response("TEST123", data)
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        "pharmacy with ods code TEST123 has no website",
+        {odsCode: "TEST123"}
+      )
+      expect(result).toBeUndefined()
+    })
+
+    test("handles URL without protocol", () => {
+      const data: ServiceSearch3Data = {
+        "@odata.context": "https://api.service.nhs.uk/service-search-api/$metadata#Services",
+        value: [
+          {
+            "@search.score": 1.0,
+            OrganisationSubType: "DistanceSelling",
+            Contacts: [
+              {ContactMethodType: "Website", ContactValue: "example.com"}
+            ]
+          }
+        ]
+      }
+
+      const result = client.handleV3Response("TEST123", data)
+      expect(result).toEqual(new URL("https://example.com"))
+    })
+
+    test("returns undefined when value array is empty", () => {
+      const data: ServiceSearch3Data = {
+        "@odata.context": "https://api.service.nhs.uk/service-search-api/$metadata#Services",
+        value: []
+      }
+
+      const result = client.handleV3Response("TEST123", data)
+      expect(result).toBeUndefined()
+    })
+
+    test("finds Website contact among multiple contacts", () => {
+      const data: ServiceSearch3Data = {
+        "@odata.context": "https://api.service.nhs.uk/service-search-api/$metadata#Services",
+        value: [
+          {
+            "@search.score": 1.0,
+            OrganisationSubType: "DistanceSelling",
+            Contacts: [
+              {ContactMethodType: "Phone", ContactValue: "01234567890"},
+              {ContactMethodType: "Website", ContactValue: "https://pharmacy.example.com"},
+              {ContactMethodType: "Email", ContactValue: "test@example.com"}
+            ]
+          }
+        ]
+      }
+
+      const result = client.handleV3Response("TEST123", data)
+      expect(result).toEqual(new URL("https://pharmacy.example.com"))
+    })
   })
 })
