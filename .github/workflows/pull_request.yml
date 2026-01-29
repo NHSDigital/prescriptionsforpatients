@@ -118,7 +118,7 @@ jobs:
       RUN_REGRESSION_TESTS: true
       REGRESSION_TEST_PRODUCT: PFP-AWS
       FORWARD_CSOC_LOGS: false
-      DEPLOY_APIGEE: false
+      DEPLOY_APIGEE: true
       ALLOW_NHS_NUMBER_OVERRIDE: true
     secrets:
       REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}

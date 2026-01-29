@@ -80,7 +80,7 @@ on:
         type: string
       DEPLOY_APIGEE:
         type: boolean
-        default: false
+        default: true
       MTLS_KEY:
         type: string
         required: true
