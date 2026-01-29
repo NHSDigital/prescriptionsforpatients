@@ -101,17 +101,17 @@ jobs:
               exit 1
             fi
 
-      #       poetry install
-      #       echo Running regression tests in the "$TARGET_ENVIRONMENT" environment
-      #       poetry run python -u run_regression_tests.py \
-      #       --env="$TARGET_ENVIRONMENT" \
-      #       --pr_label="$VERSION_NUMBER" \
-      #       --token=${{ steps.generate-token.outputs.token }} \
-      #       --is_called_from_github=true \
-      #       --product=${{ inputs.REGRESSION_TEST_PRODUCT }} \
-      #       --regression_test_repo_tag "${REGRESSION_TEST_REPO_TAG}" \
-      #       --regression_test_workflow_tag "${REGRESSION_TEST_WORKFLOW_TAG}"
-      #     fi
+            poetry install
+            echo Running regression tests in the "$TARGET_ENVIRONMENT" environment
+            poetry run python -u run_regression_tests.py \
+            --env="$TARGET_ENVIRONMENT" \
+            --pr_label="$VERSION_NUMBER" \
+            --token=${{ steps.generate-token.outputs.token }} \
+            --is_called_from_github=true \
+            --product=${{ inputs.REGRESSION_TEST_PRODUCT }} \
+            --regression_test_repo_tag "${REGRESSION_TEST_REPO_TAG}" \
+            --regression_test_workflow_tag "${REGRESSION_TEST_WORKFLOW_TAG}"
+          fi
 
       # - name: Run Regression Testing Proxygen API
       #   working-directory: scripts
