@@ -101,7 +101,7 @@ jobs:
       STACK_NAME: pfp-sandbox
       TARGET_ENVIRONMENT: dev
       APIGEE_ENVIRONMENT: internal-dev-sandbox
-      ENABLE_MUTUAL_TLS: false
+      ENABLE_MUTUAL_TLS: true
       MTLS_KEY: prescriptions-for-patients-mtls-1
       BUILD_ARTIFACT: packaged_sandbox_code
       TRUSTSTORE_FILE: pfp-sandbox-truststore.pem
@@ -291,7 +291,7 @@ jobs:
       ENABLE_ALERTS: true
       STATE_MACHINE_LOG_LEVEL: ERROR
       FORWARD_CSOC_LOGS: true
-      DEPLOY_APIGEE: false
+      DEPLOY_APIGEE: true
       ALLOW_NHS_NUMBER_OVERRIDE: false
     secrets:
       REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
