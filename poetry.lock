@@ -606,14 +606,14 @@ tests = ["pytest (>=9)", "typing-extensions (>=4.15)"]
 
 [[package]]
 name = "pip-licenses"
-version = "5.5.0"
+version = "5.5.1"
 description = "Dump the software license list of Python packages installed with pip."
 optional = false
 python-versions = ">=3.9"
 groups = ["dev"]
 files = [
-    {file = "pip_licenses-5.5.0-py3-none-any.whl", hash = "sha256:ae1869436d13ee487088d29e71fc5821950062ad25ec28b6a1a443e0add6d8e8"},
-    {file = "pip_licenses-5.5.0.tar.gz", hash = "sha256:2473e7afd02a0c21460758f70fd2bb3b3c080c5150713dd33baa9493dc1563a5"},
+    {file = "pip_licenses-5.5.1-py3-none-any.whl", hash = "sha256:ed5e229a93760e529cfa7edaec6630b5a2cd3874c1bddb8019e5f18a723fdead"},
+    {file = "pip_licenses-5.5.1.tar.gz", hash = "sha256:7df370e6e5024a3f7449abf8e4321ef868ba9a795698ad24ab6851f3e7fc65a7"},
 ]
 
 [package.dependencies]
@@ -1387,4 +1387,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "c2fcfd906656de5a77332bc2e479cc8cb36a2549baf9d5baf414722985a4af6c"
+content-hash = "51fdb3ebe11b7d33d8a8deca20c380262b6d09d4480e388b98de56b3ac7c6c42"

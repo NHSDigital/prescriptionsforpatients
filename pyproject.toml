@@ -26,7 +26,7 @@ pre-commit = "^4.1.0"
 cfn-lint = "^1.43.4"
 black = "^26.1.0"
 flake8 = "^7.1.2"
-pip-licenses = "^5.0.0"
+pip-licenses = "^5.5.1"
 
 [tool.poetry.scripts]
 
