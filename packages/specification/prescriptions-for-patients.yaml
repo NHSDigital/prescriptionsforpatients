@@ -416,7 +416,7 @@ components:
 x-nhsd-apim:
   temporary: false
   monitoring: true
-  delegatedaccess: true
+  delegatedacces: true # sic: the misspelling is required
   access:
     - title: User Restricted
       grants:
