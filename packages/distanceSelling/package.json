@@ -10,8 +10,7 @@
     "unit": "POWERTOOLS_DEV=true NODE_OPTIONS=--experimental-vm-modules jest --no-cache --coverage",
     "lint": "eslint  --max-warnings 0 --fix --config ../../eslint.config.mjs .",
     "compile": "tsc",
-    "test": "npm run compile && npm run unit",
-    "check-licenses": "license-checker --failOn GPL --failOn LGPL --start ../.."
+    "test": "npm run compile && npm run unit"
   },
   "dependencies": {
     "@aws-lambda-powertools/logger": "^2.30.2",

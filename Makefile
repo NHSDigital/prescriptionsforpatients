@@ -186,17 +186,11 @@ deep-clean: clean
 check-licenses: check-licenses-node check-licenses-python
 
 check-licenses-node:
-	npm run check-licenses
-	npm run check-licenses --workspace packages/getMyPrescriptions
-	npm run check-licenses --workspace packages/enrichPrescriptions
-	npm run check-licenses --workspace packages/capabilityStatement
-	npm run check-licenses --workspace packages/nhsd-pfp-sandbox
-	npm run check-licenses --workspace packages/statusLambda
-	npm run check-licenses --workspace packages/serviceSearchClient
-	npm run check-licenses --workspace packages/distanceSelling
+	echo "Not currently implemented from makefile. Trivy used in qc"
+
 
 check-licenses-python:
-	scripts/check_python_licenses.sh
+	echo "Not currently implemented from makefile. Trivy used in qc"
 
 aws-configure:
 	aws configure sso --region eu-west-2
