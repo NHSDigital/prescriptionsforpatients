@@ -1,3 +1,2 @@
-import {createServiceSearchClient, ServiceSearchClient} from "./serviceSearch-client"
-
-export {createServiceSearchClient, ServiceSearchClient}
+export {createServiceSearchClient, ServiceSearchClient} from "./serviceSearch-client"
+export {SERVICE_SEARCH_BASE_QUERY_PARAMS, getServiceSearchEndpoint} from "./live-serviceSearch-client"
