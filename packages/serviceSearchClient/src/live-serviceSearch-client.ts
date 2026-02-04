@@ -7,7 +7,8 @@ import {handleUrl} from "./handleUrl"
 import {ServiceSearchClient} from "./serviceSearch-client"
 
 // timeout in ms to wait for response from serviceSearch to avoid lambda timeout
-const SERVICE_SEARCH_TIMEOUT = 45000
+// each call is retried up to 3 times so total wait time could be up to 4x this value
+const SERVICE_SEARCH_TIMEOUT = 1000 // 1 second
 const DISTANCE_SELLING = "DistanceSelling"
 
 type Service = {
@@ -66,7 +67,12 @@ export function getServiceSearchEndpoint(logger: Logger | null = null): string {
 export class LiveServiceSearchClient implements ServiceSearchClient {
   private readonly axiosInstance: AxiosInstance
   private readonly logger: Logger
-  private readonly outboundHeaders: {"apikey"?: string, "Subscription-Key"?: string}
+  private readonly outboundHeaders: {
+    "apikey"?: string,
+    "Subscription-Key"?: string,
+    "x-request-id"?: string,
+    "x-correlation-id"?: string
+  }
 
   constructor(logger: Logger) {
     this.logger = logger
@@ -157,7 +163,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
     }
   }
 
-  async searchService(odsCode: string): Promise<URL | undefined> {
+  async searchService(odsCode: string, correlationId: string): Promise<URL | undefined> {
     try {
       // Load API key if not set in environment (secrets layer is failing to load v3 key)
       const apiVsn = getServiceSearchVersion(this.logger)
@@ -165,6 +171,8 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
         this.logger.info("API key not in environment, attempting to load from Secrets Manager")
         this.outboundHeaders.apikey = await this.loadApiKeyFromSecretsManager()
       }
+      this.outboundHeaders["x-correlation-id"] = correlationId
+      this.outboundHeaders["x-request-id"] = crypto.randomUUID()
 
       const address = getServiceSearchEndpoint(this.logger)
       const queryParams = {...SERVICE_SEARCH_BASE_QUERY_PARAMS, search: odsCode}

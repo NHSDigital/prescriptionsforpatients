@@ -13,6 +13,7 @@ import {Logger} from "@aws-lambda-powertools/logger"
 
 const mock = new MockAdapter(axios)
 const mockBundleString = JSON.stringify(mockInteractionResponseBody)
+const dummyCorrelationId = "corr-id-123"
 
 describe("ServiceSearch tests", function () {
   const logger = new Logger({serviceName: "distanceSelling"})
@@ -213,7 +214,7 @@ describe("ServiceSearch tests", function () {
 
     const expectedTelecom: ContactPoint = {use: "work", system: "url", value: "www.pharmacy2u.co.uk"}
 
-    await distanceSelling.processOdsCodes(organisations)
+    await distanceSelling.processOdsCodes(organisations, dummyCorrelationId)
 
     const organisation: Organization = organisations[0]
     // The address is removed, since we're a distance selling pharmacy
@@ -226,7 +227,7 @@ describe("ServiceSearch tests", function () {
     const distanceSellingWithCache = new DistanceSelling(cache, logger)
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
-    await distanceSellingWithCache.search(searchsetBundle)
+    await distanceSellingWithCache.search(searchsetBundle, dummyCorrelationId)
 
     expect(mock.history.get.length).toEqual(0)
   })
@@ -259,7 +260,7 @@ describe("ServiceSearch tests", function () {
     const organisation = distanceSelling.getPerformerOrganisations(performerReferences, prescriptions)[0]
 
     const odsCode = "flm49"
-    await distanceSelling.searchOdsCode(odsCode, organisation)
+    await distanceSelling.searchOdsCode(odsCode, organisation, dummyCorrelationId)
 
     expect(odsCode in servicesCache).toBeTruthy()
     expect(servicesCache[odsCode]).toEqual("www.pharmacy2u.co.uk")
@@ -276,7 +277,7 @@ describe("ServiceSearch tests", function () {
     const organisation = distanceSelling.getPerformerOrganisations(performerReferences, prescriptions)[0]
 
     const odsCode = "flm49"
-    await distanceSelling.searchOdsCode(odsCode, organisation)
+    await distanceSelling.searchOdsCode(odsCode, organisation, dummyCorrelationId)
 
     expect(odsCode in servicesCache).toBeTruthy()
     expect(servicesCache[odsCode]).toEqual(undefined)
@@ -293,7 +294,7 @@ describe("ServiceSearch tests", function () {
     const organisation = distanceSelling.getPerformerOrganisations(performerReferences, prescriptions)[0]
 
     const odsCode = "flm49"
-    await distanceSelling.searchOdsCode(odsCode, organisation)
+    await distanceSelling.searchOdsCode(odsCode, organisation, dummyCorrelationId)
 
     expect(odsCode in servicesCache).toBeFalsy()
   })
@@ -323,7 +324,7 @@ describe("ServiceSearch tests", function () {
     const organisations = distanceSelling.getPerformerOrganisations(performerReferences, prescriptions)
 
     // Run the cache‐hit branch
-    await distanceSelling.processOdsCodes(organisations)
+    await distanceSelling.processOdsCodes(organisations, dummyCorrelationId)
 
     organisations.forEach((org) => {
       expect(org.address).toBeUndefined()
