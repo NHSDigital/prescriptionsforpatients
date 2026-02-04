@@ -172,12 +172,19 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
         this.outboundHeaders.apikey = await this.loadApiKeyFromSecretsManager()
       }
       this.outboundHeaders["x-correlation-id"] = correlationId
-      this.outboundHeaders["x-request-id"] = crypto.randomUUID()
+      const xRequestId = crypto.randomUUID()
+      this.outboundHeaders["x-request-id"] = xRequestId
 
       const address = getServiceSearchEndpoint(this.logger)
       const queryParams = {...SERVICE_SEARCH_BASE_QUERY_PARAMS, search: odsCode}
 
-      this.logger.info(`making request to ${address} with ods code ${odsCode}`, {odsCode: odsCode})
+      this.logger.info(`making request to ${address} with ods code ${odsCode}`, {
+        odsCode: odsCode,
+        requestHeaders: {
+          "x-request-id": xRequestId,
+          "x-correlation-id": correlationId
+        }
+      })
       const response = await this.axiosInstance.get(address, {
         headers: this.outboundHeaders,
         params: queryParams,
