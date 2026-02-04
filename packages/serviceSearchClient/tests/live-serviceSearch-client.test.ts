@@ -10,6 +10,7 @@ const mock = new MockAdapter(axios)
 process.env.TargetServiceSearchServer = "live"
 process.env.ServiceSearchApiKey = "test-key"
 const serviceSearchUrl = "https://live/service-search"
+const dummyCorrelationId = "corr-id-123"
 
 interface ServiceSearchTestData {
   scenarioDescription: string
@@ -140,7 +141,7 @@ describe("live serviceSearch client", () => {
     })
     const errSpy = jest.spyOn(Logger.prototype, "error")
 
-    await expect(client.searchService("code123")).rejects.toThrow("generic fail")
+    await expect(client.searchService("code123", dummyCorrelationId)).rejects.toThrow("generic fail")
     expect(errSpy).toHaveBeenCalledWith(
       "general error", {error: expect.any(Error)}
     )
@@ -166,7 +167,7 @@ describe("live serviceSearch client", () => {
     jest.spyOn(client["axiosInstance"], "get").mockRejectedValue(axiosErr)
     const errSpy = jest.spyOn(Logger.prototype, "error")
 
-    await expect(client.searchService("x")).rejects.toBe(axiosErr)
+    await expect(client.searchService("x", dummyCorrelationId)).rejects.toBe(axiosErr)
     expect(errSpy).toHaveBeenCalledWith(
       "error in response from serviceSearch",
       expect.objectContaining({
@@ -189,7 +190,7 @@ describe("live serviceSearch client", () => {
     jest.spyOn(client["axiosInstance"], "get").mockRejectedValue(axiosErr)
     const errSpy = jest.spyOn(Logger.prototype, "error")
 
-    await expect(client.searchService("y")).rejects.toBe(axiosErr)
+    await expect(client.searchService("y", dummyCorrelationId)).rejects.toBe(axiosErr)
     expect(errSpy).toHaveBeenCalledWith(
       "error in request to serviceSearch", {error: axiosErr}
     )
@@ -208,12 +209,34 @@ describe("live serviceSearch client", () => {
     jest.spyOn(client["axiosInstance"], "get").mockRejectedValue(axiosErr)
     const errSpy = jest.spyOn(Logger.prototype, "error")
 
-    await expect(client.searchService("y")).rejects.toBe(axiosErr)
+    await expect(client.searchService("y", dummyCorrelationId)).rejects.toBe(axiosErr)
     expect(errSpy).toHaveBeenCalledWith(
       "general error calling serviceSearch", {error: axiosErr}
     )
   })
 
+  test("passes correlation ID and x-request-id header in request", async () => {
+    const getSpy = jest.spyOn(client["axiosInstance"], "get").mockResolvedValue({
+      data: {value: []},
+      status: 200,
+      statusText: "OK",
+      headers: {},
+      config: {
+        headers: new axios.AxiosHeaders()}
+    } satisfies AxiosResponse)
+
+    await client.searchService("corr-test", dummyCorrelationId)
+
+    expect(getSpy).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          "x-correlation-id": dummyCorrelationId,
+          "x-request-id": expect.any(String)
+        })
+      })
+    )
+  })
   describe("integration scenarios", () => {
     const validUrlData: ServiceSearchData = {
       value: [
@@ -246,13 +269,13 @@ describe("live serviceSearch client", () => {
 
     test.each(scenarios)("$scenarioDescription", async ({serviceSearchData, expected}) => {
       mock.onGet(serviceSearchUrl).reply(200, serviceSearchData)
-      const result = await client.searchService("z")
+      const result = await client.searchService("z", dummyCorrelationId)
       expect(result).toEqual(expected)
     })
 
     test("gzip header handled correctly", async () => {
       mock.onGet(serviceSearchUrl).reply(200, validUrlData, {"Content-Encoding": "gzip"})
-      const result = await client.searchService("z")
+      const result = await client.searchService("z", dummyCorrelationId)
       expect(result).toEqual(new URL(validUrlData.value[0].URL))
     })
 
@@ -261,19 +284,19 @@ describe("live serviceSearch client", () => {
         .onGet(serviceSearchUrl).replyOnce(500)
         .onGet(serviceSearchUrl).replyOnce(500)
         .onGet(serviceSearchUrl).reply(200, validUrlData)
-      const result = await client.searchService("z")
+      const result = await client.searchService("z", dummyCorrelationId)
       expect(result).toEqual(new URL(validUrlData.value[0].URL))
     })
 
     test("fails after exceeding retries", async () => {
       mock.onGet(serviceSearchUrl).reply(500)
-      await expect(client.searchService("z")).rejects.toThrow("Request failed with status code 500")
+      await expect(client.searchService("z", dummyCorrelationId)).rejects.toThrow("Request failed with status code 500")
     })
 
     test("logs duration in info on success and failure", async () => {
       const infoSpy = jest.spyOn(Logger.prototype, "info")
       mock.onGet(serviceSearchUrl).networkError()
-      await expect(client.searchService("z")).rejects.toThrow("Network Error")
+      await expect(client.searchService("z", dummyCorrelationId)).rejects.toThrow("Network Error")
       expect(infoSpy).toHaveBeenCalledWith(
         "serviceSearch request duration",
         {serviceSearch_duration: expect.any(Number)}
@@ -284,7 +307,7 @@ describe("live serviceSearch client", () => {
       mock.onGet(serviceSearchUrl).reply(200, {value: [{URL: null, OrganisationSubType: "DistanceSelling"}]})
       const warnSpy = jest.spyOn(Logger.prototype, "warn")
       const errorSpy = jest.spyOn(Logger.prototype, "error")
-      const result = await client.searchService("none")
+      const result = await client.searchService("none", dummyCorrelationId)
       expect(result).toBeUndefined()
       expect(warnSpy).toHaveBeenCalledWith(
         "ods code none has no URL but is of type DistanceSelling", {odsCode: "none"}
@@ -322,7 +345,8 @@ describe("live serviceSearch client", () => {
       const errSpy = jest.spyOn(Logger.prototype, "error")
 
       // invoking searchService should end up throwing the generic interceptor Error
-      await expect(client.searchService("Z123")).rejects.toThrow("Axios error in serviceSearch request")
+      await expect(client.searchService("Z123", dummyCorrelationId))
+        .rejects.toThrow("Axios error in serviceSearch request")
 
       expect(errSpy).toHaveBeenCalledWith(
         "Axios error in serviceSearch request",

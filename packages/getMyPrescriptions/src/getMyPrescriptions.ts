@@ -84,6 +84,7 @@ async function eventHandler(
   const traceIDs: TraceIDs = logTraceIds(headers)
   const spineClient = params.spineClient
   const applicationName = headers["nhsd-application-name"] ?? "unknown"
+  const correlationId = headers["nhsd-correlation-id"] ?? crypto.randomUUID()
 
   checkSpineCertificateConfiguration(spineClient)
   await handleTestCaseIfApplicable(params, headers)
@@ -98,7 +99,7 @@ async function eventHandler(
 
   const distanceSelling = new DistanceSelling(servicesCache, logger)
   const distanceSellingBundle = structuredClone(searchsetBundle)
-  const distanceSellingCallout = distanceSelling.search(distanceSellingBundle)
+  const distanceSellingCallout = distanceSelling.search(distanceSellingBundle, correlationId)
 
   const distanceSellingResponse = await jobWithTimeout(params.serviceSearchTimeoutMs, distanceSellingCallout)
   if (hasTimedOut(distanceSellingResponse)) {
