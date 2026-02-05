@@ -187,13 +187,6 @@ export function overrideNonProductionHeadersForProxygenRequests(headers: EventHe
     headers[NHS_LOGIN_HEADER] = headers["x-nhs-number"]
     logger.info("Set non production headers for Spine call", {headers})
   }
-  if (headers["x-subject-nhs-number"] // mock subject for delegated access testing
-      && process.env.ALLOW_NHS_NUMBER_OVERRIDE === "true"
-      && headers["nhs-login-identity-proofing-level"]
-  ) {
-    headers[DELEGATED_ACCESS_SUB_HDR] = headers["x-subject-nhs-number"]
-    logger.info("Set non production headers for Spine call", {headers})
-  }
   return headers
 }
 
