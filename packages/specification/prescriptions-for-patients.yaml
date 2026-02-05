@@ -78,9 +78,9 @@ info:
     ## Environment and testing
     | Environment           | Base URL                                                                     |
     | --------------------- | ---------------------------------------------------------------------------- |
-    | Integration           | `https://int.api.service.nhs.uk/prescriptions-for-patients`                  |
-    | Production            | Not yet available                                                            |
-    | Sandbox               | `https://sandbox.api.service.nhs.uk/prescriptions-for-patients`              |
+    | Sandbox               | `https://sandbox.api.service.nhs.uk/prescriptions-for-patients-v2`           |
+    | Integration           | `https://int.api.service.nhs.uk/prescriptions-for-patients-v2`               |
+    | Production            | `https://api.service.nhs.uk/prescriptions-for-patients-v2`                   |
 
     ## Onboarding
     This API is not currently available to external third parties for onboarding.
