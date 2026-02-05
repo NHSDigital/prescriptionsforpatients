@@ -23,13 +23,13 @@ export class DistanceSelling {
     this.servicesCache = servicesCache
   }
 
-  async search(searchsetBundle: Bundle) {
+  async search(searchsetBundle: Bundle, correlationId: string) {
     const prescriptions: Array<Bundle> = this.isolatePrescriptions(searchsetBundle)
     const performerReferences: Set<string> = this.getPerformerReferences(prescriptions)
     const performerOrganisations: Array<Organization> = this.getPerformerOrganisations(
       performerReferences, prescriptions
     )
-    await this.processOdsCodes(performerOrganisations)
+    await this.processOdsCodes(performerOrganisations, correlationId)
   }
 
   isolatePrescriptions(searchsetBundle: Bundle): Array<Bundle> {
@@ -60,7 +60,7 @@ export class DistanceSelling {
     )
   }
 
-  async processOdsCodes(organisations: Array<Organization>) {
+  async processOdsCodes(organisations: Array<Organization>, correlationId: string) {
     for (const organisation of organisations) {
       const odsCode = organisation.identifier![0].value?.toLowerCase()
       if (odsCode) {
@@ -79,16 +79,16 @@ export class DistanceSelling {
           this.logger.info(
             `ods code ${odsCode} not found in cache. calling service search.`, {odsCode: odsCode, cacheHit: false}
           )
-          await this.searchOdsCode(odsCode, organisation)
+          await this.searchOdsCode(odsCode, organisation, correlationId)
         }
       }
     }
   }
 
-  async searchOdsCode(odsCode: string, organisation: Organization) {
+  async searchOdsCode(odsCode: string, organisation: Organization, correlationId: string) {
     let url: URL | undefined
     try {
-      url = await this.client.searchService(odsCode, this.logger)
+      url = await this.client.searchService(odsCode, correlationId, this.logger)
     } catch {
       this.logger.warn(`call to service search unsuccessful for odsCode ${odsCode}`, {odsCode: odsCode})
       return

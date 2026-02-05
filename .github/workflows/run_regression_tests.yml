@@ -72,7 +72,7 @@ jobs:
 
       - name: Run Regression Testing Apigee Non-Proxygen
         working-directory: scripts
-        if: ${{ inputs.REGRESSION_TEST_NON_PROXYGEN == 'true' }}
+        if: ${{ inputs.REGRESSION_TEST_NON_PROXYGEN == true }}
         env:
           TARGET_ENVIRONMENT: ${{ inputs.ENVIRONMENT }}
           VERSION_NUMBER: ${{ inputs.VERSION_NUMBER }}

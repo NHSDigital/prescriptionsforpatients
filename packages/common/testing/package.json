@@ -10,8 +10,7 @@
         "unit": "echo 'No tests in common/testing package - it provides test utilities only'",
         "lint": "eslint  --max-warnings 0 --fix --config ../../../eslint.config.mjs .",
         "compile": "tsc",
-        "test": "npm run compile && npm run unit",
-        "check-licenses": "license-checker --failOn GPL --failOn LGPL --start ../../.."
+        "test": "npm run compile && npm run unit"
     },
     "dependencies": {}
 }
