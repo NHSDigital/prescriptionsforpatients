@@ -200,7 +200,9 @@ export function adaptHeadersToSpine(headers: EventHeaders): EventHeaders {
     logger.info("Delegated access request detected")
     let subjectNHSNumber = headers[DELEGATED_ACCESS_SUB_HDR]
     if (!subjectNHSNumber) {
-      throw new NHSNumberValidationError(`${DELEGATED_ACCESS_SUB_HDR} header not present for delegated access`)
+      // assume non-delegated access request, just because DE enabled doesn't mean every request will be one
+      subjectNHSNumber = extractNHSNumberFromHeaders(headers)
+      // throw new NHSNumberValidationError(`${DELEGATED_ACCESS_SUB_HDR} header not present for delegated access`)
     }
     if (subjectNHSNumber.includes(":")) {
       logger.warn(`${DELEGATED_ACCESS_SUB_HDR} is not expected to be prefixed by proofing level, but is, removing it`)
