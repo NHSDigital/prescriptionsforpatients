@@ -111,17 +111,17 @@ describe("adaptHeadersToSpine", () => {
       expect(result["nhsd-nhslogin-user"]).toBe("P9:9999681778")
     })
 
-    it("should throw NHSNumberValidationError when subject header is missing for delegated access", () => {
+    it("should perform non-delegated request when subject header is missing for delegated access", () => {
       const headers: EventHeaders = {
         [DELEGATED_ACCESS_HDR]: "true",
         "nhsd-nhslogin-user": "P9:9999681778"
         // Missing DELEGATED_ACCESS_SUB_HDR
       }
 
-      expect(() => adaptHeadersToSpine(headers))
-        .toThrow(NHSNumberValidationError)
-      expect(() => adaptHeadersToSpine(headers))
-        .toThrow(`${DELEGATED_ACCESS_SUB_HDR} header not present for delegated access`)
+      const result = adaptHeadersToSpine(headers)
+
+      expect(result.nhsNumber).toBe("9999681778")
+      expect(result["nhsd-nhslogin-user"]).toBe("P9:9999681778")
     })
   })
 
