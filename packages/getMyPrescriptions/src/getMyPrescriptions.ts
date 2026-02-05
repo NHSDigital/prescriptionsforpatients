@@ -192,17 +192,15 @@ export function overrideNonProductionHeadersForProxygenRequests(headers: EventHe
 
 export function adaptHeadersToSpine(headers: EventHeaders): EventHeaders {
   // AEA-3344 introduces delegated access using different headers
-  logger.debug("Testing if delegated access enabled", {headers})
   if (!headers[DELEGATED_ACCESS_HDR] || headers[DELEGATED_ACCESS_HDR].toLowerCase() !== "true") {
-    logger.info("Subject access request detected")
+    logger.info("Delegated access NOT enabled", {headers})
     headers["nhsNumber"] = extractNHSNumberFromHeaders(headers)
   } else {
-    logger.info("Delegated access request detected")
+    logger.info("Delegated access enabled", {headers})
     let subjectNHSNumber = headers[DELEGATED_ACCESS_SUB_HDR]
     if (!subjectNHSNumber) {
-      // assume non-delegated access request, just because DE enabled doesn't mean every request will be one
+      logger.info(`${DELEGATED_ACCESS_SUB_HDR} header missing, assuming non-delegated access request`, {headers})
       subjectNHSNumber = extractNHSNumberFromHeaders(headers)
-      // throw new NHSNumberValidationError(`${DELEGATED_ACCESS_SUB_HDR} header not present for delegated access`)
     }
     if (subjectNHSNumber.includes(":")) {
       logger.warn(`${DELEGATED_ACCESS_SUB_HDR} is not expected to be prefixed by proofing level, but is, removing it`)
