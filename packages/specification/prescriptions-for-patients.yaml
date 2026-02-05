@@ -433,8 +433,6 @@ x-nhsd-apim:
       header: "nhsd-nhslogin-user"
     - name: nhs-login-identity-proofing-level
       header: "nhs-login-identity-proofing-level"
-    - name: X-NHSD-Subject-NHS-Number
-      header: "x-nhsd-subject-nhs-number"
   target-attributes:
     - name: developer.app.name
       required: false
@@ -442,6 +440,9 @@ x-nhsd-apim:
     - name: developer.app.id
       required: false
       header: "nhsd-application-id"
+    - name: X-NHSD-Subject-NHS-Number
+      required: false
+      header: "x-nhsd-subject-nhs-number"
   ratelimiting:
     proxy:
       limit: 20000
