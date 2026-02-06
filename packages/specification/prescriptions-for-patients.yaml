@@ -416,6 +416,7 @@ components:
 x-nhsd-apim:
   temporary: false
   monitoring: true
+  delegatedaccess: true
   access:
     - title: User Restricted
       grants:
@@ -439,6 +440,9 @@ x-nhsd-apim:
     - name: developer.app.id
       required: false
       header: "nhsd-application-id"
+    - name: X-NHSD-Subject-NHS-Number
+      required: false
+      header: "x-nhsd-subject-nhs-number"
   ratelimiting:
     proxy:
       limit: 20000

@@ -201,7 +201,7 @@ Note - the command will keep running and should not be stopped.
 You can now call this api - note getMyPrescriptions requires an nhsd-nhslogin-user header
 
 ```bash
-curl --header "nhsd-nhslogin-user: P9:9446041481" --header "x-request-id: $(uuid)" \
+curl --header "nhsd-nhslogin-user: P9:9446041481" --header "x-request-id: $(cat /proc/sys/kernel/random/uuid)" \
   https://${stack_name}.dev.eps.national.nhs.uk/Bundle
 ```
 

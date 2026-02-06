@@ -44,7 +44,7 @@ const servicesCache: ServicesCache = {}
 const LAMBDA_TIMEOUT_MS = 10_000
 const SPINE_TIMEOUT_MS = 9_000
 const SERVICE_SEARCH_TIMEOUT_MS = 5_000
-export const DELEGATED_ACCESS_HDR = "delegatedaccess"
+export const DELEGATED_ACCESS_HDR = "x-nhsd-delegated-access"
 export const DELEGATED_ACCESS_SUB_HDR = "x-nhsd-subject-nhs-number"
 
 export type GetMyPrescriptionsEvent = {
@@ -192,15 +192,15 @@ export function overrideNonProductionHeadersForProxygenRequests(headers: EventHe
 
 export function adaptHeadersToSpine(headers: EventHeaders): EventHeaders {
   // AEA-3344 introduces delegated access using different headers
-  logger.debug("Testing if delegated access enabled", {headers})
   if (!headers[DELEGATED_ACCESS_HDR] || headers[DELEGATED_ACCESS_HDR].toLowerCase() !== "true") {
-    logger.info("Subject access request detected")
+    logger.info("Delegated access NOT enabled", {headers})
     headers["nhsNumber"] = extractNHSNumberFromHeaders(headers)
   } else {
-    logger.info("Delegated access request detected")
+    logger.info("Delegated access enabled", {headers})
     let subjectNHSNumber = headers[DELEGATED_ACCESS_SUB_HDR]
     if (!subjectNHSNumber) {
-      throw new NHSNumberValidationError(`${DELEGATED_ACCESS_SUB_HDR} header not present for delegated access`)
+      logger.info(`${DELEGATED_ACCESS_SUB_HDR} header missing, assuming non-delegated access request`, {headers})
+      subjectNHSNumber = extractNHSNumberFromHeaders(headers)
     }
     if (subjectNHSNumber.includes(":")) {
       logger.warn(`${DELEGATED_ACCESS_SUB_HDR} is not expected to be prefixed by proofing level, but is, removing it`)
