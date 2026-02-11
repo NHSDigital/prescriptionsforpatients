@@ -138,7 +138,7 @@ jobs:
       STACK_NAME: pfp
       TARGET_ENVIRONMENT: ref
       APIGEE_ENVIRONMENT: ref
-      ENABLE_MUTUAL_TLS: true
+      ENABLE_MUTUAL_TLS: false
       MTLS_KEY: prescriptions-for-patients-mtls-1
       BUILD_ARTIFACT: packaged_code
       TRUSTSTORE_FILE: pfp-truststore.pem
