@@ -284,13 +284,29 @@ describe("live serviceSearch client", () => {
         .onGet(serviceSearchUrl).replyOnce(500)
         .onGet(serviceSearchUrl).replyOnce(500)
         .onGet(serviceSearchUrl).reply(200, validUrlData)
+      const warnSpy = jest.spyOn(Logger.prototype, "warn")
+      client = new LiveServiceSearchClient(logger)
+
       const result = await client.searchService("z", dummyCorrelationId)
       expect(result).toEqual(new URL(validUrlData.value[0].URL))
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining("Call to serviceSearch failed - retrying. Retry count"),
+        expect.objectContaining({retryCount: 1})
+      )
     })
 
     test("fails after exceeding retries", async () => {
       mock.onGet(serviceSearchUrl).reply(500)
       await expect(client.searchService("z", dummyCorrelationId)).rejects.toThrow("Request failed with status code 500")
+    })
+
+    test("retries on timeout (ECONNABORTED) error", async () => {
+      mock.onGet(serviceSearchUrl).timeoutOnce()
+        .onGet(serviceSearchUrl).timeoutOnce()
+        .onGet(serviceSearchUrl).timeoutOnce()
+        .onGet(serviceSearchUrl).reply(200, validUrlData)
+      const result = await client.searchService("z", dummyCorrelationId)
+      expect(result).toEqual(new URL(validUrlData.value[0].URL))
     })
 
     test("logs duration in info on success and failure", async () => {
