@@ -29,7 +29,7 @@ jobs:
 
     steps:
       - name: Checkout local github actions
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           ref: ${{ env.BRANCH_NAME }}
           fetch-depth: 0
@@ -55,7 +55,7 @@ jobs:
           asdf_version: ${{ steps.asdf-version.outputs.version }}
 
       - name: Cache asdf
-        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306
         with:
           path: |
             ~/.asdf
@@ -72,15 +72,15 @@ jobs:
 
       - name: Run Regression Testing Apigee Non-Proxygen
         working-directory: scripts
-        if: ${{ inputs.REGRESSION_TEST_NON_PROXYGEN == 'true' }}
+        if: ${{ inputs.REGRESSION_TEST_NON_PROXYGEN == true }}
         env:
           TARGET_ENVIRONMENT: ${{ inputs.ENVIRONMENT }}
           VERSION_NUMBER: ${{ inputs.VERSION_NUMBER }}
           GITHUB-TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           if [[ "$TARGET_ENVIRONMENT" != "prod" && "$TARGET_ENVIRONMENT" != "ref" ]]; then
-            REGRESSION_TEST_REPO_TAG="v3.7.12" # This is the tag or branch of the regression test code to run, usually a version tag like v3.1.0 or a branch name
-            REGRESSION_TEST_WORKFLOW_TAG="v3.7.12" # This is the tag of the github workflow to run, usually the same as REGRESSION_TEST_REPO_TAG
+            REGRESSION_TEST_REPO_TAG="v3.8.30" # This is the tag or branch of the regression test code to run, usually a version tag like v3.1.0 or a branch name
+            REGRESSION_TEST_WORKFLOW_TAG="v3.8.30" # This is the tag of the github workflow to run, usually the same as REGRESSION_TEST_REPO_TAG
 
             if [[ -z "$REGRESSION_TEST_REPO_TAG" || -z "$REGRESSION_TEST_WORKFLOW_TAG" ]]; then
               echo "Error: One or both tag variables are not set" >&2
@@ -121,8 +121,8 @@ jobs:
           GITHUB-TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           if [[ "$TARGET_ENVIRONMENT" != "prod" && "$TARGET_ENVIRONMENT" != "ref" ]]; then
-            REGRESSION_TEST_REPO_TAG="v3.7.12" # This is the tag or branch of the regression test code to run, usually a version tag like v3.1.0 or a branch name
-            REGRESSION_TEST_WORKFLOW_TAG="v3.7.12" # This is the tag of the github workflow to run, usually the same as REGRESSION_TEST_REPO_TAG
+            REGRESSION_TEST_REPO_TAG="v3.8.30" # This is the tag or branch of the regression test code to run, usually a version tag like v3.1.0 or a branch name
+            REGRESSION_TEST_WORKFLOW_TAG="v3.8.30" # This is the tag of the github workflow to run, usually the same as REGRESSION_TEST_REPO_TAG
 
             if [[ -z "$REGRESSION_TEST_REPO_TAG" || -z "$REGRESSION_TEST_WORKFLOW_TAG" ]]; then
               echo "Error: One or both tag variables are not set" >&2

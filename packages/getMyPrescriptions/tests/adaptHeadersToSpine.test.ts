@@ -37,7 +37,6 @@ describe("adaptHeadersToSpine", () => {
 
       expect(result.nhsNumber).toBe("9912003071")
       expect(result["nhsd-nhslogin-user"]).toBe("P9:9912003071")
-      expect(mockLoggerInfo).toHaveBeenCalledWith("Subject access request detected")
       expect(mockLoggerInfo).toHaveBeenCalledWith(
         "after setting subject nhsNumber",
         {headers: result}
@@ -45,7 +44,6 @@ describe("adaptHeadersToSpine", () => {
     })
 
     it("should process subject access when delegated access is false", () => {
-      const mockLoggerInfo = jest.spyOn(Logger.prototype, "info")
       const headers: EventHeaders = {
         [DELEGATED_ACCESS_HDR]: "false",
         "nhsd-nhslogin-user": "P9:9912003071"
@@ -55,7 +53,6 @@ describe("adaptHeadersToSpine", () => {
 
       expect(result.nhsNumber).toBe("9912003071")
       expect(result["nhsd-nhslogin-user"]).toBe("P9:9912003071")
-      expect(mockLoggerInfo).toHaveBeenCalledWith("Subject access request detected")
     })
 
     it("should preserve other headers in subject access", () => {
@@ -87,7 +84,6 @@ describe("adaptHeadersToSpine", () => {
 
       expect(result.nhsNumber).toBe("9912003071")
       expect(result["nhsd-nhslogin-user"]).toBe("P9:9999681778")
-      expect(mockLoggerInfo).toHaveBeenCalledWith("Delegated access request detected")
       expect(mockLoggerInfo).toHaveBeenNthCalledWith(2,
         "after setting subject nhsNumber",
         {headers: result}
@@ -111,17 +107,17 @@ describe("adaptHeadersToSpine", () => {
       expect(result["nhsd-nhslogin-user"]).toBe("P9:9999681778")
     })
 
-    it("should throw NHSNumberValidationError when subject header is missing for delegated access", () => {
+    it("should perform non-delegated request when subject header is missing for delegated access", () => {
       const headers: EventHeaders = {
         [DELEGATED_ACCESS_HDR]: "true",
         "nhsd-nhslogin-user": "P9:9999681778"
         // Missing DELEGATED_ACCESS_SUB_HDR
       }
 
-      expect(() => adaptHeadersToSpine(headers))
-        .toThrow(NHSNumberValidationError)
-      expect(() => adaptHeadersToSpine(headers))
-        .toThrow(`${DELEGATED_ACCESS_SUB_HDR} header not present for delegated access`)
+      const result = adaptHeadersToSpine(headers)
+
+      expect(result.nhsNumber).toBe("9999681778")
+      expect(result["nhsd-nhslogin-user"]).toBe("P9:9999681778")
     })
   })
 
@@ -152,7 +148,6 @@ describe("adaptHeadersToSpine", () => {
 
   describe("edge cases", () => {
     it("should be case insensitive for delegated access flag", () => {
-      const mockLoggerInfo = jest.spyOn(Logger.prototype, "info")
       const headers: EventHeaders = {
         [DELEGATED_ACCESS_HDR]: "TrUe", // permit any case
         "nhsd-nhslogin-user": "P9:9999681778",
@@ -163,7 +158,6 @@ describe("adaptHeadersToSpine", () => {
 
       // Should be treated as delegated
       expect(result.nhsNumber).toBe("2219685934")
-      expect(mockLoggerInfo).toHaveBeenCalledWith("Delegated access request detected")
     })
 
     it("should handle missing headers gracefully by throwing appropriate errors", () => {

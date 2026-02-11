@@ -2,7 +2,7 @@ import {Logger} from "@aws-lambda-powertools/logger"
 import {LiveServiceSearchClient} from "./live-serviceSearch-client"
 
 export interface ServiceSearchClient {
-  searchService(odsCode: string, logger: Logger): Promise<URL | undefined>
+  searchService(odsCode: string, correlationId: string, logger: Logger): Promise<URL | undefined>
 }
 
 export class SandboxServiceSearchClient implements ServiceSearchClient {

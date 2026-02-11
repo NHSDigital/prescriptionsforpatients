@@ -10,8 +10,8 @@ import httpHeaderNormalizer from "@middy/http-header-normalizer"
 import errorHandler from "@nhs/fhir-middy-error-handler"
 import type {Bundle} from "fhir/r4"
 
-import {createSpineClient} from "@NHSDigital/eps-spine-client"
-import {SpineClient} from "@NHSDigital/eps-spine-client/lib/spine-client"
+import {createSpineClient} from "@nhsdigital/eps-spine-client"
+import {SpineClient} from "@nhsdigital/eps-spine-client/lib/spine-client"
 
 import {DistanceSelling, ServicesCache} from "@prescriptionsforpatients/distanceSelling"
 import {
@@ -24,12 +24,7 @@ import {
   ResponseFunc
 } from "./responses"
 import {extractNHSNumberFromHeaders, NHSNumberValidationError, validateNHSNumber} from "./extractNHSNumber"
-import {
-  deepCopy,
-  hasTimedOut,
-  jobWithTimeout,
-  NHS_LOGIN_HEADER
-} from "./utils"
+import {hasTimedOut, jobWithTimeout, NHS_LOGIN_HEADER} from "./utils"
 import {buildStatusUpdateData, shouldGetStatusUpdates} from "./statusUpdate"
 import {extractOdsCodes, isolateOperationOutcome} from "./fhirUtils"
 import {pfpConfig, PfPConfig} from "@pfp-common/utilities"
@@ -49,7 +44,7 @@ const servicesCache: ServicesCache = {}
 const LAMBDA_TIMEOUT_MS = 10_000
 const SPINE_TIMEOUT_MS = 9_000
 const SERVICE_SEARCH_TIMEOUT_MS = 5_000
-export const DELEGATED_ACCESS_HDR = "delegatedaccess"
+export const DELEGATED_ACCESS_HDR = "x-nhsd-delegated-access"
 export const DELEGATED_ACCESS_SUB_HDR = "x-nhsd-subject-nhs-number"
 
 export type GetMyPrescriptionsEvent = {
@@ -86,53 +81,25 @@ async function eventHandler(
   successResponse: ResponseFunc,
   includeStatusUpdateData: boolean = false
 ): Promise<LambdaResult> {
-  // intentionally no try-catch here, allow middleware to handle errors
-  const traceIDs: TraceIDs = {
-    "nhsd-correlation-id": headers["nhsd-correlation-id"],
-    "x-request-id": headers["x-request-id"],
-    "nhsd-request-id": headers["nhsd-request-id"],
-    "x-correlation-id": headers["x-correlation-id"],
-    "apigw-request-id": headers["apigw-request-id"]
-  }
-  logger.appendKeys(traceIDs)
+  const traceIDs: TraceIDs = logTraceIds(headers)
+  const spineClient = params.spineClient
+  const applicationName = headers["nhsd-application-name"] ?? "unknown"
+  const correlationId = headers["nhsd-correlation-id"] ?? crypto.randomUUID()
 
-  checkSpineCertificate(params.spineClient)
-
+  checkSpineCertificateConfiguration(spineClient)
+  await handleTestCaseIfApplicable(params, headers)
   headers = overrideNonProductionHeadersForProxygenRequests(headers)
   headers = adaptHeadersToSpine(headers)
-  await handleTestCase008(params, headers)
 
-  const spineCallout = params.spineClient.getPrescriptions(headers)
-  const response = await jobWithTimeout(params.spineTimeoutMs, spineCallout)
-  if (hasTimedOut(response)) {
-    logger.error("Call to Spine has timed out. Returning error response.")
-    throw new PrescriptionTimeoutError("Call to Spine has timed out. Returning error response.")
-  }
+  const response = await makeSpinePrescriptionCall(spineClient, headers, params)
   const searchsetBundle: Bundle = response.data
-  searchsetBundle.id = traceIDs["x-request-id"] || "unknown"
-
-  const operationOutcomes = isolateOperationOutcome(searchsetBundle)
-  operationOutcomes.forEach((operationOutcome) => {
-    logger.error("Operation outcome returned from spine", {operationOutcome})
-  })
-
-  const ODSCodes = extractOdsCodes(logger, searchsetBundle)
-  logger.info(
-    "Processing PfP get prescriptions request for patient. "
-    + "They have these relevant ODS codes, and the PfP request was made via this apigee application.",
-    {
-      ODSCodes,
-      actorNhsNumber: headers[NHS_LOGIN_HEADER],
-      subjectNhsNumber: headers["nhsNumber"],
-      applicationName: headers["nhsd-application-name"] ?? "unknown"
-    }
-  )
+  logPrescriptionResponse(searchsetBundle, traceIDs, headers, applicationName)
 
   const statusUpdateData = includeStatusUpdateData ? buildStatusUpdateData(logger, searchsetBundle) : undefined
 
   const distanceSelling = new DistanceSelling(servicesCache, logger)
-  const distanceSellingBundle = deepCopy(searchsetBundle)
-  const distanceSellingCallout = distanceSelling.search(distanceSellingBundle)
+  const distanceSellingBundle = structuredClone(searchsetBundle)
+  const distanceSellingCallout = distanceSelling.search(distanceSellingBundle, correlationId)
 
   const distanceSellingResponse = await jobWithTimeout(params.serviceSearchTimeoutMs, distanceSellingCallout)
   if (hasTimedOut(distanceSellingResponse)) {
@@ -151,17 +118,61 @@ async function eventHandler(
   )
 }
 
-async function handleTestCase008(params: HandlerParams, headers: EventHeaders) {
-  if (await params.pfpConfig.isTC008(headers["nhsNumber"]!)) {
-    logger.info("Test NHS number corresponding to TC008 has been received. Returning a 500 response")
-    throw new TC008TestError()
+function logTraceIds(headers: EventHeaders) {
+  const traceIDs: TraceIDs = {
+    "nhsd-correlation-id": headers["nhsd-correlation-id"],
+    "x-request-id": headers["x-request-id"],
+    "nhsd-request-id": headers["nhsd-request-id"],
+    "x-correlation-id": headers["x-correlation-id"],
+    "apigw-request-id": headers["apigw-request-id"]
   }
+  logger.appendKeys(traceIDs)
+  return traceIDs
 }
 
-function checkSpineCertificate(spineClient: SpineClient) {
+function logPrescriptionResponse(searchsetBundle: Bundle,
+  traceIDs: TraceIDs, headers: EventHeaders, applicationName: string) {
+  searchsetBundle.id = traceIDs["x-request-id"] || "unknown"
+
+  const operationOutcomes = isolateOperationOutcome(searchsetBundle)
+  operationOutcomes.forEach((operationOutcome) => {
+    logger.error("Operation outcome returned from spine", {operationOutcome})
+  })
+
+  const ODSCodes = extractOdsCodes(logger, searchsetBundle)
+  logger.info(
+    "Processing PfP get prescriptions request for patient. "
+    + "They have these relevant ODS codes, and the PfP request was made via this apigee application.",
+    {
+      ODSCodes,
+      actorNhsNumber: headers[NHS_LOGIN_HEADER],
+      subjectNhsNumber: headers["nhsNumber"],
+      applicationName
+    }
+  )
+}
+
+async function makeSpinePrescriptionCall(spineClient: SpineClient, headers: EventHeaders, params: HandlerParams) {
+  const spineCallout = spineClient.getPrescriptions(headers)
+  const response = await jobWithTimeout(params.spineTimeoutMs, spineCallout)
+  if (hasTimedOut(response)) {
+    logger.error("Call to Spine has timed out. Returning error response.")
+    throw new PrescriptionTimeoutError("Call to Spine has timed out")
+  }
+  return response
+}
+
+function checkSpineCertificateConfiguration(spineClient: SpineClient) {
   const isCertificateConfigured = spineClient.isCertificateConfigured()
   if (!isCertificateConfigured) {
     throw new SpineCertNotConfiguredError()
+  }
+}
+
+async function handleTestCaseIfApplicable(params: HandlerParams, headers: EventHeaders) {
+  if (await params.pfpConfig.isTC008(headers["nhsNumber"]!)) {
+    logger.info("Test NHS number corresponding to TC008 has been received. Returning a 500 response")
+    throw new TC008TestError()
   }
 }
 
@@ -181,15 +192,15 @@ export function overrideNonProductionHeadersForProxygenRequests(headers: EventHe
 
 export function adaptHeadersToSpine(headers: EventHeaders): EventHeaders {
   // AEA-3344 introduces delegated access using different headers
-  logger.debug("Testing if delegated access enabled", {headers})
   if (!headers[DELEGATED_ACCESS_HDR] || headers[DELEGATED_ACCESS_HDR].toLowerCase() !== "true") {
-    logger.info("Subject access request detected")
+    logger.info("Delegated access NOT enabled", {headers})
     headers["nhsNumber"] = extractNHSNumberFromHeaders(headers)
   } else {
-    logger.info("Delegated access request detected")
+    logger.info("Delegated access enabled", {headers})
     let subjectNHSNumber = headers[DELEGATED_ACCESS_SUB_HDR]
     if (!subjectNHSNumber) {
-      throw new NHSNumberValidationError(`${DELEGATED_ACCESS_SUB_HDR} header not present for delegated access`)
+      logger.info(`${DELEGATED_ACCESS_SUB_HDR} header missing, assuming non-delegated access request`, {headers})
+      subjectNHSNumber = extractNHSNumberFromHeaders(headers)
     }
     if (subjectNHSNumber.includes(":")) {
       logger.warn(`${DELEGATED_ACCESS_SUB_HDR} is not expected to be prefixed by proofing level, but is, removing it`)
@@ -234,7 +245,6 @@ export const newHandler = <T>(handlerConfig: HandlerConfig<T>) => {
 const customErrorHandler = (): middy.MiddlewareObj => ({
   onError: async (request) => {
     const error = request.error
-    logger.error("Known error caught", {error})
     if (error instanceof SpineCertNotConfiguredError) {
       request.response = SPINE_CERT_NOT_CONFIGURED_RESPONSE
     } else if (error instanceof TC008TestError) {

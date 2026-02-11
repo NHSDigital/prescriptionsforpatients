@@ -7,18 +7,29 @@ import {
   jest
 } from "@jest/globals"
 import axios from "axios"
+import MockAdapter from "axios-mock-adapter"
 import {Bundle, MedicationRequest} from "fhir/r4"
 import {APIGatewayProxyResult as LambdaResult, Context} from "aws-lambda"
-import MockAdapter from "axios-mock-adapter"
+import {LogLevel} from "@aws-lambda-powertools/logger/types"
+import {Logger} from "@aws-lambda-powertools/logger"
+import {createSpineClient} from "@nhsdigital/eps-spine-client"
+import {MiddyfiedHandler} from "@middy/core"
 
 import {
+  createMockedPfPConfig,
   helloworldContext,
   mockAPIResponseBody as mockResponseBody,
   mockInteractionResponseBody,
   mockPharmacy2uResponse,
   mockPharmicaResponse,
-  mockStateMachineInputEvent
+  mockStateMachineInputEvent,
+  MockedPfPConfig,
+  setupTestEnvironment
 } from "@pfp-common/testing"
+import {
+  SERVICE_SEARCH_BASE_QUERY_PARAMS,
+  getServiceSearchEndpoint
+} from "@prescriptionsforpatients/serviceSearchClient"
 
 import {buildStatusUpdateData} from "../src/statusUpdate"
 import {StateMachineFunctionResponseBody} from "../src/responses"
@@ -29,13 +40,7 @@ import {
   newHandler,
   stateMachineEventHandler
 } from "../src/getMyPrescriptions"
-import {EXPECTED_TRACE_IDS, SERVICE_SEARCH_PARAMS} from "./utils"
-import {createMockedPfPConfig, setupTestEnvironment} from "@pfp-common/testing"
-import type {MockedPfPConfig} from "@pfp-common/testing"
-import {LogLevel} from "@aws-lambda-powertools/logger/types"
-import {Logger} from "@aws-lambda-powertools/logger"
-import {createSpineClient} from "@NHSDigital/eps-spine-client"
-import {MiddyfiedHandler} from "@middy/core"
+import {EXPECTED_TRACE_IDS} from "./utils"
 
 const exampleEvent = JSON.stringify(mockStateMachineInputEvent)
 const exampleInteractionResponse = JSON.stringify(mockInteractionResponseBody)
@@ -144,10 +149,10 @@ describe("Unit tests for statusUpdate, via handler", function () {
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleEvent)
 
     mock
-      .onGet("https://service-search/service-search", {params: {...SERVICE_SEARCH_PARAMS, search: "flm49"}})
+      .onGet(getServiceSearchEndpoint(), {params: {...SERVICE_SEARCH_BASE_QUERY_PARAMS, search: "flm49"}})
       .reply(200, JSON.parse(pharmacy2uResponse))
     mock
-      .onGet("https://service-search/service-search", {params: {...SERVICE_SEARCH_PARAMS, search: "few08"}})
+      .onGet(getServiceSearchEndpoint(), {params: {...SERVICE_SEARCH_BASE_QUERY_PARAMS, search: "few08"}})
       .reply(200, JSON.parse(pharmicaResponse))
 
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, JSON.parse(exampleInteractionResponse))
