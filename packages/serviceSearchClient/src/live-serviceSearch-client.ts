@@ -1,7 +1,7 @@
 import {Logger} from "@aws-lambda-powertools/logger"
 import {getSecret} from "@aws-lambda-powertools/parameters/secrets"
 import axios, {AxiosError, AxiosInstance} from "axios"
-import axiosRetry from "axios-retry"
+import axiosRetry, {isNetworkOrIdempotentRequestError} from "axios-retry"
 import {handleUrl} from "./handleUrl"
 
 import {ServiceSearchClient} from "./serviceSearch-client"
@@ -82,7 +82,11 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
         v3: process.env.ServiceSearch3ApiKey !== undefined
       })
     this.axiosInstance = axios.create()
-    axiosRetry(this.axiosInstance, {retries: 3})
+    axiosRetry(this.axiosInstance, {
+      retries: 3,
+      onRetry: this.onAxiosRetry,
+      retryCondition: this.retryCondition
+    })
 
     this.axiosInstance.interceptors.request.use((config) => {
       config.headers["request-startTime"] = Date.now()
@@ -102,7 +106,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       // reject with a proper Error object
       let err: Error
       if (error instanceof Error) {
-        logger.error("Error in serviceSearch request", {error})
+        this.logger.error("Error in serviceSearch request", {error})
         err = error
       } else if ((error as AxiosError).message) {
         // Only report the interesting subset of the error object.
@@ -121,10 +125,10 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
           }
         }
 
-        logger.error("Axios error in serviceSearch request", {axiosErrorDetails})
+        this.logger.error("Axios error in serviceSearch request", {axiosErrorDetails})
         err = new Error("Axios error in serviceSearch request")
       } else {
-        logger.error("Unknown error in serviceSearch request", {error})
+        this.logger.error("Unknown error in serviceSearch request", {error})
         err = new Error("Unknown error in serviceSearch request")
       }
       return Promise.reject(err)
@@ -267,5 +271,14 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
         delete error.request.headers[key]
       }
     })
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onAxiosRetry = (retryCount: number, error: any) => {
+    this.logger.warn(error)
+    this.logger.warn(`Call to serviceSearch failed - retrying. Retry count ${retryCount}`, {retryCount: retryCount})
+  }
+  retryCondition(error: AxiosError): boolean {
+    return isNetworkOrIdempotentRequestError(error) || error.code === "ECONNABORTED"
   }
 }
