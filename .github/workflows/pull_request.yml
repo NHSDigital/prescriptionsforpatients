@@ -99,7 +99,7 @@ jobs:
     needs: [get_issue_number, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
-      IS_PULL_REQUEST: true
+      IS_PULL_REQUEST: false # temp to test spec publication: true
       STACK_NAME: pfp-pr-${{needs.get_issue_number.outputs.issue_number}}
       ARTIFACT_BUCKET_PREFIX: PR-${{needs.get_issue_number.outputs.issue_number}}
       TARGET_ENVIRONMENT: dev
