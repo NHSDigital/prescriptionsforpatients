@@ -118,9 +118,16 @@ compile: compile-node compile-specification
 compile-specification:
 	npm run compile --workspace packages/specification
 
-download-get-secrets-layer:
+gh-auth:
+	@gh auth status > /dev/null 2>&1 || gh auth login --scopes "read:packages"
+
+download-get-secrets-layer: gh-auth
 	mkdir -p packages/getSecretLayer/lib
-	curl -LJ https://github.com/NHSDigital/electronic-prescription-service-get-secrets/releases/download/$$(curl -s "https://api.github.com/repos/NHSDigital/electronic-prescription-service-get-secrets/releases/latest" | jq -r .tag_name)/get-secrets-layer.zip -o packages/getSecretLayer/lib/get-secrets-layer.zip
+	gh release download \
+		--repo NHSDigital/electronic-prescription-service-get-secrets \
+		--pattern 'get-secrets-layer.zip' \
+		--dir packages/getSecretLayer/lib \
+		--skip-existing
 
 lint-node: compile-node
 	npm run lint --workspace packages/capabilityStatement
@@ -201,7 +208,6 @@ aws-login:
 cfn-guard:
 	./scripts/run_cfn_guard.sh
 
-create-npmrc:
-	gh auth login --scopes "read:packages"; \
+create-npmrc: gh-auth
 	echo "//npm.pkg.github.com/:_authToken=$$(gh auth token)" > .npmrc
 	echo "@nhsdigital:registry=https://npm.pkg.github.com" >> .npmrc
