@@ -71,7 +71,7 @@ jobs:
           name: packaged_code
           path: |
             .aws-sam/build
-            packages/getSecretLayer/lib/get-secrets-layer.zip 
+            packages/getSecretLayer/lib/get-secrets-layer.zip
             packages/specification/dist/prescriptions-for-patients.resolved.json
             SAMtemplates/state_machines/GetMyPrescriptionsStateMachine.asl.json
 
