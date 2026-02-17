@@ -121,6 +121,11 @@ compile-specification:
 gh-auth:
 	@gh auth status > /dev/null 2>&1 || gh auth login --scopes "read:packages"
 
+gh-auth-ci:
+	@if [ -z "$$GITHUB_TOKEN" ]; then \
+		gh auth status > /dev/null 2>&1 || { echo "Error: Not authenticated and GITHUB_TOKEN not set"; exit 1; }; \
+	fi
+
 download-get-secrets-layer: gh-auth
 	mkdir -p packages/getSecretLayer/lib
 	gh release download \
