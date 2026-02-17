@@ -120,7 +120,18 @@ compile-specification:
 
 download-get-secrets-layer:
 	mkdir -p packages/getSecretLayer/lib
-	curl -LJ https://github.com/NHSDigital/electronic-prescription-service-get-secrets/releases/download/$$(curl -s "https://api.github.com/repos/NHSDigital/electronic-prescription-service-get-secrets/releases/latest" | jq -r .tag_name)/get-secrets-layer.zip -o packages/getSecretLayer/lib/get-secrets-layer.zip
+	@if [ -f packages/getSecretLayer/lib/get-secrets-layer.zip ]; then \
+		echo "File already exists, skipping download"; \
+	else \
+		echo "Fetching latest release version..."; \
+		TAG=$$(curl -sSf --retry 3 --retry-delay 2 "https://api.github.com/repos/NHSDigital/electronic-prescription-service-get-secrets/releases/latest" | jq -r .tag_name) || { echo "Error: Failed to fetch latest release version"; exit 1; }; \
+		echo "Latest version: $$TAG"; \
+		echo "Downloading get-secrets-layer.zip..."; \
+		curl -sSfL --retry 3 --retry-delay 2 \
+			"https://github.com/NHSDigital/electronic-prescription-service-get-secrets/releases/download/$$TAG/get-secrets-layer.zip" \
+			-o packages/getSecretLayer/lib/get-secrets-layer.zip || { echo "Error: Failed to download get-secrets-layer.zip"; rm -f packages/getSecretLayer/lib/get-secrets-layer.zip; exit 1; }; \
+		echo "Download complete"; \
+	fi
 
 lint-node: compile-node
 	npm run lint --workspace packages/capabilityStatement
