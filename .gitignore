@@ -28,3 +28,4 @@ _site/
 vendor
 .npmrc
 *.preprocessed.yaml
+.cfn_guard_out/
