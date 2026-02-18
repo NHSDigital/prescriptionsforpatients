@@ -137,6 +137,7 @@ jobs:
     needs: [get_issue_number, package_code, get_commit_id, get_config_values]
     uses: ./.github/workflows/sam_release_code.yml
     with:
+      IS_PULL_REQUEST: true
       STACK_NAME: pfp-pr-${{needs.get_issue_number.outputs.issue_number}}-sandbox
       ARTIFACT_BUCKET_PREFIX: PR-sandbox-${{needs.get_issue_number.outputs.issue_number}}
       TARGET_ENVIRONMENT: dev
