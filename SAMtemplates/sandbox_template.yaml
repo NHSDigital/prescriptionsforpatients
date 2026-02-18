@@ -10,7 +10,7 @@ Globals:
     MemorySize: 256
     Architectures:
       - x86_64
-    Runtime: nodejs18.x
+    Runtime: nodejs24.x
     Environment:
       Variables:
         NODE_OPTIONS: --enable-source-maps

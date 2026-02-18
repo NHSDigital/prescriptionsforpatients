@@ -14,30 +14,34 @@ jobs:
     secrets:
       AUTOMERGE_APP_ID: ${{ secrets.AUTOMERGE_APP_ID }}
       AUTOMERGE_PEM: ${{ secrets.AUTOMERGE_PEM }}
-
-  get_asdf_version:
+  get_config_values:
     runs-on: ubuntu-22.04
     outputs:
-      asdf_version: ${{ steps.asdf-version.outputs.version }}
       tag_format: ${{ steps.load-config.outputs.TAG_FORMAT }}
+      devcontainer_version: ${{ steps.load-config.outputs.DEVCONTAINER_VERSION }}
+      devcontainer_image: ${{ steps.load-config.outputs.DEVCONTAINER_IMAGE }}
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
-      - name: Get asdf version
-        id: asdf-version
-        run: echo "version=$(awk '!/^#/ && NF {print $1; exit}' .tool-versions.asdf)" >> "$GITHUB_OUTPUT"
       - name: Load config value
         id: load-config
         run: |
           TAG_FORMAT=$(yq '.TAG_FORMAT' .github/config/settings.yml)
-          echo "TAG_FORMAT=$TAG_FORMAT" >> "$GITHUB_OUTPUT"
+          DEVCONTAINER_IMAGE=$(jq -r '.build.args.IMAGE_NAME' .devcontainer/devcontainer.json)
+          DEVCONTAINER_VERSION=$(jq -r '.build.args.IMAGE_VERSION' .devcontainer/devcontainer.json)
+          {
+            echo "TAG_FORMAT=$TAG_FORMAT" 
+            echo "DEVCONTAINER_IMAGE=$DEVCONTAINER_IMAGE"
+            echo "DEVCONTAINER_VERSION=$DEVCONTAINER_VERSION"
+          } >> "$GITHUB_OUTPUT"
+
 
   quality_checks:
-    uses: NHSDigital/eps-common-workflows/.github/workflows/quality-checks.yml@997a1946c83bb2a9eda418847ed640738af949ff
-    needs: [get_asdf_version]
+    uses: NHSDigital/eps-common-workflows/.github/workflows/quality-checks-devcontainer.yml@use_container_at_job_level
+    needs: [get_config_values]
     with:
-      asdfVersion: ${{ needs.get_asdf_version.outputs.asdf_version }}
+      runtime_docker_image: "${{ needs.get_config_values.outputs.devcontainer_image }}:githubactions-${{ needs.get_config_values.outputs.devcontainer_version }}"
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
@@ -72,13 +76,13 @@ jobs:
           result-encoding: string
 
   tag_release:
-    needs: [get_asdf_version]
-    uses: NHSDigital/eps-common-workflows/.github/workflows/tag-release.yml@997a1946c83bb2a9eda418847ed640738af949ff
+    needs: [get_config_values]
+    uses: NHSDigital/eps-common-workflows/.github/workflows/tag-release-devcontainer.yml@use_container_at_job_level
     with:
       dry_run: true
-      asdfVersion: ${{ needs.get_asdf_version.outputs.asdf_version }}
+      runtime_docker_image: "${{ needs.get_config_values.outputs.devcontainer_image }}:githubactions-${{ needs.get_config_values.outputs.devcontainer_version }}"
       branch_name: ${{ github.event.pull_request.head.ref }}
-      tag_format: ${{ needs.get_asdf_version.outputs.tag_format }}
+      tag_format: ${{ needs.get_config_values.outputs.tag_format }}
     secrets: inherit
 
   get_commit_id:
@@ -92,11 +96,13 @@ jobs:
           echo "commit_id=${{ github.sha }}" >> "$GITHUB_OUTPUT"
 
   package_code:
-    needs: [get_issue_number, tag_release]
+    needs: [get_issue_number, tag_release, get_config_values]
     uses: ./.github/workflows/sam_package_code.yml
+    with:
+      runtime_docker_image: "ghcr.io/nhsdigital/eps-devcontainers/${{ needs.get_config_values.outputs.devcontainer_image }}:githubactions-${{ needs.get_config_values.outputs.devcontainer_version }}"
 
   release_code:
-    needs: [get_issue_number, package_code, get_commit_id]
+    needs: [get_issue_number, package_code, get_commit_id, get_config_values]
     uses: ./.github/workflows/sam_release_code.yml
     with:
       IS_PULL_REQUEST: true
@@ -120,6 +126,7 @@ jobs:
       FORWARD_CSOC_LOGS: false
       DEPLOY_APIGEE: true
       ALLOW_NHS_NUMBER_OVERRIDE: true
+      runtime_docker_image: "${{ needs.get_config_values.outputs.devcontainer_image }}:githubactions-${{ needs.get_config_values.outputs.devcontainer_version }}"
     secrets:
       REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
@@ -127,7 +134,7 @@ jobs:
       TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.DEV_TARGET_SERVICE_SEARCH_SERVER }}
       PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PTL_ROLE }}
   release_sandbox_code:
-    needs: [get_issue_number, package_code, get_commit_id]
+    needs: [get_issue_number, package_code, get_commit_id, get_config_values]
     uses: ./.github/workflows/sam_release_code.yml
     with:
       STACK_NAME: pfp-pr-${{needs.get_issue_number.outputs.issue_number}}-sandbox
@@ -147,6 +154,7 @@ jobs:
       FORWARD_CSOC_LOGS: false
       DEPLOY_APIGEE: false
       ALLOW_NHS_NUMBER_OVERRIDE: true
+      runtime_docker_image: "${{ needs.get_config_values.outputs.devcontainer_image }}:githubactions-${{ needs.get_config_values.outputs.devcontainer_version }}"
     secrets:
       REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}

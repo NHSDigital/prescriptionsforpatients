@@ -29,6 +29,10 @@ Conditions:
   ShouldForwardCsocLogs: !Equals
     - true
     - !Ref ForwardCsocLogs
+  HasAdditionalPolicies: !Not
+    - !Equals
+      - !Join [",", !Ref AdditionalPolicies]
+      - "none"
 
 Resources:
   ApiGwRole:
@@ -43,13 +47,17 @@ Resources:
                 - apigateway.amazonaws.com
             Action:
               - sts:AssumeRole
-      ManagedPolicyArns: !Split
-        - ","
-        - !Join
+      # Only add ManagedPolicyArns if AdditionalPolicies is not 'none'
+      ManagedPolicyArns: !If
+        - HasAdditionalPolicies
+        - !Split
           - ","
-          - - !Join
-              - ","
-              - !Ref AdditionalPolicies
+          - !Join
+            - ","
+            - - !Join
+                - ","
+                - !Ref AdditionalPolicies
+        - !Ref "AWS::NoValue"
 
   ApiGwAccessLogs:
     Type: AWS::Logs::LogGroup

@@ -16,6 +16,9 @@ on:
 
       REGRESSION_TEST_NON_PROXYGEN:
         type: boolean
+      runtime_docker_image:
+        type: string
+        required: true
     secrets:
       REGRESSION_TESTS_PEM:
         required: true
@@ -23,11 +26,20 @@ on:
 jobs:
   run_regression_tests:
     runs-on: ubuntu-22.04
+    container:
+      image: "ghcr.io/nhsdigital/eps-devcontainers/${{ inputs.runtime_docker_image }}"
+      options: --user 1001:1001 --group-add 128
+    defaults:
+      run:
+        shell: bash
     permissions:
       id-token: write
       contents: write
 
     steps:
+      - name: copy .tool-versions
+        run: |
+          cp /home/vscode/.tool-versions "$HOME/.tool-versions"
       - name: Checkout local github actions
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
