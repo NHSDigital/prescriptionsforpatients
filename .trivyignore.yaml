@@ -10,7 +10,8 @@ vulnerabilities:
     statement: downstream dependency of @isaacs/brace-expansion
     expired_at: 2026-06-01
   - id: CVE-2026-26278
-    paths:
-      - "package-lock.json"
-    statement: downstream dependency of fast-xml-parser
+    statement: fast-xml-parser vulnerability accepted as risk - dependency of aws-sdk/client-dynamodb
+    expired_at: 2026-06-01
+  - id: CVE-2026-26996
+    statement: minimatch vulnerability accepted as risk
     expired_at: 2026-06-01
