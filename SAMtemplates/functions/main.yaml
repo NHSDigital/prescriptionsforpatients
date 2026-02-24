@@ -6,7 +6,7 @@ Description: |
 Globals:
   Function:
     Timeout: 50
-    MemorySize: 256
+    MemorySize: 512
     Architectures:
       - x86_64
     Runtime: nodejs24.x
