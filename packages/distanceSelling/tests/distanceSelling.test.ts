@@ -299,6 +299,50 @@ describe("ServiceSearch tests", function () {
     expect(odsCode in servicesCache).toBeFalsy()
   })
 
+  it("searchOdsCode evicts the LRU entry when cache is full", async () => {
+    mock.onGet("https://live/service-search").reply(200, mockPharmacy2uResponse)
+    const servicesCache: ServicesCache = {
+      flm49: "www.pharmacy2u.co.uk",
+      few08: "www.pharmica.co.uk"
+    }
+    const distanceSelling = new DistanceSelling(servicesCache, logger, 2)
+    const organisation: Organization = {
+      resourceType: "Organization",
+      identifier: [{value: "ABC12"}]
+    }
+
+    await distanceSelling.searchOdsCode("abc12", organisation, dummyCorrelationId)
+
+    expect("flm49" in servicesCache).toBeFalsy()
+    expect("few08" in servicesCache).toBeTruthy()
+    expect("abc12" in servicesCache).toBeTruthy()
+  })
+
+  it("cache hit marks key as MRU and preserves it on next insert", async () => {
+    mock.onGet("https://live/service-search").reply(200, mockPharmacy2uResponse)
+    const servicesCache: ServicesCache = {
+      flm49: "www.pharmacy2u.co.uk",
+      few08: "www.pharmica.co.uk"
+    }
+    const distanceSelling = new DistanceSelling(servicesCache, logger, 2)
+    const cachedOrganisation: Organization = {
+      resourceType: "Organization",
+      identifier: [{value: "FLM49"}],
+      address: [{line: ["street"]}]
+    }
+    const newOrganisation: Organization = {
+      resourceType: "Organization",
+      identifier: [{value: "ABC12"}]
+    }
+
+    await distanceSelling.processOdsCodes([cachedOrganisation], dummyCorrelationId)
+    await distanceSelling.searchOdsCode("abc12", newOrganisation, dummyCorrelationId)
+
+    expect("few08" in servicesCache).toBeFalsy()
+    expect("flm49" in servicesCache).toBeTruthy()
+    expect("abc12" in servicesCache).toBeTruthy()
+  })
+
   it("filterAndTypeBundleEntries will return empty array when no entries present", async () => {
     const distanceSelling = new DistanceSelling({}, logger)
     const bundle: Bundle = {type: "collection", resourceType: "Bundle"}

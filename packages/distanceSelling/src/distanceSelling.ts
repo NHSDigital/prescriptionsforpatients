@@ -12,15 +12,64 @@ import {
 export type Entry = BundleEntry<FhirResource>
 export type ServicesCache = Record<string, string | undefined>
 
+const DEFAULT_CACHE_MAX_ENTRIES = 1_000
+
+class LruServicesCache {
+  private readonly usageOrder: Array<string>
+
+  constructor(
+    private readonly cache: ServicesCache,
+    private readonly maxEntries: number
+  ) {
+    this.usageOrder = Object.keys(this.cache)
+  }
+
+  has(key: string): boolean {
+    return Object.prototype.hasOwnProperty.call(this.cache, key)
+  }
+
+  get(key: string): string | undefined {
+    if (!this.has(key)) {
+      return undefined
+    }
+    this.touch(key)
+    return this.cache[key]
+  }
+
+  set(key: string, value: string | undefined): void {
+    const keyAlreadyPresent = this.has(key)
+    if (!keyAlreadyPresent && this.maxEntries > 0 && this.usageOrder.length >= this.maxEntries) {
+      const leastRecentlyUsed = this.usageOrder[0]
+      delete this.cache[leastRecentlyUsed]
+      this.removeFromUsageOrder(leastRecentlyUsed)
+    }
+
+    this.cache[key] = value
+    this.touch(key)
+  }
+
+  private touch(key: string): void {
+    this.removeFromUsageOrder(key)
+    this.usageOrder.push(key)
+  }
+
+  private removeFromUsageOrder(key: string): void {
+    const keyIndex = this.usageOrder.indexOf(key)
+    if (keyIndex !== -1) {
+      this.usageOrder.splice(keyIndex, 1)
+    }
+  }
+}
+
 export class DistanceSelling {
   private readonly logger: Logger
   private readonly client: ServiceSearchClient
-  private servicesCache: ServicesCache
+  private readonly servicesCache: LruServicesCache
 
-  constructor(servicesCache: ServicesCache, logger: Logger) {
+  constructor(servicesCache: ServicesCache, logger: Logger, maxCacheEntries: number = DEFAULT_CACHE_MAX_ENTRIES) {
     this.logger = logger
     this.client = createServiceSearchClient(this.logger)
-    this.servicesCache = servicesCache
+    this.servicesCache = new LruServicesCache(servicesCache, maxCacheEntries)
   }
 
   async search(searchsetBundle: Bundle, correlationId: string) {
@@ -65,11 +114,11 @@ export class DistanceSelling {
       const odsCode = organisation.identifier![0].value?.toLowerCase()
       if (odsCode) {
         let urlString: string | undefined
-        if (odsCode in this.servicesCache) {
+        if (this.servicesCache.has(odsCode)) {
           this.logger.info(
             `ods code ${odsCode} found in cache. not calling service search.`, {odsCode: odsCode, cacheHit: true}
           )
-          urlString = this.servicesCache[odsCode]
+          urlString = this.servicesCache.get(odsCode)
           if (urlString) {
             this.addToTelecom(urlString, organisation)
             // remove physical address for distance‐selling (online) pharmacies
@@ -95,13 +144,13 @@ export class DistanceSelling {
     }
     if (url) {
       const urlString = this.getUrlString(url)
-      this.servicesCache[odsCode] = urlString
+      this.servicesCache.set(odsCode, urlString)
       this.logger.info(`url ${urlString} added to cache for ods code ${odsCode}.`, {odsCode: odsCode})
       this.addToTelecom(urlString, organisation)
       // remove physical address for distance‐selling (online) pharmacies
       delete organisation.address
     } else {
-      this.servicesCache[odsCode] = undefined
+      this.servicesCache.set(odsCode, undefined)
     }
   }
 
