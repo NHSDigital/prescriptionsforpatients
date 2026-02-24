@@ -89,11 +89,8 @@ on:
         type: boolean
       REGRESSION_TEST_NON_PROXYGEN:
         type: boolean
-      runtime_docker_image:
+      pinned_image:
         type: string
-        required: true
-      verify_published_from_main_image:
-        type: boolean
         required: true
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
@@ -116,17 +113,11 @@ on:
         required: true
 
 jobs:
-  verify_attestation:
-    uses: NHSDigital/eps-common-workflows/.github/workflows/verify-attestation.yml@36677e1d6bfaa010d7b78942a1ade12fbefecb80
-    with:
-      runtime_docker_image: "${{ inputs.runtime_docker_image }}"
-      verify_published_from_main_image: ${{ inputs.verify_published_from_main_image }}
   sam_release_code:
     runs-on: ubuntu-22.04
-    needs: verify_attestation
     environment: ${{ inputs.TARGET_ENVIRONMENT }}
     container:
-      image: ${{ needs.verify_attestation.outputs.pinned_image }}
+      image: ${{ inputs.pinned_image }}
       options: --user 1001:1001 --group-add 128
     defaults:
       run:
@@ -259,6 +250,6 @@ jobs:
       VERSION_NUMBER: ${{ inputs.VERSION_NUMBER }}
       REGRESSION_TEST_PRODUCT: ${{ inputs.REGRESSION_TEST_PRODUCT }}
       REGRESSION_TEST_NON_PROXYGEN: ${{ inputs.REGRESSION_TEST_NON_PROXYGEN }}
-      runtime_docker_image: "${{ inputs.runtime_docker_image }}"
+      pinned_image: "${{ inputs.pinned_image }}"
     secrets:
       REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}

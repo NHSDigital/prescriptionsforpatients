@@ -15,33 +15,16 @@ jobs:
       AUTOMERGE_APP_ID: ${{ secrets.AUTOMERGE_APP_ID }}
       AUTOMERGE_PEM: ${{ secrets.AUTOMERGE_PEM }}
   get_config_values:
-    runs-on: ubuntu-22.04
-    outputs:
-      tag_format: ${{ steps.load-config.outputs.TAG_FORMAT }}
-      devcontainer_version: ${{ steps.load-config.outputs.DEVCONTAINER_VERSION }}
-      devcontainer_image: ${{ steps.load-config.outputs.DEVCONTAINER_IMAGE }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-
-      - name: Load config value
-        id: load-config
-        run: |
-          TAG_FORMAT=$(yq '.TAG_FORMAT' .github/config/settings.yml)
-          DEVCONTAINER_IMAGE=$(jq -r '.build.args.IMAGE_NAME' .devcontainer/devcontainer.json)
-          DEVCONTAINER_VERSION=$(jq -r '.build.args.IMAGE_VERSION' .devcontainer/devcontainer.json)
-          {
-            echo "TAG_FORMAT=$TAG_FORMAT" 
-            echo "DEVCONTAINER_IMAGE=$DEVCONTAINER_IMAGE"
-            echo "DEVCONTAINER_VERSION=$DEVCONTAINER_VERSION"
-          } >> "$GITHUB_OUTPUT"
+    uses: NHSDigital/eps-common-workflows/.github/workflows/get-repo-config.yml@8404cf6e3a61ac8de4d1644e175e288aa4965815
+    with:
+      verify_published_from_main_image: true
 
 
   quality_checks:
-    uses: NHSDigital/eps-common-workflows/.github/workflows/quality-checks-devcontainer.yml@36677e1d6bfaa010d7b78942a1ade12fbefecb80
+    uses: NHSDigital/eps-common-workflows/.github/workflows/quality-checks-devcontainer.yml@8404cf6e3a61ac8de4d1644e175e288aa4965815
     needs: [get_config_values]
     with:
-      runtime_docker_image: "${{ needs.get_config_values.outputs.devcontainer_image }}:githubactions-${{ needs.get_config_values.outputs.devcontainer_version }}"
+      pinned_image: ${{ needs.get_config_values.outputs.pinned_image }}
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
@@ -77,13 +60,12 @@ jobs:
 
   tag_release:
     needs: [get_config_values]
-    uses: NHSDigital/eps-common-workflows/.github/workflows/tag-release-devcontainer.yml@36677e1d6bfaa010d7b78942a1ade12fbefecb80
+    uses: NHSDigital/eps-common-workflows/.github/workflows/tag-release-devcontainer.yml@8404cf6e3a61ac8de4d1644e175e288aa4965815
     with:
       dry_run: true
-      runtime_docker_image: "${{ needs.get_config_values.outputs.devcontainer_image }}:githubactions-${{ needs.get_config_values.outputs.devcontainer_version }}"
+      pinned_image: ${{ needs.get_config_values.outputs.pinned_image }}
       branch_name: ${{ github.event.pull_request.head.ref }}
       tag_format: ${{ needs.get_config_values.outputs.tag_format }}
-      verify_published_from_main_image: false
     secrets: inherit
 
   get_commit_id:
@@ -100,8 +82,7 @@ jobs:
     needs: [get_issue_number, tag_release, get_config_values]
     uses: ./.github/workflows/sam_package_code.yml
     with:
-      runtime_docker_image: "${{ needs.get_config_values.outputs.devcontainer_image }}:githubactions-${{ needs.get_config_values.outputs.devcontainer_version }}"
-      verify_published_from_main_image: false
+      pinned_image: ${{ needs.get_config_values.outputs.pinned_image }}
 
   release_code:
     needs: [get_issue_number, package_code, get_commit_id, get_config_values]
@@ -128,8 +109,7 @@ jobs:
       FORWARD_CSOC_LOGS: false
       DEPLOY_APIGEE: true
       ALLOW_NHS_NUMBER_OVERRIDE: true
-      runtime_docker_image: "${{ needs.get_config_values.outputs.devcontainer_image }}:githubactions-${{ needs.get_config_values.outputs.devcontainer_version }}"
-      verify_published_from_main_image: false
+      pinned_image: ${{ needs.get_config_values.outputs.pinned_image }}
     secrets:
       REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
@@ -158,8 +138,7 @@ jobs:
       FORWARD_CSOC_LOGS: false
       DEPLOY_APIGEE: false
       ALLOW_NHS_NUMBER_OVERRIDE: true
-      runtime_docker_image: "${{ needs.get_config_values.outputs.devcontainer_image }}:githubactions-${{ needs.get_config_values.outputs.devcontainer_version }}"
-      verify_published_from_main_image: false
+      pinned_image: ${{ needs.get_config_values.outputs.pinned_image }}
     secrets:
       REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
