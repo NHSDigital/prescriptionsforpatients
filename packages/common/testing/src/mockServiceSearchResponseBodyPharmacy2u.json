@@ -3,8 +3,13 @@
     "value": [
         {
             "@search.score": 12.937448,
-            "URL": "https://www.pharmacy2u.co.uk",
-            "OrganisationSubType": "DistanceSelling"
+            "OrganisationSubType": "DistanceSelling",
+            "Contacts": [
+                {
+                    "ContactMethodType": "Website",
+                    "ContactValue": "https://www.pharmacy2u.co.uk"
+                }
+            ]
         }
     ]
 }
