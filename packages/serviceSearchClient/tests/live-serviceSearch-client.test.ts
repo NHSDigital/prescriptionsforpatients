@@ -294,7 +294,7 @@ describe("live serviceSearch client", () => {
       const result = await client.searchService("none", dummyCorrelationId)
       expect(result).toBeUndefined()
       expect(warnSpy).toHaveBeenCalledWith(
-        "ods code none has no contact info but is of type DistanceSelling", {odsCode: "none"}
+        "pharmacy with ods code none has no website", {odsCode: "none"}
       )
       expect(errorSpy).not.toHaveBeenCalled()
     })
