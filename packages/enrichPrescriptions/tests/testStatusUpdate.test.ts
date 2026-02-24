@@ -101,6 +101,7 @@ describe("Unit tests for statusUpdate", function () {
   })
 
   it("when with pharmacy, followed by 2 post-dated ready to collect updates are present, the latest RTC update is applied", async () => {
+    // Note that GSUL should only return 1 update per status, so this is belt and braces
     const requestBundle = simpleRequestBundle()
     const statusUpdates = simpleStatusUpdatesPayload()
 
@@ -138,7 +139,7 @@ describe("Unit tests for statusUpdate", function () {
     expect(medicationRequest.extension![0].extension![1].valueDateTime).toEqual("2026-01-27T12:00:00.000Z")
   })
 
-  it("when with pharmacy, followed by a post-dated ready to collect update then a with pharmacy update are present, the with pharmacy update is applied", async () => {
+  it("when with pharmacy, followed by with pharmacy and post-dated ready to collect updates at different pharmacy shows RTC update", async () => {
     const requestBundle = simpleRequestBundle()
     const statusUpdates = simpleStatusUpdatesPayload()
 
@@ -154,16 +155,23 @@ describe("Unit tests for statusUpdate", function () {
         isTerminalState: false,
         itemId: itemId,
         lastUpdateDateTime: "2026-01-28T12:00:00.000Z",
-        latestStatus: "Ready to Collect",
+        latestStatus: "With Pharmacy",
         postDatedLastModifiedSetAt: "2026-01-27T10:40:00.000Z"
       },
       {
         isTerminalState: false,
         itemId: itemId,
         lastUpdateDateTime: "2026-01-27T12:00:00.000Z",
-        latestStatus: "With Pharmacy"
+        latestStatus: "Ready to Collect"
       }
     ]
+
+    const updatesWithOdsCode = statusUpdates as unknown as {
+      prescriptions: Array<{items: Array<{odsCode?: string}>}>
+    }
+    updatesWithOdsCode.prescriptions[0].items[0].odsCode = "FA565"
+    updatesWithOdsCode.prescriptions[0].items[1].odsCode = "A83008"
+    updatesWithOdsCode.prescriptions[0].items[2].odsCode = "A83008"
 
     applyStatusUpdates(logger, requestBundle, statusUpdates)
 
@@ -171,7 +179,7 @@ describe("Unit tests for statusUpdate", function () {
     const medicationRequest = prescriptionBundle.entry![0].resource as MedicationRequest
     const statusExtension = medicationRequest.extension![0].extension!.find((e) => e.url === "status")
 
-    expect(statusExtension!.valueCoding!.code).toEqual("With Pharmacy")
+    expect(statusExtension!.valueCoding!.code).toEqual("Ready to Collect")
     expect(medicationRequest.extension![0].extension![1].valueDateTime).toEqual("2026-01-27T12:00:00.000Z")
   })
 
