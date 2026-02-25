@@ -1,10 +1,4 @@
-guard-%:
-	@ if [ "${${*}}" = "" ]; then \
-		echo "Environment variable $* not set"; \
-		exit 1; \
-	fi
-
-.PHONY: install build test publish release clean
+.PHONY: install build test publish release clean install-node install-python install-hooks sam-build sam-build-sandbox sam-run-local sam-sync sam-sync-sandbox sam-deploy sam-delete sam-list-endpoints sam-list-resources sam-list-outputs sam-validate sam-validate-sandbox sam-deploy-package compile-node compile compile-specification download-get-secrets-layer lint-node lint test clean deep-clean
 
 install: install-python install-hooks install-node
 
@@ -144,16 +138,8 @@ lint-node: compile-node
 	npm run lint --workspace packages/common/testing
 	npm run lint --workspace packages/distanceSelling
 
-lint-samtemplates:
-	poetry run cfn-lint -I "SAMtemplates/**/*.yaml" 2>&1 | grep "Run scan"
-
-lint-githubactions:
-	actionlint
-
-lint-githubaction-scripts:
-	shellcheck .github/scripts/*.sh
-
-lint: lint-node lint-samtemplates lint-githubactions lint-githubaction-scripts
+lint: lint-node actionlint shellcheck cfn-lint
+	echo "Linting complete"
 
 test: compile
 	npm run test --workspace packages/capabilityStatement
@@ -194,25 +180,5 @@ deep-clean: clean
 	rm -rf .venv
 	find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +
 
-check-licenses: check-licenses-node check-licenses-python
-
-check-licenses-node:
-	echo "Not currently implemented from makefile. Trivy used in qc"
-
-
-check-licenses-python:
-	echo "Not currently implemented from makefile. Trivy used in qc"
-
-aws-configure:
-	aws configure sso --region eu-west-2
-
-aws-login:
-	aws sso login --sso-session sso-session
-
-cfn-guard:
-	./scripts/run_cfn_guard.sh
-
-create-npmrc:
-	gh auth login --scopes "read:packages"; \
-	echo "//npm.pkg.github.com/:_authToken=$$(gh auth token)" > .npmrc
-	echo "@nhsdigital:registry=https://npm.pkg.github.com" >> .npmrc
+%:
+	@$(MAKE) -f /usr/local/share/eps/Mk/common.mk $@
