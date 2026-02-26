@@ -139,7 +139,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
 
   async searchService(odsCode: string, correlationId: string): Promise<URL | undefined> {
     try {
-      // Load API key if not set in environment (secrets layer is failing to load v3 key)
+      // Load API key if not set in environment (secrets layer is being deprecated)
       if (!this.outboundHeaders.apikey) {
         this.logger.info("API key not in environment, attempting to load from Secrets Manager")
         this.outboundHeaders.apikey = await this.loadApiKeyFromSecretsManager()
