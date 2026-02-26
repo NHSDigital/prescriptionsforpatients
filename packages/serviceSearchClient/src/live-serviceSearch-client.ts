@@ -13,7 +13,7 @@ import {ServiceSearchClient} from "./serviceSearch-client"
 
 // timeout in ms to wait for response from serviceSearch to avoid lambda timeout
 // each call is retried up to 3 times so total wait time could be up to 4x this value
-const SERVICE_SEARCH_TIMEOUT = 1000 // 1 second
+const SERVICE_SEARCH_TIMEOUT = 3000 // 3 seconds
 const DISTANCE_SELLING = "DistanceSelling"
 
 type Service = {
@@ -89,6 +89,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
     this.axiosInstance = axios.create()
     axiosRetry(this.axiosInstance, {
       retries: 3,
+      shouldResetTimeout: true,
       onRetry: this.onAxiosRetry,
       retryCondition: this.retryCondition
     })
