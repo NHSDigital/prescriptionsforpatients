@@ -112,18 +112,10 @@ repos:
         files: ^packages\/getSecretLayer
         pass_filenames: false
 
-      - id: lint-cloudformation
-        name: Lint cloudformation
-        entry: make
-        args: ["lint-cloudformation"]
-        language: system
-        files: ^cloudformation
-        pass_filenames: false
-
       - id: lint-samtemplates
         name: Lint sam templates
         entry: make
-        args: ["lint-samtemplates"]
+        args: ["cfn-lint"]
         language: system
         files: ^SAMtemplates
         pass_filenames: false
@@ -131,7 +123,7 @@ repos:
       - id: lint-githubactions
         name: Lint github actions
         entry: make
-        args: ["lint-githubactions"]
+        args: ["actionlint"]
         language: system
         files: ^.github
         types_or: [yaml]
@@ -140,7 +132,7 @@ repos:
       - id: lint-githubaction-scripts
         name: Lint github action scripts
         entry: make
-        args: ["lint-githubaction-scripts"]
+        args: ["shellcheck"]
         language: system
         files: ^.github/scripts
         types_or: [sh, shell]
