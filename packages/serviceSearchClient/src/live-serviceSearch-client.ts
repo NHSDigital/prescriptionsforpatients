@@ -8,6 +8,7 @@ import axios, {
 } from "axios"
 import axiosRetry, {isNetworkOrIdempotentRequestError} from "axios-retry"
 import {handleUrl} from "./handleUrl"
+import {Agent} from "https"
 
 import {ServiceSearchClient} from "./serviceSearch-client"
 
@@ -72,6 +73,7 @@ export function getServiceSearchEndpoint(logger: Logger | null = null): string {
 export class LiveServiceSearchClient implements ServiceSearchClient {
   private readonly axiosInstance: AxiosInstance
   private readonly logger: Logger
+  private readonly httpsAgent: Agent
   private readonly outboundHeaders: {
     "apikey"?: string,
     "Subscription-Key"?: string,
@@ -86,7 +88,12 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
         v2: process.env.ServiceSearchApiKey !== undefined,
         v3: process.env.ServiceSearch3ApiKey !== undefined
       })
-    this.axiosInstance = axios.create()
+    this.httpsAgent = new Agent({
+      keepAlive: true
+    })
+    this.axiosInstance = axios.create({
+      httpsAgent: this.httpsAgent
+    })
     axiosRetry(this.axiosInstance, {
       retries: 3,
       shouldResetTimeout: true,
@@ -101,13 +108,21 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
     this.axiosInstance.interceptors.response.use((response) => {
       const currentTime = Date.now()
       const startTime = response.config.headers["request-startTime"]
-      this.logger.info("serviceSearch request duration", {serviceSearch_duration: currentTime - startTime})
+      this.logger.info("serviceSearch request duration", {
+        serviceSearch_duration: currentTime - startTime,
+        serviceSearch_keepAliveEnabled: this.httpsAgent.options.keepAlive === true,
+        serviceSearch_reusedSocket: this.getReusedSocket(response.request)
+      })
 
       return response
     }, (error) => {
       const currentTime = Date.now()
       const startTime = error.config?.headers["request-startTime"]
-      this.logger.info("serviceSearch request duration", {serviceSearch_duration: currentTime - startTime})
+      this.logger.info("serviceSearch request duration", {
+        serviceSearch_duration: currentTime - startTime,
+        serviceSearch_keepAliveEnabled: this.httpsAgent.options.keepAlive === true,
+        serviceSearch_reusedSocket: this.getReusedSocket(error.request)
+      })
 
       // reject with a proper Error object
       let err: Error
@@ -202,6 +217,15 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       return this.handleV3Response(odsCode, response.data)
     }
   }
+
+  private getReusedSocket(request: unknown): boolean | undefined {
+    if (!request || typeof request !== "object") {
+      return undefined
+    }
+    const candidate = request as {reusedSocket?: boolean}
+    return candidate.reusedSocket
+  }
+
   handleV3Response(odsCode: string, data: ServiceSearch3Data): URL | undefined {
     const contacts = data.value[0]?.Contacts
     const websiteContact = contacts?.find((contact: Contact) => contact.ContactMethodType === "Website")

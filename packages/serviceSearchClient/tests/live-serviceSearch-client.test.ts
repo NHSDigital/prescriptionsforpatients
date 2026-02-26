@@ -356,7 +356,10 @@ describe("live serviceSearch client", () => {
       await expect(client.searchService("z", dummyCorrelationId)).rejects.toThrow("Network Error")
       expect(infoSpy).toHaveBeenCalledWith(
         "serviceSearch request duration",
-        {serviceSearch_duration: expect.any(Number)}
+        expect.objectContaining({
+          serviceSearch_duration: expect.any(Number),
+          serviceSearch_keepAliveEnabled: true
+        })
       )
     })
 
