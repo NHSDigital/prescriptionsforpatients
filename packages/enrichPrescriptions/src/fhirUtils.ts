@@ -15,6 +15,7 @@ type UpdateItem = {
   itemId: string
   lastUpdateDateTime: string
   latestStatus: string
+  postDatedLastModifiedSetAt?: string
 }
 
 type StatusUpdate = {

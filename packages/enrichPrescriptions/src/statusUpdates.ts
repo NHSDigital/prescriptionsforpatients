@@ -30,6 +30,7 @@ type UpdateItem = {
   itemId?: string
   lastUpdateDateTime: string
   latestStatus: string
+  postDatedLastModifiedSetAt?: string
 }
 
 type StatusUpdate = {
@@ -188,9 +189,11 @@ export function applyStatusUpdates(logger: Logger, searchsetBundle: Bundle, stat
       if (itemUpdates.length > 0) {
         logger.info(`Update found for MedicationRequest with id ${medicationRequestID}. Applying.`)
         // there may be > 1 updates, ensure picking the most recent
-        itemUpdates.sort((a, b) =>
-          moment(b.lastUpdateDateTime).utc().valueOf() - moment(a.lastUpdateDateTime).utc().valueOf()
-        )
+        itemUpdates.sort((a, b) => {
+          const aTime = a.postDatedLastModifiedSetAt || a.lastUpdateDateTime
+          const bTime = b.postDatedLastModifiedSetAt || b.lastUpdateDateTime
+          return moment(bTime).utc().valueOf() - moment(aTime).utc().valueOf()
+        })
         updateMedicationRequest(logger, medicationRequest, itemUpdates[0])
       } else {
         logger.info(`No update found for MedicationRequest with id ${medicationRequestID}. Applying default.`)

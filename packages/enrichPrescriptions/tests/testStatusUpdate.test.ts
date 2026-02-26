@@ -100,6 +100,89 @@ describe("Unit tests for statusUpdate", function () {
     expect(requestBundle).toEqual(simpleResponseBundle())
   })
 
+  it("when with pharmacy, followed by 2 post-dated ready to collect updates are present, the latest RTC update is applied", async () => {
+    // Note that GSUL should only return 1 update per status, so this is belt and braces
+    const requestBundle = simpleRequestBundle()
+    const statusUpdates = simpleStatusUpdatesPayload()
+
+    const itemId = "E76812CF-C893-42FF-AB02-B19EA1FA11B4"
+    statusUpdates.prescriptions[0].items = [
+      {
+        isTerminalState: false,
+        itemId: itemId,
+        lastUpdateDateTime: "2026-01-26T17:00:00.000Z",
+        latestStatus: "With Pharmacy"
+      },
+      {
+        isTerminalState: false,
+        itemId: itemId,
+        lastUpdateDateTime: "2026-01-28T12:00:00.000Z",
+        latestStatus: "Ready to Collect",
+        postDatedLastModifiedSetAt: "2026-01-27T10:40:00.000Z"
+      },
+      {
+        isTerminalState: false,
+        itemId: itemId,
+        lastUpdateDateTime: "2026-01-27T12:00:00.000Z",
+        latestStatus: "Ready to Collect",
+        postDatedLastModifiedSetAt: "2026-01-27T11:40:00.000Z"
+      }
+    ]
+
+    applyStatusUpdates(logger, requestBundle, statusUpdates)
+
+    const prescriptionBundle = requestBundle.entry![0].resource as Bundle
+    const medicationRequest = prescriptionBundle.entry![0].resource as MedicationRequest
+    const statusExtension = medicationRequest.extension![0].extension!.find((e) => e.url === "status")
+
+    expect(statusExtension!.valueCoding!.code).toEqual("Ready to Collect")
+    expect(medicationRequest.extension![0].extension![1].valueDateTime).toEqual("2026-01-27T12:00:00.000Z")
+  })
+
+  it("when with pharmacy, followed by with pharmacy and post-dated ready to collect updates at different pharmacy shows RTC update", async () => {
+    const requestBundle = simpleRequestBundle()
+    const statusUpdates = simpleStatusUpdatesPayload()
+
+    const itemId = "E76812CF-C893-42FF-AB02-B19EA1FA11B4"
+    statusUpdates.prescriptions[0].items = [
+      {
+        isTerminalState: false,
+        itemId: itemId,
+        lastUpdateDateTime: "2026-01-26T17:00:00.000Z",
+        latestStatus: "With Pharmacy"
+      },
+      {
+        isTerminalState: false,
+        itemId: itemId,
+        lastUpdateDateTime: "2026-01-28T12:00:00.000Z",
+        latestStatus: "With Pharmacy",
+        postDatedLastModifiedSetAt: "2026-01-27T10:40:00.000Z"
+      },
+      {
+        isTerminalState: false,
+        itemId: itemId,
+        lastUpdateDateTime: "2026-01-27T12:00:00.000Z",
+        latestStatus: "Ready to Collect"
+      }
+    ]
+
+    const updatesWithOdsCode = statusUpdates as unknown as {
+      prescriptions: Array<{items: Array<{odsCode?: string}>}>
+    }
+    updatesWithOdsCode.prescriptions[0].items[0].odsCode = "FA565"
+    updatesWithOdsCode.prescriptions[0].items[1].odsCode = "A83008"
+    updatesWithOdsCode.prescriptions[0].items[2].odsCode = "A83008"
+
+    applyStatusUpdates(logger, requestBundle, statusUpdates)
+
+    const prescriptionBundle = requestBundle.entry![0].resource as Bundle
+    const medicationRequest = prescriptionBundle.entry![0].resource as MedicationRequest
+    const statusExtension = medicationRequest.extension![0].extension!.find((e) => e.url === "status")
+
+    expect(statusExtension!.valueCoding!.code).toEqual("Ready to Collect")
+    expect(medicationRequest.extension![0].extension![1].valueDateTime).toEqual("2026-01-27T12:00:00.000Z")
+  })
+
   it("when an update has a terminal state flag set to true, but is less than seven days old, the status is set as 'active'", async () => {
     const requestBundle = simpleRequestBundle()
     const statusUpdates = simpleStatusUpdatesPayload()
