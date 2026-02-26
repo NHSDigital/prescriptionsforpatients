@@ -14,7 +14,7 @@ Parameters:
 
   StateMachineArn:
     Type: String
-    Default: none
+    AllowedPattern: "^(arn:(aws[A-Za-z\\-]*?|\\*):[^:]+:[^:]*(:(?:\\d{12}|\\*|aws)?:.+|)|\\*)$"
 
   AdditionalPolicies:
     Type: CommaDelimitedList
@@ -26,14 +26,14 @@ Parameters:
 
   CloudWatchKMSKeyId:
     Type: String
-    Default: none
+    AllowedPattern: "^arn:[a-z0-9-]+:kms:[a-z0-9-]+:\\d{12}:(key|alias)/.+\\Z"
 
   EnableSplunk:
     Type: String
 
   SplunkSubscriptionFilterRole:
     Type: String
-    Default: none
+    AllowedPattern: "^arn:(aws|aws-cn|aws-iso|aws-iso-[a-z]{1}|aws-us-gov):iam::\\d{12}:role/.*$"
 
   SplunkDeliveryStreamArn:
     Type: String

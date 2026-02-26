@@ -2,46 +2,31 @@ name: sam package code
 
 on:
   workflow_call:
-
+    inputs:
+      pinned_image:
+        type: string
+        required: true
 jobs:
   sam_package_code:
     runs-on: ubuntu-22.04
+    container:
+      image: ${{ inputs.pinned_image }}
+      options: --user 1001:1001 --group-add 128
+    defaults:
+      run:
+        shell: bash
     permissions:
       id-token: write
       contents: read
       packages: read
     steps:
+      - name: copy .tool-versions
+        run: |
+          cp /home/vscode/.tool-versions "$HOME/.tool-versions"
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           ref: ${{ env.BRANCH_NAME }}
-
-      # using git commit sha for version of action to ensure we have stable version
-      - name: Get asdf version
-        id: asdf-version
-        run: echo "version=$(awk '!/^#/ && NF {print $1; exit}' .tool-versions.asdf)" >> "$GITHUB_OUTPUT"
-
-      # using git commit sha for version of action to ensure we have stable version
-      - name: Install asdf
-        uses: asdf-vm/actions/setup@b7bcd026f18772e44fe1026d729e1611cc435d47
-        with:
-          asdf_version: ${{ steps.asdf-version.outputs.version }}
-
-      - name: Cache asdf
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306
-        with:
-          path: |
-            ~/.asdf
-          key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}-${{ steps.asdf-version.outputs.version }}
-          restore-keys: |
-            ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}-${{ steps.asdf-version.outputs.version }}
-
-      - name: Install asdf dependencies in .tool-versions
-        uses: asdf-vm/actions/install@b7bcd026f18772e44fe1026d729e1611cc435d47
-        with:
-          asdf_version: ${{ steps.asdf-version.outputs.version }}
-        env:
-          PYTHON_CONFIGURE_OPTS: --enable-shared
 
       - name: Setting up .npmrc
         env:
@@ -58,7 +43,6 @@ jobs:
       - shell: bash
         name: package code
         run: |
-          cp .tool-versions ~/
           rm -rf .aws-sam
           export PATH=$PATH:$PWD/node_modules/.bin
           make sam-build
@@ -78,7 +62,6 @@ jobs:
       - shell: bash
         name: package sandbox code
         run: |
-          cp .tool-versions ~/
           rm -rf .aws-sam
           export PATH=$PATH:$PWD/node_modules/.bin
           make sam-build-sandbox
