@@ -1,11 +1,49 @@
-import {createMockedPfPConfig, setupTestEnvironment, MockedPfPConfig} from "@pfp-common/testing"
 import {
+  vi,
   expect,
   describe,
   it,
   beforeEach,
   afterEach
 } from "@jest/globals"
+import {PfPConfig} from "../src/config"
+import type {SSMProvider} from "@aws-lambda-powertools/parameters/ssm"
+
+type MockedPfPConfig = {
+  pfpConfig: PfPConfig;
+  mockGet: ReturnType<typeof vi.fn>;
+}
+
+function setupTestEnvironment() {
+  const originalEnv = {...process.env}
+
+  const restoreEnvironment = () => {
+    process.env = originalEnv
+    vi.restoreAllMocks()
+  }
+
+  return {
+    originalEnv,
+    restoreEnvironment
+  }
+}
+
+function createMockedPfPConfig(nhsNumbers: Array<string> = []): MockedPfPConfig {
+  const mockGet = vi.fn()
+  const nhsNumbersString = nhsNumbers.join(",")
+  mockGet.mockResolvedValue(nhsNumbersString)
+
+  const mockSSMProvider = {
+    get: mockGet
+  } as unknown as SSMProvider
+
+  const pfpConfig = new PfPConfig(mockSSMProvider)
+
+  return {
+    pfpConfig,
+    mockGet
+  }
+}
 
 describe("PfPConfig", () => {
   const NHS_NUMBER = "1234567890"
