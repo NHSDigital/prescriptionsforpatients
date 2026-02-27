@@ -1,4 +1,4 @@
-import {LiveServiceSearchClient, ServiceSearchData, ServiceSearch3Data} from "../src/live-serviceSearch-client"
+import {LiveServiceSearchClient, ServiceSearch3Data} from "../src/live-serviceSearch-client"
 import {jest} from "@jest/globals"
 import MockAdapter from "axios-mock-adapter"
 import axios, {
@@ -13,13 +13,15 @@ import {mockPharmacy2uResponse} from "@pfp-common/testing"
 const mock = new MockAdapter(axios)
 
 process.env.TargetServiceSearchServer = "live"
-process.env.ServiceSearchApiKey = "test-key"
-const serviceSearchUrl = "https://live/service-search"
+process.env.ServiceSearch3ApiKey = "test-key"
+const serviceSearchUrl = "https://live/service-search-api/"
 const dummyCorrelationId = "corr-id-123"
+const DISTANCE_SELLING = "DistanceSelling"
+const EXAMPLE_URL = "https://example.com"
 
 interface ServiceSearchTestData {
   scenarioDescription: string
-  serviceSearchData: ServiceSearchData
+  serviceSearchData: ServiceSearch3Data
   expected: URL | undefined
 }
 
@@ -57,69 +59,18 @@ describe("live serviceSearch client", () => {
   })
 
   // Helper function tests
-  test("getServiceSearchEndpoint returns correct URL for v2", async () => {
+  test("getServiceSearchEndpoint returns v3 URL", async () => {
     const {getServiceSearchEndpoint} = await import("../src/live-serviceSearch-client.js")
     const endpoint = getServiceSearchEndpoint()
     expect(endpoint).toBe(serviceSearchUrl)
   })
 
-  test("getServiceSearchEndpoint returns correct URL for v3", async () => {
-    process.env.TargetServiceSearchServer = "api.service.nhs.uk"
-    const {getServiceSearchEndpoint} = await import("../src/live-serviceSearch-client.js")
-    const endpoint = getServiceSearchEndpoint(logger)
-    expect(endpoint).toBe("https://api.service.nhs.uk/service-search-api/")
-    process.env.TargetServiceSearchServer = "live"
-  })
-
-  test("getServiceSearchVersion returns 3 and logs info for v3 endpoint", async () => {
-    process.env.TargetServiceSearchServer = "api.service.nhs.uk"
+  test("getServiceSearchVersion returns 3 and logs info", async () => {
     const infoSpy = jest.spyOn(Logger.prototype, "info")
     const {getServiceSearchVersion} = await import("../src/live-serviceSearch-client.js")
     const version = getServiceSearchVersion(logger)
     expect(version).toBe(3)
-    expect(infoSpy).toHaveBeenCalledWith("Using service search v3 endpoint")
-    process.env.TargetServiceSearchServer = "live"
-  })
-
-  test("getServiceSearchVersion returns 2 and logs warn for v2 endpoint", async () => {
-    const warnSpy = jest.spyOn(Logger.prototype, "warn")
-    const {getServiceSearchVersion} = await import("../src/live-serviceSearch-client.js")
-    const version = getServiceSearchVersion(logger)
-    expect(version).toBe(2)
-    expect(warnSpy).toHaveBeenCalledWith("Using service search v2 endpoint")
-  })
-
-  test("stripKeyFromHeaders removes only subscription-key header", () => {
-    const axiosErr: AxiosError = {
-      isAxiosError: true,
-      config: {
-        headers: new axios.AxiosHeaders({"subscription-key": "secret", keep: "yes"})
-      } satisfies AxiosRequestConfig,
-      response: {
-        headers: {"subscription-key": "secret", foo: "bar"},
-        data: null,
-        status: 200,
-        statusText: "",
-        config: {headers: new axios.AxiosHeaders()} satisfies AxiosRequestConfig,
-        request: {}
-      } satisfies AxiosResponse,
-      toJSON: function (): object {
-        throw new Error("Function not implemented.")
-      },
-      name: "",
-      message: ""
-    }
-
-    expect(axiosErr.config!.headers).toHaveProperty("subscription-key")
-    expect(axiosErr.response!.headers).toHaveProperty("subscription-key")
-
-    client.stripApiKeyFromHeaders(axiosErr)
-
-    // The config doesn't get touched by the stripping function
-    expect(axiosErr.config!.headers).toHaveProperty("subscription-key")
-    expect(axiosErr.config!.headers).toHaveProperty("keep", "yes")
-    expect(axiosErr.response!.headers).not.toHaveProperty("subscription-key")
-    expect(axiosErr.response!.headers).toHaveProperty("foo", "bar")
+    expect(infoSpy).toHaveBeenCalledWith("Service search v3 enabled")
   })
 
   test("stripApiKeyFromHeaders removes only apikey header", () => {
@@ -279,9 +230,14 @@ describe("live serviceSearch client", () => {
     )
   })
   describe("integration scenarios", () => {
-    const validUrlData: ServiceSearchData = {
+    const validUrlData: ServiceSearch3Data = {
+      "@odata.context": "https://api.service.nhs.uk/service-search-api/$metadata#Services",
       value: [
-        {URL: "https://example.com", OrganisationSubType: "DistanceSelling"}
+        {
+          "@search.score": 1,
+          OrganisationSubType: DISTANCE_SELLING,
+          Contacts: [{ContactMethodType: "Website", ContactValue: EXAMPLE_URL}]
+        }
       ]
     }
 
@@ -289,16 +245,25 @@ describe("live serviceSearch client", () => {
       {
         scenarioDescription: "valid url",
         serviceSearchData: validUrlData,
-        expected: new URL(validUrlData.value[0].URL)
+        expected: new URL(EXAMPLE_URL)
       },
       {
         scenarioDescription: "missing protocol",
-        serviceSearchData: {value: [{URL: "example.com", OrganisationSubType: "DistanceSelling"}]},
-        expected: new URL("https://example.com")
+        serviceSearchData: {
+          "@odata.context": "https://api.service.nhs.uk/service-search-api/$metadata#Services",
+          value: [{
+            "@search.score": 1,
+            OrganisationSubType: DISTANCE_SELLING,
+            Contacts: [{ContactMethodType: "Website", ContactValue: "example.com"}]
+          }]
+        },
+        expected: new URL(EXAMPLE_URL)
       },
       {
         scenarioDescription: "no results",
-        serviceSearchData: {value: []},
+        serviceSearchData: {
+          "@odata.context": "https://api.service.nhs.uk/service-search-api/$metadata#Services", value: []
+        },
         expected: undefined
       },
       {
@@ -317,7 +282,7 @@ describe("live serviceSearch client", () => {
     test("gzip header handled correctly", async () => {
       mock.onGet(serviceSearchUrl).reply(200, validUrlData, {"Content-Encoding": "gzip"})
       const result = await client.searchService("z", dummyCorrelationId)
-      expect(result).toEqual(new URL(validUrlData.value[0].URL))
+      expect(result).toEqual(new URL(EXAMPLE_URL))
     })
 
     test("retries up to 3 times", async () => {
@@ -329,7 +294,7 @@ describe("live serviceSearch client", () => {
       client = new LiveServiceSearchClient(logger)
 
       const result = await client.searchService("z", dummyCorrelationId)
-      expect(result).toEqual(new URL(validUrlData.value[0].URL))
+      expect(result).toEqual(new URL(EXAMPLE_URL))
       expect(warnSpy).toHaveBeenCalledWith(
         expect.stringContaining("Call to serviceSearch failed - retrying. Retry count"),
         expect.objectContaining({retryCount: 1})
@@ -347,7 +312,7 @@ describe("live serviceSearch client", () => {
         .onGet(serviceSearchUrl).timeoutOnce()
         .onGet(serviceSearchUrl).reply(200, validUrlData)
       const result = await client.searchService("z", dummyCorrelationId)
-      expect(result).toEqual(new URL(validUrlData.value[0].URL))
+      expect(result).toEqual(new URL(EXAMPLE_URL))
     })
 
     test("logs duration in info on success and failure", async () => {
@@ -364,13 +329,16 @@ describe("live serviceSearch client", () => {
     })
 
     test("warns on null URL without error", async () => {
-      mock.onGet(serviceSearchUrl).reply(200, {value: [{URL: null, OrganisationSubType: "DistanceSelling"}]})
+      mock.onGet(serviceSearchUrl).reply(200, {
+        "@odata.context": "https://api.service.nhs.uk/service-search-api/$metadata#Services",
+        value: [{"@search.score": 1, OrganisationSubType: DISTANCE_SELLING, Contacts: []}]
+      })
       const warnSpy = jest.spyOn(Logger.prototype, "warn")
       const errorSpy = jest.spyOn(Logger.prototype, "error")
       const result = await client.searchService("none", dummyCorrelationId)
       expect(result).toBeUndefined()
       expect(warnSpy).toHaveBeenCalledWith(
-        "ods code none has no URL but is of type DistanceSelling", {odsCode: "none"}
+        "pharmacy with ods code none has no website", {odsCode: "none"}
       )
       expect(errorSpy).not.toHaveBeenCalled()
     })
@@ -432,16 +400,16 @@ describe("live serviceSearch client", () => {
         value: [
           {
             "@search.score": 1.0,
-            OrganisationSubType: "DistanceSelling",
+            OrganisationSubType: DISTANCE_SELLING,
             Contacts: [
-              {ContactMethodType: "Website", ContactValue: "https://example.com"}
+              {ContactMethodType: "Website", ContactValue: EXAMPLE_URL}
             ]
           }
         ]
       }
 
       const result = client.handleV3Response("TEST123", data)
-      expect(result).toEqual(new URL("https://example.com"))
+      expect(result).toEqual(new URL(EXAMPLE_URL))
     })
 
     test("returns undefined when response has no Contacts", () => {
@@ -450,7 +418,7 @@ describe("live serviceSearch client", () => {
         value: [
           {
             "@search.score": 1.0,
-            OrganisationSubType: "DistanceSelling",
+            OrganisationSubType: DISTANCE_SELLING,
             Contacts: []
           }
         ]
@@ -472,7 +440,7 @@ describe("live serviceSearch client", () => {
         value: [
           {
             "@search.score": 1.0,
-            OrganisationSubType: "DistanceSelling",
+            OrganisationSubType: DISTANCE_SELLING,
             Contacts: [
               {ContactMethodType: "Phone", ContactValue: "01234567890"},
               {ContactMethodType: "Email", ContactValue: "test@example.com"}
@@ -497,7 +465,7 @@ describe("live serviceSearch client", () => {
         value: [
           {
             "@search.score": 1.0,
-            OrganisationSubType: "DistanceSelling",
+            OrganisationSubType: DISTANCE_SELLING,
             Contacts: [
               {ContactMethodType: "Website", ContactValue: "example.com"}
             ]
@@ -506,7 +474,7 @@ describe("live serviceSearch client", () => {
       }
 
       const result = client.handleV3Response("TEST123", data)
-      expect(result).toEqual(new URL("https://example.com"))
+      expect(result).toEqual(new URL(EXAMPLE_URL))
     })
 
     test("returns undefined when value array is empty", () => {
@@ -525,7 +493,7 @@ describe("live serviceSearch client", () => {
         value: [
           {
             "@search.score": 1.0,
-            OrganisationSubType: "DistanceSelling",
+            OrganisationSubType: DISTANCE_SELLING,
             Contacts: [
               {ContactMethodType: "Phone", ContactValue: "01234567890"},
               {ContactMethodType: "Website", ContactValue: "https://pharmacy.example.com"},

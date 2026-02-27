@@ -3,8 +3,13 @@
     "value": [
         {
             "@search.score": 13.098481,
-            "URL": "www.pharmica.co.uk",
-            "OrganisationSubType": "DistanceSelling"
+            "OrganisationSubType": "DistanceSelling",
+            "Contacts": [
+                {
+                    "ContactMethodType": "Website",
+                    "ContactValue": "www.pharmica.co.uk"
+                }
+            ]
         }
     ]
 }
