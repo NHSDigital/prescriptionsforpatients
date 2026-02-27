@@ -1,26 +1,55 @@
-import {LiveServiceSearchClient, ServiceSearchData, ServiceSearch3Data} from "../src/live-serviceSearch-client"
+import {LiveServiceSearchClient, ServiceSearch3Data} from "../src/live-serviceSearch-client"
 import {jest} from "@jest/globals"
 import MockAdapter from "axios-mock-adapter"
-import axios, {AxiosError, AxiosRequestConfig, AxiosResponse} from "axios"
+import axios, {
+  AxiosError,
+  AxiosRequestConfig,
+  AxiosResponse,
+  InternalAxiosRequestConfig
+} from "axios"
 import {Logger} from "@aws-lambda-powertools/logger"
 import {mockPharmacy2uResponse} from "@pfp-common/testing"
 
 const mock = new MockAdapter(axios)
 
 process.env.TargetServiceSearchServer = "live"
-process.env.ServiceSearchApiKey = "test-key"
-const serviceSearchUrl = "https://live/service-search"
+process.env.ServiceSearch3ApiKey = "test-key"
+const serviceSearchUrl = "https://live/service-search-api/"
 const dummyCorrelationId = "corr-id-123"
+const DISTANCE_SELLING = "DistanceSelling"
+const EXAMPLE_URL = "https://example.com"
 
 interface ServiceSearchTestData {
   scenarioDescription: string
-  serviceSearchData: ServiceSearchData
+  serviceSearchData: ServiceSearch3Data
   expected: URL | undefined
 }
 
 describe("live serviceSearch client", () => {
   let logger: Logger
   let client: LiveServiceSearchClient
+
+  const createAxiosErrorFixture = (overrides: Partial<AxiosError>): AxiosError => {
+    const config: InternalAxiosRequestConfig = {headers: new axios.AxiosHeaders()}
+    const axiosError: AxiosError = {
+      isAxiosError: true,
+      name: "AxiosError",
+      message: "axios failure",
+      config,
+      toJSON: () => ({}),
+      ...overrides
+    }
+
+    return axiosError
+  }
+
+  const mockInstanceGetThrows = (error: AxiosError) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const instanceMock = new MockAdapter((client as any)["axiosInstance"])
+    instanceMock.onGet(serviceSearchUrl).reply(() => {
+      throw error
+    })
+  }
 
   beforeEach(() => {
     logger = new Logger({serviceName: "svcClientTest"})
@@ -30,69 +59,18 @@ describe("live serviceSearch client", () => {
   })
 
   // Helper function tests
-  test("getServiceSearchEndpoint returns correct URL for v2", async () => {
+  test("getServiceSearchEndpoint returns v3 URL", async () => {
     const {getServiceSearchEndpoint} = await import("../src/live-serviceSearch-client.js")
     const endpoint = getServiceSearchEndpoint()
     expect(endpoint).toBe(serviceSearchUrl)
   })
 
-  test("getServiceSearchEndpoint returns correct URL for v3", async () => {
-    process.env.TargetServiceSearchServer = "api.service.nhs.uk"
-    const {getServiceSearchEndpoint} = await import("../src/live-serviceSearch-client.js")
-    const endpoint = getServiceSearchEndpoint(logger)
-    expect(endpoint).toBe("https://api.service.nhs.uk/service-search-api/")
-    process.env.TargetServiceSearchServer = "live"
-  })
-
-  test("getServiceSearchVersion returns 3 and logs info for v3 endpoint", async () => {
-    process.env.TargetServiceSearchServer = "api.service.nhs.uk"
+  test("getServiceSearchVersion returns 3 and logs info", async () => {
     const infoSpy = jest.spyOn(Logger.prototype, "info")
     const {getServiceSearchVersion} = await import("../src/live-serviceSearch-client.js")
     const version = getServiceSearchVersion(logger)
     expect(version).toBe(3)
-    expect(infoSpy).toHaveBeenCalledWith("Using service search v3 endpoint")
-    process.env.TargetServiceSearchServer = "live"
-  })
-
-  test("getServiceSearchVersion returns 2 and logs warn for v2 endpoint", async () => {
-    const warnSpy = jest.spyOn(Logger.prototype, "warn")
-    const {getServiceSearchVersion} = await import("../src/live-serviceSearch-client.js")
-    const version = getServiceSearchVersion(logger)
-    expect(version).toBe(2)
-    expect(warnSpy).toHaveBeenCalledWith("Using service search v2 endpoint")
-  })
-
-  test("stripKeyFromHeaders removes only subscription-key header", () => {
-    const axiosErr: AxiosError = {
-      isAxiosError: true,
-      config: {
-        headers: new axios.AxiosHeaders({"subscription-key": "secret", keep: "yes"})
-      } satisfies AxiosRequestConfig,
-      response: {
-        headers: {"subscription-key": "secret", foo: "bar"},
-        data: null,
-        status: 200,
-        statusText: "",
-        config: {headers: new axios.AxiosHeaders()} satisfies AxiosRequestConfig,
-        request: {}
-      } satisfies AxiosResponse,
-      toJSON: function (): object {
-        throw new Error("Function not implemented.")
-      },
-      name: "",
-      message: ""
-    }
-
-    expect(axiosErr.config!.headers).toHaveProperty("subscription-key")
-    expect(axiosErr.response!.headers).toHaveProperty("subscription-key")
-
-    client.stripApiKeyFromHeaders(axiosErr)
-
-    // The config doesn't get touched by the stripping function
-    expect(axiosErr.config!.headers).toHaveProperty("subscription-key")
-    expect(axiosErr.config!.headers).toHaveProperty("keep", "yes")
-    expect(axiosErr.response!.headers).not.toHaveProperty("subscription-key")
-    expect(axiosErr.response!.headers).toHaveProperty("foo", "bar")
+    expect(infoSpy).toHaveBeenCalledWith("Service search v3 enabled")
   })
 
   test("stripApiKeyFromHeaders removes only apikey header", () => {
@@ -135,24 +113,20 @@ describe("live serviceSearch client", () => {
   })
 
   // Test non-Axios exception path
-  test("searchService logs and rethrows non-Axios error", async () => {
+  test("searchService rethrows non-Axios error without logging", async () => {
     jest.spyOn(client["axiosInstance"], "get").mockImplementation(() => {
       throw new Error("generic fail")
     })
     const errSpy = jest.spyOn(Logger.prototype, "error")
 
     await expect(client.searchService("code123", dummyCorrelationId)).rejects.toThrow("generic fail")
-    expect(errSpy).toHaveBeenCalledWith(
-      "general error", {error: expect.any(Error)}
-    )
+    expect(errSpy).not.toHaveBeenCalled()
   })
 
   // Test AxiosError with response
   test("searchService logs axios error with response details", async () => {
-    const axiosErr = {
-      isAxiosError: true,
+    const axiosErr = createAxiosErrorFixture({
       message: "failed",
-      config: {headers: {}} satisfies AxiosRequestConfig,
       request: {path: "/service-search"},
       response: {
         data: {x: 1},
@@ -162,56 +136,74 @@ describe("live serviceSearch client", () => {
         config: {headers: new axios.AxiosHeaders()},
         request: {}
       } satisfies AxiosResponse
-    } as unknown as AxiosError
+    })
 
-    jest.spyOn(client["axiosInstance"], "get").mockRejectedValue(axiosErr)
+    mockInstanceGetThrows(axiosErr)
     const errSpy = jest.spyOn(Logger.prototype, "error")
 
-    await expect(client.searchService("x", dummyCorrelationId)).rejects.toBe(axiosErr)
+    await expect(client.searchService("x", dummyCorrelationId)).rejects.toThrow("Axios error in serviceSearch request")
     expect(errSpy).toHaveBeenCalledWith(
-      "error in response from serviceSearch",
+      "Axios error in serviceSearch request",
       expect.objectContaining({
-        response: expect.objectContaining({status: 500}),
-        request: expect.any(Object)
+        axiosErrorDetails: expect.objectContaining({
+          response: expect.objectContaining({status: 500}),
+          request: expect.any(Object)
+        })
       })
     )
   })
 
   // Test AxiosError with request only
   test("searchService logs axios error with request details when no response", async () => {
-    const axiosErr = {
-      isAxiosError: true,
+    const axiosErr = createAxiosErrorFixture({
       message: "reqfail",
-      config: {headers: {}},
       request: {detail: "reqError"},
       response: undefined
-    } as unknown as AxiosError
+    })
 
-    jest.spyOn(client["axiosInstance"], "get").mockRejectedValue(axiosErr)
+    mockInstanceGetThrows(axiosErr)
     const errSpy = jest.spyOn(Logger.prototype, "error")
 
-    await expect(client.searchService("y", dummyCorrelationId)).rejects.toBe(axiosErr)
+    await expect(client.searchService("y", dummyCorrelationId)).rejects.toThrow("Axios error in serviceSearch request")
     expect(errSpy).toHaveBeenCalledWith(
-      "error in request to serviceSearch", {error: axiosErr}
+      "Axios error in serviceSearch request",
+      expect.objectContaining({
+        axiosErrorDetails: expect.objectContaining({
+          response: expect.objectContaining({
+            data: undefined,
+            status: undefined
+          }),
+          request: expect.objectContaining({
+            detail: "reqError"
+          })
+        })
+      })
     )
   })
 
   // Test AxiosError without response or request (general axios error)
   test("searchService logs general axios error when no response or request", async () => {
-    const axiosErr = {
-      isAxiosError: true,
+    const axiosErr = createAxiosErrorFixture({
       message: "generalfail",
-      config: {headers: {}},
       request: undefined,
       response: undefined
-    } as unknown as AxiosError
+    })
 
-    jest.spyOn(client["axiosInstance"], "get").mockRejectedValue(axiosErr)
+    mockInstanceGetThrows(axiosErr)
     const errSpy = jest.spyOn(Logger.prototype, "error")
 
-    await expect(client.searchService("y", dummyCorrelationId)).rejects.toBe(axiosErr)
+    await expect(client.searchService("y", dummyCorrelationId)).rejects.toThrow("Axios error in serviceSearch request")
     expect(errSpy).toHaveBeenCalledWith(
-      "general error calling serviceSearch", {error: axiosErr}
+      "Axios error in serviceSearch request",
+      expect.objectContaining({
+        axiosErrorDetails: expect.objectContaining({
+          response: expect.objectContaining({
+            data: undefined,
+            status: undefined
+          }),
+          request: undefined
+        })
+      })
     )
   })
 
@@ -238,9 +230,14 @@ describe("live serviceSearch client", () => {
     )
   })
   describe("integration scenarios", () => {
-    const validUrlData: ServiceSearchData = {
+    const validUrlData: ServiceSearch3Data = {
+      "@odata.context": "https://api.service.nhs.uk/service-search-api/$metadata#Services",
       value: [
-        {URL: "https://example.com", OrganisationSubType: "DistanceSelling"}
+        {
+          "@search.score": 1,
+          OrganisationSubType: DISTANCE_SELLING,
+          Contacts: [{ContactMethodType: "Website", ContactValue: EXAMPLE_URL}]
+        }
       ]
     }
 
@@ -248,16 +245,25 @@ describe("live serviceSearch client", () => {
       {
         scenarioDescription: "valid url",
         serviceSearchData: validUrlData,
-        expected: new URL(validUrlData.value[0].URL)
+        expected: new URL(EXAMPLE_URL)
       },
       {
         scenarioDescription: "missing protocol",
-        serviceSearchData: {value: [{URL: "example.com", OrganisationSubType: "DistanceSelling"}]},
-        expected: new URL("https://example.com")
+        serviceSearchData: {
+          "@odata.context": "https://api.service.nhs.uk/service-search-api/$metadata#Services",
+          value: [{
+            "@search.score": 1,
+            OrganisationSubType: DISTANCE_SELLING,
+            Contacts: [{ContactMethodType: "Website", ContactValue: "example.com"}]
+          }]
+        },
+        expected: new URL(EXAMPLE_URL)
       },
       {
         scenarioDescription: "no results",
-        serviceSearchData: {value: []},
+        serviceSearchData: {
+          "@odata.context": "https://api.service.nhs.uk/service-search-api/$metadata#Services", value: []
+        },
         expected: undefined
       },
       {
@@ -276,7 +282,7 @@ describe("live serviceSearch client", () => {
     test("gzip header handled correctly", async () => {
       mock.onGet(serviceSearchUrl).reply(200, validUrlData, {"Content-Encoding": "gzip"})
       const result = await client.searchService("z", dummyCorrelationId)
-      expect(result).toEqual(new URL(validUrlData.value[0].URL))
+      expect(result).toEqual(new URL(EXAMPLE_URL))
     })
 
     test("retries up to 3 times", async () => {
@@ -288,7 +294,7 @@ describe("live serviceSearch client", () => {
       client = new LiveServiceSearchClient(logger)
 
       const result = await client.searchService("z", dummyCorrelationId)
-      expect(result).toEqual(new URL(validUrlData.value[0].URL))
+      expect(result).toEqual(new URL(EXAMPLE_URL))
       expect(warnSpy).toHaveBeenCalledWith(
         expect.stringContaining("Call to serviceSearch failed - retrying. Retry count"),
         expect.objectContaining({retryCount: 1})
@@ -306,7 +312,7 @@ describe("live serviceSearch client", () => {
         .onGet(serviceSearchUrl).timeoutOnce()
         .onGet(serviceSearchUrl).reply(200, validUrlData)
       const result = await client.searchService("z", dummyCorrelationId)
-      expect(result).toEqual(new URL(validUrlData.value[0].URL))
+      expect(result).toEqual(new URL(EXAMPLE_URL))
     })
 
     test("logs duration in info on success and failure", async () => {
@@ -315,18 +321,24 @@ describe("live serviceSearch client", () => {
       await expect(client.searchService("z", dummyCorrelationId)).rejects.toThrow("Network Error")
       expect(infoSpy).toHaveBeenCalledWith(
         "serviceSearch request duration",
-        {serviceSearch_duration: expect.any(Number)}
+        expect.objectContaining({
+          serviceSearch_duration: expect.any(Number),
+          serviceSearch_keepAliveEnabled: true
+        })
       )
     })
 
     test("warns on null URL without error", async () => {
-      mock.onGet(serviceSearchUrl).reply(200, {value: [{URL: null, OrganisationSubType: "DistanceSelling"}]})
+      mock.onGet(serviceSearchUrl).reply(200, {
+        "@odata.context": "https://api.service.nhs.uk/service-search-api/$metadata#Services",
+        value: [{"@search.score": 1, OrganisationSubType: DISTANCE_SELLING, Contacts: []}]
+      })
       const warnSpy = jest.spyOn(Logger.prototype, "warn")
       const errorSpy = jest.spyOn(Logger.prototype, "error")
       const result = await client.searchService("none", dummyCorrelationId)
       expect(result).toBeUndefined()
       expect(warnSpy).toHaveBeenCalledWith(
-        "ods code none has no URL but is of type DistanceSelling", {odsCode: "none"}
+        "pharmacy with ods code none has no website", {odsCode: "none"}
       )
       expect(errorSpy).not.toHaveBeenCalled()
     })
@@ -371,7 +383,7 @@ describe("live serviceSearch client", () => {
             response: {
               data: "body-payload",
               status: 418,
-              headers: {"x-test": "yes"}
+              headers: expect.objectContaining({"x-test": "yes"})
             },
             request: {detail: "socket-timeout"}
           }
@@ -388,16 +400,16 @@ describe("live serviceSearch client", () => {
         value: [
           {
             "@search.score": 1.0,
-            OrganisationSubType: "DistanceSelling",
+            OrganisationSubType: DISTANCE_SELLING,
             Contacts: [
-              {ContactMethodType: "Website", ContactValue: "https://example.com"}
+              {ContactMethodType: "Website", ContactValue: EXAMPLE_URL}
             ]
           }
         ]
       }
 
       const result = client.handleV3Response("TEST123", data)
-      expect(result).toEqual(new URL("https://example.com"))
+      expect(result).toEqual(new URL(EXAMPLE_URL))
     })
 
     test("returns undefined when response has no Contacts", () => {
@@ -406,7 +418,7 @@ describe("live serviceSearch client", () => {
         value: [
           {
             "@search.score": 1.0,
-            OrganisationSubType: "DistanceSelling",
+            OrganisationSubType: DISTANCE_SELLING,
             Contacts: []
           }
         ]
@@ -428,7 +440,7 @@ describe("live serviceSearch client", () => {
         value: [
           {
             "@search.score": 1.0,
-            OrganisationSubType: "DistanceSelling",
+            OrganisationSubType: DISTANCE_SELLING,
             Contacts: [
               {ContactMethodType: "Phone", ContactValue: "01234567890"},
               {ContactMethodType: "Email", ContactValue: "test@example.com"}
@@ -453,7 +465,7 @@ describe("live serviceSearch client", () => {
         value: [
           {
             "@search.score": 1.0,
-            OrganisationSubType: "DistanceSelling",
+            OrganisationSubType: DISTANCE_SELLING,
             Contacts: [
               {ContactMethodType: "Website", ContactValue: "example.com"}
             ]
@@ -462,7 +474,7 @@ describe("live serviceSearch client", () => {
       }
 
       const result = client.handleV3Response("TEST123", data)
-      expect(result).toEqual(new URL("https://example.com"))
+      expect(result).toEqual(new URL(EXAMPLE_URL))
     })
 
     test("returns undefined when value array is empty", () => {
@@ -481,7 +493,7 @@ describe("live serviceSearch client", () => {
         value: [
           {
             "@search.score": 1.0,
-            OrganisationSubType: "DistanceSelling",
+            OrganisationSubType: DISTANCE_SELLING,
             Contacts: [
               {ContactMethodType: "Phone", ContactValue: "01234567890"},
               {ContactMethodType: "Website", ContactValue: "https://pharmacy.example.com"},
