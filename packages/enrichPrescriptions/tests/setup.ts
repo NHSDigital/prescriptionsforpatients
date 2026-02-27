@@ -1,12 +1,18 @@
-import {jest} from "@jest/globals"
+import {vi} from "vitest"
 
 // Mock @aws-sdk/client-ssm to prevent real AWS calls during tests
-jest.unstable_mockModule("@aws-sdk/client-ssm", () => ({
-  SSMClient: jest.fn(() => ({
-    send: jest.fn(() => Promise.resolve({Parameter: {Value: ""}}))
+vi.mock("@aws-sdk/client-ssm", () => ({
+  SSMClient: vi.fn(() => ({
+    send: vi.fn(() => Promise.resolve({Parameter: {Value: ""}}))
   })),
-  GetParameterCommand: jest.fn(),
-  GetParametersCommand: jest.fn(),
-  PutParameterCommand: jest.fn(),
-  paginateGetParametersByPath: jest.fn()
+  GetParameterCommand: vi.fn(),
+  GetParametersCommand: vi.fn(),
+  PutParameterCommand: vi.fn(),
+  paginateGetParametersByPath: vi.fn()
+}))
+
+vi.mock("@aws-lambda-powertools/parameters/ssm", () => ({
+  SSMProvider: vi.fn(() => ({
+    get: vi.fn(async () => "")
+  }))
 }))
