@@ -1,7 +1,12 @@
 import {LiveServiceSearchClient, ServiceSearch3Data} from "../src/live-serviceSearch-client"
 import {jest} from "@jest/globals"
 import MockAdapter from "axios-mock-adapter"
-import axios, {AxiosError, AxiosRequestConfig, AxiosResponse} from "axios"
+import axios, {
+  AxiosError,
+  AxiosRequestConfig,
+  AxiosResponse,
+  InternalAxiosRequestConfig
+} from "axios"
 import {Logger} from "@aws-lambda-powertools/logger"
 import {mockPharmacy2uResponse} from "@pfp-common/testing"
 
@@ -23,6 +28,28 @@ interface ServiceSearchTestData {
 describe("live serviceSearch client", () => {
   let logger: Logger
   let client: LiveServiceSearchClient
+
+  const createAxiosErrorFixture = (overrides: Partial<AxiosError>): AxiosError => {
+    const config: InternalAxiosRequestConfig = {headers: new axios.AxiosHeaders()}
+    const axiosError: AxiosError = {
+      isAxiosError: true,
+      name: "AxiosError",
+      message: "axios failure",
+      config,
+      toJSON: () => ({}),
+      ...overrides
+    }
+
+    return axiosError
+  }
+
+  const mockInstanceGetThrows = (error: AxiosError) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const instanceMock = new MockAdapter((client as any)["axiosInstance"])
+    instanceMock.onGet(serviceSearchUrl).reply(() => {
+      throw error
+    })
+  }
 
   beforeEach(() => {
     logger = new Logger({serviceName: "svcClientTest"})
@@ -86,24 +113,20 @@ describe("live serviceSearch client", () => {
   })
 
   // Test non-Axios exception path
-  test("searchService logs and rethrows non-Axios error", async () => {
+  test("searchService rethrows non-Axios error without logging", async () => {
     jest.spyOn(client["axiosInstance"], "get").mockImplementation(() => {
       throw new Error("generic fail")
     })
     const errSpy = jest.spyOn(Logger.prototype, "error")
 
     await expect(client.searchService("code123", dummyCorrelationId)).rejects.toThrow("generic fail")
-    expect(errSpy).toHaveBeenCalledWith(
-      "general error", {error: expect.any(Error)}
-    )
+    expect(errSpy).not.toHaveBeenCalled()
   })
 
   // Test AxiosError with response
   test("searchService logs axios error with response details", async () => {
-    const axiosErr = {
-      isAxiosError: true,
+    const axiosErr = createAxiosErrorFixture({
       message: "failed",
-      config: {headers: {}} satisfies AxiosRequestConfig,
       request: {path: "/service-search"},
       response: {
         data: {x: 1},
@@ -113,56 +136,74 @@ describe("live serviceSearch client", () => {
         config: {headers: new axios.AxiosHeaders()},
         request: {}
       } satisfies AxiosResponse
-    } as unknown as AxiosError
+    })
 
-    jest.spyOn(client["axiosInstance"], "get").mockRejectedValue(axiosErr)
+    mockInstanceGetThrows(axiosErr)
     const errSpy = jest.spyOn(Logger.prototype, "error")
 
-    await expect(client.searchService("x", dummyCorrelationId)).rejects.toBe(axiosErr)
+    await expect(client.searchService("x", dummyCorrelationId)).rejects.toThrow("Axios error in serviceSearch request")
     expect(errSpy).toHaveBeenCalledWith(
-      "error in response from serviceSearch",
+      "Axios error in serviceSearch request",
       expect.objectContaining({
-        response: expect.objectContaining({status: 500}),
-        request: expect.any(Object)
+        axiosErrorDetails: expect.objectContaining({
+          response: expect.objectContaining({status: 500}),
+          request: expect.any(Object)
+        })
       })
     )
   })
 
   // Test AxiosError with request only
   test("searchService logs axios error with request details when no response", async () => {
-    const axiosErr = {
-      isAxiosError: true,
+    const axiosErr = createAxiosErrorFixture({
       message: "reqfail",
-      config: {headers: {}},
       request: {detail: "reqError"},
       response: undefined
-    } as unknown as AxiosError
+    })
 
-    jest.spyOn(client["axiosInstance"], "get").mockRejectedValue(axiosErr)
+    mockInstanceGetThrows(axiosErr)
     const errSpy = jest.spyOn(Logger.prototype, "error")
 
-    await expect(client.searchService("y", dummyCorrelationId)).rejects.toBe(axiosErr)
+    await expect(client.searchService("y", dummyCorrelationId)).rejects.toThrow("Axios error in serviceSearch request")
     expect(errSpy).toHaveBeenCalledWith(
-      "error in request to serviceSearch", {error: axiosErr}
+      "Axios error in serviceSearch request",
+      expect.objectContaining({
+        axiosErrorDetails: expect.objectContaining({
+          response: expect.objectContaining({
+            data: undefined,
+            status: undefined
+          }),
+          request: expect.objectContaining({
+            detail: "reqError"
+          })
+        })
+      })
     )
   })
 
   // Test AxiosError without response or request (general axios error)
   test("searchService logs general axios error when no response or request", async () => {
-    const axiosErr = {
-      isAxiosError: true,
+    const axiosErr = createAxiosErrorFixture({
       message: "generalfail",
-      config: {headers: {}},
       request: undefined,
       response: undefined
-    } as unknown as AxiosError
+    })
 
-    jest.spyOn(client["axiosInstance"], "get").mockRejectedValue(axiosErr)
+    mockInstanceGetThrows(axiosErr)
     const errSpy = jest.spyOn(Logger.prototype, "error")
 
-    await expect(client.searchService("y", dummyCorrelationId)).rejects.toBe(axiosErr)
+    await expect(client.searchService("y", dummyCorrelationId)).rejects.toThrow("Axios error in serviceSearch request")
     expect(errSpy).toHaveBeenCalledWith(
-      "general error calling serviceSearch", {error: axiosErr}
+      "Axios error in serviceSearch request",
+      expect.objectContaining({
+        axiosErrorDetails: expect.objectContaining({
+          response: expect.objectContaining({
+            data: undefined,
+            status: undefined
+          }),
+          request: undefined
+        })
+      })
     )
   })
 
@@ -280,7 +321,10 @@ describe("live serviceSearch client", () => {
       await expect(client.searchService("z", dummyCorrelationId)).rejects.toThrow("Network Error")
       expect(infoSpy).toHaveBeenCalledWith(
         "serviceSearch request duration",
-        {serviceSearch_duration: expect.any(Number)}
+        expect.objectContaining({
+          serviceSearch_duration: expect.any(Number),
+          serviceSearch_keepAliveEnabled: true
+        })
       )
     })
 
@@ -339,7 +383,7 @@ describe("live serviceSearch client", () => {
             response: {
               data: "body-payload",
               status: 418,
-              headers: {"x-test": "yes"}
+              headers: expect.objectContaining({"x-test": "yes"})
             },
             request: {detail: "socket-timeout"}
           }
