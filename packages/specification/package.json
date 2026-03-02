@@ -16,7 +16,7 @@
     "clean": "rm -rf lib coverage prescriptions-for-patients.preprocessed.yaml"
   },
   "devDependencies": {
-    "@redocly/cli": "^2.19.1",
+    "@redocly/cli": "^2.20.0",
     "tsx": "4.21.0"
   }
 }
