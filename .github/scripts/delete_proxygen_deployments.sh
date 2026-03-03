@@ -8,7 +8,7 @@ REPO_NAME=prescriptionsforpatients
 # this should be customised to delete relevant proxygen deployments if they are used
 main() {
   echo "Checking prescriptions for patients deployments"
-  PULL_REQUEST_PROXYGEN_REGEX=prescriptions-for-patients-v2-pr-
+  PULL_REQUEST_PROXYGEN_REGEX="prescriptions-for-patients-v2-pr-"
   delete_apigee_deployments "internal-dev" "prescriptions-for-patients-v2" "PrescriptionsForPatientsProxygenPrivateKey" "2026-01-22-PROD-prescriptions-for-patients-v2"
   delete_apigee_deployments "internal-dev-sandbox" "prescriptions-for-patients-v2" "PrescriptionsForPatientsProxygenPrivateKey" "2026-01-22-PROD-prescriptions-for-patients-v2"
 }
