@@ -29,10 +29,8 @@ delete_apigee_deployments() {
             --arg kid "${PROXYGEN_KID}" \
             --arg proxygenSecretName "${proxygen_private_key_arn}" \
             '{apiName: $apiName, environment: $environment, kid, $kid, proxygenSecretName: $proxygenSecretName}' > payload.json
-  cat payload.json
 
   aws lambda invoke --function-name "lambda-resources-ProxygenPTLInstanceGet" --cli-binary-format raw-in-base64-out --payload file://payload.json out.json > response.json
-  cat response.json
 
   if eval "cat response.json | jq -e '.FunctionError' >/dev/null"; then
       echo 'Error calling lambda'
@@ -40,7 +38,6 @@ delete_apigee_deployments() {
       exit 1
   fi
 
-  cat out.json | jq -r '.[].name'
   jq -r '.[].name' "out.json" | while read -r i; do
     echo "Checking if apigee deployment $i has open pull request"
     PULL_REQUEST=${i//${PULL_REQUEST_PROXYGEN_REGEX}/}
