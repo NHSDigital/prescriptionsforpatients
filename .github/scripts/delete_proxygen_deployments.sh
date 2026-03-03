@@ -8,7 +8,6 @@ REPO_NAME=prescriptionsforpatients
 # this should be customised to delete relevant proxygen deployments if they are used
 main() {
   echo "Checking prescriptions for patients deployments"
-  PULL_REQUEST_PROXYGEN_REGEX=pfp-pr-
   delete_apigee_deployments "internal-dev" "prescriptions-for-patients-v2" "PrescriptionsForPatientsProxygenPrivateKey" "2026-01-22-PROD-prescriptions-for-patients-v2"
   delete_apigee_deployments "internal-dev-sandbox" "prescriptions-for-patients-v2" "PrescriptionsForPatientsProxygenPrivateKey" "2026-01-22-PROD-prescriptions-for-patients-v2"
 }
@@ -42,7 +41,11 @@ delete_apigee_deployments() {
 
   jq -r '.[].name' "out.json" | while read -r i; do
     echo "Checking if apigee deployment $i has open pull request"
-    PULL_REQUEST=${i//${PULL_REQUEST_PROXYGEN_REGEX}/}
+    PULL_REQUEST=$(echo "$i" | grep -oE '[0-9]+$' || true)
+    if [[ -z "$PULL_REQUEST" ]]; then
+      echo "Skipping deployment $i as no trailing PR id was found"
+      continue
+    fi
     echo "Checking pull request id ${PULL_REQUEST}"
     URL="https://api.github.com/repos/NHSDigital/${REPO_NAME}/pulls/${PULL_REQUEST}"
     RESPONSE=$(curl "${URL}" 2>/dev/null)
