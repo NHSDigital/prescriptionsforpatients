@@ -39,8 +39,10 @@ delete_apigee_deployments() {
       exit 1
   fi
 
+  cat out.json
   jq -r '.[].name' "out.json" | while read -r i; do
     echo "Checking if apigee deployment $i has open pull request"
+    # extract the PR number from the end of the instance name, if it exists
     PULL_REQUEST=$(echo "$i" | grep -oE '[0-9]+$' || true)
     if [[ -z "$PULL_REQUEST" ]]; then
       echo "Skipping deployment $i as no trailing PR id was found"
@@ -48,7 +50,7 @@ delete_apigee_deployments() {
     fi
     echo "Checking pull request id ${PULL_REQUEST}"
     URL="https://api.github.com/repos/NHSDigital/${REPO_NAME}/pulls/${PULL_REQUEST}"
-    RESPONSE=$(curl "${URL}" 2>/dev/null)
+    RESPONSE=$(curl --url "${URL}" --header "Authorization: Bearer ${GITHUB_TOKEN}" 2>/dev/null)
     STATE=$(echo "${RESPONSE}" | jq -r .state)
     if [ "$STATE" == "closed" ]; then
       echo "** going to delete apigee deployment $i as state is ${STATE} **"
