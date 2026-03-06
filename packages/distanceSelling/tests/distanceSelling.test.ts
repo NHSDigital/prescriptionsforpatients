@@ -14,7 +14,6 @@ import {Logger} from "@aws-lambda-powertools/logger"
 const mock = new MockAdapter(axios)
 const mockBundleString = JSON.stringify(mockInteractionResponseBody)
 const dummyCorrelationId = "corr-id-123"
-const SERVICE_SEARCH_API_URL = "https://live/service-search-api/"
 
 describe("ServiceSearch tests", function () {
   const logger = new Logger({serviceName: "distanceSelling"})
@@ -205,7 +204,7 @@ describe("ServiceSearch tests", function () {
   })
 
   it("processOdsCodes uses returned value in telecom", async () => {
-    mock.onGet(SERVICE_SEARCH_API_URL).reply(200, mockPharmacy2uResponse)
+    mock.onGet("https://live/service-search").reply(200, mockPharmacy2uResponse)
     const distanceSelling = new DistanceSelling({}, logger)
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
 
@@ -251,7 +250,7 @@ describe("ServiceSearch tests", function () {
   })
 
   it("searchOdsCode adds item to cache when url returned by service search", async () => {
-    mock.onGet(SERVICE_SEARCH_API_URL).reply(200, mockPharmacy2uResponse)
+    mock.onGet("https://live/service-search").reply(200, mockPharmacy2uResponse)
     const servicesCache: ServicesCache = {}
     const distanceSelling = new DistanceSelling(servicesCache, logger)
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
@@ -268,7 +267,7 @@ describe("ServiceSearch tests", function () {
   })
 
   it("searchOdsCode adds empty item to cache when no url returned by service search", async () => {
-    mock.onGet(SERVICE_SEARCH_API_URL).reply(200, {"@odata.context": "", value: []})
+    mock.onGet("https://live/service-search").reply(200, {value: []})
     const servicesCache: ServicesCache = {}
     const distanceSelling = new DistanceSelling(servicesCache, logger)
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
@@ -285,7 +284,7 @@ describe("ServiceSearch tests", function () {
   })
 
   it("searchOdsCode does not add to cache when service search error", async () => {
-    mock.onGet(SERVICE_SEARCH_API_URL).networkError()
+    mock.onGet("https://live/service-search").networkError()
     const servicesCache: ServicesCache = {}
     const distanceSelling = new DistanceSelling(servicesCache, logger)
     const searchsetBundle = JSON.parse(mockBundleString) as Bundle
