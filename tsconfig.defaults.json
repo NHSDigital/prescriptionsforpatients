@@ -15,6 +15,7 @@
     "resolveJsonModule": true,
     "allowJs": true,
     "baseUrl": ".",
+    "typeRoots": ["./types", "./node_modules/@types"],
     "paths": {
       "@pfp-common/utilities": ["./packages/common/utilities/lib/index.d.ts"],
       "@pfp-common/utilities/*": ["./packages/common/utilities/lib/*"],
