@@ -19,12 +19,12 @@ python = "^3.12"
 requests = "^2.32.3"
 argparse = "^1.4.0"
 pre-commit = "^4.1.0"
-cfn-lint = "^1.45.0"
+cfn-lint = "^1.46.0"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^4.1.0"
-cfn-lint = "^1.45.0"
-black = "^26.1.0"
+cfn-lint = "^1.46.0"
+black = "^26.3.0"
 flake8 = "^7.1.2"
 
 [tool.poetry.scripts]
