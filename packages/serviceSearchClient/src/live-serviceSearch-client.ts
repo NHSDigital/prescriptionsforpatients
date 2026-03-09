@@ -188,6 +188,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
     if (apiVsn === 3 && !this.outboundHeaders.apikey) {
       this.logger.info("API key not in environment, attempting to load from Secrets Manager")
       this.outboundHeaders.apikey = await this.loadApiKeyFromSecretsManager()
+      this.outboundHeaders["Subscription-Key"] = this.outboundHeaders.apikey
     }
     this.outboundHeaders["x-correlation-id"] = correlationId
     const xRequestId = crypto.randomUUID()
@@ -200,7 +201,9 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       odsCode: odsCode,
       requestHeaders: {
         "x-request-id": xRequestId,
-        "x-correlation-id": correlationId
+        "x-correlation-id": correlationId,
+        "apikey-present": this.outboundHeaders.apikey ? true : false,
+        "subscription-key-present": this.outboundHeaders["Subscription-Key"] ? true : false
       }
     })
     const response = await this.axiosInstance.get(address, {
