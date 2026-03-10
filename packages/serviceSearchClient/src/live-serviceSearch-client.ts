@@ -133,10 +133,16 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
 
   private async loadApiKeyFromSecretsManager(): Promise<string | undefined> {
     try {
-      const secretArn = process.env.ServiceSearch3ApiKeyARN
+      let secretArn = process.env.ServiceSearch3ApiKeyARN
       if (!secretArn) {
         this.logger.error("ServiceSearch3ApiKeyARN environment variable is not set")
         return undefined
+      }
+      if (secretArn.includes("-pr-")) {
+        this.logger.warn("ServiceSearch3ApiKeyARN appears to be a pull request secret, fallback to base name")
+        // extract name 'PfP-ServiceSearch-API-Key'
+        // from 'arn:aws:secretsmanager:eu-west-2:591291862413:secret:pfp-pr-2463-PfP-ServiceSearch-API-Key-AvoCW3'
+        secretArn = secretArn.substring(secretArn.indexOf("-pr-")+4, secretArn.lastIndexOf("-"))
       }
       this.logger.info("Loading ServiceSearch API key from Secrets Manager", {secretArn})
 
@@ -153,7 +159,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
   }
 
   async searchService(odsCode: string, correlationId: string): Promise<URL | undefined> {
-    // Load API key if not set in environment (secrets layer is failing to load v3 key)
+    // Load API key if not set in environment (secrets layer is deprecated)
     const apiVsn = getServiceSearchVersion(this.logger)
     if (apiVsn === 3 && !this.outboundHeaders.apikey) {
       this.logger.info("API key not in environment, attempting to load from Secrets Manager")
