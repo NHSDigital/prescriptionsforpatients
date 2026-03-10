@@ -140,9 +140,9 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       }
       if (secretArn.includes("-pr-")) {
         this.logger.warn("ServiceSearch3ApiKeyARN appears to be a pull request secret, fallback to base name")
-        // extract name 'PfP-ServiceSearch-API-Key'
+        // extract name 'pfp-PfP-ServiceSearch-API-Key'
         // from 'arn:aws:secretsmanager:eu-west-2:591291862413:secret:pfp-pr-2463-PfP-ServiceSearch-API-Key-AvoCW3'
-        secretArn = secretArn.substring(secretArn.indexOf("-pr-")+4, secretArn.lastIndexOf("-"))
+        secretArn = secretArn.substring(secretArn.lastIndexOf(":")+1, secretArn.lastIndexOf("-")).replace(/-pr-\d+/, "")
       }
       this.logger.info("Loading ServiceSearch API key from Secrets Manager", {secretArn})
 
