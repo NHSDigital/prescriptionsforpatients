@@ -21,6 +21,8 @@ if [[ "$STACK_NAME" =~ -pr-[0-9]+$ ]]; then
   CFN_DRIFT_DETECTION_GROUP="pfp-pull-request"
 fi
 
+IS_PULL_REQUEST=${IS_PULL_REQUEST:-false}
+
 sam deploy \
   --template-file "$TEMPLATE_FILE" \
   --stack-name "$STACK_NAME" \
@@ -45,6 +47,7 @@ sam deploy \
       CommitId="$COMMIT_ID" \
       LogLevel="$LOG_LEVEL" \
       LogRetentionInDays="$LOG_RETENTION_DAYS" \
+      IsPullRequest="$IS_PULL_REQUEST" \
       Env="$TARGET_ENVIRONMENT" \
       ToggleGetStatusUpdates="$TOGGLE_GET_STATUS_UPDATES" \
       EnableAlerts="$ENABLE_ALERTS" \

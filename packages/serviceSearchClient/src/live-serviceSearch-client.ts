@@ -55,7 +55,6 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
   private readonly httpsAgent: Agent
   private readonly outboundHeaders: {
     "apikey"?: string,
-    "Subscription-Key"?: string,
     "x-request-id"?: string,
     "x-correlation-id"?: string
   }
@@ -128,8 +127,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
     })
 
     this.outboundHeaders = {
-      "apikey": process.env.ServiceSearch3ApiKey,
-      "Subscription-Key": process.env.ServiceSearch3ApiKey
+      "apikey": process.env.ServiceSearch3ApiKey
     }
   }
 
@@ -155,12 +153,11 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
   }
 
   async searchService(odsCode: string, correlationId: string): Promise<URL | undefined> {
-    // Load API key if not set in environment (secrets layer is failing to load v3 key)
+    // Load API key if not set in environment (secrets layer is deprecated)
     const apiVsn = getServiceSearchVersion(this.logger)
     if (apiVsn === 3 && !this.outboundHeaders.apikey) {
       this.logger.info("API key not in environment, attempting to load from Secrets Manager")
       this.outboundHeaders.apikey = await this.loadApiKeyFromSecretsManager()
-      this.outboundHeaders["Subscription-Key"] = this.outboundHeaders.apikey
     }
     this.outboundHeaders["x-correlation-id"] = correlationId
     const xRequestId = crypto.randomUUID()
@@ -173,9 +170,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
       odsCode: odsCode,
       requestHeaders: {
         "x-request-id": xRequestId,
-        "x-correlation-id": correlationId,
-        "apikey-present": this.outboundHeaders.apikey ? true : false,
-        "subscription-key-present": this.outboundHeaders["Subscription-Key"] ? true : false
+        "x-correlation-id": correlationId
       }
     })
     const response = await this.axiosInstance.get(address, {
@@ -210,7 +205,7 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
   }
 
   stripApiKeyFromHeaders(error: AxiosError) {
-    const headerKeys = ["apikey", "subscription-key"]
+    const headerKeys = ["apikey"]
     headerKeys.forEach((key) => {
       if (error.response?.headers?.[key]) {
         delete error.response.headers[key]
