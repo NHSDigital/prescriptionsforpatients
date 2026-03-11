@@ -7,7 +7,7 @@
   "author": "NHS Digital",
   "license": "MIT",
   "scripts": {
-    "unit": "POWERTOOLS_DEV=true NODE_OPTIONS=--experimental-vm-modules jest --no-cache --coverage",
+    "unit": "POWERTOOLS_DEV=true vitest run --coverage --config vitest.config.ts",
     "lint": "eslint  --max-warnings 0 --fix --config ../../eslint.config.mjs .",
     "compile": "tsc",
     "test": "npm run compile && npm run unit"
