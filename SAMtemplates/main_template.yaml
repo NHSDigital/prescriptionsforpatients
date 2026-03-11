@@ -130,6 +130,17 @@ Parameters:
       - true
       - false
 
+  IsPullRequest:
+    Type: String
+    Default: false
+    AllowedValues:
+      - true
+      - false
+
+Conditions:
+  IsPullRequestDeployment: !Equals [!Ref IsPullRequest, "true"]
+  IsNonPullRequestDeployment: !Not [!Condition IsPullRequestDeployment]
+
 Resources:
   Apis:
     Type: AWS::Serverless::Application
@@ -176,13 +187,23 @@ Resources:
         CommitId: !Ref CommitId
         ToggleGetStatusUpdates: !Ref ToggleGetStatusUpdates
         SSMParameterPolicy: !GetAtt Parameters.Outputs.GetPfPParameterPolicy
-        ServiceSearch3ApiKeyARN: !GetAtt Secrets.Outputs.PfPServiceSearchApiKeySecret
-        SecretsPolicy: !GetAtt Secrets.Outputs.GetPfPSecretPolicy
-        KMSPolicy: !GetAtt Secrets.Outputs.UsePfPSecretsKMSKeyPolicyArn
+        ServiceSearch3ApiKeyARN: !If
+          - IsPullRequestDeployment
+          - !ImportValue pfp-PfP-ServiceSearch-API-Key
+          - !GetAtt Secrets.Outputs.PfPServiceSearchApiKeySecret
+        SecretsPolicy: !If
+          - IsPullRequestDeployment
+          - !ImportValue pfp-GetPfPSecretPolicy
+          - !GetAtt Secrets.Outputs.GetPfPSecretPolicy
+        KMSPolicy: !If
+          - IsPullRequestDeployment
+          - !ImportValue pfp-UsePfPSecretsKMSKeyPolicyArn
+          - !GetAtt Secrets.Outputs.UsePfPSecretsKMSKeyPolicyArn
         AllowNHSNumberOverride: !Ref AllowNHSNumberOverride
 
   Secrets:
     Type: AWS::Serverless::Application
+    Condition: IsNonPullRequestDeployment
     Properties:
       Location: secrets/main.yaml
       Parameters:
