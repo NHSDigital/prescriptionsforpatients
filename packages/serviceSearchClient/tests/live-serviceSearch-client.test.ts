@@ -52,10 +52,40 @@ describe("live serviceSearch client", () => {
   }
 
   beforeEach(() => {
+    process.env.TargetServiceSearchServer = "live"
+    process.env.ServiceSearch3ApiKey = "test-key"
+    delete process.env.ServiceSearch3ApiKeyARN
+
     logger = new Logger({serviceName: "svcClientTest"})
     client = new LiveServiceSearchClient(logger)
     mock.reset()
     jest.restoreAllMocks()
+  })
+
+  test("logs error when ServiceSearch3ApiKeyARN is missing", async () => {
+    delete process.env.ServiceSearch3ApiKey
+    delete process.env.ServiceSearch3ApiKeyARN
+
+    client = new LiveServiceSearchClient(logger)
+    const errorSpy = jest.spyOn(Logger.prototype, "error")
+    jest.spyOn(client["axiosInstance"], "get").mockResolvedValue({
+      data: {
+        "@odata.context": "https://api.service.nhs.uk/service-search-api/$metadata#Services",
+        value: []
+      },
+      status: 200,
+      statusText: "OK",
+      headers: {},
+      config: {
+        headers: new axios.AxiosHeaders()
+      }
+    } satisfies AxiosResponse)
+
+    await client.searchService("ABC123", dummyCorrelationId)
+
+    expect(errorSpy).toHaveBeenCalledWith(
+      "ServiceSearch3ApiKeyARN environment variable is not set"
+    )
   })
 
   // Helper function tests
