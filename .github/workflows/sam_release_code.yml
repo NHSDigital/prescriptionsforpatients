@@ -125,6 +125,8 @@ jobs:
     permissions:
       id-token: write
       contents: write
+    env:
+      AWS_MAX_RETRY: 20
 
     steps:
       - name: copy .tool-versions
