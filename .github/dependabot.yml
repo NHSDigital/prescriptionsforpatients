@@ -30,7 +30,7 @@ updates:
     schedule:
       interval: "weekly"
       day: "friday"
-      time: "19:00" #UTC
+      time: "20:00" #UTC
     open-pull-requests-limit: 20  
     commit-message:
       prefix: "Upgrade: [dependabot] - "
@@ -43,7 +43,7 @@ updates:
     schedule:
       interval: "weekly"
       day: "friday"
-      time: "20:00" #UTC
+      time: "22:00" #UTC
     versioning-strategy: increase
     open-pull-requests-limit: 20
     commit-message:
