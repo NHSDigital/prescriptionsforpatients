@@ -1,4 +1,9 @@
-import {expect, describe, it} from "@jest/globals"
+import {
+  expect,
+  describe,
+  it,
+  beforeEach
+} from "vitest"
 import {
   Address,
   Bundle,

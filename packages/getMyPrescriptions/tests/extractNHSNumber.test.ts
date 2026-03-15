@@ -4,7 +4,12 @@ import {
   NHSNumberValidationError,
   validateNHSNumber
 } from "../src/extractNHSNumber"
-import "jest"
+import {
+  describe,
+  it,
+  expect,
+  test
+} from "vitest"
 
 type failureTestData = {nhsdLoginUser: string | undefined; errorMessage: string; scenarioDescription: string}
 

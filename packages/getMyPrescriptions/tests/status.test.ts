@@ -1,4 +1,9 @@
-import "jest"
+import {
+  describe,
+  afterEach,
+  test,
+  expect
+} from "vitest"
 import axios from "axios"
 import MockAdapter from "axios-mock-adapter"
 import {Logger} from "@aws-lambda-powertools/logger"

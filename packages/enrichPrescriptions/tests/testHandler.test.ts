@@ -1,11 +1,12 @@
 /* eslint-disable max-len */
 
 import {
-  jest,
   expect,
   describe,
-  it
-} from "@jest/globals"
+  it,
+  vi,
+  beforeEach
+} from "vitest"
 import {
   SYSTEM_DATETIME,
   defaultExtension,
@@ -19,7 +20,7 @@ import {lambdaHandler} from "../src/enrichPrescriptions"
 
 describe("Unit tests for handler", function () {
   beforeEach(() => {
-    jest.useFakeTimers().setSystemTime(SYSTEM_DATETIME)
+    vi.useFakeTimers().setSystemTime(SYSTEM_DATETIME)
     process.env.EXPECT_STATUS_UPDATES = "true"
   })
 

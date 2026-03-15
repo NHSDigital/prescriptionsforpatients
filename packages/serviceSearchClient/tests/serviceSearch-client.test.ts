@@ -1,6 +1,13 @@
 import {LiveServiceSearchClient} from "../src/live-serviceSearch-client"
 import {Logger} from "@aws-lambda-powertools/logger"
 import {createServiceSearchClient, SandboxServiceSearchClient} from "../src/serviceSearch-client"
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  test
+} from "vitest"
 
 describe("ServiceSearchClient factory & sandbox client", () => {
   let logger: Logger

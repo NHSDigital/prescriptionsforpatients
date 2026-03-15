@@ -1,11 +1,13 @@
 /* eslint-disable max-len */
 
 import {
-  jest,
   expect,
   describe,
-  it
-} from "@jest/globals"
+  it,
+  vi,
+  beforeEach,
+  afterEach
+} from "vitest"
 import {
   SYSTEM_DATETIME,
   defaultExtension,
@@ -49,7 +51,7 @@ describe("Unit tests for statusUpdate", function () {
   let mockedConfig: MockedPfPConfig
 
   beforeEach(() => {
-    jest.useFakeTimers().setSystemTime(SYSTEM_DATETIME)
+    vi.useFakeTimers().setSystemTime(SYSTEM_DATETIME)
     logger = new Logger({serviceName: "testStatusUpdate", logLevel: "INFO"})
     testEnv = setupTestEnvironment()
     mockedConfig = createMockedPfPConfig([TC007_NHS_NUMBER])
@@ -431,7 +433,7 @@ describe("Unit tests for statusUpdate", function () {
         expectedStatusDate,
         expectDelayLog
       }: TestCase) => {
-        const mockLogger = jest.spyOn(Logger.prototype, "info")
+        const mockLogger = vi.spyOn(Logger.prototype, "info")
 
         const requestBundle = simpleRequestBundle()
         const requestCollectionBundle = requestBundle.entry![0].resource as Bundle
@@ -480,7 +482,7 @@ describe("Unit tests for statusUpdate", function () {
 
   describe("Temporary status updates", () => {
     beforeEach(() => {
-      jest.useFakeTimers().setSystemTime(SYSTEM_DATETIME)
+      vi.useFakeTimers().setSystemTime(SYSTEM_DATETIME)
     })
 
     it("Item with no status, that expects an update, is given the temporary update and has its status set as active", async () => {

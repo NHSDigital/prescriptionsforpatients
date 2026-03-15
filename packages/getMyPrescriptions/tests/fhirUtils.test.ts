@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 
-import "jest"
+import {describe, it, expect} from "vitest"
 import {Bundle, Organization} from "fhir/r4"
 
 import {mockInteractionResponseBody} from "@pfp-common/testing"

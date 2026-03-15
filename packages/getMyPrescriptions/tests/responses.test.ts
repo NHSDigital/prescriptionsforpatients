@@ -1,4 +1,11 @@
-import {jest} from "@jest/globals"
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeAll,
+  afterAll
+} from "vitest"
 
 // I just could NOT get jest to cooperate with the mocked UUID function.
 // This ended up working (thanks chatgpt) but is really ugly (THANKS chatgpt)
@@ -13,19 +20,19 @@ describe("createExcludedPrescriptionEntry", () => {
     createExcludedPrescriptionEntry = responsesModule.createExcludedPrescriptionEntry
 
     // Freeze system time
-    jest.useFakeTimers()
-    jest.setSystemTime(FIXED_DATE)
+    vi.useFakeTimers()
+    vi.setSystemTime(FIXED_DATE)
 
     // Make Math.random deterministic (always 0)
-    jest.spyOn(Math, "random").mockReturnValue(0)
-    jest.spyOn(crypto, "randomUUID")
+    vi.spyOn(Math, "random").mockReturnValue(0)
+    vi.spyOn(crypto, "randomUUID")
       .mockReturnValueOnce("outcome-uuid-in-uuid-format")
       .mockReturnValueOnce("fullurl-uuid-in-uuid-format")
   })
 
   afterAll(() => {
-    jest.useRealTimers()
-    jest.restoreAllMocks()
+    vi.useRealTimers()
+    vi.restoreAllMocks()
   })
 
   it("should produce a BundleEntry with the correct structure and values", () => {

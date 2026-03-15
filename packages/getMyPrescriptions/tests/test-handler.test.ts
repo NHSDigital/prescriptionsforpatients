@@ -7,8 +7,10 @@ import {
   expect,
   describe,
   it,
-  jest
-} from "@jest/globals"
+  vi,
+  beforeEach,
+  afterEach
+} from "vitest"
 import {createSpineClient} from "@nhsdigital/eps-spine-client"
 import {MiddyfiedHandler} from "@middy/core"
 
@@ -150,12 +152,12 @@ describe("Unit test for app handler", function () {
       params: handlerParams,
       middleware: STATE_MACHINE_MIDDLEWARE
     })
-    jest.useFakeTimers()
-    jest.setSystemTime(new Date("2015-04-09T12:34:56.001Z"))
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date("2015-04-09T12:34:56.001Z"))
   })
   afterEach(() => {
     process.env = {...ENV}
-    jest.clearAllTimers()
+    vi.clearAllTimers()
     mock.reset()
   })
 
@@ -287,7 +289,7 @@ describe("Unit test for app handler", function () {
   })
 
   it("times-out if spine call takes too long", async () => {
-    const mockErrorLogger = jest.spyOn(Logger.prototype, "error")
+    const mockErrorLogger = vi.spyOn(Logger.prototype, "error")
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     mock.onGet("https://live/mm/patientfacingprescriptions").reply(function (config) {
       return new Promise((resolve) => setTimeout(() => resolve([200, {}]), 15_000))
@@ -295,7 +297,7 @@ describe("Unit test for app handler", function () {
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
     const eventHandler: Promise<LambdaResult> = handler(event, dummyContext)
 
-    await jest.advanceTimersByTimeAsync(11_000)
+    await vi.advanceTimersByTimeAsync(11_000)
 
     const result = await eventHandler
     expect(result.statusCode).toBe(408)
@@ -307,7 +309,7 @@ describe("Unit test for app handler", function () {
   })
 
   it("times-out if lambda handler takes too long", async () => {
-    const mockErrorLogger = jest.spyOn(Logger.prototype, "error")
+    const mockErrorLogger = vi.spyOn(Logger.prototype, "error")
 
     // delaying spine response to trigger lambda timeout
     const LOG_LEVEL = process.env.LOG_LEVEL as LogLevel
@@ -334,7 +336,7 @@ describe("Unit test for app handler", function () {
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
     const eventHandler: Promise<LambdaResult> = handler(event, dummyContext)
 
-    await jest.advanceTimersByTimeAsync(2_000)
+    await vi.advanceTimersByTimeAsync(2_000)
 
     const result = await eventHandler
     expect(result.statusCode).toBe(408)
@@ -366,7 +368,7 @@ describe("Unit tests for app handler including service search", function () {
     mockedConfig = createMockedPfPConfig([TC008_NHS_NUMBER])
     mock.reset()
     mock.resetHistory()
-    jest.useFakeTimers()
+    vi.useFakeTimers()
     process.env.TargetSpineServer = "spine"
     process.env.TargetServiceSearchServer = "service-search"
     process.env.SpinePublicCertificate = "public-certificate"
@@ -385,7 +387,7 @@ describe("Unit tests for app handler including service search", function () {
 
   afterEach(() => {
     testEnv.restoreEnvironment()
-    jest.clearAllTimers()
+    vi.clearAllTimers()
   })
 
   it("local cache is used to reduce calls to service search", async () => {
@@ -470,7 +472,7 @@ describe("Unit tests for app handler including service search", function () {
     const event: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
     const eventHandler: Promise<LambdaResult> = handler(event, dummyContext)
 
-    await jest.advanceTimersByTimeAsync(8_000)
+    await vi.advanceTimersByTimeAsync(8_000)
 
     const result = await eventHandler
     expect(result.statusCode).toBe(200)
@@ -505,7 +507,7 @@ describe("Unit tests for logging functionality", function () {
     mockedConfig = createMockedPfPConfig([TC008_NHS_NUMBER])
     mock.reset()
     mock.resetHistory()
-    jest.useFakeTimers()
+    vi.useFakeTimers()
     process.env.TargetSpineServer = "spine"
     process.env.TargetServiceSearchServer = "service-search"
     process.env.SpinePublicCertificate = "public-certificate"
@@ -524,11 +526,11 @@ describe("Unit tests for logging functionality", function () {
 
   afterEach(() => {
     testEnv.restoreEnvironment()
-    jest.clearAllTimers()
+    vi.clearAllTimers()
   })
 
   it("logs the correct apigw-request-id on multiple calls", async () => {
-    const mockLoggerInfo = jest.spyOn(Logger.prototype, "info")
+    const mockLoggerInfo = vi.spyOn(Logger.prototype, "info")
 
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, {statusCode: "0"})
     const event_one: GetMyPrescriptionsEvent = JSON.parse(exampleStateMachineEvent)
@@ -556,7 +558,7 @@ describe("Unit tests for logging functionality", function () {
   })
 
   it("appends trace id's to the logger", async () => {
-    const mockAppendKeys = jest.spyOn(Logger.prototype, "appendKeys")
+    const mockAppendKeys = vi.spyOn(Logger.prototype, "appendKeys")
 
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, {statusCode: "0"})
 
@@ -573,7 +575,7 @@ describe("Unit tests for logging functionality", function () {
   })
 
   it("logs errors relating to operation outcome", async () => {
-    const mockLoggerError = jest.spyOn(Logger.prototype, "error")
+    const mockLoggerError = vi.spyOn(Logger.prototype, "error")
 
     const interactionResponse = JSON.parse(exampleInteractionResponse)
 

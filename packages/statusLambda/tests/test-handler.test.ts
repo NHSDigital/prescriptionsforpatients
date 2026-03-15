@@ -1,9 +1,10 @@
 import {
-  jest,
+  vi,
   expect,
   describe,
-  it
-} from "@jest/globals"
+  it,
+  afterEach
+} from "vitest"
 
 import {APIGatewayProxyResult} from "aws-lambda"
 import {Logger} from "@aws-lambda-powertools/logger"
@@ -56,7 +57,7 @@ describe("Unit test for status check", function () {
   })
 
   it("appends trace id's to the logger", async () => {
-    const mockAppendKeys = jest.spyOn(Logger.prototype, "appendKeys")
+    const mockAppendKeys = vi.spyOn(Logger.prototype, "appendKeys")
 
     await handler(mockAPIGatewayProxyEvent, dummyContext)
 

@@ -1,5 +1,5 @@
 
-import {expect, describe, it} from "@jest/globals"
+import {expect, describe, it} from "vitest"
 import {richRequestBundle, simpleRequestBundle} from "./utils"
 import {isolateMedicationRequests, isolatePrescriptions} from "../src/fhirUtils"
 import {Bundle} from "fhir/r4"

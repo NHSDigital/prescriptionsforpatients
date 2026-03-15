@@ -1,10 +1,10 @@
-import {jest} from "@jest/globals"
+import {vi, type MockedFunction} from "vitest"
 import {PfPConfig} from "@pfp-common/utilities"
 import {SSMProvider} from "@aws-lambda-powertools/parameters/ssm"
 
 export interface MockedPfPConfig {
   pfpConfig: PfPConfig
-  mockGet: jest.MockedFunction<(paramName: string) => Promise<string>>
+  mockGet: MockedFunction<(paramName: string) => Promise<string>>
 }
 
 /**
@@ -15,7 +15,7 @@ export function setupTestEnvironment() {
 
   const restoreEnvironment = () => {
     process.env = originalEnv
-    jest.restoreAllMocks()
+    vi.restoreAllMocks()
   }
 
   return {
@@ -31,7 +31,7 @@ export function setupTestEnvironment() {
  */
 export function createMockedPfPConfig(nhsNumbers: Array<string> = []): MockedPfPConfig {
   // Create mock SSM provider
-  const mockGet = jest.fn() as jest.MockedFunction<(paramName: string) => Promise<string>>
+  const mockGet = vi.fn() as MockedFunction<(paramName: string) => Promise<string>>
 
   // Set up mock to return the NHS numbers as a comma-separated string
   const nhsNumbersString = nhsNumbers.join(",")

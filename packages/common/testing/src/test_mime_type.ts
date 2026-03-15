@@ -1,5 +1,5 @@
 import {APIGatewayProxyEvent, APIGatewayProxyResult, Context} from "aws-lambda"
-import {expect} from "@jest/globals"
+import {expect} from "vitest"
 
 type HandlerType = (event: APIGatewayProxyEvent, context: Context) => Promise<APIGatewayProxyResult>
 type TestType = () => Promise<void>
