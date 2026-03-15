@@ -1,16 +1,5 @@
-import {jest} from "@jest/globals"
 import {Organization} from "fhir/r4"
 import {TraceIDs} from "../src/responses"
-
-// Uses unstable jest method to enable mocking while using ESM. To be replaced in future.
-export function mockInternalDependency(modulePath: string, module: object, dependency: string) {
-  const mockDependency = jest.fn()
-  jest.unstable_mockModule(modulePath, () => ({
-    ...module,
-    [dependency]: mockDependency
-  }))
-  return mockDependency
-}
 
 export const EXPECTED_TRACE_IDS: TraceIDs = {
   "apigw-request-id": "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",

@@ -1,4 +1,4 @@
-import "jest"
+import {describe, expect, test} from "vitest"
 import {handleUrl} from "../src/handleUrl"
 import {Logger} from "@aws-lambda-powertools/logger"
 

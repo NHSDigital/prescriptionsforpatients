@@ -1,6 +1,5 @@
 /* eslint-disable func-style */
-import {expect} from "@jest/globals"
-import type {MatcherFunction} from "expect"
+import {expect, MatcherState, Matcher} from "vitest"
 
 /*
 This is a custom matcher that extends jest expect
@@ -8,7 +7,8 @@ Its used for matching console log messages where the message sent to console is 
 It converts the console log message to JSON, then compares an expected field in the JSON to expected value
 It also checks a field in actual value does not exist
 */
-const toMatchJsonLogMessage: MatcherFunction<[jsonField: unknown, jsonValue: unknown, missingJsonField: unknown]> =
+const toMatchJsonLogMessage: Matcher<MatcherState,
+  [jsonField: unknown, jsonValue: unknown, missingJsonField: unknown]> =
   function (actual, jsonField, jsonValue, missingJsonField) {
     if (
       typeof actual !== "string" ||
@@ -41,11 +41,12 @@ expect.extend({
   toMatchJsonLogMessage
 })
 
-declare module "expect" {
+declare module "vitest" {
   interface AsymmetricMatchers {
     toMatchJsonLogMessage(jsonField: string, jsonValue: string, missingJsonField: string): void;
   }
-  interface Matchers<R> {
-    toMatchJsonLogMessage(jsonField: string, jsonValue: string, missingJsonField: string): R;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  interface Matchers<T = any> {
+    toMatchJsonLogMessage(jsonField: string, jsonValue: string, missingJsonField: string): T;
   }
 }

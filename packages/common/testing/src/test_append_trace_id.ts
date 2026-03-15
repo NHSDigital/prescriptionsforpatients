@@ -1,13 +1,13 @@
 import {APIGatewayProxyEvent, APIGatewayProxyResult, Context} from "aws-lambda"
 import {Logger} from "@aws-lambda-powertools/logger"
-import {expect, jest} from "@jest/globals"
+import {expect, vi} from "vitest"
 
 type HandlerType = (event: APIGatewayProxyEvent, context: Context) => Promise<APIGatewayProxyResult>
 type TestType = () => Promise<void>
 
 function test_append_trace_ids(handler: HandlerType, mockEvent: APIGatewayProxyEvent, dummyContext: Context): TestType {
   return async () => {
-    const mockAppendKeys = jest.spyOn(Logger.prototype, "appendKeys")
+    const mockAppendKeys = vi.spyOn(Logger.prototype, "appendKeys")
 
     await handler(mockEvent, dummyContext)
 

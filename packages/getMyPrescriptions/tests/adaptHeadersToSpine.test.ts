@@ -6,10 +6,10 @@ import {
   expect,
   describe,
   it,
-  jest,
+  vi,
   beforeEach,
   afterEach
-} from "@jest/globals"
+} from "vitest"
 
 type EventHeaders = Record<string, string | undefined>
 
@@ -22,12 +22,12 @@ describe("adaptHeadersToSpine", () => {
 
   afterEach(() => {
     testEnv.restoreEnvironment()
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe("non-delegated access", () => {
     it("should process non-delegated access when nhsd-delegated-access is undefined", () => {
-      const mockLoggerInfo = jest.spyOn(Logger.prototype, "info")
+      const mockLoggerInfo = vi.spyOn(Logger.prototype, "info")
       const headers: EventHeaders = {
         "nhsd-nhslogin-user": "P9:9912003071",
         "other-header": "value"
@@ -72,7 +72,7 @@ describe("adaptHeadersToSpine", () => {
 
   describe("delegated access", () => {
     it("should process delegated access when nhsd-delegated-access is true", () => {
-      const mockLoggerInfo = jest.spyOn(Logger.prototype, "info")
+      const mockLoggerInfo = vi.spyOn(Logger.prototype, "info")
       const headers: EventHeaders = {
         [DELEGATED_ACCESS_HDR]: "true",
         "nhsd-nhslogin-user": "P9:9999681778",

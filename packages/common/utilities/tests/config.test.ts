@@ -5,7 +5,7 @@ import {
   it,
   beforeEach,
   afterEach
-} from "@jest/globals"
+} from "vitest"
 import {PfPConfig} from "../src/config"
 import type {SSMProvider} from "@aws-lambda-powertools/parameters/ssm"
 

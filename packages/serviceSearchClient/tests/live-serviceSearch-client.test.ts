@@ -1,5 +1,11 @@
 import {LiveServiceSearchClient, ServiceSearch3Data} from "../src/live-serviceSearch-client"
-import {jest} from "@jest/globals"
+import {
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi
+} from "vitest"
 import MockAdapter from "axios-mock-adapter"
 import axios, {
   AxiosError,
@@ -59,7 +65,7 @@ describe("live serviceSearch client", () => {
     logger = new Logger({serviceName: "svcClientTest"})
     client = new LiveServiceSearchClient(logger)
     mock.reset()
-    jest.restoreAllMocks()
+    vi.restoreAllMocks()
   })
 
   test("logs error when ServiceSearch3ApiKeyARN is missing", async () => {
@@ -67,8 +73,8 @@ describe("live serviceSearch client", () => {
     delete process.env.ServiceSearch3ApiKeyARN
 
     client = new LiveServiceSearchClient(logger)
-    const errorSpy = jest.spyOn(Logger.prototype, "error")
-    jest.spyOn(client["axiosInstance"], "get").mockResolvedValue({
+    const errorSpy = vi.spyOn(Logger.prototype, "error")
+    vi.spyOn(client["axiosInstance"], "get").mockResolvedValue({
       data: {
         "@odata.context": "https://api.service.nhs.uk/service-search-api/$metadata#Services",
         value: []
@@ -96,7 +102,7 @@ describe("live serviceSearch client", () => {
   })
 
   test("getServiceSearchVersion returns 3 and logs info", async () => {
-    const infoSpy = jest.spyOn(Logger.prototype, "info")
+    const infoSpy = vi.spyOn(Logger.prototype, "info")
     const {getServiceSearchVersion} = await import("../src/live-serviceSearch-client.js")
     const version = getServiceSearchVersion(logger)
     expect(version).toBe(3)
@@ -144,10 +150,10 @@ describe("live serviceSearch client", () => {
 
   // Test non-Axios exception path
   test("searchService rethrows non-Axios error without logging", async () => {
-    jest.spyOn(client["axiosInstance"], "get").mockImplementation(() => {
+    vi.spyOn(client["axiosInstance"], "get").mockImplementation(() => {
       throw new Error("generic fail")
     })
-    const errSpy = jest.spyOn(Logger.prototype, "error")
+    const errSpy = vi.spyOn(Logger.prototype, "error")
 
     await expect(client.searchService("code123", dummyCorrelationId)).rejects.toThrow("generic fail")
     expect(errSpy).not.toHaveBeenCalled()
@@ -169,7 +175,7 @@ describe("live serviceSearch client", () => {
     })
 
     mockInstanceGetThrows(axiosErr)
-    const errSpy = jest.spyOn(Logger.prototype, "error")
+    const errSpy = vi.spyOn(Logger.prototype, "error")
 
     await expect(client.searchService("x", dummyCorrelationId)).rejects.toThrow("Axios error in serviceSearch request")
     expect(errSpy).toHaveBeenCalledWith(
@@ -192,7 +198,7 @@ describe("live serviceSearch client", () => {
     })
 
     mockInstanceGetThrows(axiosErr)
-    const errSpy = jest.spyOn(Logger.prototype, "error")
+    const errSpy = vi.spyOn(Logger.prototype, "error")
 
     await expect(client.searchService("y", dummyCorrelationId)).rejects.toThrow("Axios error in serviceSearch request")
     expect(errSpy).toHaveBeenCalledWith(
@@ -220,7 +226,7 @@ describe("live serviceSearch client", () => {
     })
 
     mockInstanceGetThrows(axiosErr)
-    const errSpy = jest.spyOn(Logger.prototype, "error")
+    const errSpy = vi.spyOn(Logger.prototype, "error")
 
     await expect(client.searchService("y", dummyCorrelationId)).rejects.toThrow("Axios error in serviceSearch request")
     expect(errSpy).toHaveBeenCalledWith(
@@ -238,7 +244,7 @@ describe("live serviceSearch client", () => {
   })
 
   test("passes correlation ID and x-request-id header in request", async () => {
-    const getSpy = jest.spyOn(client["axiosInstance"], "get").mockResolvedValue({
+    const getSpy = vi.spyOn(client["axiosInstance"], "get").mockResolvedValue({
       data: {value: []},
       status: 200,
       statusText: "OK",
@@ -320,7 +326,7 @@ describe("live serviceSearch client", () => {
         .onGet(serviceSearchUrl).replyOnce(500)
         .onGet(serviceSearchUrl).replyOnce(500)
         .onGet(serviceSearchUrl).reply(200, validUrlData)
-      const warnSpy = jest.spyOn(Logger.prototype, "warn")
+      const warnSpy = vi.spyOn(Logger.prototype, "warn")
       client = new LiveServiceSearchClient(logger)
 
       const result = await client.searchService("z", dummyCorrelationId)
@@ -346,7 +352,7 @@ describe("live serviceSearch client", () => {
     })
 
     test("logs duration in info on success and failure", async () => {
-      const infoSpy = jest.spyOn(Logger.prototype, "info")
+      const infoSpy = vi.spyOn(Logger.prototype, "info")
       mock.onGet(serviceSearchUrl).networkError()
       await expect(client.searchService("z", dummyCorrelationId)).rejects.toThrow("Network Error")
       expect(infoSpy).toHaveBeenCalledWith(
@@ -363,8 +369,8 @@ describe("live serviceSearch client", () => {
         "@odata.context": "https://api.service.nhs.uk/service-search-api/$metadata#Services",
         value: [{"@search.score": 1, OrganisationSubType: DISTANCE_SELLING, Contacts: []}]
       })
-      const warnSpy = jest.spyOn(Logger.prototype, "warn")
-      const errorSpy = jest.spyOn(Logger.prototype, "error")
+      const warnSpy = vi.spyOn(Logger.prototype, "warn")
+      const errorSpy = vi.spyOn(Logger.prototype, "error")
       const result = await client.searchService("none", dummyCorrelationId)
       expect(result).toBeUndefined()
       expect(warnSpy).toHaveBeenCalledWith(
@@ -400,7 +406,7 @@ describe("live serviceSearch client", () => {
         throw axiosErr
       })
 
-      const errSpy = jest.spyOn(Logger.prototype, "error")
+      const errSpy = vi.spyOn(Logger.prototype, "error")
 
       // invoking searchService should end up throwing the generic interceptor Error
       await expect(client.searchService("Z123", dummyCorrelationId))
@@ -454,7 +460,7 @@ describe("live serviceSearch client", () => {
         ]
       }
 
-      const warnSpy = jest.spyOn(Logger.prototype, "warn")
+      const warnSpy = vi.spyOn(Logger.prototype, "warn")
       const result = client.handleV3Response("TEST123", data)
 
       expect(warnSpy).toHaveBeenCalledWith(
@@ -479,7 +485,7 @@ describe("live serviceSearch client", () => {
         ]
       }
 
-      const warnSpy = jest.spyOn(Logger.prototype, "warn")
+      const warnSpy = vi.spyOn(Logger.prototype, "warn")
       const result = client.handleV3Response("TEST123", data)
 
       expect(warnSpy).toHaveBeenCalledWith(

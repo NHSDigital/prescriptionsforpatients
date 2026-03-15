@@ -11,8 +11,12 @@ vi.mock("@aws-sdk/client-ssm", () => ({
   paginateGetParametersByPath: vi.fn()
 }))
 
-vi.mock("@aws-lambda-powertools/parameters/ssm", () => ({
-  SSMProvider: vi.fn(() => ({
-    get: vi.fn(async () => "")
-  }))
-}))
+vi.mock("@aws-lambda-powertools/parameters/ssm", () => {
+  class MockSSMProvider {
+    get = vi.fn(async () => "")
+  }
+
+  return {
+    SSMProvider: MockSSMProvider
+  }
+})

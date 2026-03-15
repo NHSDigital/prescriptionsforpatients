@@ -4,8 +4,11 @@ import {
   expect,
   describe,
   it,
-  jest
-} from "@jest/globals"
+  vi,
+  beforeEach,
+  afterEach,
+  test
+} from "vitest"
 import axios from "axios"
 import MockAdapter from "axios-mock-adapter"
 import {Bundle, MedicationRequest} from "fhir/r4"
@@ -138,7 +141,7 @@ describe("Unit tests for statusUpdate, via handler", function () {
       params: handlerParams,
       middleware: STATE_MACHINE_MIDDLEWARE
     })
-    jest.useFakeTimers()
+    vi.useFakeTimers()
   })
 
   afterEach(() => {

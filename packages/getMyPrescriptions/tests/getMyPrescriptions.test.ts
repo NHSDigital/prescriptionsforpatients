@@ -1,20 +1,27 @@
 import {overrideNonProductionHeadersForProxygenRequests, logger} from "../src/getMyPrescriptions"
 import {NHS_LOGIN_HEADER} from "../src/utils"
 import type {EventHeaders} from "../src/types"
-import {jest} from "@jest/globals"
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  vi,
+  afterEach
+} from "vitest"
 
 describe("setNonProductionHeaders", () => {
   const originalEnv = process.env
 
   beforeEach(() => {
-    jest.resetModules()
+    vi.resetModules()
     process.env = {...originalEnv}
-    jest.spyOn(logger, "info").mockImplementation(() => {})
+    vi.spyOn(logger, "info").mockImplementation(() => {})
   })
 
   afterEach(() => {
     process.env = originalEnv
-    jest.restoreAllMocks()
+    vi.restoreAllMocks()
   })
 
   it("should not modify headers when ALLOW_NHS_NUMBER_OVERRIDE is not true", () => {

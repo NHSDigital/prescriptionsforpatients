@@ -1,6 +1,6 @@
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda"
 import {handler} from "../src/sandbox"
-import {expect, describe, it} from "@jest/globals"
+import {expect, describe, it} from "vitest"
 import successData from "../examples/GetMyPrescriptions/Bundle/success.json"
 import {
   mockAPIGatewayProxyEvent,
