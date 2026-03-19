@@ -5,8 +5,10 @@
 **/public/
 **/coverage/
 **/node_modules/
+cdk.out/
 .#*
 __pycache__/
+.env
 .envrc
 .idea
 .vscode/settings.json
