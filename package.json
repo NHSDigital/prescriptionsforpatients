@@ -13,6 +13,7 @@
   "author": "NHS Digital",
   "license": "MIT",
   "workspaces": [
+    "packages/cdk",
     "packages/capabilityStatement",
     "packages/getMyPrescriptions",
     "packages/enrichPrescriptions",
