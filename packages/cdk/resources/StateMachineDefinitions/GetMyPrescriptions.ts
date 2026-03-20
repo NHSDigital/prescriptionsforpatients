@@ -33,11 +33,8 @@ export class GetMyPrescriptions extends Construct {
 
     const failedGetMyPrescriptions = new Pass(this, "Failed Get My Prescriptions")
 
-    const parseGetMyPrescriptionsBody = new Pass(this, "Parse Get My Prescriptions Body", {
-      parameters: {
-        "body.$": "States.StringToJson($.Payload.body)"
-      },
-      outputPath: "$.body"
+    const parseGetMyPrescriptionsBody = Pass.jsonata(this, "Parse Get My Prescriptions Body", {
+      outputs: "{% $parse($states.input.Payload.body) %}"
     })
 
     const enrichPrescriptions = new LambdaInvoke(this, "Enrich Prescriptions", {
@@ -46,31 +43,28 @@ export class GetMyPrescriptions extends Construct {
     })
     enrichPrescriptions.addCatch(catchAllError.state)
 
-    const getStatusUpdates = new LambdaInvoke(this, "Get Status Updates", {
+    const getStatusUpdates = LambdaInvoke.jsonata(this, "Get Status Updates", {
       lambdaFunction: props.getStatusUpdatesFunction,
-      payload: TaskInput.fromJsonPathAt("$.statusUpdateData"),
-      resultSelector: {
-        "Payload.$": "$.Payload"
-      },
-      resultPath: "$.StatusUpdates"
+      payload: TaskInput.fromText("{% $states.input.statusUpdateData %}"),
+      outputs: "{% $merge([$states.input, {'StatusUpdates': {'Payload': $states.result.Payload}}]) %}"
     })
     getStatusUpdates.addCatch(enrichPrescriptions, {
-      resultPath: "$.error"
+      outputs: "{% $merge([$states.input, {'error': $states.errorOutput}]) %}"
     })
 
-    const checkGetMyPrescriptionsResult = new Choice(this, "Get My Prescriptions Result")
-    const evaluateToggleGetStatusUpdates = new Choice(this, "Evaluate Toggle Get Status Updates Parameter")
-
-    const getMyPrescriptionsSucceeded = Condition.numberEquals("$.Payload.statusCode", 200)
-    const getStatusUpdatesEnabled = Condition.booleanEquals("$.getStatusUpdates", true)
+    const checkGetMyPrescriptionsResult = Choice.jsonata(this, "Get My Prescriptions Result")
+    const evaluateToggleGetStatusUpdates = Choice.jsonata(this, "Evaluate Toggle Get Status Updates Parameter")
 
     this.definition = Chain
       .start(getMyPrescriptions)
       .next(checkGetMyPrescriptionsResult
-        .when(Condition.not(getMyPrescriptionsSucceeded), failedGetMyPrescriptions)
+        .when(Condition.jsonata("{% $states.input.Payload.statusCode != 200 %}"), failedGetMyPrescriptions)
         .otherwise(parseGetMyPrescriptionsBody
           .next(evaluateToggleGetStatusUpdates
-            .when(getStatusUpdatesEnabled, getStatusUpdates.next(enrichPrescriptions))
+            .when(
+              Condition.jsonata("{% $states.input.getStatusUpdates = true %}"),
+              getStatusUpdates.next(enrichPrescriptions)
+            )
             .otherwise(enrichPrescriptions))))
   }
 }
