@@ -4,7 +4,6 @@
     "module": "commonjs",
     "rootDir": ".",
     "outDir": "lib",
-    "allowImportingTsExtensions": true,
     "noEmit": true,
     "strict": false,
     "lib": [
