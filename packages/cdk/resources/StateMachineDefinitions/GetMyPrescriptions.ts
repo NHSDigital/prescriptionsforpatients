@@ -25,9 +25,9 @@ export class GetMyPrescriptions extends Construct {
 
     const catchAllError = new CatchAllErrorPass(this, "Catch All Error")
 
-    const getMyPrescriptions = new LambdaInvoke(this, "Get My Prescriptions", {
+    const getMyPrescriptions = LambdaInvoke.jsonata(this, "Get My Prescriptions", {
       lambdaFunction: props.getMyPrescriptionsFunction,
-      payload: TaskInput.fromJsonPathAt("$")
+      payload: TaskInput.fromText("{% $states.input %}")
     })
     getMyPrescriptions.addCatch(catchAllError.state)
 
@@ -37,9 +37,9 @@ export class GetMyPrescriptions extends Construct {
       outputs: "{% $parse($states.input.Payload.body) %}"
     })
 
-    const enrichPrescriptions = new LambdaInvoke(this, "Enrich Prescriptions", {
+    const enrichPrescriptions = LambdaInvoke.jsonata(this, "Enrich Prescriptions", {
       lambdaFunction: props.enrichPrescriptionsFunction,
-      payload: TaskInput.fromJsonPathAt("$")
+      payload: TaskInput.fromText("{% $states.input %}")
     })
     enrichPrescriptions.addCatch(catchAllError.state)
 
