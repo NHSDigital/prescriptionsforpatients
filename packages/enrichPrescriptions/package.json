@@ -12,12 +12,12 @@
     "test": "npm run compile && npm run unit"
   },
   "dependencies": {
-    "@aws-lambda-powertools/commons": "^2.31.0",
-    "@aws-lambda-powertools/logger": "^2.31.0",
-    "@aws-lambda-powertools/parameters": "^2.31.0",
-    "@aws-sdk/client-secrets-manager": "^3.1009.0",
+    "@aws-lambda-powertools/commons": "^2.32.0",
+    "@aws-lambda-powertools/logger": "^2.32.0",
+    "@aws-lambda-powertools/parameters": "^2.32.0",
+    "@aws-sdk/client-secrets-manager": "^3.1014.0",
     "@middy/core": "^7.1.2",
-    "@middy/input-output-logger": "^7.1.6",
+    "@middy/input-output-logger": "^7.2.1",
     "@types/fhir": "^0.0.41",
     "moment": "^2.30.1"
   },
