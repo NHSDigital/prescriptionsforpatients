@@ -1,0 +1,313 @@
+name: cdk release code
+
+on:
+  workflow_call:
+    inputs:
+      IS_PULL_REQUEST:
+        type: boolean
+        default: false
+      STACK_NAME:
+        required: true
+        type: string
+      TARGET_ENVIRONMENT:
+        required: true
+        type: string
+      APIGEE_ENVIRONMENT:
+        required: true
+        type: string
+      ENABLE_MUTUAL_TLS:
+        required: true
+        type: boolean
+      BUILD_ARTIFACT:
+        required: true
+        type: string
+      TRUSTSTORE_FILE:
+        required: true
+        type: string
+      VERSION_NUMBER:
+        required: true
+        type: string
+      COMMIT_ID:
+        required: true
+        type: string
+      CDK_APP_NAME:
+        type: string
+        default: PfPApiApp
+      LOG_LEVEL:
+        required: true
+        type: string
+      LOG_RETENTION_DAYS:
+        required: true
+        type: string
+      CREATE_INT_RELEASE_NOTES:
+        type: boolean
+        default: false
+      CREATE_INT_RC_RELEASE_NOTES:
+        type: boolean
+        default: false
+      CREATE_PROD_RELEASE_NOTES:
+        type: boolean
+        default: false
+      MARK_JIRA_RELEASED:
+        type: boolean
+        default: false
+      TOGGLE_GET_STATUS_UPDATES:
+        type: boolean
+        default: false
+      RUN_REGRESSION_TESTS:
+        type: boolean
+        default: true
+      ENABLE_ALERTS:
+        type: boolean
+        default: true
+      STATE_MACHINE_LOG_LEVEL:
+        type: string
+      REGRESSION_TEST_PRODUCT:
+        type: string
+      FORWARD_CSOC_LOGS:
+        required: true
+        type: boolean
+      TC007_NHS_NUMBERS:
+        required: false
+        type: string
+      TC008_NHS_NUMBERS:
+        required: false
+        type: string
+      TC009_NHS_NUMBERS:
+        required: false
+        type: string
+      DEPLOY_APIGEE:
+        type: boolean
+        default: true
+      MTLS_KEY:
+        type: string
+        required: true
+      ALLOW_NHS_NUMBER_OVERRIDE:
+        required: true
+        type: boolean
+      REGRESSION_TEST_NON_PROXYGEN:
+        type: boolean
+      pinned_image:
+        type: string
+        required: true
+    secrets:
+      CLOUD_FORMATION_DEPLOY_ROLE:
+        required: true
+      TARGET_SPINE_SERVER:
+        required: true
+      TARGET_SERVICE_SEARCH_SERVER:
+        required: true
+      DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE:
+        required: false
+      INT_CLOUD_FORMATION_CHECK_VERSION_ROLE:
+        required: false
+      PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE:
+        required: false
+      DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE:
+        required: false
+      REGRESSION_TESTS_PEM:
+        required: false
+      PROXYGEN_ROLE:
+        required: false
+
+jobs:
+  release_code_and_api:
+    runs-on: ubuntu-22.04
+    environment: ${{ inputs.TARGET_ENVIRONMENT }}
+    container:
+      image: ${{ inputs.pinned_image }}
+      options: --user 1001:1001 --group-add 128
+    defaults:
+      run:
+        shell: bash
+    name: deploy cdk app ${{ inputs.CDK_APP_NAME }}
+    permissions:
+      id-token: write
+      contents: write
+    env:
+      AWS_MAX_RETRY: 20
+
+    steps:
+      - name: copy .tool-versions
+        run: |
+          cp /home/vscode/.tool-versions "$HOME/.tool-versions"
+
+      - name: Checkout local github actions
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          sparse-checkout: |
+            .github
+
+      - name: create_int_rc_release_notes
+        uses: ./.github/actions/update_confluence_jira
+        if: ${{ inputs.CREATE_INT_RC_RELEASE_NOTES == true }}
+        with:
+          TARGET_ENVIRONMENT: int
+          RELEASE_TAG: ${{ inputs.VERSION_NUMBER }}
+          CONFLUENCE_PAGE_ID: "768067994"
+          CREATE_RC_RELEASE_NOTES: true
+          DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
+          TARGET_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.INT_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
+          DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-region: eu-west-2
+          role-to-assume: ${{ secrets.CLOUD_FORMATION_DEPLOY_ROLE }}
+          role-session-name: aws-pfp-release-code
+
+      - name: download build artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: ${{ inputs.BUILD_ARTIFACT }}
+          path: .
+
+      - name: extract build_artifact
+        run: |
+          tar -xf artifact.tar
+
+      - name: Show diff
+        env:
+          CDK_APP_NAME: ${{ inputs.CDK_APP_NAME }}
+          REQUIRE_APPROVAL: never
+          CDK_CONFIG_stackName: ${{ inputs.STACK_NAME }}
+          CDK_CONFIG_versionNumber: ${{ inputs.VERSION_NUMBER }}
+          CDK_CONFIG_commitId: ${{ inputs.COMMIT_ID }}
+          CDK_CONFIG_isPullRequest: ${{ inputs.IS_PULL_REQUEST }}
+          CDK_CONFIG_environment: ${{ inputs.TARGET_ENVIRONMENT }}
+          CDK_CONFIG_logRetentionInDays: ${{ inputs.LOG_RETENTION_DAYS }}
+          CDK_CONFIG_logLevel: ${{ inputs.LOG_LEVEL }}
+          CDK_CONFIG_targetSpineServer: ${{ secrets.TARGET_SPINE_SERVER }}
+          CDK_CONFIG_targetServiceSearchServer: ${{ secrets.TARGET_SERVICE_SEARCH_SERVER }}
+          CDK_CONFIG_toggleGetStatusUpdates: ${{ inputs.TOGGLE_GET_STATUS_UPDATES }}
+          CDK_CONFIG_allowNhsNumberOverride: ${{ inputs.ALLOW_NHS_NUMBER_OVERRIDE }}
+          CDK_CONFIG_trustStoreFile: ${{ inputs.TRUSTSTORE_FILE }}
+          CDK_CONFIG_forwardCsocLogs: ${{ inputs.FORWARD_CSOC_LOGS }}
+        run: npm run cdk-diff --workspace packages/cdk
+
+      - name: Deploy code
+        env:
+          CDK_APP_NAME: ${{ inputs.CDK_APP_NAME }}
+          REQUIRE_APPROVAL: never
+          CDK_CONFIG_stackName: ${{ inputs.STACK_NAME }}
+          CDK_CONFIG_versionNumber: ${{ inputs.VERSION_NUMBER }}
+          CDK_CONFIG_commitId: ${{ inputs.COMMIT_ID }}
+          CDK_CONFIG_isPullRequest: ${{ inputs.IS_PULL_REQUEST }}
+          CDK_CONFIG_environment: ${{ inputs.TARGET_ENVIRONMENT }}
+          CDK_CONFIG_logRetentionInDays: ${{ inputs.LOG_RETENTION_DAYS }}
+          CDK_CONFIG_logLevel: ${{ inputs.LOG_LEVEL }}
+          CDK_CONFIG_targetSpineServer: ${{ secrets.TARGET_SPINE_SERVER }}
+          CDK_CONFIG_targetServiceSearchServer: ${{ secrets.TARGET_SERVICE_SEARCH_SERVER }}
+          CDK_CONFIG_toggleGetStatusUpdates: ${{ inputs.TOGGLE_GET_STATUS_UPDATES }}
+          CDK_CONFIG_allowNhsNumberOverride: ${{ inputs.ALLOW_NHS_NUMBER_OVERRIDE }}
+          CDK_CONFIG_trustStoreFile: ${{ inputs.TRUSTSTORE_FILE }}
+          CDK_CONFIG_forwardCsocLogs: ${{ inputs.FORWARD_CSOC_LOGS }}
+        run: npm run cdk-deploy --workspace packages/cdk
+
+      - name: get mtls secrets
+        shell: bash
+        run: |
+          mkdir -p ~/.proxygen/tmp
+          client_private_key_arn=$(aws cloudformation list-exports --query "Exports[?Name=='account-resources:PfpClientKeySecret'].Value" --output text)
+          client_cert_arn=$(aws cloudformation list-exports --query "Exports[?Name=='account-resources:PfpClientCertSecret'].Value" --output text)
+          aws secretsmanager get-secret-value --secret-id "${client_private_key_arn}" --query SecretString --output text > ~/.proxygen/tmp/client_private_key
+          aws secretsmanager get-secret-value --secret-id "${client_cert_arn}" --query SecretString --output text > ~/.proxygen/tmp/client_cert
+
+      - name: Configure AWS Credentials for api release
+        if: ${{ inputs.DEPLOY_APIGEE == true && always() && !failure() && !cancelled() }}
+        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7
+        with:
+          aws-region: eu-west-2
+          role-to-assume: ${{ secrets.PROXYGEN_ROLE }}
+          role-session-name: pfp-api-proxygen
+
+      - name: Deploy PFP API to Apigee
+        shell: bash
+        if: ${{ inputs.DEPLOY_APIGEE == true && always() && !failure() && !cancelled() }}
+        env:
+          API_TYPE: standard
+          VERSION_NUMBER: ${{ inputs.VERSION_NUMBER }}
+          SPEC_PATH: ./packages/specification/dist/prescriptions-for-patients.resolved.json
+          STACK_NAME: ${{ inputs.STACK_NAME }}
+          AWS_ENVIRONMENT: ${{ inputs.TARGET_ENVIRONMENT }}
+          APIGEE_ENVIRONMENT: ${{ inputs.APIGEE_ENVIRONMENT }}
+          PROXYGEN_PRIVATE_KEY_NAME: PrescriptionsForPatientsProxygenPrivateKey
+          PROXYGEN_KID: "2026-01-22-PROD-prescriptions-for-patients-v2"
+          DRY_RUN: false
+          ENABLE_MUTUAL_TLS: ${{ inputs.ENABLE_MUTUAL_TLS }}
+          MTLS_KEY: ${{ inputs.MTLS_KEY }}
+          IS_PULL_REQUEST: ${{ inputs.IS_PULL_REQUEST }}
+        run: ./.github/scripts/deploy_api.sh
+
+      - uses: actions/upload-artifact@v4
+        name: Upload specs
+        with:
+          name: ${{ inputs.APIGEE_ENVIRONMENT }}-specs
+          path: |
+            ./packages/specification/dist/prescriptions-for-patients.resolved.json
+
+      - name: create_int_release_notes
+        uses: ./.github/actions/update_confluence_jira
+        if: ${{ inputs.CREATE_INT_RELEASE_NOTES == true && always() && !failure() && !cancelled() }}
+        with:
+          TARGET_ENVIRONMENT: int
+          CONFLUENCE_PAGE_ID: "768067990"
+          CREATE_RC_RELEASE_NOTES: false
+          DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
+          TARGET_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.INT_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
+          DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
+
+      - name: create_prod_release_notes
+        uses: ./.github/actions/update_confluence_jira
+        if: ${{ inputs.CREATE_PROD_RELEASE_NOTES == true && always() && !failure() && !cancelled() }}
+        with:
+          TARGET_ENVIRONMENT: prod
+          CONFLUENCE_PAGE_ID: "768067992"
+          CREATE_RC_RELEASE_NOTES: false
+          DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
+          TARGET_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
+          DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
+
+      - name: mark_released_in_jira
+        uses: ./.github/actions/mark_jira_released
+        if: ${{ inputs.MARK_JIRA_RELEASED == true && always() && !failure() && !cancelled() }}
+        with:
+          RELEASE_TAG: ${{ inputs.VERSION_NUMBER }}
+          DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
+      - name: Checkout gh-pages
+        if: ${{ inputs.IS_PULL_REQUEST == false }}
+        uses: actions/checkout@v5
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Update release tag in github pages
+        if: ${{ inputs.IS_PULL_REQUEST == false }}
+        run: |
+          cd gh-pages
+          NOW=$(date +'%Y-%m-%dT%H:%M:%S')
+          echo "tag,release_datetime" > _data/${{ inputs.APIGEE_ENVIRONMENT }}_latest.csv
+          echo "${{ inputs.VERSION_NUMBER }},${NOW}" >> _data/${{ inputs.APIGEE_ENVIRONMENT }}_latest.csv
+          echo "${{ inputs.VERSION_NUMBER }},${NOW}" >> _data/${{ inputs.APIGEE_ENVIRONMENT }}_deployments.csv
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add _data/${{ inputs.APIGEE_ENVIRONMENT }}_latest.csv
+          git add _data/${{ inputs.APIGEE_ENVIRONMENT }}_deployments.csv
+          git commit -m 'update releases for ${{ inputs.APIGEE_ENVIRONMENT }}'
+          parallel --retries 10 --delay 3 ::: "git pull --rebase && git push"
+
+  regression_tests:
+    name: Regression Tests
+    uses: ./.github/workflows/run_regression_tests.yml
+    if: ${{ always() && !failure() && !cancelled() && inputs.RUN_REGRESSION_TESTS == true }}
+    needs: [release_code_and_api]
+    with:
+      ENVIRONMENT: ${{ inputs.APIGEE_ENVIRONMENT }}
+      VERSION_NUMBER: ${{ inputs.VERSION_NUMBER }}
+      REGRESSION_TEST_PRODUCT: ${{ inputs.REGRESSION_TEST_PRODUCT }}
+      REGRESSION_TEST_NON_PROXYGEN: ${{ inputs.REGRESSION_TEST_NON_PROXYGEN }}
+      pinned_image: ${{ inputs.pinned_image }}
+    secrets:
+      REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
