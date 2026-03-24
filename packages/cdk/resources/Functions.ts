@@ -1,5 +1,5 @@
-import {Aws, Fn, RemovalPolicy} from "aws-cdk-lib"
-import {ManagedPolicy, PolicyStatement} from "aws-cdk-lib/aws-iam"
+import {Fn, RemovalPolicy} from "aws-cdk-lib"
+import {ManagedPolicy} from "aws-cdk-lib/aws-iam"
 import {Construct} from "constructs"
 import {TypescriptLambdaFunction} from "@nhsdigital/eps-cdk-constructs"
 import {Code, LayerVersion} from "aws-cdk-lib/aws-lambda"
@@ -16,6 +16,7 @@ export interface FunctionsProps {
   readonly allowNhsNumberOverride: string
   readonly logRetentionInDays: number
   readonly logLevel: string
+  readonly getPfPParametersPolicy: ManagedPolicy
 }
 
 const baseDir = resolve(__dirname, "../../..")
@@ -23,7 +24,7 @@ const baseDir = resolve(__dirname, "../../..")
 export class Functions extends Construct {
   functions: {[key: string]: TypescriptLambdaFunction}
 
-  public constructor(scope: Construct, id: string, props: FunctionsProps){
+  public constructor(scope: Construct, id: string, props: FunctionsProps) {
     super(scope, id)
 
     // Imports
@@ -32,23 +33,6 @@ export class Functions extends Construct {
 
     const lambdaDecryptSecretsKMSPolicy = ManagedPolicy.fromManagedPolicyArn(
       this, "lambdaDecryptSecretsKMSPolicy", Fn.importValue("account-resources:LambdaDecryptSecretsKMSPolicy"))
-
-    const getPfPParametersPolicy = new ManagedPolicy(this, "GetPfPParametersPolicy", {
-      description: "Read test case SSM parameters",
-      statements: [
-        new PolicyStatement({
-          actions: [
-            "ssm:GetParameter",
-            "ssm:GetParameters"
-          ],
-          resources: [
-            `arn:aws:ssm:${Aws.REGION}:${Aws.ACCOUNT_ID}:parameter/${props.stackName}-TC007NHSNumber`,
-            `arn:aws:ssm:${Aws.REGION}:${Aws.ACCOUNT_ID}:parameter/${props.stackName}-TC008NHSNumber`,
-            `arn:aws:ssm:${Aws.REGION}:${Aws.ACCOUNT_ID}:parameter/${props.stackName}-TC009NHSNumber`
-          ]
-        })
-      ]
-    })
 
     const lambdaDefaultEnvironmentVariables: {[key: string]: string} = {
       STACK_NAME: props.stackName,
@@ -85,7 +69,7 @@ export class Functions extends Construct {
       additionalPolicies: [
         lambdaAccessSecretsPolicy,
         lambdaDecryptSecretsKMSPolicy,
-        getPfPParametersPolicy
+        props.getPfPParametersPolicy
       ],
       logRetentionInDays: props.logRetentionInDays,
       logLevel: props.logLevel,
@@ -104,7 +88,7 @@ export class Functions extends Construct {
         EXPECT_STATUS_UPDATES: props.toggleGetStatusUpdates
       },
       additionalPolicies: [
-        getPfPParametersPolicy
+        props.getPfPParametersPolicy
       ],
       logRetentionInDays: props.logRetentionInDays,
       logLevel: props.logLevel,
