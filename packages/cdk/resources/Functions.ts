@@ -48,6 +48,7 @@ export class Functions extends Construct {
 
     const getSecretsLambdaLayer = new LayerVersion(this, "GetSecretsLambdaLayer", {
       description: "get secrets layer",
+      // TODO: This should not rely on an asset
       code: Code.fromAsset(join(baseDir, "packages/getSecretLayer/lib/get-secrets-layer.zip")),
       removalPolicy: RemovalPolicy.RETAIN
     })
