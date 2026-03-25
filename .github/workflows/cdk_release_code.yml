@@ -188,7 +188,7 @@ jobs:
           CDK_CONFIG_allowNhsNumberOverride: ${{ inputs.ALLOW_NHS_NUMBER_OVERRIDE }}
           CDK_CONFIG_trustStoreFile: ${{ inputs.TRUSTSTORE_FILE }}
           CDK_CONFIG_forwardCsocLogs: ${{ inputs.FORWARD_CSOC_LOGS }}
-        run: npm run cdk-diff --workspace packages/cdk
+        run: npx run cdk-diff --workspace packages/cdk
 
       - name: Deploy code
         env:
@@ -207,7 +207,7 @@ jobs:
           CDK_CONFIG_allowNhsNumberOverride: ${{ inputs.ALLOW_NHS_NUMBER_OVERRIDE }}
           CDK_CONFIG_trustStoreFile: ${{ inputs.TRUSTSTORE_FILE }}
           CDK_CONFIG_forwardCsocLogs: ${{ inputs.FORWARD_CSOC_LOGS }}
-        run: npm run cdk-deploy --workspace packages/cdk
+        run: npx run cdk-deploy --workspace packages/cdk
 
       - name: get mtls secrets
         shell: bash

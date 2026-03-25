@@ -48,7 +48,6 @@ jobs:
       - name: "Tar files"
         run: |
           tar -cf artifact.tar \
-            .tool-versions \
             packages \
             node_modules \
             package.json \
