@@ -131,6 +131,10 @@ jobs:
       AWS_MAX_RETRY: 20
 
     steps:
+      - name: copy .tool-versions
+        run: |
+          cp /home/vscode/.tool-versions "$HOME/.tool-versions"
+
       - name: Checkout local github actions
         uses: actions/checkout@v5
         with:
