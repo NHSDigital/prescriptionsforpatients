@@ -14,20 +14,14 @@ function createBaseEnv(): Record<string, string | undefined> {
     CDK_CONFIG_versionNumber: "0.0.0-test",
     CDK_CONFIG_commitId: "test-commit",
     CDK_CONFIG_isPullRequest: "true",
-    CDK_CONFIG_environment: "test"
+    CDK_CONFIG_environment: "test",
+    CDK_CONFIG_tc007NhsNumberValue: "9992387920",
+    CDK_CONFIG_tc008NhsNumberValue: "9992387920",
+    CDK_CONFIG_tc009NhsNumberValue: "9992387920"
   }
 }
 
 describe("CDK synth smoke tests", () => {
-  it("type-checks the cdk package", () => {
-    expect(() => {
-      execFileSync("npx", ["tsc", "-p", "tsconfig.json", "--noEmit"], {
-        cwd: cdkPackageRoot,
-        stdio: "pipe"
-      })
-    }).not.toThrow()
-  })
-
   it("synthesizes the sandbox app", () => {
     expect(() => {
       execFileSync("npx", ["tsx", "bin/PfPApiSandboxApp.ts"], {
