@@ -1,14 +1,10 @@
 import {App, Stack} from "aws-cdk-lib"
 import {nagSuppressions} from "../nagSuppressions"
 import {Functions} from "../resources/Functions"
+import {Parameters} from "../resources/Parameters"
 import {StateMachines} from "../resources/StateMachines"
 import {Apis} from "../resources/Apis"
-import {
-  StandardStackProps,
-  SsmParametersConstruct,
-  SsmParameterDefinition,
-  SsmParametersConstructProps
-} from "@nhsdigital/eps-cdk-constructs"
+import {StandardStackProps} from "@nhsdigital/eps-cdk-constructs"
 
 export interface PfPApiStackProps extends StandardStackProps {
   readonly stackName: string
@@ -18,6 +14,9 @@ export interface PfPApiStackProps extends StandardStackProps {
   readonly targetServiceSearchServer: string
   readonly toggleGetStatusUpdates: string
   readonly allowNhsNumberOverride: string
+  readonly tc007NhsNumberValue: string
+  readonly tc008NhsNumberValue: string
+  readonly tc009NhsNumberValue: string
   readonly mutualTlsTrustStoreKey: string | undefined
   readonly csocApiGatewayDestination: string
   readonly forwardCsocLogs: boolean
@@ -27,20 +26,12 @@ export class PfPApiStack extends Stack {
   public constructor(scope: App, id: string, props: PfPApiStackProps) {
     super(scope, id, props)
 
-    const parameterDefinitions: Array<SsmParameterDefinition> = [
-      {
-        id: "aaa",
-        nameSuffix: "param1",
-        description: "Example parameter 1",
-        value: "changeme"
-      }
-    ]
-    const ssmParametersProps: SsmParametersConstructProps = {
-      namePrefix: "pfp-api",
-      parameters: parameterDefinitions,
-      readPolicyDescription: "Read access for PfP API SSM parameters"
-    }
-    const params = new SsmParametersConstruct(this, "PfPApiSsmParameters", ssmParametersProps)
+    const params = new Parameters(this, "Parameters", {
+      stackName: props.stackName,
+      tc007NhsNumberValue: props.tc007NhsNumberValue,
+      tc008NhsNumberValue: props.tc008NhsNumberValue,
+      tc009NhsNumberValue: props.tc009NhsNumberValue
+    })
 
     // Resources
     const functions = new Functions(this, "Functions", {

@@ -195,6 +195,9 @@ jobs:
           CDK_CONFIG_targetServiceSearchServer: ${{ secrets.TARGET_SERVICE_SEARCH_SERVER }}
           CDK_CONFIG_toggleGetStatusUpdates: ${{ inputs.TOGGLE_GET_STATUS_UPDATES }}
           CDK_CONFIG_allowNhsNumberOverride: ${{ inputs.ALLOW_NHS_NUMBER_OVERRIDE }}
+          CDK_CONFIG_tc007NhsNumberValue: ${{ inputs.TC007_NHS_NUMBERS || '9992387920' }}
+          CDK_CONFIG_tc008NhsNumberValue: ${{ inputs.TC008_NHS_NUMBERS || '9992387920' }}
+          CDK_CONFIG_tc009NhsNumberValue: ${{ inputs.TC009_NHS_NUMBERS || '9992387920' }}
           CDK_CONFIG_trustStoreFile: ${{ inputs.TRUSTSTORE_FILE }}
           CDK_CONFIG_forwardCsocLogs: ${{ inputs.FORWARD_CSOC_LOGS }}
         run: npm run cdk-diff --workspace packages/cdk
@@ -214,6 +217,9 @@ jobs:
           CDK_CONFIG_targetServiceSearchServer: ${{ secrets.TARGET_SERVICE_SEARCH_SERVER }}
           CDK_CONFIG_toggleGetStatusUpdates: ${{ inputs.TOGGLE_GET_STATUS_UPDATES }}
           CDK_CONFIG_allowNhsNumberOverride: ${{ inputs.ALLOW_NHS_NUMBER_OVERRIDE }}
+          CDK_CONFIG_tc007NhsNumberValue: ${{ inputs.TC007_NHS_NUMBERS || '9992387920' }}
+          CDK_CONFIG_tc008NhsNumberValue: ${{ inputs.TC008_NHS_NUMBERS || '9992387920' }}
+          CDK_CONFIG_tc009NhsNumberValue: ${{ inputs.TC009_NHS_NUMBERS || '9992387920' }}
           CDK_CONFIG_trustStoreFile: ${{ inputs.TRUSTSTORE_FILE }}
           CDK_CONFIG_forwardCsocLogs: ${{ inputs.FORWARD_CSOC_LOGS }}
         run: npm run cdk-deploy --workspace packages/cdk
