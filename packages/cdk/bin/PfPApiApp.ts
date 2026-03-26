@@ -7,6 +7,8 @@ import {
 } from "@nhsdigital/eps-cdk-constructs"
 import {PfPApiStack} from "../stacks/PfPApiStack"
 
+const defaultTestNhsNumber = "9992387920"
+
 function main() {
   const {app, props} = createApp({
     productName: "Prescriptions for Patients API",
@@ -24,9 +26,9 @@ function main() {
     targetServiceSearchServer: getConfigFromEnvVar("targetServiceSearchServer"),
     toggleGetStatusUpdates: getConfigFromEnvVar("toggleGetStatusUpdates"),
     allowNhsNumberOverride: getConfigFromEnvVar("allowNhsNumberOverride"),
-    tc007NhsNumberValue: getConfigFromEnvVar("tc007NhsNumberValue"),
-    tc008NhsNumberValue: getConfigFromEnvVar("tc008NhsNumberValue"),
-    tc009NhsNumberValue: getConfigFromEnvVar("tc009NhsNumberValue"),
+    tc007NhsNumberValue: getConfigFromEnvVar("tc007NhsNumberValue", "CDK_CONFIG_", defaultTestNhsNumber),
+    tc008NhsNumberValue: getConfigFromEnvVar("tc008NhsNumberValue", "CDK_CONFIG_", defaultTestNhsNumber),
+    tc009NhsNumberValue: getConfigFromEnvVar("tc009NhsNumberValue", "CDK_CONFIG_", defaultTestNhsNumber),
     mutualTlsTrustStoreKey: props.isPullRequest ? undefined : getConfigFromEnvVar("trustStoreFile"),
     // CSOC API GW log destination - do not change
     csocApiGatewayDestination: "arn:aws:logs:eu-west-2:693466633220:destination:api_gateway_log_destination",

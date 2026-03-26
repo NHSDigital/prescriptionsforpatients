@@ -24,6 +24,17 @@
       "../../node_modules/@types"
     ]
   },
-  "include": ["resources/**/*", "constructs/**/*", "policies/**/*", "stacks/**/*", "tests/**/*", "scripts/**/*", "nagSuppressions.ts"],
-  "exclude": ["node_modules", "cdk.out"]
+  "include": [
+    "resources/**/*",
+    "constructs/**/*",
+    "policies/**/*",
+    "stacks/**/*",
+    "tests/**/*",
+    "scripts/**/*",
+    "nagSuppressions.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "cdk.out"
+  ]
 }
