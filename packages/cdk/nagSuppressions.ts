@@ -6,10 +6,10 @@ export const nagSuppressions = (stack: Stack) => {
   safeAddNagSuppressionGroup(
     stack,
     [
-      "/PfPApiStack/Functions/GetMyPrescriptionsLambda/LambdaPutLogsManagedPolicy/Resource",
-      "/PfPApiStack/Functions/EnrichPrescriptionsLambda/LambdaPutLogsManagedPolicy/Resource",
-      "/PfPApiStack/Functions/StatusLambda/LambdaPutLogsManagedPolicy/Resource",
-      "/PfPApiStack/StateMachines/GetMyPrescriptionsStateMachine/StateMachinePutLogsManagedPolicy/Resource"
+      "/PfPApiStatelessStack/Functions/GetMyPrescriptionsLambda/LambdaPutLogsManagedPolicy/Resource",
+      "/PfPApiStatelessStack/Functions/EnrichPrescriptionsLambda/LambdaPutLogsManagedPolicy/Resource",
+      "/PfPApiStatelessStack/Functions/StatusLambda/LambdaPutLogsManagedPolicy/Resource",
+      "/PfPApiStatelessStack/StateMachines/GetMyPrescriptionsStateMachine/StateMachinePutLogsManagedPolicy/Resource"
     ],
     [
       {
@@ -21,7 +21,7 @@ export const nagSuppressions = (stack: Stack) => {
 
   safeAddNagSuppression(
     stack,
-    "/PfPApiStack/Apis/ApiGateway/ApiGateway/Resource",
+    "/PfPApiStatelessStack/Apis/ApiGateway/ApiGateway/Resource",
     [
       {
         id: "AwsSolutions-APIG2",
@@ -33,8 +33,8 @@ export const nagSuppressions = (stack: Stack) => {
   safeAddNagSuppressionGroup(
     stack,
     [
-      "/PfPApiStack/Apis/ApiGateway/ApiGateway/Default/Bundle/GET/Resource",
-      "/PfPApiStack/Apis/ApiGateway/ApiGateway/Default/_status/GET/Resource"
+      "/PfPApiStatelessStack/Apis/ApiGateway/ApiGateway/Default/Bundle/GET/Resource",
+      "/PfPApiStatelessStack/Apis/ApiGateway/ApiGateway/Default/_status/GET/Resource"
     ],
     [
       {

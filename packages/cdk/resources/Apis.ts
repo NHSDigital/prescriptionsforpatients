@@ -3,9 +3,9 @@ import {
   ExpressStateMachine,
   LambdaEndpoint,
   RestApiGateway,
-  StateMachineEndpoint,
   TypescriptLambdaFunction
 } from "@nhsdigital/eps-cdk-constructs"
+import {StateMachineEndpoint} from "@nhsdigital/eps-cdk-constructs/lib/src/constructs/RestApiGateway/StateMachineEndpoint.js"
 import {Construct} from "constructs"
 
 export interface ApisProps {
@@ -22,7 +22,7 @@ export class Apis extends Construct {
   apis: {[key: string]: RestApiGateway}
   endpoints: {[key: string]: Construct}
 
-  public constructor(scope: Construct, id: string, props: ApisProps){
+  public constructor(scope: Construct, id: string, props: ApisProps) {
     super(scope, id)
 
     const apiGateway = new RestApiGateway(this, "ApiGateway", {

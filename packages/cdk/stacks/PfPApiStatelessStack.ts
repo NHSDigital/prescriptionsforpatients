@@ -1,12 +1,12 @@
-import {App, Stack} from "aws-cdk-lib"
+import {App, Fn, Stack} from "aws-cdk-lib"
+import {ManagedPolicy} from "aws-cdk-lib/aws-iam"
 import {nagSuppressions} from "../nagSuppressions"
 import {Functions} from "../resources/Functions"
-import {Parameters} from "../resources/Parameters"
 import {StateMachines} from "../resources/StateMachines"
 import {Apis} from "../resources/Apis"
 import {StandardStackProps} from "@nhsdigital/eps-cdk-constructs"
 
-export interface PfPApiStackProps extends StandardStackProps {
+export interface PfPApiStatelessStackProps extends StandardStackProps {
   readonly stackName: string
   readonly logRetentionInDays: number
   readonly logLevel: string
@@ -14,24 +14,21 @@ export interface PfPApiStackProps extends StandardStackProps {
   readonly targetServiceSearchServer: string
   readonly toggleGetStatusUpdates: string
   readonly allowNhsNumberOverride: string
-  readonly tc007NhsNumberValue: string
-  readonly tc008NhsNumberValue: string
-  readonly tc009NhsNumberValue: string
   readonly mutualTlsTrustStoreKey: string | undefined
   readonly csocApiGatewayDestination: string
   readonly forwardCsocLogs: boolean
+  readonly parametersReadPolicyExportName: string
 }
 
-export class PfPApiStack extends Stack {
-  public constructor(scope: App, id: string, props: PfPApiStackProps) {
+export class PfPApiStatelessStack extends Stack {
+  public constructor(scope: App, id: string, props: PfPApiStatelessStackProps) {
     super(scope, id, props)
 
-    const params = new Parameters(this, "Parameters", {
-      stackName: props.stackName,
-      tc007NhsNumberValue: props.tc007NhsNumberValue,
-      tc008NhsNumberValue: props.tc008NhsNumberValue,
-      tc009NhsNumberValue: props.tc009NhsNumberValue
-    })
+    const parametersReadPolicy = ManagedPolicy.fromManagedPolicyArn(
+      this,
+      "ReadParametersPolicy",
+      Fn.importValue(props.parametersReadPolicyExportName)
+    )
 
     // Resources
     const functions = new Functions(this, "Functions", {
@@ -45,7 +42,7 @@ export class PfPApiStack extends Stack {
       allowNhsNumberOverride: props.allowNhsNumberOverride,
       logRetentionInDays: props.logRetentionInDays,
       logLevel: props.logLevel,
-      getPfPParametersPolicy: params.readParametersPolicy
+      getPfPParametersPolicy: parametersReadPolicy
     })
 
     const stateMachines = new StateMachines(this, "StateMachines", {

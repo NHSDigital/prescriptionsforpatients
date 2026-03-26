@@ -1,5 +1,5 @@
 import {Fn, RemovalPolicy} from "aws-cdk-lib"
-import {ManagedPolicy} from "aws-cdk-lib/aws-iam"
+import {IManagedPolicy, ManagedPolicy} from "aws-cdk-lib/aws-iam"
 import {Construct} from "constructs"
 import {TypescriptLambdaFunction} from "@nhsdigital/eps-cdk-constructs"
 import {Code, LayerVersion} from "aws-cdk-lib/aws-lambda"
@@ -16,7 +16,7 @@ export interface FunctionsProps {
   readonly allowNhsNumberOverride: string
   readonly logRetentionInDays: number
   readonly logLevel: string
-  readonly getPfPParametersPolicy: ManagedPolicy
+  readonly getPfPParametersPolicy: IManagedPolicy
 }
 
 const baseDir = resolve(__dirname, "../../..")
