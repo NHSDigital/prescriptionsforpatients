@@ -6,7 +6,7 @@
     "args": {
       "DOCKER_GID": "${env:DOCKER_GID:}",
       "IMAGE_NAME": "node_24_python_3_12",
-      "IMAGE_VERSION": "v1.0.7",
+      "IMAGE_VERSION": "v1.2.0",
       "USER_UID": "${localEnv:USER_ID:}",
       "USER_GID": "${localEnv:GROUP_ID:}"
     },
@@ -58,13 +58,19 @@
         "editor.formatOnSave": true,
         "editor.formatOnSaveMode": "file",
         "editor.tabSize": 2,
-        "cSpell.words": ["fhir", "Formik", "pino", "serialisation"],
+        "cSpell.words": [
+          "fhir",
+          "Formik",
+          "pino",
+          "serialisation"
+        ],
         "eslint.useFlatConfig": true,
         "eslint.format.enable": true
       }
     }
   },
-  "remoteEnv": { "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}" },
-  "features": {
-  }
+  "remoteEnv": {
+    "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
+  },
+  "features": {}
 }
