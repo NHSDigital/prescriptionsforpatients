@@ -30,7 +30,7 @@
     "@types/node": "^25.5.0",
     "@typescript-eslint/eslint-plugin": "^8.57.1",
     "@typescript-eslint/parser": "^8.57.2",
-    "@vitest/coverage-v8": "^4.1.0",
+    "@vitest/coverage-v8": "^4.1.1",
     "eslint": "^10.1.0",
     "eslint-plugin-import-newlines": "^2.0.0",
     "globals": "^17.4.0",
