@@ -50,6 +50,9 @@ describe("CDK synth smoke tests", () => {
           CDK_CONFIG_targetServiceSearchServer: "https://live/service-search-api/",
           CDK_CONFIG_toggleGetStatusUpdates: "true",
           CDK_CONFIG_allowNhsNumberOverride: "false",
+          CDK_CONFIG_tc007NhsNumberValue: "9000000009",
+          CDK_CONFIG_tc008NhsNumberValue: "9000000017",
+          CDK_CONFIG_tc009NhsNumberValue: "9000000025",
           CDK_CONFIG_forwardCsocLogs: "false"
         }
       })

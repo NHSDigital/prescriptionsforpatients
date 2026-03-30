@@ -4,6 +4,7 @@ import {Functions} from "../resources/Functions"
 import {StateMachines} from "../resources/StateMachines"
 import {Apis} from "../resources/Apis"
 import {StandardStackProps} from "@nhsdigital/eps-cdk-constructs"
+import Parameters from "../resources/Parameters"
 
 export interface PfPApiStackProps extends StandardStackProps {
   readonly stackName: string
@@ -13,6 +14,9 @@ export interface PfPApiStackProps extends StandardStackProps {
   readonly targetServiceSearchServer: string
   readonly toggleGetStatusUpdates: string
   readonly allowNhsNumberOverride: string
+  readonly tc007NhsNumberValue: string
+  readonly tc008NhsNumberValue: string
+  readonly tc009NhsNumberValue: string
   readonly mutualTlsTrustStoreKey: string | undefined
   readonly csocApiGatewayDestination: string
   readonly forwardCsocLogs: boolean
@@ -23,6 +27,13 @@ export class PfPApiStack extends Stack {
     super(scope, id, props)
 
     // Resources
+    const parameters = new Parameters(this, "SsmParameters", {
+      stackName: props.stackName,
+      tc007NhsNumberValue: props.tc007NhsNumberValue,
+      tc008NhsNumberValue: props.tc008NhsNumberValue,
+      tc009NhsNumberValue: props.tc009NhsNumberValue
+    })
+
     const functions = new Functions(this, "Functions", {
       stackName: props.stackName,
       version: props.version,
@@ -32,6 +43,7 @@ export class PfPApiStack extends Stack {
       targetServiceSearchServer: props.targetServiceSearchServer,
       toggleGetStatusUpdates: props.toggleGetStatusUpdates,
       allowNhsNumberOverride: props.allowNhsNumberOverride,
+      getPfPParametersPolicy: parameters.readParametersPolicy,
       logRetentionInDays: props.logRetentionInDays,
       logLevel: props.logLevel
     })

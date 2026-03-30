@@ -1,7 +1,8 @@
-import {Aws, Fn, RemovalPolicy} from "aws-cdk-lib"
-import {ManagedPolicy, PolicyStatement} from "aws-cdk-lib/aws-iam"
+import {Fn, RemovalPolicy} from "aws-cdk-lib"
+import {IManagedPolicy, ManagedPolicy} from "aws-cdk-lib/aws-iam"
 import {Construct} from "constructs"
 import {TypescriptLambdaFunction} from "@nhsdigital/eps-cdk-constructs"
+import {ACCOUNT_RESOURCES} from "@nhsdigital/eps-cdk-constructs/lib/src/constants.js"
 import {Code, LayerVersion} from "aws-cdk-lib/aws-lambda"
 import {join, resolve} from "node:path"
 
@@ -14,6 +15,7 @@ export interface FunctionsProps {
   readonly targetServiceSearchServer: string
   readonly toggleGetStatusUpdates: string
   readonly allowNhsNumberOverride: string
+  readonly getPfPParametersPolicy: IManagedPolicy
   readonly logRetentionInDays: number
   readonly logLevel: string
 }
@@ -28,37 +30,20 @@ export class Functions extends Construct {
 
     // Imports
     const lambdaAccessSecretsPolicy = ManagedPolicy.fromManagedPolicyArn(
-      this, "lambdaAccessSecretsPolicy", Fn.importValue("account-resources:LambdaAccessSecretsPolicy"))
+      this, "lambdaAccessSecretsPolicy", ACCOUNT_RESOURCES.LambdaAccessSecretsPolicy)
 
     const lambdaDecryptSecretsKMSPolicy = ManagedPolicy.fromManagedPolicyArn(
-      this, "lambdaDecryptSecretsKMSPolicy", Fn.importValue("account-resources:LambdaDecryptSecretsKMSPolicy"))
-
-    const getPfPParametersPolicy = new ManagedPolicy(this, "GetPfPParametersPolicy", {
-      description: "Read test case SSM parameters",
-      statements: [
-        new PolicyStatement({
-          actions: [
-            "ssm:GetParameter",
-            "ssm:GetParameters"
-          ],
-          resources: [
-            `arn:aws:ssm:${Aws.REGION}:${Aws.ACCOUNT_ID}:parameter/${props.stackName}-TC007NHSNumber`,
-            `arn:aws:ssm:${Aws.REGION}:${Aws.ACCOUNT_ID}:parameter/${props.stackName}-TC008NHSNumber`,
-            `arn:aws:ssm:${Aws.REGION}:${Aws.ACCOUNT_ID}:parameter/${props.stackName}-TC009NHSNumber`
-          ]
-        })
-      ]
-    })
+      this, "lambdaDecryptSecretsKMSPolicy", ACCOUNT_RESOURCES.LambdaDecryptSecretsKMSPolicy)
 
     const lambdaDefaultEnvironmentVariables: {[key: string]: string} = {
       STACK_NAME: props.stackName,
       TargetSpineServer: props.targetSpineServer,
       TargetServiceSearchServer: props.targetServiceSearchServer,
-      SpinePrivateKeyARN: Fn.importValue("account-resources:SpinePrivateKey"),
-      SpinePublicCertificateARN: Fn.importValue("account-resources:SpinePublicCertificate"),
-      SpineASIDARN: Fn.importValue("account-resources:SpineASID"),
-      SpinePartyKeyARN: Fn.importValue("account-resources:SpinePartyKey"),
-      SpineCAChainARN: Fn.importValue("account-resources:SpineCAChain"),
+      SpinePrivateKeyARN: ACCOUNT_RESOURCES.SpinePrivateKeyARN,
+      SpinePublicCertificateARN: ACCOUNT_RESOURCES.SpinePublicCertificateARN,
+      SpineASIDARN: ACCOUNT_RESOURCES.SpineASIDARN,
+      SpinePartyKeyARN: ACCOUNT_RESOURCES.SpinePartyKeyARN,
+      SpineCAChainARN: ACCOUNT_RESOURCES.SpineCAChainARN,
       ServiceSearch3ApiKeyARN: Fn.importValue("pfp-PfP-ServiceSearch-API-Key")
     }
 
@@ -85,7 +70,7 @@ export class Functions extends Construct {
       additionalPolicies: [
         lambdaAccessSecretsPolicy,
         lambdaDecryptSecretsKMSPolicy,
-        getPfPParametersPolicy
+        props.getPfPParametersPolicy
       ],
       logRetentionInDays: props.logRetentionInDays,
       logLevel: props.logLevel,
@@ -104,7 +89,7 @@ export class Functions extends Construct {
         EXPECT_STATUS_UPDATES: props.toggleGetStatusUpdates
       },
       additionalPolicies: [
-        getPfPParametersPolicy
+        props.getPfPParametersPolicy
       ],
       logRetentionInDays: props.logRetentionInDays,
       logLevel: props.logLevel,
