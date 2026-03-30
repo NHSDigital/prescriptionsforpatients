@@ -31,8 +31,7 @@ export function buildStatusUpdateData(logger: Logger, searchsetBundle: Bundle): 
     logger.info(`Building status update data for prescription ${prescriptionID}.`)
 
     if (allItemsApprovedOrCancelled) {
-      logger.info(`All items for prescription ${prescriptionID} are 'Prescriber Approved' or ' Prescriber Cancelled'.`)
-      logger.info(`Ignoring prescription.`)
+      logger.info(`No update of prescription ${prescriptionID} as all 'Prescriber Approved' or 'Prescriber Cancelled'.`)
       return
     }
 

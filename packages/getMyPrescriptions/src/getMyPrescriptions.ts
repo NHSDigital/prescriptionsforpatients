@@ -83,7 +83,6 @@ async function eventHandler(
 ): Promise<LambdaResult> {
   const traceIDs: TraceIDs = logTraceIds(headers)
   const spineClient = params.spineClient
-  const applicationName = headers["nhsd-application-name"] ?? "unknown"
   const correlationId = headers["nhsd-correlation-id"] ?? crypto.randomUUID()
 
   checkSpineCertificateConfiguration(spineClient)
@@ -93,7 +92,7 @@ async function eventHandler(
 
   const response = await makeSpinePrescriptionCall(spineClient, headers, params)
   const searchsetBundle: Bundle = response.data
-  logPrescriptionResponse(searchsetBundle, traceIDs, headers, applicationName)
+  logPrescriptionResponse(searchsetBundle, traceIDs, headers)
 
   const statusUpdateData = includeStatusUpdateData ? buildStatusUpdateData(logger, searchsetBundle) : undefined
 
@@ -130,8 +129,7 @@ function logTraceIds(headers: EventHeaders) {
   return traceIDs
 }
 
-function logPrescriptionResponse(searchsetBundle: Bundle,
-  traceIDs: TraceIDs, headers: EventHeaders, applicationName: string) {
+function logPrescriptionResponse(searchsetBundle: Bundle, traceIDs: TraceIDs, headers: EventHeaders) {
   searchsetBundle.id = traceIDs["x-request-id"] || "unknown"
 
   const operationOutcomes = isolateOperationOutcome(searchsetBundle)
@@ -140,16 +138,13 @@ function logPrescriptionResponse(searchsetBundle: Bundle,
   })
 
   const ODSCodes = extractOdsCodes(logger, searchsetBundle)
-  logger.info(
-    "Processing PfP get prescriptions request for patient. "
-    + "They have these relevant ODS codes, and the PfP request was made via this apigee application.",
-    {
-      ODSCodes,
-      actorNhsNumber: headers[NHS_LOGIN_HEADER],
-      subjectNhsNumber: headers["nhsNumber"],
-      applicationName
-    }
-  )
+  logger.info("Get prescriptions for patient response.", {
+    ODSCodes,
+    actorNhsNumber: headers[NHS_LOGIN_HEADER],
+    subjectNhsNumber: headers["nhsNumber"],
+    applicationName: headers["nhsd-application-name"] ?? "unknown",
+    applicationId: headers["nhsd-application-id"] ?? "unknown"
+  })
 }
 
 async function makeSpinePrescriptionCall(spineClient: SpineClient, headers: EventHeaders, params: HandlerParams) {
