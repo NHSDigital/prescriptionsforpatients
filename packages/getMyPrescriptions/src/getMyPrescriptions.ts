@@ -143,7 +143,9 @@ function logPrescriptionResponse(searchsetBundle: Bundle, traceIDs: TraceIDs, he
     actorNhsNumber: headers[NHS_LOGIN_HEADER],
     subjectNhsNumber: headers["nhsNumber"],
     applicationName: headers["nhsd-application-name"] ?? "unknown",
-    applicationId: headers["nhsd-application-id"] ?? "unknown"
+    applicationId: headers["nhsd-application-id"] ?? "unknown",
+    proxygenAppName: headers["developer.app.name"] ?? "unknown",
+    proxygenAppId: headers["developer.app.id"] ?? "unknown"
   })
 }
 
