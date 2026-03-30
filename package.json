@@ -40,6 +40,7 @@
     "vitest": "^4.1.0"
   },
   "dependencies": {
+    "@nhsdigital/eps-cdk-constructs": "file:nhsdigital-eps-cdk-constructs-1.6.0.tgz",
     "esbuild": "^0.27.4"
   }
 }
