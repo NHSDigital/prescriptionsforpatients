@@ -23,6 +23,8 @@ updates:
     open-pull-requests-limit: 20  
     commit-message:
       prefix: "Upgrade: [dependabot] - "
+    cooldown:
+      default-days: 3
   - package-ecosystem: "github-actions"
     # Workflow files stored in the
     # default location of `.github/workflows`
@@ -34,6 +36,8 @@ updates:
     open-pull-requests-limit: 20  
     commit-message:
       prefix: "Upgrade: [dependabot] - "
+    cooldown:
+      default-days: 3
 
   ###################################
   # NPM workspace  ##################
@@ -50,3 +54,5 @@ updates:
       prefix: "Upgrade: [dependabot] - "
     registries:
       - npm-github
+    cooldown:
+      default-days: 3
