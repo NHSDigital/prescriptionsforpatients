@@ -12,6 +12,7 @@ export interface PfPApiStackProps extends StandardStackProps {
   readonly logLevel: string
   readonly targetSpineServer: string
   readonly targetServiceSearchServer: string
+  readonly serviceSearchApiKeySecretName: string
   readonly toggleGetStatusUpdates: string
   readonly allowNhsNumberOverride: string
   readonly tc007NhsNumberValue: string
@@ -42,6 +43,7 @@ export class PfPApiStack extends Stack {
       targetSpineServer: props.targetSpineServer,
       targetServiceSearchServer: props.targetServiceSearchServer,
       toggleGetStatusUpdates: props.toggleGetStatusUpdates,
+      serviceSearchApiKeySecretName: props.serviceSearchApiKeySecretName,
       allowNhsNumberOverride: props.allowNhsNumberOverride,
       getPfPParametersPolicy: parameters.readParametersPolicy,
       logRetentionInDays: props.logRetentionInDays,

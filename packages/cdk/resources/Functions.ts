@@ -1,4 +1,4 @@
-import {Fn, RemovalPolicy} from "aws-cdk-lib"
+import {RemovalPolicy} from "aws-cdk-lib"
 import {IManagedPolicy, ManagedPolicy} from "aws-cdk-lib/aws-iam"
 import {Construct} from "constructs"
 import {TypescriptLambdaFunction} from "@nhsdigital/eps-cdk-constructs"
@@ -13,6 +13,7 @@ export interface FunctionsProps {
   readonly deploymentEnvironment: string
   readonly targetSpineServer: string
   readonly targetServiceSearchServer: string
+  readonly serviceSearchApiKeySecretName: string
   readonly toggleGetStatusUpdates: string
   readonly allowNhsNumberOverride: string
   readonly getPfPParametersPolicy: IManagedPolicy
@@ -44,7 +45,7 @@ export class Functions extends Construct {
       SpineASIDARN: ACCOUNT_RESOURCES.SpineASIDARN,
       SpinePartyKeyARN: ACCOUNT_RESOURCES.SpinePartyKeyARN,
       SpineCAChainARN: ACCOUNT_RESOURCES.SpineCAChainARN,
-      ServiceSearch3ApiKeyARN: Fn.importValue("pfp-PfP-ServiceSearch-API-Key")
+      ServiceSearch3ApiKeyName: props.serviceSearchApiKeySecretName
     }
 
     const getSecretsLambdaLayer = new LayerVersion(this, "GetSecretsLambdaLayer", {

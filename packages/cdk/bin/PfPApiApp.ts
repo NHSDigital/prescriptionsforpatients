@@ -20,6 +20,7 @@ function main() {
     stackName: calculateVersionedStackName(getConfigFromEnvVar("stackName"), props),
     logRetentionInDays: getNumberConfigFromEnvVar("logRetentionInDays"),
     logLevel: getConfigFromEnvVar("logLevel"),
+    serviceSearchApiKeySecretName: getConfigFromEnvVar("serviceSearchApiKeySecretName", "pfp-PfP-ServiceSearch-API-Key"),
     targetSpineServer: getConfigFromEnvVar("targetSpineServer"),
     targetServiceSearchServer: getConfigFromEnvVar("targetServiceSearchServer"),
     toggleGetStatusUpdates: getConfigFromEnvVar("toggleGetStatusUpdates"),
