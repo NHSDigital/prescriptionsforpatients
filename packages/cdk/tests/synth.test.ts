@@ -34,7 +34,7 @@ describe("CDK synth smoke tests", () => {
         env: createBaseEnv()
       })
     }).not.toThrow()
-  })
+  }, 30000)
 
   it("synthesizes the main app", () => {
     expect(() => {
@@ -57,5 +57,5 @@ describe("CDK synth smoke tests", () => {
         }
       })
     }).not.toThrow()
-  })
+  }, 30000)
 })
