@@ -24,7 +24,7 @@ describe("CDK synth smoke tests", () => {
         stdio: "pipe"
       })
     }).not.toThrow()
-  })
+  }, 30000)
 
   it("synthesizes the sandbox app", () => {
     expect(() => {

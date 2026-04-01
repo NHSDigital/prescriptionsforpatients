@@ -1,5 +1,6 @@
 import {
   calculateVersionedStackName,
+  CDK_ENV_PREFIX,
   createApp,
   getConfigFromEnvVar,
   getNumberConfigFromEnvVar
@@ -16,12 +17,13 @@ function main() {
 
   new PfPApiSandboxStack(app, "PfPApiSandboxStack", {
     ...props,
-    stackName: calculateVersionedStackName(getConfigFromEnvVar("stackName", "pfp-sandbox"), props),
-    targetSpineServer: getConfigFromEnvVar("targetSpineServer", "none"),
-    targetServiceSearchServer: getConfigFromEnvVar("targetServiceSearchServer", "none"),
-    logRetentionInDays: getNumberConfigFromEnvVar("logRetentionInDays", "30"),
-    logLevel: getConfigFromEnvVar("logLevel", "INFO"),
-    mutualTlsTrustStoreKey: props.isPullRequest ? undefined : getConfigFromEnvVar("trustStoreFile", "none")
+    stackName: calculateVersionedStackName(getConfigFromEnvVar("stackName", CDK_ENV_PREFIX, "pfp-sandbox"), props),
+    targetSpineServer: getConfigFromEnvVar("targetSpineServer", CDK_ENV_PREFIX, "none"),
+    targetServiceSearchServer: getConfigFromEnvVar("targetServiceSearchServer", CDK_ENV_PREFIX, "none"),
+    logRetentionInDays: getNumberConfigFromEnvVar("logRetentionInDays", CDK_ENV_PREFIX, "30"),
+    logLevel: getConfigFromEnvVar("logLevel", CDK_ENV_PREFIX, "INFO"),
+    mutualTlsTrustStoreKey: props.isPullRequest ?
+      undefined : getConfigFromEnvVar("trustStoreFile", CDK_ENV_PREFIX, "none")
   })
 }
 
