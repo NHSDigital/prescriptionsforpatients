@@ -19,7 +19,6 @@ jobs:
     with:
       verify_published_from_main_image: false
 
-
   quality_checks:
     uses: NHSDigital/eps-common-workflows/.github/workflows/quality-checks-devcontainer.yml@5ac2707dd9cd60ad127275179495b9c890d74711
     needs: [get_config_values]
@@ -119,12 +118,53 @@ jobs:
       TARGET_SPINE_SERVER: ${{ secrets.DEV_TARGET_SPINE_SERVER }}
       TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.DEV_TARGET_SERVICE_SEARCH_SERVER }}
       PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PTL_ROLE }}
+
+  package_cdk_code:
+    needs: [get_issue_number, tag_release, get_config_values]
+    uses: ./.github/workflows/cdk_package_code.yml
+    with:
+      pinned_image: ${{ needs.get_config_values.outputs.pinned_image }}
+
+  release_cdk_code:
+    needs: [get_issue_number, package_code, get_commit_id, get_config_values]
+    uses: ./.github/workflows/cdk_release_code.yml
+    with:
+      IS_PULL_REQUEST: true
+      STACK_NAME: pfp-pr-cdk-${{needs.get_issue_number.outputs.issue_number}}
+      TARGET_ENVIRONMENT: dev
+      APIGEE_ENVIRONMENT: internal-dev
+      # TODO: needed?
+      # APIM_STATUS_API_KEY: ${{ secrets.APIM_STATUS_API_KEY }}
+      ENABLE_MUTUAL_TLS: false
+      MTLS_KEY: prescriptions-for-patients-mtls-1
+      BUILD_ARTIFACT: build_artifact
+      TRUSTSTORE_FILE: pfp-truststore-pr.pem
+      VERSION_NUMBER: PR-${{ needs.get_issue_number.outputs.issue_number }}
+      COMMIT_ID: ${{ needs.get_commit_id.outputs.commit_id }}
+      LOG_LEVEL: DEBUG
+      LOG_RETENTION_DAYS: 30
+      TOGGLE_GET_STATUS_UPDATES: true
+      ENABLE_ALERTS: false
+      STATE_MACHINE_LOG_LEVEL: ALL
+      RUN_REGRESSION_TESTS: false # Don't run regression tests on CDK yet
+      REGRESSION_TEST_PRODUCT: PFP-AWS
+      FORWARD_CSOC_LOGS: false
+      DEPLOY_APIGEE: true
+      ALLOW_NHS_NUMBER_OVERRIDE: true
+      pinned_image: ${{ needs.get_config_values.outputs.pinned_image }}
+    secrets:
+      REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_SPINE_SERVER: ${{ secrets.DEV_TARGET_SPINE_SERVER }}
+      TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.DEV_TARGET_SERVICE_SEARCH_SERVER }}
+      PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PTL_ROLE }}
+
   release_sandbox_code:
     needs: [get_issue_number, package_code, get_commit_id, get_config_values]
     uses: ./.github/workflows/sam_release_code.yml
     with:
       IS_PULL_REQUEST: true
-      STACK_NAME: pfp-pr-${{needs.get_issue_number.outputs.issue_number}}-sandbox
+      STACK_NAME: pfp-pr-cdk-${{needs.get_issue_number.outputs.issue_number}}-sandbox
       ARTIFACT_BUCKET_PREFIX: PR-sandbox-${{needs.get_issue_number.outputs.issue_number}}
       TARGET_ENVIRONMENT: dev
       APIGEE_ENVIRONMENT: internal-dev-sandbox

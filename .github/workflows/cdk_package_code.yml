@@ -1,0 +1,66 @@
+name: cdk package code
+
+on:
+  workflow_call:
+    inputs:
+      pinned_image:
+        type: string
+        required: true
+
+jobs:
+  package_code:
+    runs-on: ubuntu-22.04
+    container:
+      image: ${{ inputs.pinned_image }}
+      options: --user 1001:1001 --group-add 128
+    defaults:
+      run:
+        shell: bash
+    permissions:
+      id-token: write
+      contents: read
+      packages: read
+    steps:
+      - name: copy .tool-versions
+        run: |
+          cp /home/vscode/.tool-versions "$HOME/.tool-versions"
+          cp /home/vscode/.tool-versions ./.tool-versions
+
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Setting up .npmrc
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
+          echo "@nhsdigital:registry=https://npm.pkg.github.com" >> ~/.npmrc
+
+      - name: make install and compile
+        run: |
+          make install
+          make compile
+
+      - name: download the get secrets lambda layer
+        run: |
+          make download-get-secrets-layer
+
+      - name: Tar files
+        run: |
+          tar -cf artifact.tar \
+            .github \
+            packages \
+            node_modules \
+            package.json \
+            package-lock.json \
+            tsconfig.defaults.json \
+            tsconfig.build.json \
+            Makefile
+
+      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
+        name: upload build artifact
+        with:
+          name: build_artifact
+          path: artifact.tar
