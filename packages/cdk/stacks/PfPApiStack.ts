@@ -3,6 +3,7 @@ import {nagSuppressions} from "../nagSuppressions"
 import {Functions} from "../resources/Functions"
 import {StateMachines} from "../resources/StateMachines"
 import {Apis} from "../resources/Apis"
+import {Alarms} from "../resources/Alarms"
 import {StandardStackProps} from "@nhsdigital/eps-cdk-constructs"
 import Parameters from "../resources/Parameters"
 
@@ -19,6 +20,7 @@ export interface PfPApiStackProps extends StandardStackProps {
   readonly tc008NhsNumberValue: string
   readonly tc009NhsNumberValue: string
   readonly mutualTlsTrustStoreKey: string | undefined
+  readonly enableAlerts: boolean
   readonly csocApiGatewayDestination: string
   readonly forwardCsocLogs: boolean
 }
@@ -53,6 +55,12 @@ export class PfPApiStack extends Stack {
     const stateMachines = new StateMachines(this, "StateMachines", {
       stackName: props.stackName,
       logRetentionInDays: props.logRetentionInDays,
+      functions: functions.functions
+    })
+
+    new Alarms(this, "Alarms", {
+      stackName: props.stackName,
+      enableAlerts: props.enableAlerts,
       functions: functions.functions
     })
 

@@ -53,6 +53,7 @@ describe("CDK synth smoke tests", () => {
           CDK_CONFIG_tc007NhsNumberValue: "9000000009",
           CDK_CONFIG_tc008NhsNumberValue: "9000000017",
           CDK_CONFIG_tc009NhsNumberValue: "9000000025",
+          CDK_CONFIG_enableAlerts: "true",
           CDK_CONFIG_forwardCsocLogs: "false"
         }
       })

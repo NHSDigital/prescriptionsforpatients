@@ -30,6 +30,7 @@ function main() {
     tc007NhsNumberValue: getConfigFromEnvVar("tc007NhsNumberValue", CDK_ENV_PREFIX, "not_in_use"),
     tc008NhsNumberValue: getConfigFromEnvVar("tc008NhsNumberValue", CDK_ENV_PREFIX, "not_in_use"),
     tc009NhsNumberValue: getConfigFromEnvVar("tc009NhsNumberValue", CDK_ENV_PREFIX, "not_in_use"),
+    enableAlerts: getBooleanConfigFromEnvVar("enableAlerts", CDK_ENV_PREFIX, "true"),
     mutualTlsTrustStoreKey: props.isPullRequest ? undefined : getConfigFromEnvVar("trustStoreFile"),
     // CSOC API GW log destination - do not change
     csocApiGatewayDestination: "arn:aws:logs:eu-west-2:693466633220:destination:api_gateway_log_destination",
