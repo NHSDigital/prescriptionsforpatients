@@ -22,6 +22,7 @@ on:
     secrets:
       REGRESSION_TESTS_PEM:
         required: true
+permissions: {}
 
 jobs:
   run_regression_tests:
@@ -44,6 +45,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           ref: ${{ env.BRANCH_NAME }}
+          persist-credentials: false
           fetch-depth: 0
 
       - name: Generate a token to authenticate regression testing
@@ -62,6 +64,7 @@ jobs:
           TARGET_ENVIRONMENT: ${{ inputs.ENVIRONMENT }}
           VERSION_NUMBER: ${{ inputs.VERSION_NUMBER }}
           GITHUB-TOKEN: ${{ steps.generate-token.outputs.token }}
+          REGRESSION_TEST_PRODUCT: ${{ inputs.REGRESSION_TEST_PRODUCT }}
         run: |
           if [[ "$TARGET_ENVIRONMENT" != "prod" && "$TARGET_ENVIRONMENT" != "ref" ]]; then
             REGRESSION_TEST_REPO_TAG="v3.9.17" # This is the tag or branch of the regression test code to run, usually a version tag like v3.1.0 or a branch name
@@ -91,9 +94,9 @@ jobs:
             poetry run python -u run_regression_tests.py \
             --env="$TARGET_ENVIRONMENT" \
             --pr_label="$VERSION_NUMBER" \
-            --token=${{ steps.generate-token.outputs.token }} \
+            --token="$GITHUB-TOKEN" \
             --is_called_from_github=true \
-            --product=${{ inputs.REGRESSION_TEST_PRODUCT }} \
+            --product="${REGRESSION_TEST_PRODUCT}" \
             --regression_test_repo_tag "${REGRESSION_TEST_REPO_TAG}" \
             --regression_test_workflow_tag "${REGRESSION_TEST_WORKFLOW_TAG}"
           fi

@@ -11,6 +11,7 @@ on:
     - cron: "0 0,12 * * *"
   push:
     branches: [main]
+permissions: {}
 
 jobs:
   delete-old-cloudformation-stacks:
@@ -24,6 +25,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           ref: ${{ github.event.inputs.branch_name || github.ref_name }}
+          persist-credentials: false
           sparse-checkout: |
             .github/scripts
 
@@ -52,6 +54,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           ref: ${{ github.event.inputs.branch_name || github.ref_name }}
+          persist-credentials: false
           fetch-depth: 0
 
       - name: Configure AWS Credentials
