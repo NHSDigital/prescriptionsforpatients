@@ -105,6 +105,9 @@ jobs:
   release_code:
     needs: [get_issue_number, package_code, get_commit_id, get_config_values]
     uses: ./.github/workflows/sam_release_code.yml
+    permissions:
+      contents: read
+      id-token: write
     with:
       IS_PULL_REQUEST: true
       STACK_NAME: pfp-pr-${{needs.get_issue_number.outputs.issue_number}}
@@ -137,6 +140,9 @@ jobs:
   release_sandbox_code:
     needs: [get_issue_number, package_code, get_commit_id, get_config_values]
     uses: ./.github/workflows/sam_release_code.yml
+    permissions:
+      contents: read
+      id-token: write
     with:
       IS_PULL_REQUEST: true
       STACK_NAME: pfp-pr-${{needs.get_issue_number.outputs.issue_number}}-sandbox

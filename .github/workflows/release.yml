@@ -64,6 +64,9 @@ jobs:
   release_dev:
     needs: [tag_release, package_code, get_commit_id, get_config_values]
     uses: ./.github/workflows/sam_release_code.yml
+    permissions:
+      contents: read
+      id-token: write
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: pfp
@@ -104,6 +107,9 @@ jobs:
   release_dev_sandbox:
     needs: [tag_release, package_code, get_commit_id, get_config_values]
     uses: ./.github/workflows/sam_release_code.yml
+    permissions:
+      contents: read
+      id-token: write
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: pfp-sandbox
@@ -143,6 +149,9 @@ jobs:
         get_config_values,
       ]
     uses: ./.github/workflows/sam_release_code.yml
+    permissions:
+      contents: read
+      id-token: write
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: pfp
@@ -183,6 +192,9 @@ jobs:
         get_config_values,
       ]
     uses: ./.github/workflows/sam_release_code.yml
+    permissions:
+      contents: read
+      id-token: write
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: pfp
@@ -217,6 +229,9 @@ jobs:
   release_int:
     needs: [tag_release, release_qa, package_code, get_commit_id, get_config_values]
     uses: ./.github/workflows/sam_release_code.yml
+    permissions:
+      contents: read
+      id-token: write
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: pfp
@@ -257,6 +272,9 @@ jobs:
   release_sandbox:
     needs: [tag_release, release_qa, package_code, get_commit_id, get_config_values]
     uses: ./.github/workflows/sam_release_code.yml
+    permissions:
+      contents: read
+      id-token: write
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: pfp-sandbox
@@ -286,6 +304,9 @@ jobs:
     needs:
       [tag_release, release_int, release_sandbox, package_code, get_commit_id, get_config_values]
     uses: ./.github/workflows/sam_release_code.yml
+    permissions:
+      contents: read
+      id-token: write
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
       STACK_NAME: pfp
