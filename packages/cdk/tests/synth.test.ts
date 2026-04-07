@@ -4,7 +4,7 @@ import {describe, expect, it} from "vitest"
 
 const cdkPackageRoot = resolve(__dirname, "..")
 
-function createBaseEnv(): NodeJS.ProcessEnv {
+function createBaseEnv() {
   return {
     ...process.env,
     CI: "true",
