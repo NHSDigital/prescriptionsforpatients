@@ -182,7 +182,7 @@ jobs:
     uses: ./.github/workflows/cdk_release_code.yml
     with:
       IS_PULL_REQUEST: true
-      STACK_NAME: pfp-pr-cdk-${{needs.get_issue_number.outputs.issue_number}}
+      STACK_NAME: pfp-pr-${{needs.get_issue_number.outputs.issue_number}}
       TARGET_ENVIRONMENT: dev
       APIGEE_ENVIRONMENT: internal-dev
       # TODO: needed?
@@ -217,7 +217,7 @@ jobs:
     uses: ./.github/workflows/cdk_release_code.yml
     with:
       IS_PULL_REQUEST: true
-      STACK_NAME: pfp-pr-cdk-${{needs.get_issue_number.outputs.issue_number}}-sandbox
+      STACK_NAME: pfp-pr-${{needs.get_issue_number.outputs.issue_number}}-sandbox
       TARGET_ENVIRONMENT: dev
       APIGEE_ENVIRONMENT: internal-dev-sandbox
       ENABLE_MUTUAL_TLS: false
