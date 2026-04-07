@@ -97,6 +97,10 @@ jobs:
     uses: ./.github/workflows/sam_package_code.yml
     with:
       pinned_image: ${{ needs.get_config_values.outputs.pinned_image }}
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
 
   release_code:
     needs: [get_issue_number, package_code, get_commit_id, get_config_values]
