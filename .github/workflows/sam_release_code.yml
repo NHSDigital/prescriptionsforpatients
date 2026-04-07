@@ -254,6 +254,9 @@ jobs:
     name: Regression Tests
     uses: ./.github/workflows/run_regression_tests.yml
     needs: sam_release_code
+    permissions:
+      contents: write
+      id-token: write
     with:
       ENVIRONMENT: ${{ inputs.APIGEE_ENVIRONMENT }}
       VERSION_NUMBER: ${{ inputs.VERSION_NUMBER }}
