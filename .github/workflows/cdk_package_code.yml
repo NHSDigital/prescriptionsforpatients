@@ -40,9 +40,7 @@ jobs:
 
       - name: make install and compile
         run: |
-          make install-python
-          make install-hooks
-          npx -y npm@11.6.2 ci
+          make install
           make compile
 
       - name: download the get secrets lambda layer
