@@ -23,6 +23,14 @@ repos:
 
   - repo: local
     hooks:
+      - id: grype-scan-local
+        name: Grype scan local changes
+        entry: make
+        args: ["grype-scan-local"]
+        language: system
+        pass_filenames: false
+        always_run: true
+
       - id: check-commit-signing
         name: Check commit signing
         description: Ensures that commits are GPG signed
