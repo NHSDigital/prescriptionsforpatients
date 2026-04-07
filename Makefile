@@ -171,7 +171,7 @@ lint-node: compile-node
 lint: lint-node actionlint shellcheck cfn-lint
 	echo "Linting complete"
 
-test: compile
+test: compile download-get-secrets-layer
 	npm run test --workspace packages/cdk
 	npm run test --workspace packages/capabilityStatement
 	npm run test --workspace packages/getMyPrescriptions
