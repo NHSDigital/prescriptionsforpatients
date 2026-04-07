@@ -62,7 +62,7 @@ jobs:
     needs: [tag_release, package_code, get_commit_id, get_config_values]
     uses: ./.github/workflows/sam_release_code.yml
     permissions:
-      contents: read
+      contents: write
       id-token: write
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
@@ -103,7 +103,7 @@ jobs:
     needs: [tag_release, package_code, get_commit_id, get_config_values]
     uses: ./.github/workflows/sam_release_code.yml
     permissions:
-      contents: read
+      contents: write
       id-token: write
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}
@@ -142,7 +142,7 @@ jobs:
       ]
     uses: ./.github/workflows/sam_release_code.yml
     permissions:
-      contents: read
+      contents: write
       id-token: write
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.version_tag}}

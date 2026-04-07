@@ -106,7 +106,7 @@ jobs:
     needs: [get_issue_number, package_code, get_commit_id, get_config_values]
     uses: ./.github/workflows/sam_release_code.yml
     permissions:
-      contents: read
+      contents: write
       id-token: write
     with:
       IS_PULL_REQUEST: true
@@ -141,7 +141,7 @@ jobs:
     needs: [get_issue_number, package_code, get_commit_id, get_config_values]
     uses: ./.github/workflows/sam_release_code.yml
     permissions:
-      contents: read
+      contents: write
       id-token: write
     with:
       IS_PULL_REQUEST: true
