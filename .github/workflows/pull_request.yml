@@ -104,7 +104,7 @@ jobs:
     with:
       pinned_image: ${{ needs.get_config_values.outputs.pinned_image }}
 
-  release_code:
+  release_sam_code:
     if: ${{ needs.set_deploy_mode.outputs.is_cdk_deploy != 'true' }}
     needs: [get_issue_number, package_code, get_commit_id, get_config_values, set_deploy_mode]
     uses: ./.github/workflows/sam_release_code.yml
@@ -138,7 +138,7 @@ jobs:
       TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.DEV_TARGET_SERVICE_SEARCH_SERVER }}
       PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PTL_ROLE }}
 
-  release_sandbox_code:
+  release_sam_sandbox_code:
     if: ${{ needs.set_deploy_mode.outputs.is_cdk_deploy != 'true' }}
     needs: [get_issue_number, package_code, get_commit_id, get_config_values, set_deploy_mode]
     uses: ./.github/workflows/sam_release_code.yml
@@ -243,3 +243,45 @@ jobs:
       TARGET_SPINE_SERVER: sandbox
       TARGET_SERVICE_SEARCH_SERVER: sandbox
       PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PTL_ROLE }}
+
+  release_code:
+    runs-on: ubuntu-22.04
+    needs: [release_sam_code, release_cdk_code]
+    if: ${{ always() && !cancelled() }}
+    steps:
+      - name: Validate one release variant succeeded
+        env:
+          SAM_RESULT: ${{ needs.release_sam_code.result }}
+          CDK_RESULT: ${{ needs.release_cdk_code.result }}
+        run: |
+          echo "SAM_RESULT=${SAM_RESULT}" >> "$GITHUB_STEP_SUMMARY"
+          echo "CDK_RESULT=${CDK_RESULT}" >> "$GITHUB_STEP_SUMMARY"
+
+          if [[ "${SAM_RESULT}" == "success" && "${CDK_RESULT}" == "skipped" ]] || \
+             [[ "${SAM_RESULT}" == "skipped" && "${CDK_RESULT}" == "success" ]]; then
+            exit 0
+          fi
+
+          echo "Expected exactly one release variant to run and succeed" >&2
+          exit 1
+
+  release_sandbox_code:
+    runs-on: ubuntu-22.04
+    needs: [release_sam_sandbox_code, release_cdk_sandbox_code]
+    if: ${{ always() && !cancelled() }}
+    steps:
+      - name: Validate one sandbox release variant succeeded
+        env:
+          SAM_RESULT: ${{ needs.release_sam_sandbox_code.result }}
+          CDK_RESULT: ${{ needs.release_cdk_sandbox_code.result }}
+        run: |
+          echo "SAM_RESULT=${SAM_RESULT}" >> "$GITHUB_STEP_SUMMARY"
+          echo "CDK_RESULT=${CDK_RESULT}" >> "$GITHUB_STEP_SUMMARY"
+
+          if [[ "${SAM_RESULT}" == "success" && "${CDK_RESULT}" == "skipped" ]] || \
+             [[ "${SAM_RESULT}" == "skipped" && "${CDK_RESULT}" == "success" ]]; then
+            exit 0
+          fi
+
+          echo "Expected exactly one sandbox release variant to run and succeed" >&2
+          exit 1
