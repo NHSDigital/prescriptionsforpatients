@@ -6,6 +6,7 @@ self.token = token
 --token=\$\{\{\s*steps\.generate-token\.outputs\.token\s*\}\}
 --token=\$GITHUB-TOKEN
 --token="\$GITHUB-TOKEN"
+--token="\$GITHUB_TOKEN"
 "accountId": "123456789012"
 accountId: "123456789012"
 console\.log\(`access token : \${access_token}`\)

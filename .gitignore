@@ -30,3 +30,4 @@ vendor
 *.preprocessed.yaml
 .cfn_guard_out/
 .trivy_out/
+.sbom/
