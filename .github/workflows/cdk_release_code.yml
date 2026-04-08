@@ -142,11 +142,12 @@ jobs:
           cp /home/vscode/.tool-versions "$HOME/.tool-versions"
 
       - name: Checkout local github actions
-        uses: actions/checkout@v5
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           fetch-depth: 0
           sparse-checkout: |
             .github
+          persist-credentials: false
 
       - name: create_int_rc_release_notes
         uses: ./.github/actions/update_confluence_jira
@@ -314,6 +315,7 @@ jobs:
         with:
           ref: gh-pages
           path: gh-pages
+          persist-credentials: false
 
       - name: Update release tag in github pages
         # if: ${{ inputs.IS_CDK_DEPLOY == true && inputs.IS_PULL_REQUEST == false }}
@@ -322,14 +324,14 @@ jobs:
         run: |
           cd gh-pages
           NOW=$(date +'%Y-%m-%dT%H:%M:%S')
-          echo "tag,release_datetime" > _data/${{ inputs.APIGEE_ENVIRONMENT }}_latest.csv
-          echo "${{ inputs.VERSION_NUMBER }},${NOW}" >> _data/${{ inputs.APIGEE_ENVIRONMENT }}_latest.csv
-          echo "${{ inputs.VERSION_NUMBER }},${NOW}" >> _data/${{ inputs.APIGEE_ENVIRONMENT }}_deployments.csv
+          echo "tag,release_datetime" > "_data/${APIGEE_ENVIRONMENT}_latest.csv"
+          echo "${VERSION_NUMBER},${NOW}" >> "_data/${APIGEE_ENVIRONMENT}_latest.csv"
+          echo "${VERSION_NUMBER},${NOW}" >> "_data/${APIGEE_ENVIRONMENT}_deployments.csv"
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git add _data/${{ inputs.APIGEE_ENVIRONMENT }}_latest.csv
-          git add _data/${{ inputs.APIGEE_ENVIRONMENT }}_deployments.csv
-          git commit -m 'update releases for ${{ inputs.APIGEE_ENVIRONMENT }}'
+          git add "_data/${APIGEE_ENVIRONMENT}_latest.csv"
+          git add "_data/${APIGEE_ENVIRONMENT}_deployments.csv"
+          git commit -m "update releases for ${APIGEE_ENVIRONMENT}"
           parallel --retries 10 --delay 3 ::: "git pull --rebase && git push"
 
   regression_tests:
@@ -339,6 +341,9 @@ jobs:
     # if: ${{ always() && !failure() && !cancelled() && inputs.RUN_REGRESSION_TESTS == true }}
     if: ${{ inputs.RUN_REGRESSION_TESTS == true }}
     needs: [release_code_and_api]
+    permissions:
+      contents: write
+      id-token: write
     with:
       ENVIRONMENT: "${{ inputs.APIGEE_ENVIRONMENT }}"
       VERSION_NUMBER: "${{ inputs.VERSION_NUMBER }}"
