@@ -1,0 +1,15 @@
+rules:
+  unpinned-images:
+    # these workflows use unpinned images because they are using a full image passed in that contains the tag
+    ignore:
+      - sam_release_code.yml:121:7
+      - sam_package_code.yml:15:7
+      - run_regression_tests.yml:31:7
+  secrets-outside-env:
+    # these are ignored because they are using known secrets
+    ignore:
+      - delete_old_cloudformation_stacks.yml:34:31
+      - delete_old_cloudformation_stacks.yml:61:31
+      - run_regression_tests.yml:55:28
+      - delete_old_cloudformation_stacks.yml:64:31
+      - delete_old_cloudformation_stacks.yml:36:31
