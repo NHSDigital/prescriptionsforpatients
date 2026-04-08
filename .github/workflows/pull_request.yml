@@ -6,6 +6,7 @@ on:
 
 env:
   BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
+  IS_CDK_DEPLOY: "false"
 
 jobs:
   dependabot-auto-approve-and-merge:
@@ -85,16 +86,14 @@ jobs:
     outputs:
       is_cdk_deploy: ${{ steps.deploy_mode.outputs.is_cdk_deploy }}
     steps:
-      - name: Set deploy mode from PR title
+      - name: Set deploy mode from workflow env
         id: deploy_mode
         run: |
-          echo "is_cdk_deploy=${{ contains(github.event.pull_request.title, '[CDK]') }}" >> "$GITHUB_OUTPUT"
+          echo "is_cdk_deploy=${{ env.IS_CDK_DEPLOY }}" >> "$GITHUB_OUTPUT"
       - name: Summarize deploy mode
         env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
           IS_CDK_DEPLOY: ${{ steps.deploy_mode.outputs.is_cdk_deploy }}
         run: |
-          echo "PR title: ${PR_TITLE}" >> "$GITHUB_STEP_SUMMARY"
           echo "is_cdk_deploy: ${IS_CDK_DEPLOY}" >> "$GITHUB_STEP_SUMMARY"
 
   package_code:
@@ -218,6 +217,7 @@ jobs:
     with:
       IS_PULL_REQUEST: true
       STACK_NAME: pfp-pr-${{needs.get_issue_number.outputs.issue_number}}-sandbox
+      CDK_APP_NAME: "PfPApiSandboxApp"
       TARGET_ENVIRONMENT: dev
       APIGEE_ENVIRONMENT: internal-dev-sandbox
       ENABLE_MUTUAL_TLS: false
