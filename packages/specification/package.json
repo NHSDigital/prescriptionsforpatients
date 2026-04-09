@@ -18,5 +18,8 @@
   "devDependencies": {
     "@redocly/cli": "^2.25.4",
     "tsx": "4.21.0"
+  },
+  "dependencies": {
+    "yaml": "^2.8.3"
   }
 }
