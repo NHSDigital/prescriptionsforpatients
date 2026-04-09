@@ -7,7 +7,7 @@ on:
 permissions: {}
 
 env:
-  IS_CDK_DEPLOY: "false"
+  IS_CDK_DEPLOY: "true"
 
 jobs:
   dependabot-auto-approve-and-merge:
