@@ -185,6 +185,10 @@ jobs:
     if: ${{ needs.set_deploy_mode.outputs.is_cdk_deploy == 'true' }}
     needs: [get_issue_number, tag_release, get_config_values, set_deploy_mode]
     uses: ./.github/workflows/cdk_package_code.yml
+    permissions:
+      id-token: write
+      contents: read
+      packages: read
     with:
       pinned_image: ${{ needs.get_config_values.outputs.pinned_image }}
 
@@ -192,6 +196,10 @@ jobs:
     if: ${{ needs.set_deploy_mode.outputs.is_cdk_deploy == 'true' }}
     needs: [get_issue_number, package_cdk_code, get_commit_id, get_config_values, set_deploy_mode]
     uses: ./.github/workflows/cdk_release_code.yml
+    permissions:
+      id-token: write
+      contents: write
+      packages: read
     with:
       IS_PULL_REQUEST: true
       STACK_NAME: pfp-cdk-pr-${{needs.get_issue_number.outputs.issue_number}}
@@ -227,6 +235,10 @@ jobs:
     if: ${{ needs.set_deploy_mode.outputs.is_cdk_deploy == 'true' }}
     needs: [get_issue_number, package_cdk_code, get_commit_id, get_config_values, set_deploy_mode]
     uses: ./.github/workflows/cdk_release_code.yml
+    permissions:
+      id-token: write
+      contents: write
+      packages: read
     with:
       IS_PULL_REQUEST: true
       STACK_NAME: pfp-cdk-pr-${{needs.get_issue_number.outputs.issue_number}}-sandbox
