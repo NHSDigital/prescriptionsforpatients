@@ -348,7 +348,7 @@ jobs:
       ENVIRONMENT: "${{ inputs.APIGEE_ENVIRONMENT }}"
       VERSION_NUMBER: "${{ inputs.VERSION_NUMBER }}"
       REGRESSION_TEST_PRODUCT: "${{ inputs.REGRESSION_TEST_PRODUCT }}"
-      # REGRESSION_TEST_NON_PROXYGEN: "${{ inputs.REGRESSION_TEST_NON_PROXYGEN }}"
+      REGRESSION_TEST_NON_PROXYGEN: "${{ inputs.REGRESSION_TEST_NON_PROXYGEN }}"
       pinned_image: "${{ inputs.pinned_image }}"
     secrets:
       REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
