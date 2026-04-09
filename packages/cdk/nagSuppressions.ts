@@ -3,14 +3,25 @@ import {Stack} from "aws-cdk-lib"
 import {safeAddNagSuppressionGroup, safeAddNagSuppression} from "@nhsdigital/eps-cdk-constructs"
 
 export const nagSuppressions = (stack: Stack) => {
+  const stackPath = `/${stack.node.id}`
+  const isSandboxStack = stack.node.id === "PfPApiSandboxStack"
+
+  const lambdaManagedPolicyPaths = isSandboxStack
+    ? [
+      `${stackPath}/Functions/SandboxLambda/LambdaPutLogsManagedPolicy/Resource`,
+      `${stackPath}/Functions/CapabilityStatementLambda/LambdaPutLogsManagedPolicy/Resource`,
+      `${stackPath}/Functions/StatusLambda/LambdaPutLogsManagedPolicy/Resource`
+    ]
+    : [
+      `${stackPath}/Functions/GetMyPrescriptionsLambda/LambdaPutLogsManagedPolicy/Resource`,
+      `${stackPath}/Functions/EnrichPrescriptionsLambda/LambdaPutLogsManagedPolicy/Resource`,
+      `${stackPath}/Functions/StatusLambda/LambdaPutLogsManagedPolicy/Resource`,
+      `${stackPath}/StateMachines/GetMyPrescriptionsStateMachine/StateMachinePutLogsManagedPolicy/Resource`
+    ]
+
   safeAddNagSuppressionGroup(
     stack,
-    [
-      "/PfPApiStack/Functions/GetMyPrescriptionsLambda/LambdaPutLogsManagedPolicy/Resource",
-      "/PfPApiStack/Functions/EnrichPrescriptionsLambda/LambdaPutLogsManagedPolicy/Resource",
-      "/PfPApiStack/Functions/StatusLambda/LambdaPutLogsManagedPolicy/Resource",
-      "/PfPApiStack/StateMachines/GetMyPrescriptionsStateMachine/StateMachinePutLogsManagedPolicy/Resource"
-    ],
+    lambdaManagedPolicyPaths,
     [
       {
         id: "AwsSolutions-IAM5",
@@ -21,7 +32,7 @@ export const nagSuppressions = (stack: Stack) => {
 
   safeAddNagSuppression(
     stack,
-    "/PfPApiStack/Apis/ApiGateway/ApiGateway/Resource",
+    `${stackPath}/Apis/ApiGateway/ApiGateway/Resource`,
     [
       {
         id: "AwsSolutions-APIG2",
@@ -30,12 +41,20 @@ export const nagSuppressions = (stack: Stack) => {
     ]
   )
 
+  const unauthorisedEndpointPaths = isSandboxStack
+    ? [
+      `${stackPath}/Apis/ApiGateway/ApiGateway/Default/Bundle/GET/Resource`,
+      `${stackPath}/Apis/ApiGateway/ApiGateway/Default/metadata/GET/Resource`,
+      `${stackPath}/Apis/ApiGateway/ApiGateway/Default/_status/GET/Resource`
+    ]
+    : [
+      `${stackPath}/Apis/ApiGateway/ApiGateway/Default/Bundle/GET/Resource`,
+      `${stackPath}/Apis/ApiGateway/ApiGateway/Default/_status/GET/Resource`
+    ]
+
   safeAddNagSuppressionGroup(
     stack,
-    [
-      "/PfPApiStack/Apis/ApiGateway/ApiGateway/Default/Bundle/GET/Resource",
-      "/PfPApiStack/Apis/ApiGateway/ApiGateway/Default/_status/GET/Resource"
-    ],
+    unauthorisedEndpointPaths,
     [
       {
         id: "AwsSolutions-APIG4",
