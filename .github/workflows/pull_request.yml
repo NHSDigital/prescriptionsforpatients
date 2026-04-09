@@ -210,7 +210,7 @@ jobs:
       TOGGLE_GET_STATUS_UPDATES: true
       ENABLE_ALERTS: false
       STATE_MACHINE_LOG_LEVEL: ALL
-      RUN_REGRESSION_TESTS: false # Don't run regression tests on CDK yet
+      RUN_REGRESSION_TESTS: true
       REGRESSION_TEST_PRODUCT: PFP-AWS
       FORWARD_CSOC_LOGS: false
       DEPLOY_APIGEE: true
@@ -244,7 +244,7 @@ jobs:
       TOGGLE_GET_STATUS_UPDATES: true
       ENABLE_ALERTS: false
       STATE_MACHINE_LOG_LEVEL: ALL
-      RUN_REGRESSION_TESTS: false
+      RUN_REGRESSION_TESTS: true
       REGRESSION_TEST_PRODUCT: PFP-AWS
       FORWARD_CSOC_LOGS: false
       DEPLOY_APIGEE: false
