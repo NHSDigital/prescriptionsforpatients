@@ -1,9 +1,5 @@
 import {HttpMethod} from "aws-cdk-lib/aws-lambda"
-import {
-  LambdaEndpoint,
-  RestApiGateway,
-  TypescriptLambdaFunction
-} from "@nhsdigital/eps-cdk-constructs"
+import {LambdaEndpoint, RestApiGateway, TypescriptLambdaFunction} from "@nhsdigital/eps-cdk-constructs"
 import {Construct} from "constructs"
 
 export interface SandboxApisProps {
