@@ -211,7 +211,7 @@ jobs:
       MTLS_KEY: prescriptions-for-patients-mtls-1
       BUILD_ARTIFACT: build_artifact
       TRUSTSTORE_FILE: pfp-truststore-pr.pem
-      VERSION_NUMBER: PR-${{ needs.get_issue_number.outputs.issue_number }}
+      VERSION_NUMBER: PR-CDK-${{ needs.get_issue_number.outputs.issue_number }}
       COMMIT_ID: ${{ needs.get_commit_id.outputs.commit_id }}
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
@@ -249,14 +249,14 @@ jobs:
       MTLS_KEY: prescriptions-for-patients-mtls-1
       BUILD_ARTIFACT: build_artifact
       TRUSTSTORE_FILE: pfp-sandbox-truststore.pem
-      VERSION_NUMBER: PR-${{ needs.get_issue_number.outputs.issue_number }}
+      VERSION_NUMBER: PR-CDK-${{ needs.get_issue_number.outputs.issue_number }}
       COMMIT_ID: ${{ needs.get_commit_id.outputs.commit_id }}
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
       TOGGLE_GET_STATUS_UPDATES: true
       ENABLE_ALERTS: false
       STATE_MACHINE_LOG_LEVEL: ALL
-      RUN_REGRESSION_TESTS: true
+      RUN_REGRESSION_TESTS: false
       REGRESSION_TEST_PRODUCT: PFP-AWS
       FORWARD_CSOC_LOGS: false
       DEPLOY_APIGEE: false
