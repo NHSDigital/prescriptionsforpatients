@@ -119,6 +119,8 @@ on:
       PROXYGEN_ROLE:
         required: false
 
+permissions: {}
+
 jobs:
   release_code_and_api:
     runs-on: ubuntu-22.04
