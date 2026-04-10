@@ -5,11 +5,13 @@ import {Topic} from "aws-cdk-lib/aws-sns"
 import {describe, expect, it} from "vitest"
 import {MetricAlarm} from "../constructs/MetricAlarm"
 
+const importedSlackTopicArn = "arn:aws:sns:eu-west-2:111111111111:SlackAlertsTopic"
+
 describe("MetricAlarm construct", () => {
   it("applies sane defaults for simple alarm definitions", () => {
     const app = new App()
     const stack = new Stack(app, "TestStack")
-    const slackAlertTopic = new Topic(stack, "SlackAlertsTopic")
+    const slackAlertTopic = Topic.fromTopicArn(stack, "SlackAlertsTopic", importedSlackTopicArn)
 
     const metricAlarm = new MetricAlarm(stack, "SimpleMetricAlarm", {
       stackName: "pfp-test-stack",
@@ -26,6 +28,7 @@ describe("MetricAlarm construct", () => {
     expect(metricAlarm.alarms.MySimpleAlarm).toBeDefined()
 
     const template = Template.fromStack(stack)
+    template.resourceCountIs("AWS::SNS::Topic", 0)
 
     template.hasResourceProperties("AWS::CloudWatch::Alarm", {
       AlarmName: "pfp-test-stack-MySimpleAlarm",
@@ -46,7 +49,7 @@ describe("MetricAlarm construct", () => {
   it("allows overriding threshold, comparison operator, unit and dimensions", () => {
     const app = new App()
     const stack = new Stack(app, "OverrideStack")
-    const slackAlertTopic = new Topic(stack, "SlackAlertsTopic")
+    const slackAlertTopic = Topic.fromTopicArn(stack, "SlackAlertsTopic", importedSlackTopicArn)
 
     const metricAlarm = new MetricAlarm(stack, "OverrideMetricAlarm", {
       stackName: "pfp-test-stack",
