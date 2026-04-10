@@ -5,9 +5,9 @@ rules:
       - sam_release_code.yml:121:7
       - sam_package_code.yml:15:7
       - run_regression_tests.yml:31:7
-      - cdk_package_code.yml:14:7
-      - cdk_release_code.yml:127:7
-      - cdk_release_code.yml:348:7
+      - cdk_package_code.yml:16:7
+      - cdk_release_code.yml:129:7
+      - cdk_release_code.yml:350:7
   secrets-outside-env:
     # these are ignored because they are using known secrets
     ignore:
