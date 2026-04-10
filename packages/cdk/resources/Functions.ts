@@ -36,6 +36,12 @@ export class Functions extends Construct {
     const lambdaDecryptSecretsKMSPolicy = ManagedPolicy.fromManagedPolicyArn(
       this, "lambdaDecryptSecretsKMSPolicy", ACCOUNT_RESOURCES.LambdaDecryptSecretsKMSPolicy)
 
+    const getPfPSecretPolicy = ManagedPolicy.fromManagedPolicyName(
+      this, "getPfPSecretPolicy", "pfp-GetPfPSecretPolicy")
+
+    const usePfPSecretsKMSKeyPolicy = ManagedPolicy.fromManagedPolicyName(
+      this, "usePfPSecretsKMSKeyPolicy", "pfp-UsePfPSecretsKMSKey")
+
     const lambdaDefaultEnvironmentVariables: {[key: string]: string} = {
       STACK_NAME: props.stackName,
       TargetSpineServer: props.targetSpineServer,
@@ -71,6 +77,8 @@ export class Functions extends Construct {
       additionalPolicies: [
         lambdaAccessSecretsPolicy,
         lambdaDecryptSecretsKMSPolicy,
+        getPfPSecretPolicy,
+        usePfPSecretsKMSKeyPolicy,
         props.getPfPParametersPolicy
       ],
       logRetentionInDays: props.logRetentionInDays,
