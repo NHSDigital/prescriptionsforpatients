@@ -1,5 +1,6 @@
 import {createVitestConfig} from "../../vitest.default.config"
 
 export default createVitestConfig({
-  workspaceRoot: "../../"
+  workspaceRoot: "../../",
+  inlineDeps: ["@nhsdigital/eps-cdk-constructs"]
 })

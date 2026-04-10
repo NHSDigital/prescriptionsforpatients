@@ -16,6 +16,8 @@ function createBaseEnv() {
   }
 }
 
+// These are smoke tests for the CLI entrypoints. Resource assertions should be done in-process
+// against synthesized stacks so coverage is attributed to the CDK code under test.
 describe("CDK synth smoke tests", () => {
   it("type-checks the cdk package", () => {
     expect(() => {

@@ -5,10 +5,11 @@ type VitestDefaultConfigOptions = {
   workspaceRoot: string;
   setupFiles?: Array<string>;
   aliasOverrides?: Record<string, string>;
+  inlineDeps?: Array<string>;
 }
 
 export function createVitestConfig(options: VitestDefaultConfigOptions) {
-  const {workspaceRoot, setupFiles = [], aliasOverrides = {}} = options
+  const {workspaceRoot, setupFiles = [], aliasOverrides = {}, inlineDeps = []} = options
 
   return defineConfig({
     resolve: {
@@ -31,7 +32,6 @@ export function createVitestConfig(options: VitestDefaultConfigOptions) {
     test: {
       clearMocks: true,
       coverage: {
-        all: false,
         exclude: [
           "**/node_modules/**",
           "**/lib/**",
@@ -50,7 +50,7 @@ export function createVitestConfig(options: VitestDefaultConfigOptions) {
       include: ["tests/*.test.ts"],
       server: {
         deps: {
-          inline: ["@nhsdigital/eps-spine-client", /@middy/]
+          inline: ["@nhsdigital/eps-spine-client", /@middy/, ...inlineDeps]
         }
       },
       setupFiles
