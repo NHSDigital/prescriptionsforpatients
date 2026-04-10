@@ -21,7 +21,7 @@ function createBaseEnv() {
 describe("CDK synth smoke tests", () => {
   it("type-checks the cdk package", () => {
     expect(() => {
-      execFileSync("npx", ["tsc", "-p", "tsconfig.json", "--noEmit"], {
+      execFileSync("npx", ["tsc", "-p", "tsconfig.json", "--noEmit"], { // NOSONAR
         cwd: cdkPackageRoot,
         stdio: "pipe"
       })
@@ -30,7 +30,7 @@ describe("CDK synth smoke tests", () => {
 
   it("synthesizes the sandbox app", () => {
     expect(() => {
-      execFileSync("npx", ["tsx", "bin/PfPApiSandboxApp.ts"], {
+      execFileSync("npx", ["tsx", "bin/PfPApiSandboxApp.ts"], { // NOSONAR
         cwd: cdkPackageRoot,
         stdio: "pipe",
         env: createBaseEnv()
@@ -40,7 +40,7 @@ describe("CDK synth smoke tests", () => {
 
   it("synthesizes the main app", () => {
     expect(() => {
-      execFileSync("npx", ["tsx", "bin/PfPApiApp.ts"], {
+      execFileSync("npx", ["tsx", "bin/PfPApiApp.ts"], { // NOSONAR
         cwd: cdkPackageRoot,
         stdio: "pipe",
         env: {
