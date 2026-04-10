@@ -1,0 +1,35 @@
+name: "Install dependencies"
+description: "Install dependencies including caching of npm packages"
+
+inputs:
+  npm-required:
+    description: "Set to true if npm dependencies are already installed"
+    required: false
+    default: "true"
+  GITHUB_TOKEN:
+    description: "GitHub token to access private npm packages"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setting up .npmrc
+      if: ${{ inputs.npm-required == 'true' }}
+      env:
+        NODE_AUTH_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+      shell: bash
+      run: |
+        echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
+        echo "@nhsdigital:registry=https://npm.pkg.github.com" >> ~/.npmrc
+
+    - name: Cache npm dependencies
+      if: ${{ inputs.npm-required == 'true' }}
+      uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7
+      with:
+        path: ./node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+
+    - name: make install
+      if: ${{ inputs.npm-required == 'true' }}
+      shell: bash
+      run: make install

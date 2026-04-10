@@ -259,7 +259,7 @@ const customErrorHandler = (): middy.MiddlewareObj => ({
 })
 
 const MIDDLEWARE = {
-  injectLambdaContext: injectLambdaContext(logger, {clearState: true}),
+  injectLambdaContext: injectLambdaContext(logger, {clearState: true}) as middy.MiddlewareObj,
   httpHeaderNormalizer: httpHeaderNormalizer() as middy.MiddlewareObj,
   inputOutputLogger: inputOutputLogger({
     logger: (request) => {
@@ -270,9 +270,9 @@ const MIDDLEWARE = {
         logger.debug("inputOutputLogger response", {response})
       }
     }
-  }),
+  }) as middy.MiddlewareObj,
   customErrorHandler: customErrorHandler(),
-  errorHandler: errorHandler({logger: logger})
+  errorHandler: errorHandler({logger: logger}) as middy.MiddlewareObj
 }
 
 export const STATE_MACHINE_MIDDLEWARE: Array<middy.MiddlewareObj> = [
