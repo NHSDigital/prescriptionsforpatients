@@ -11,7 +11,7 @@ describe("MetricAlarm construct", () => {
     const stack = new Stack(app, "TestStack")
     const slackAlertTopic = new Topic(stack, "SlackAlertsTopic")
 
-    new MetricAlarm(stack, "SimpleMetricAlarm", {
+    const metricAlarm = new MetricAlarm(stack, "SimpleMetricAlarm", {
       stackName: "pfp-test-stack",
       enableAlerts: true,
       namespace: "LambdaLogFilterMetrics",
@@ -22,6 +22,8 @@ describe("MetricAlarm construct", () => {
       },
       slackAlertTopic
     })
+
+    expect(metricAlarm.alarms.MySimpleAlarm).toBeDefined()
 
     const template = Template.fromStack(stack)
 

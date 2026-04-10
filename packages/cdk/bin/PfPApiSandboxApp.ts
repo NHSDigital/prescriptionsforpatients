@@ -28,8 +28,7 @@ function main() {
 }
 
 try {
-  const sandboxStack = main()
-  void sandboxStack
+  main()
 } catch (error) {
   console.error(error)
   process.exit(1)

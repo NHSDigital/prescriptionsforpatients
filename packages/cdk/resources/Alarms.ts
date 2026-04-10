@@ -18,7 +18,7 @@ export interface AlarmsProps {
 }
 
 export class Alarms extends Construct {
-  private readonly metricAlarms: Array<MetricAlarm> = []
+  private readonly metricAlarms: Array<MetricAlarm>
 
   public constructor(scope: Construct, id: string, props: AlarmsProps) {
     super(scope, id)
@@ -65,7 +65,7 @@ export class Alarms extends Construct {
       }
     })
 
-    this.metricAlarms.push(new MetricAlarm(this, "ServiceSearchErrors", {
+    const serviceSearchErrorsAlarm = new MetricAlarm(this, "ServiceSearchErrors", {
       stackName: props.stackName,
       enableAlerts: props.enableAlerts,
       namespace: "LambdaLogFilterMetrics",
@@ -78,9 +78,9 @@ export class Alarms extends Construct {
         }
       },
       slackAlertTopic
-    }))
+    })
 
-    this.metricAlarms.push(new MetricAlarm(this, "ServiceSearchUnhandledErrors", {
+    const serviceSearchUnhandledErrorsAlarm = new MetricAlarm(this, "ServiceSearchUnhandledErrors", {
       stackName: props.stackName,
       enableAlerts: props.enableAlerts,
       namespace: "Lambda",
@@ -93,7 +93,7 @@ export class Alarms extends Construct {
         }
       },
       slackAlertTopic
-    }))
+    })
 
     createMetricFilter("GetMyPrescriptionsErrorsLogsMetricFilter", {
       filterName: `${props.stackName}_GetMyPrescriptionsErrors`,
@@ -108,7 +108,7 @@ export class Alarms extends Construct {
       }
     })
 
-    this.metricAlarms.push(new MetricAlarm(this, "GetMyPrescriptionsErrors", {
+    const getMyPrescriptionsErrorsAlarm = new MetricAlarm(this, "GetMyPrescriptionsErrors", {
       stackName: props.stackName,
       enableAlerts: props.enableAlerts,
       namespace: "LambdaLogFilterMetrics",
@@ -121,7 +121,7 @@ export class Alarms extends Construct {
         }
       },
       slackAlertTopic
-    }))
+    })
 
     createMetricFilter("EnrichPrescriptionsErrorsLogsMetricFilter", {
       filterName: `${props.stackName}_EnrichPrescriptionsErrors`,
@@ -131,7 +131,7 @@ export class Alarms extends Construct {
       metricName: `${props.stackName}EnrichPrescriptionsErrorCount`
     })
 
-    this.metricAlarms.push(new MetricAlarm(this, "EnrichPrescriptionsErrors", {
+    const enrichPrescriptionsErrorsAlarm = new MetricAlarm(this, "EnrichPrescriptionsErrors", {
       stackName: props.stackName,
       enableAlerts: props.enableAlerts,
       namespace: "LambdaLogFilterMetrics",
@@ -141,6 +141,13 @@ export class Alarms extends Construct {
         description: "Count of EnrichPrescriptions errors"
       },
       slackAlertTopic
-    }))
+    })
+
+    this.metricAlarms = [
+      serviceSearchErrorsAlarm,
+      serviceSearchUnhandledErrorsAlarm,
+      getMyPrescriptionsErrorsAlarm,
+      enrichPrescriptionsErrorsAlarm
+    ]
   }
 }
