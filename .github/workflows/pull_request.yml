@@ -202,14 +202,14 @@ jobs:
       packages: read
     with:
       IS_PULL_REQUEST: true
-      STACK_NAME: pfp-cdk-pr-${{needs.get_issue_number.outputs.issue_number}}
+      STACK_NAME: pfp-api-pr-${{needs.get_issue_number.outputs.issue_number}}
       TARGET_ENVIRONMENT: dev
       APIGEE_ENVIRONMENT: internal-dev
       ENABLE_MUTUAL_TLS: false
       MTLS_KEY: prescriptions-for-patients-mtls-1
       BUILD_ARTIFACT: build_artifact
       TRUSTSTORE_FILE: pfp-truststore-pr.pem
-      VERSION_NUMBER: CDK-PR-${{ needs.get_issue_number.outputs.issue_number }}
+      VERSION_NUMBER: PR-${{ needs.get_issue_number.outputs.issue_number }}
       COMMIT_ID: ${{ needs.get_commit_id.outputs.commit_id }}
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
@@ -240,7 +240,7 @@ jobs:
       packages: read
     with:
       IS_PULL_REQUEST: true
-      STACK_NAME: pfp-cdk-pr-${{needs.get_issue_number.outputs.issue_number}}-sandbox
+      STACK_NAME: pfp-api-pr-${{needs.get_issue_number.outputs.issue_number}}-sandbox
       CDK_APP_NAME: "PfPApiSandboxApp"
       TARGET_ENVIRONMENT: dev
       APIGEE_ENVIRONMENT: internal-dev-sandbox
@@ -248,7 +248,7 @@ jobs:
       MTLS_KEY: prescriptions-for-patients-mtls-1
       BUILD_ARTIFACT: build_artifact
       TRUSTSTORE_FILE: pfp-sandbox-truststore.pem
-      VERSION_NUMBER: CDK-PR-${{ needs.get_issue_number.outputs.issue_number }}
+      VERSION_NUMBER: PR-${{ needs.get_issue_number.outputs.issue_number }}
       COMMIT_ID: ${{ needs.get_commit_id.outputs.commit_id }}
       LOG_LEVEL: DEBUG
       LOG_RETENTION_DAYS: 30
