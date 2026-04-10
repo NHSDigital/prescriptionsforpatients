@@ -340,3 +340,302 @@ jobs:
       PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
       DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
       PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PROD_ROLE }}
+
+  cdk_package_code:
+    needs: [tag_release, get_config_values]
+    uses: ./.github/workflows/cdk_package_code.yml
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
+    with:
+      pinned_image: ${{ needs.get_config_values.outputs.pinned_image }}
+
+  cdk_release_dev:
+    needs: [tag_release, cdk_package_code, get_commit_id, get_config_values]
+    uses: ./.github/workflows/cdk_release_code.yml
+    permissions:
+      contents: write
+      id-token: write
+    with:
+      IS_CDK_DEPLOY: true
+      IS_PULL_REQUEST: false
+      STACK_NAME: pfp-api
+      TARGET_ENVIRONMENT: dev
+      APIGEE_ENVIRONMENT: internal-dev
+      ENABLE_MUTUAL_TLS: true
+      MTLS_KEY: prescriptions-for-patients-mtls-1
+      BUILD_ARTIFACT: build_artifact
+      TRUSTSTORE_FILE: pfp-truststore.pem
+      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
+      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
+      LOG_LEVEL: DEBUG
+      LOG_RETENTION_DAYS: 30
+      CREATE_INT_RELEASE_NOTES: true
+      CREATE_PROD_RELEASE_NOTES: true
+      TOGGLE_GET_STATUS_UPDATES: true
+      ENABLE_ALERTS: true
+      RUN_REGRESSION_TESTS: true
+      REGRESSION_TEST_PRODUCT: PFP-APIGEE
+      FORWARD_CSOC_LOGS: false
+      TC007_NHS_NUMBERS: ${{vars.TC007_NHS_NUMBERS}}
+      TC008_NHS_NUMBERS: ${{vars.TC008_NHS_NUMBERS}}
+      TC009_NHS_NUMBERS: ${{vars.TC009_NHS_NUMBERS}}
+      ALLOW_NHS_NUMBER_OVERRIDE: true
+      REGRESSION_TEST_NON_PROXYGEN: true
+      pinned_image: ${{ needs.get_config_values.outputs.pinned_image }}
+    secrets:
+      REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_SPINE_SERVER: ${{ secrets.DEV_TARGET_SPINE_SERVER }}
+      TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.DEV_TARGET_SERVICE_SEARCH_SERVER }}
+      DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
+      INT_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.INT_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
+      PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
+      DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
+      PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PTL_ROLE }}
+
+  cdk_release_dev_sandbox:
+    needs: [tag_release, cdk_package_code, get_commit_id, get_config_values]
+    uses: ./.github/workflows/cdk_release_code.yml
+    permissions:
+      contents: write
+      id-token: write
+    with:
+      IS_CDK_DEPLOY: true
+      IS_PULL_REQUEST: false
+      CDK_APP_NAME: PfPApiSandboxApp
+      STACK_NAME: pfp-api-sandbox
+      TARGET_ENVIRONMENT: dev
+      APIGEE_ENVIRONMENT: internal-dev-sandbox
+      ENABLE_MUTUAL_TLS: true
+      MTLS_KEY: prescriptions-for-patients-mtls-1
+      BUILD_ARTIFACT: build_artifact
+      TRUSTSTORE_FILE: pfp-sandbox-truststore.pem
+      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
+      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
+      LOG_LEVEL: DEBUG
+      LOG_RETENTION_DAYS: 30
+      RUN_REGRESSION_TESTS: false
+      FORWARD_CSOC_LOGS: false
+      TC007_NHS_NUMBERS: ${{vars.TC007_NHS_NUMBERS}}
+      TC008_NHS_NUMBERS: ${{vars.TC008_NHS_NUMBERS}}
+      TC009_NHS_NUMBERS: ${{vars.TC009_NHS_NUMBERS}}
+      ALLOW_NHS_NUMBER_OVERRIDE: true
+      DEPLOY_APIGEE: false
+      pinned_image: ${{ needs.get_config_values.outputs.pinned_image }}
+    secrets:
+      REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_SPINE_SERVER: sandbox
+      TARGET_SERVICE_SEARCH_SERVER: sandbox
+      PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PTL_ROLE }}
+
+  cdk_release_ref:
+    needs:
+      [
+        tag_release,
+        cdk_release_dev,
+        cdk_release_dev_sandbox,
+        cdk_package_code,
+        get_commit_id,
+        get_config_values,
+      ]
+    uses: ./.github/workflows/cdk_release_code.yml
+    permissions:
+      contents: write
+      id-token: write
+    with:
+      IS_CDK_DEPLOY: true
+      IS_PULL_REQUEST: false
+      STACK_NAME: pfp-api
+      TARGET_ENVIRONMENT: ref
+      APIGEE_ENVIRONMENT: ref
+      ENABLE_MUTUAL_TLS: false
+      MTLS_KEY: prescriptions-for-patients-mtls-1
+      BUILD_ARTIFACT: build_artifact
+      TRUSTSTORE_FILE: pfp-truststore.pem
+      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
+      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
+      LOG_LEVEL: DEBUG
+      LOG_RETENTION_DAYS: 30
+      TOGGLE_GET_STATUS_UPDATES: true
+      ENABLE_ALERTS: true
+      RUN_REGRESSION_TESTS: false
+      FORWARD_CSOC_LOGS: false
+      TC007_NHS_NUMBERS: ${{vars.TC007_NHS_NUMBERS}}
+      TC008_NHS_NUMBERS: ${{vars.TC008_NHS_NUMBERS}}
+      TC009_NHS_NUMBERS: ${{vars.TC009_NHS_NUMBERS}}
+      ALLOW_NHS_NUMBER_OVERRIDE: true
+      pinned_image: ${{ needs.get_config_values.outputs.pinned_image }}
+    secrets:
+      REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.REF_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_SPINE_SERVER: ${{ secrets.REF_TARGET_SPINE_SERVER }}
+      TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.REF_TARGET_SERVICE_SEARCH_SERVER }}
+      PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PTL_ROLE }}
+
+  cdk_release_qa:
+    needs:
+      [
+        tag_release,
+        cdk_release_dev,
+        cdk_release_dev_sandbox,
+        cdk_package_code,
+        get_commit_id,
+        get_config_values,
+      ]
+    uses: ./.github/workflows/cdk_release_code.yml
+    permissions:
+      contents: write
+      id-token: write
+    with:
+      IS_CDK_DEPLOY: true
+      IS_PULL_REQUEST: false
+      STACK_NAME: pfp-api
+      TARGET_ENVIRONMENT: qa
+      APIGEE_ENVIRONMENT: internal-qa
+      ENABLE_MUTUAL_TLS: true
+      MTLS_KEY: prescriptions-for-patients-mtls-1
+      BUILD_ARTIFACT: build_artifact
+      TRUSTSTORE_FILE: pfp-truststore.pem
+      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
+      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
+      LOG_LEVEL: DEBUG
+      LOG_RETENTION_DAYS: 30
+      TOGGLE_GET_STATUS_UPDATES: true
+      ENABLE_ALERTS: true
+      RUN_REGRESSION_TESTS: true
+      REGRESSION_TEST_PRODUCT: PFP-APIGEE
+      REGRESSION_TEST_NON_PROXYGEN: true
+      FORWARD_CSOC_LOGS: false
+      TC007_NHS_NUMBERS: ${{vars.TC007_NHS_NUMBERS}}
+      TC008_NHS_NUMBERS: ${{vars.TC008_NHS_NUMBERS}}
+      TC009_NHS_NUMBERS: ${{vars.TC009_NHS_NUMBERS}}
+      ALLOW_NHS_NUMBER_OVERRIDE: true
+      pinned_image: ${{ needs.get_config_values.outputs.pinned_image }}
+    secrets:
+      REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.QA_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_SPINE_SERVER: ${{ secrets.QA_TARGET_SPINE_SERVER }}
+      TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.QA_TARGET_SERVICE_SEARCH_SERVER }}
+      PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PTL_ROLE }}
+
+  cdk_release_int:
+    needs: [tag_release, cdk_release_qa, cdk_package_code, get_commit_id, get_config_values]
+    uses: ./.github/workflows/cdk_release_code.yml
+    permissions:
+      contents: write
+      id-token: write
+    with:
+      IS_CDK_DEPLOY: true
+      IS_PULL_REQUEST: false
+      STACK_NAME: pfp-api
+      TARGET_ENVIRONMENT: int
+      APIGEE_ENVIRONMENT: int
+      ENABLE_MUTUAL_TLS: true
+      MTLS_KEY: prescriptions-for-patients-mtls-1
+      BUILD_ARTIFACT: build_artifact
+      TRUSTSTORE_FILE: pfp-truststore.pem
+      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
+      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
+      LOG_LEVEL: DEBUG
+      LOG_RETENTION_DAYS: 30
+      CREATE_INT_RELEASE_NOTES: true
+      CREATE_INT_RC_RELEASE_NOTES: true
+      TOGGLE_GET_STATUS_UPDATES: true
+      ENABLE_ALERTS: true
+      RUN_REGRESSION_TESTS: true
+      REGRESSION_TEST_PRODUCT: PFP-APIGEE
+      REGRESSION_TEST_NON_PROXYGEN: true
+      FORWARD_CSOC_LOGS: false
+      TC007_NHS_NUMBERS: ${{vars.TC007_NHS_NUMBERS}}
+      TC008_NHS_NUMBERS: ${{vars.TC008_NHS_NUMBERS}}
+      TC009_NHS_NUMBERS: ${{vars.TC009_NHS_NUMBERS}}
+      ALLOW_NHS_NUMBER_OVERRIDE: true
+      pinned_image: ${{ needs.get_config_values.outputs.pinned_image }}
+    secrets:
+      REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_SPINE_SERVER: ${{ secrets.INT_TARGET_SPINE_SERVER }}
+      TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.INT_TARGET_SERVICE_SEARCH_SERVER }}
+      DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
+      INT_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.INT_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
+      PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
+      DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
+      PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PROD_ROLE }}
+
+  cdk_release_sandbox:
+    needs: [tag_release, cdk_release_qa, cdk_package_code, get_commit_id, get_config_values]
+    uses: ./.github/workflows/cdk_release_code.yml
+    permissions:
+      contents: write
+      id-token: write
+    with:
+      IS_CDK_DEPLOY: true
+      IS_PULL_REQUEST: false
+      CDK_APP_NAME: PfPApiSandboxApp
+      STACK_NAME: pfp-api-sandbox
+      TARGET_ENVIRONMENT: int
+      APIGEE_ENVIRONMENT: sandbox
+      ENABLE_MUTUAL_TLS: true
+      MTLS_KEY: prescriptions-for-patients-mtls-1
+      BUILD_ARTIFACT: build_artifact
+      TRUSTSTORE_FILE: pfp-sandbox-truststore.pem
+      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
+      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
+      LOG_LEVEL: DEBUG
+      LOG_RETENTION_DAYS: 30
+      RUN_REGRESSION_TESTS: false
+      FORWARD_CSOC_LOGS: false
+      ALLOW_NHS_NUMBER_OVERRIDE: true
+      DEPLOY_APIGEE: false
+      pinned_image: ${{ needs.get_config_values.outputs.pinned_image }}
+    secrets:
+      REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_SPINE_SERVER: sandbox
+      TARGET_SERVICE_SEARCH_SERVER: sandbox
+      PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PROD_ROLE }}
+
+  cdk_release_prod:
+    needs:
+      [tag_release, cdk_release_int, cdk_release_sandbox, cdk_package_code, get_commit_id, get_config_values]
+    uses: ./.github/workflows/cdk_release_code.yml
+    permissions:
+      contents: write
+      id-token: write
+    with:
+      IS_CDK_DEPLOY: true
+      IS_PULL_REQUEST: false
+      STACK_NAME: pfp-api
+      TARGET_ENVIRONMENT: prod
+      APIGEE_ENVIRONMENT: prod
+      ENABLE_MUTUAL_TLS: true
+      MTLS_KEY: prescriptions-for-patients-mtls-1
+      BUILD_ARTIFACT: build_artifact
+      TRUSTSTORE_FILE: pfp-truststore.pem
+      VERSION_NUMBER: ${{needs.tag_release.outputs.version_tag}}
+      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
+      LOG_LEVEL: INFO
+      LOG_RETENTION_DAYS: 731
+      MARK_JIRA_RELEASED: true
+      CREATE_PROD_RELEASE_NOTES: true
+      TOGGLE_GET_STATUS_UPDATES: true
+      RUN_REGRESSION_TESTS: false
+      ENABLE_ALERTS: true
+      FORWARD_CSOC_LOGS: true
+      DEPLOY_APIGEE: true
+      ALLOW_NHS_NUMBER_OVERRIDE: false
+      pinned_image: ${{ needs.get_config_values.outputs.pinned_image }}
+    secrets:
+      REGRESSION_TESTS_PEM: ${{ secrets.REGRESSION_TESTS_PEM }}
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_SPINE_SERVER: ${{ secrets.PROD_TARGET_SPINE_SERVER }}
+      TARGET_SERVICE_SEARCH_SERVER: ${{ secrets.PROD_TARGET_SERVICE_SEARCH_SERVER }}
+      DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
+      INT_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.INT_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
+      PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
+      DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
+      PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PROD_ROLE }}
+
