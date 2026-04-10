@@ -205,8 +205,6 @@ jobs:
       STACK_NAME: pfp-cdk-pr-${{needs.get_issue_number.outputs.issue_number}}
       TARGET_ENVIRONMENT: dev
       APIGEE_ENVIRONMENT: internal-dev
-      # TODO: needed?
-      # APIM_STATUS_API_KEY: ${{ secrets.APIM_STATUS_API_KEY }}
       ENABLE_MUTUAL_TLS: false
       MTLS_KEY: prescriptions-for-patients-mtls-1
       BUILD_ARTIFACT: build_artifact

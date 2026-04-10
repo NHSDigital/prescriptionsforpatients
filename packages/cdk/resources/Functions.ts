@@ -1,4 +1,4 @@
-import {RemovalPolicy} from "aws-cdk-lib"
+import {Fn, RemovalPolicy} from "aws-cdk-lib"
 import {IManagedPolicy, ManagedPolicy} from "aws-cdk-lib/aws-iam"
 import {Construct} from "constructs"
 import {TypescriptLambdaFunction} from "@nhsdigital/eps-cdk-constructs"
@@ -36,11 +36,11 @@ export class Functions extends Construct {
     const lambdaDecryptSecretsKMSPolicy = ManagedPolicy.fromManagedPolicyArn(
       this, "lambdaDecryptSecretsKMSPolicy", ACCOUNT_RESOURCES.LambdaDecryptSecretsKMSPolicy)
 
-    const getPfPSecretPolicy = ManagedPolicy.fromManagedPolicyName(
-      this, "getPfPSecretPolicy", "pfp-GetPfPSecretPolicy")
+    const getPfPSecretPolicy = ManagedPolicy.fromManagedPolicyArn(
+      this, "getPfPSecretPolicy", Fn.importValue("pfp-GetPfPSecretPolicy"))
 
-    const usePfPSecretsKMSKeyPolicy = ManagedPolicy.fromManagedPolicyName(
-      this, "usePfPSecretsKMSKeyPolicy", "pfp-UsePfPSecretsKMSKey")
+    const usePfPSecretsKMSKeyPolicy = ManagedPolicy.fromManagedPolicyArn(
+      this, "usePfPSecretsKMSKeyPolicy", Fn.importValue("pfp-UsePfPSecretsKMSKeyPolicyArn"))
 
     const lambdaDefaultEnvironmentVariables: {[key: string]: string} = {
       STACK_NAME: props.stackName,
