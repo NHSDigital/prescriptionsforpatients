@@ -18,6 +18,8 @@ export interface AlarmsProps {
 }
 
 export class Alarms extends Construct {
+  private readonly metricAlarms: Array<MetricAlarm> = []
+
   public constructor(scope: Construct, id: string, props: AlarmsProps) {
     super(scope, id)
 
@@ -63,7 +65,7 @@ export class Alarms extends Construct {
       }
     })
 
-    new MetricAlarm(this, "ServiceSearchErrors", {
+    this.metricAlarms.push(new MetricAlarm(this, "ServiceSearchErrors", {
       stackName: props.stackName,
       enableAlerts: props.enableAlerts,
       namespace: "LambdaLogFilterMetrics",
@@ -76,9 +78,9 @@ export class Alarms extends Construct {
         }
       },
       slackAlertTopic
-    })
+    }))
 
-    new MetricAlarm(this, "ServiceSearchUnhandledErrors", {
+    this.metricAlarms.push(new MetricAlarm(this, "ServiceSearchUnhandledErrors", {
       stackName: props.stackName,
       enableAlerts: props.enableAlerts,
       namespace: "Lambda",
@@ -91,7 +93,7 @@ export class Alarms extends Construct {
         }
       },
       slackAlertTopic
-    })
+    }))
 
     createMetricFilter("GetMyPrescriptionsErrorsLogsMetricFilter", {
       filterName: `${props.stackName}_GetMyPrescriptionsErrors`,
@@ -106,7 +108,7 @@ export class Alarms extends Construct {
       }
     })
 
-    new MetricAlarm(this, "GetMyPrescriptionsErrors", {
+    this.metricAlarms.push(new MetricAlarm(this, "GetMyPrescriptionsErrors", {
       stackName: props.stackName,
       enableAlerts: props.enableAlerts,
       namespace: "LambdaLogFilterMetrics",
@@ -119,7 +121,7 @@ export class Alarms extends Construct {
         }
       },
       slackAlertTopic
-    })
+    }))
 
     createMetricFilter("EnrichPrescriptionsErrorsLogsMetricFilter", {
       filterName: `${props.stackName}_EnrichPrescriptionsErrors`,
@@ -129,7 +131,7 @@ export class Alarms extends Construct {
       metricName: `${props.stackName}EnrichPrescriptionsErrorCount`
     })
 
-    new MetricAlarm(this, "EnrichPrescriptionsErrors", {
+    this.metricAlarms.push(new MetricAlarm(this, "EnrichPrescriptionsErrors", {
       stackName: props.stackName,
       enableAlerts: props.enableAlerts,
       namespace: "LambdaLogFilterMetrics",
@@ -139,6 +141,6 @@ export class Alarms extends Construct {
         description: "Count of EnrichPrescriptions errors"
       },
       slackAlertTopic
-    })
+    }))
   }
 }

@@ -15,7 +15,7 @@ function main() {
     driftDetectionGroup: "pfp-api"
   })
 
-  new PfPApiSandboxStack(app, "PfPApiSandboxStack", {
+  return new PfPApiSandboxStack(app, "PfPApiSandboxStack", {
     ...props,
     stackName: calculateVersionedStackName(getConfigFromEnvVar("stackName", CDK_ENV_PREFIX, "pfp-sandbox"), props),
     targetSpineServer: getConfigFromEnvVar("targetSpineServer", CDK_ENV_PREFIX, "none"),
@@ -28,7 +28,8 @@ function main() {
 }
 
 try {
-  main()
+  const sandboxStack = main()
+  void sandboxStack
 } catch (error) {
   console.error(error)
   process.exit(1)

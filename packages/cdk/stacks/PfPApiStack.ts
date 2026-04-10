@@ -26,6 +26,9 @@ export interface PfPApiStackProps extends StandardStackProps {
 }
 
 export class PfPApiStack extends Stack {
+  private readonly alarms: Alarms
+  private readonly apis: Apis
+
   public constructor(scope: App, id: string, props: PfPApiStackProps){
     super(scope, id, props)
 
@@ -58,13 +61,13 @@ export class PfPApiStack extends Stack {
       functions: functions.functions
     })
 
-    new Alarms(this, "Alarms", {
+    this.alarms = new Alarms(this, "Alarms", {
       stackName: props.stackName,
       enableAlerts: props.enableAlerts,
       functions: functions.functions
     })
 
-    new Apis(this, "Apis", {
+    this.apis = new Apis(this, "Apis", {
       stackName: props.stackName,
       logRetentionInDays: props.logRetentionInDays,
       mutualTlsTrustStoreKey: props.mutualTlsTrustStoreKey,
