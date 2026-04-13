@@ -17,7 +17,7 @@
     "@aws-lambda-powertools/logger": "^2.32.0",
     "@aws-lambda-powertools/parameters": "^2.32.0",
     "@aws-sdk/client-ssm": "^3.1024.0",
-    "@types/fhir": "^0.0.41"
+    "@types/fhir": "^3.0.2"
   },
   "devDependencies": {
     "axios-mock-adapter": "^2.1.0"
