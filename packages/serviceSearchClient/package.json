@@ -15,7 +15,7 @@
   "license": "MIT",
   "dependencies": {
     "@aws-lambda-powertools/logger": "^2.32.0",
-    "axios": "^1.14.0",
+    "axios": "^1.15.0",
     "axios-retry": "^4.5.0"
   },
   "devDependencies": {
