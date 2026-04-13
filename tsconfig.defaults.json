@@ -7,14 +7,16 @@
     "sourceMap": true,
     "composite": true,
     "strict": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "preserveConstEnums": true,
     "resolveJsonModule": true,
     "allowJs": true,
-    "baseUrl": ".",
+    "types": [
+      "node"
+    ],
     "typeRoots": ["./types", "./node_modules/@types"],
     "paths": {
       "@pfp-common/utilities": ["./packages/common/utilities/lib/index.d.ts"],
