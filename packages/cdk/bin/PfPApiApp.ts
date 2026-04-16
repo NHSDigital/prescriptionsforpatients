@@ -27,9 +27,9 @@ function main() {
     targetServiceSearchServer: getConfigFromEnvVar("targetServiceSearchServer"),
     toggleGetStatusUpdates: getConfigFromEnvVar("toggleGetStatusUpdates"),
     allowNhsNumberOverride: getConfigFromEnvVar("allowNhsNumberOverride"),
-    tc007NhsNumberValue: getConfigFromEnvVar("tc007NhsNumberValue"),
-    tc008NhsNumberValue: getConfigFromEnvVar("tc008NhsNumberValue"),
-    tc009NhsNumberValue: getConfigFromEnvVar("tc009NhsNumberValue"),
+    tc007NhsNumberValue: getConfigFromEnvVar("tc007NhsNumberValue", CDK_ENV_PREFIX, "992387920"),
+    tc008NhsNumberValue: getConfigFromEnvVar("tc008NhsNumberValue", CDK_ENV_PREFIX, "992387920"),
+    tc009NhsNumberValue: getConfigFromEnvVar("tc009NhsNumberValue", CDK_ENV_PREFIX, "992387920"),
     enableAlerts: getBooleanConfigFromEnvVar("enableAlerts", CDK_ENV_PREFIX, "true"),
     mutualTlsTrustStoreKey: props.isPullRequest ? undefined : getConfigFromEnvVar("trustStoreFile"),
     // CSOC API GW log destination - do not change
