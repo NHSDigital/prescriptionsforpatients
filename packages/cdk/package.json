@@ -1,0 +1,23 @@
+{
+  "name": "cdk",
+  "version": "0.1.0",
+  "scripts": {
+    "cdk-synth": "cdk synth --output ../../cdk.out --quiet --app \"npm run tsx -- bin/${CDK_APP_NAME}.ts\"",
+    "cdk-diff": "cdk diff --app \"npm run tsx -- bin/${CDK_APP_NAME}.ts\"",
+    "cdk-deploy": "cdk deploy --app \"npm run tsx -- bin/${CDK_APP_NAME}.ts\" --all --ci true --require-approval ${REQUIRE_APPROVAL}",
+    "cdk-watch": "cdk deploy --app \"npm run tsx -- bin/${CDK_APP_NAME}.ts\" --watch --all --ci true --require-approval ${REQUIRE_APPROVAL}",
+    "delete-main-stacks": "npm run tsx -- scripts/deleteMainStacks.ts",
+    "delete-old-pr-stacks": "npm run tsx -- scripts/deletePrStacks.ts",
+    "lint": "eslint  --max-warnings 0 --fix --config ../../eslint.config.mjs .",
+    "test": "vitest run --coverage",
+    "tsx": "tsx"
+  },
+  "dependencies": {
+    "@nhsdigital/eps-cdk-constructs": "^1.6.1",
+    "aws-cdk": "^2.1106.0",
+    "aws-cdk-lib": "^2.239.0",
+    "cdk-nag": "^2.37.55",
+    "constructs": "^10.4.5",
+    "tsx": "^4.21.0"
+  }
+}
