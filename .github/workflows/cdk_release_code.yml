@@ -96,9 +96,8 @@ on:
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
-      # TODO: copied from tracker, used for delete stacks, needed?
-      #APIM_STATUS_API_KEY:
-      #  required: true
+      APIM_STATUS_API_KEY:
+        required: true
       TARGET_SPINE_SERVER:
         required: true
       TARGET_SERVICE_SEARCH_SERVER:
@@ -154,7 +153,7 @@ jobs:
         env:
           AWS_ENVIRONMENT: "${{ inputs.TARGET_ENVIRONMENT }}"
           APIGEE_ENVIRONMENT: "${{ inputs.APIGEE_ENVIRONMENT }}"
-          # APIM_STATUS_API_KEY: "${{ secrets.APIM_STATUS_API_KEY }}"
+          APIM_STATUS_API_KEY: "${{ secrets.APIM_STATUS_API_KEY }}"
 
       - name: download build artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
