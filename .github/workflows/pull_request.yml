@@ -6,9 +6,6 @@ on:
 
 permissions: {}
 
-env:
-  IS_CDK_DEPLOY: "true"
-
 jobs:
   dependabot-auto-approve-and-merge:
     needs: quality_checks
@@ -93,16 +90,6 @@ jobs:
         run: |
           echo "commit_id=${{ github.sha }}" >> "$GITHUB_OUTPUT"
 
-  set_deploy_mode:
-    runs-on: ubuntu-22.04
-    outputs:
-      is_cdk_deploy: ${{ steps.deploy_mode.outputs.is_cdk_deploy }}
-    steps:
-      - name: Set deploy mode from workflow env
-        id: deploy_mode
-        run: |
-          echo "is_cdk_deploy=${{ env.IS_CDK_DEPLOY }}" >> "$GITHUB_OUTPUT"
-
   package_code:
     needs: [get_issue_number, tag_release, get_config_values]
     uses: ./.github/workflows/sam_package_code.yml
@@ -182,8 +169,7 @@ jobs:
       PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PTL_ROLE }}
 
   cdk_package_code:
-    if: ${{ needs.set_deploy_mode.outputs.is_cdk_deploy == 'true' }}
-    needs: [get_issue_number, tag_release, get_config_values, set_deploy_mode]
+    needs: [get_issue_number, tag_release, get_config_values]
     uses: ./.github/workflows/cdk_package_code.yml
     permissions:
       id-token: write
@@ -193,8 +179,7 @@ jobs:
       pinned_image: ${{ needs.get_config_values.outputs.pinned_image }}
 
   cdk_release_code:
-    if: ${{ needs.set_deploy_mode.outputs.is_cdk_deploy == 'true' }}
-    needs: [get_issue_number, cdk_package_code, get_commit_id, get_config_values, set_deploy_mode]
+    needs: [get_issue_number, cdk_package_code, get_commit_id, get_config_values]
     uses: ./.github/workflows/cdk_release_code.yml
     permissions:
       id-token: write
@@ -231,8 +216,7 @@ jobs:
       PROXYGEN_ROLE: ${{ secrets.PROXYGEN_PTL_ROLE }}
 
   cdk_release_sandbox_code:
-    if: ${{ needs.set_deploy_mode.outputs.is_cdk_deploy == 'true' }}
-    needs: [get_issue_number, cdk_package_code, get_commit_id, get_config_values, set_deploy_mode]
+    needs: [get_issue_number, cdk_package_code, get_commit_id, get_config_values]
     uses: ./.github/workflows/cdk_release_code.yml
     permissions:
       id-token: write

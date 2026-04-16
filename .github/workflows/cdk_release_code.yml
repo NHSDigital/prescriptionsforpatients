@@ -3,9 +3,6 @@ name: cdk release code
 on:
   workflow_call:
     inputs:
-      IS_CDK_DEPLOY:
-        type: boolean
-        default: false
       IS_PULL_REQUEST:
         type: boolean
         default: false
@@ -93,9 +90,6 @@ on:
         type: boolean
       REGRESSION_TEST_NON_PROXYGEN:
         type: boolean
-      UPDATE_GH_PAGES_RELEASE_TAG:
-        type: boolean
-        default: false
       pinned_image:
         type: string
         required: true
@@ -230,14 +224,13 @@ jobs:
 
       - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         name: Upload specs
-        if: ${{ inputs.IS_CDK_DEPLOY == true }}
         with:
           name: ${{ inputs.APIGEE_ENVIRONMENT }}-specs
           path: |
             ./packages/specification/dist/prescriptions-for-patients.resolved.json
 
       - name: Checkout gh-pages
-        if: ${{ inputs.IS_CDK_DEPLOY == true && inputs.IS_PULL_REQUEST == false }}
+        if: ${{ inputs.IS_PULL_REQUEST == false }}
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           ref: gh-pages
@@ -245,9 +238,7 @@ jobs:
           persist-credentials: false
 
       - name: Update release tag in github pages
-        # if: ${{ inputs.IS_CDK_DEPLOY == true && inputs.IS_PULL_REQUEST == false }}
-        # Disabled by default; can be explicitly enabled by setting UPDATE_GH_PAGES_RELEASE_TAG to true.
-        if: ${{ inputs.UPDATE_GH_PAGES_RELEASE_TAG == true && inputs.IS_PULL_REQUEST == false }}
+        if: ${{ inputs.IS_PULL_REQUEST == false }}
         run: |
           cd gh-pages
           NOW=$(date +'%Y-%m-%dT%H:%M:%S')
