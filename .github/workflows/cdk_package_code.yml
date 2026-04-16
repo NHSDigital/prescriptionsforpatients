@@ -26,12 +26,10 @@ jobs:
       - name: copy .tool-versions
         run: |
           cp /home/vscode/.tool-versions "$HOME/.tool-versions"
-          cp /home/vscode/.tool-versions ./.tool-versions
 
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
-          ref: ${{ github.head_ref || github.ref_name }}
           persist-credentials: false
 
       - name: Setting up .npmrc
