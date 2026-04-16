@@ -143,42 +143,12 @@ jobs:
         run: |
           cp /home/vscode/.tool-versions "$HOME/.tool-versions"
 
-      - name: Checkout local github actions
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-        with:
-          fetch-depth: 0
-          sparse-checkout: |
-            .github
-          persist-credentials: false
-
-      - name: create_int_rc_release_notes
-        uses: ./.github/actions/update_confluence_jira
-        if: ${{ inputs.CREATE_INT_RC_RELEASE_NOTES == true }}
-        with:
-          TARGET_ENVIRONMENT: int
-          RELEASE_TAG: ${{ inputs.VERSION_NUMBER }}
-          CONFLUENCE_PAGE_ID: "768067994"
-          CREATE_RC_RELEASE_NOTES: true
-          DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
-          TARGET_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.INT_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
-          DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets.CLOUD_FORMATION_DEPLOY_ROLE }}
           role-session-name: aws-pfp-release-code
-
-      - name: download build artifact
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
-        with:
-          name: ${{ inputs.BUILD_ARTIFACT }}
-          path: .
-
-      - name: extract build artifact
-        run: tar -xf artifact.tar
-
 
       - name: delete old CDK stacks
         if: ${{ inputs.IS_PULL_REQUEST != true }}
@@ -188,6 +158,15 @@ jobs:
           AWS_ENVIRONMENT: "${{ inputs.TARGET_ENVIRONMENT }}"
           APIGEE_ENVIRONMENT: "${{ inputs.APIGEE_ENVIRONMENT }}"
           # APIM_STATUS_API_KEY: "${{ secrets.APIM_STATUS_API_KEY }}"
+
+      - name: download build artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: ${{ inputs.BUILD_ARTIFACT }}
+          path: .
+
+      - name: extract build artifact
+        run: tar -xf artifact.tar
 
       - name: install dependencies
         uses: ./.github/actions/install_dependencies
@@ -260,35 +239,6 @@ jobs:
           path: |
             ./packages/specification/dist/prescriptions-for-patients.resolved.json
 
-      - name: create_int_release_notes
-        uses: ./.github/actions/update_confluence_jira
-        if: ${{ inputs.IS_CDK_DEPLOY == true && inputs.CREATE_INT_RELEASE_NOTES == true && always() && !failure() && !cancelled() }}
-        with:
-          TARGET_ENVIRONMENT: int
-          CONFLUENCE_PAGE_ID: "768067990"
-          CREATE_RC_RELEASE_NOTES: false
-          DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
-          TARGET_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.INT_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
-          DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
-
-      - name: create_prod_release_notes
-        uses: ./.github/actions/update_confluence_jira
-        if: ${{ inputs.IS_CDK_DEPLOY == true && inputs.CREATE_PROD_RELEASE_NOTES == true && always() && !failure() && !cancelled() }}
-        with:
-          TARGET_ENVIRONMENT: prod
-          CONFLUENCE_PAGE_ID: "768067992"
-          CREATE_RC_RELEASE_NOTES: false
-          DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
-          TARGET_CLOUD_FORMATION_CHECK_VERSION_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_CHECK_VERSION_ROLE }}
-          DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
-
-      - name: mark_released_in_jira
-        uses: ./.github/actions/mark_jira_released
-        if: ${{ inputs.IS_CDK_DEPLOY == true && inputs.MARK_JIRA_RELEASED == true && always() && !failure() && !cancelled() }}
-        with:
-          RELEASE_TAG: ${{ inputs.VERSION_NUMBER }}
-          DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_EXECUTE_LAMBDA_ROLE }}
-
       - name: Checkout gh-pages
         if: ${{ inputs.IS_CDK_DEPLOY == true && inputs.IS_PULL_REQUEST == false }}
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
@@ -317,8 +267,6 @@ jobs:
   regression_tests:
     name: Regression Tests
     uses: ./.github/workflows/run_regression_tests.yml
-    # TODO: are always, !fail, !cancelled needed?
-    # if: ${{ always() && !failure() && !cancelled() && inputs.RUN_REGRESSION_TESTS == true }}
     if: ${{ inputs.RUN_REGRESSION_TESTS == true }}
     needs: [release_code_and_api]
     permissions:
