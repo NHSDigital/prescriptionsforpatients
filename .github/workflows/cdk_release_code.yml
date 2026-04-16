@@ -168,11 +168,12 @@ jobs:
       - name: extract build artifact
         run: tar -xf artifact.tar
 
-      - name: install dependencies
-        uses: ./.github/actions/install_dependencies
-        with:
-          npm-required: false
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # TODO: checking not required before I delete
+      # - name: install dependencies
+      #   uses: ./.github/actions/install_dependencies
+      #   with:
+      #     npm-required: false
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deploy code
         env:
