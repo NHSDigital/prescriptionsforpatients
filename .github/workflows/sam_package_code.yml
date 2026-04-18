@@ -51,7 +51,7 @@ jobs:
           cp Makefile .aws-sam/build/
           cp samconfig_package_and_deploy.toml .aws-sam/build/
 
-      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         name: upload build artifact
         with:
           name: packaged_code
@@ -70,7 +70,7 @@ jobs:
           cp Makefile .aws-sam/build/
           cp samconfig_package_and_deploy.toml .aws-sam/build/
 
-      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         name: upload sandbox build artifact
         with:
           name: packaged_sandbox_code
