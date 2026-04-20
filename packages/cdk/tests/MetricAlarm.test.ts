@@ -25,7 +25,7 @@ describe("MetricAlarm construct", () => {
       slackAlertTopic
     })
 
-    expect(metricAlarm.alarms.MySimpleAlarm).toBeDefined()
+    expect(metricAlarm.alarm).toBeDefined()
 
     const template = Template.fromStack(stack)
     template.resourceCountIs("AWS::SNS::Topic", 0)
@@ -69,7 +69,7 @@ describe("MetricAlarm construct", () => {
       slackAlertTopic
     })
 
-    expect(metricAlarm.alarms.MyOverrideAlarm).toBeDefined()
+    expect(metricAlarm.alarm).toBeDefined()
 
     const template = Template.fromStack(stack)
 

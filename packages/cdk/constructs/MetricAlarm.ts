@@ -38,7 +38,7 @@ export interface MetricAlarmProps {
  * Creates a single CloudWatch alarm and wires all alarm state changes to an SNS topic.
  */
 export class MetricAlarm extends Construct {
-  alarms: {[key: string]: Alarm}
+  alarm: Alarm
 
   /**
    * @example
@@ -90,6 +90,6 @@ export class MetricAlarm extends Construct {
       bind: () => ({alarmActionArn: props.slackAlertTopic.topicArn})
     })
 
-    this.alarms = {[props.alarmDefinition.name]: alarm}
+    this.alarm = alarm
   }
 }
