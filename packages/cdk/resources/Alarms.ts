@@ -68,9 +68,9 @@ export class Alarms extends Construct {
     const serviceSearchErrorsAlarm = new MetricAlarm(this, "ServiceSearchErrors", {
       stackName: props.stackName,
       enableAlerts: props.enableAlerts,
-      namespace: "LambdaLogFilterMetrics",
       alarmDefinition: {
         name: "ServiceSearch_Errors",
+        namespace: "LambdaLogFilterMetrics",
         metric: "ServiceSearchErrorCount",
         description: "Count of Service Search errors",
         dimensions: {
@@ -83,9 +83,9 @@ export class Alarms extends Construct {
     const serviceSearchUnhandledErrorsAlarm = new MetricAlarm(this, "ServiceSearchUnhandledErrors", {
       stackName: props.stackName,
       enableAlerts: props.enableAlerts,
-      namespace: "Lambda",
       alarmDefinition: {
         name: "ServiceSearch_UnhandledErrors",
+        namespace: "Lambda",
         metric: "Errors",
         description: "Count of Service Search unhandled errors",
         dimensions: {
@@ -111,9 +111,9 @@ export class Alarms extends Construct {
     const getMyPrescriptionsErrorsAlarm = new MetricAlarm(this, "GetMyPrescriptionsErrors", {
       stackName: props.stackName,
       enableAlerts: props.enableAlerts,
-      namespace: "LambdaLogFilterMetrics",
       alarmDefinition: {
         name: "GetMyPrescriptions_Errors",
+        namespace: "LambdaLogFilterMetrics",
         metric: "ErrorCount",
         description: "Count of GetMyPrescriptions errors",
         dimensions: {
@@ -134,9 +134,9 @@ export class Alarms extends Construct {
     const enrichPrescriptionsErrorsAlarm = new MetricAlarm(this, "EnrichPrescriptionsErrors", {
       stackName: props.stackName,
       enableAlerts: props.enableAlerts,
-      namespace: "LambdaLogFilterMetrics",
       alarmDefinition: {
         name: "EnrichPrescriptions_Errors",
+        namespace: "LambdaLogFilterMetrics",
         metric: `${props.stackName}EnrichPrescriptionsErrorCount`,
         description: "Count of EnrichPrescriptions errors"
       },

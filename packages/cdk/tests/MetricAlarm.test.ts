@@ -16,9 +16,9 @@ describe("MetricAlarm construct", () => {
     const metricAlarm = new MetricAlarm(stack, "SimpleMetricAlarm", {
       stackName: "pfp-test-stack",
       enableAlerts: true,
-      namespace: "LambdaLogFilterMetrics",
       alarmDefinition: {
         name: "MySimpleAlarm",
+        namespace: "LambdaLogFilterMetrics",
         metric: "ErrorCount",
         description: "Simple alarm"
       },
@@ -54,9 +54,9 @@ describe("MetricAlarm construct", () => {
     const metricAlarm = new MetricAlarm(stack, "OverrideMetricAlarm", {
       stackName: "pfp-test-stack",
       enableAlerts: false,
-      namespace: "CustomNamespace",
       alarmDefinition: {
         name: "MyOverrideAlarm",
+        namespace: "CustomNamespace",
         metric: "Latency",
         description: "Override alarm",
         dimensions: {

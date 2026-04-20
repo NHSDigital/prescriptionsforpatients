@@ -122,16 +122,16 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 			  StateMachineLogLevel=$$STATE_MACHINE_LOG_LEVEL
 
 cdk-deploy: download-get-secrets-layer
-	CDK_CONFIG_stackName=${stack_name} REQUIRE_APPROVAL="$${REQUIRE_APPROVAL:-any-change}" npm run cdk-deploy --workspace packages/cdk
+	REQUIRE_APPROVAL="$${REQUIRE_APPROVAL:-any-change}" npm run cdk-deploy --workspace packages/cdk
 
 cdk-synth: download-get-secrets-layer
-	CDK_CONFIG_stackName=${stack_name} npm run cdk-synth --workspace packages/cdk
+	npm run cdk-synth --workspace packages/cdk
 
 cdk-diff:
-	CDK_CONFIG_stackName=${stack_name} npm run cdk-diff --workspace packages/cdk
+	npm run cdk-diff --workspace packages/cdk
 
 cdk-watch: download-get-secrets-layer
-	CDK_CONFIG_stackName=${stack_name} REQUIRE_APPROVAL="$${REQUIRE_APPROVAL:-any-change}" npm run cdk-watch --workspace packages/cdk
+	REQUIRE_APPROVAL="$${REQUIRE_APPROVAL:-any-change}" npm run cdk-watch --workspace packages/cdk
 	
 compile-node:
 	npx tsc --build tsconfig.build.json
