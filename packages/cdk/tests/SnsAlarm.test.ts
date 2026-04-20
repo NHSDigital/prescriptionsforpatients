@@ -1,26 +1,28 @@
-import {App, Stack} from "aws-cdk-lib"
+import {App, Duration, Stack} from "aws-cdk-lib"
 import {Template} from "aws-cdk-lib/assertions"
 import {ComparisonOperator, Unit} from "aws-cdk-lib/aws-cloudwatch"
 import {Topic} from "aws-cdk-lib/aws-sns"
 import {describe, expect, it} from "vitest"
-import {MetricAlarm} from "../constructs/MetricAlarm"
+import {SnsAlarm} from "../constructs/SnsAlarm"
 
 const importedSlackTopicArn = "arn:aws:sns:eu-west-2:111111111111:SlackAlertsTopic"
 
-describe("MetricAlarm construct", () => {
+describe("SnsAlarm construct", () => {
   it("applies sane defaults for simple alarm definitions", () => {
     const app = new App()
     const stack = new Stack(app, "TestStack")
     const slackAlertTopic = Topic.fromTopicArn(stack, "SlackAlertsTopic", importedSlackTopicArn)
 
-    const metricAlarm = new MetricAlarm(stack, "SimpleMetricAlarm", {
+    const metricAlarm = new SnsAlarm(stack, "SimpleMetricAlarm", {
       stackName: "pfp-test-stack",
       enableAlerts: true,
       alarmDefinition: {
-        name: "MySimpleAlarm",
+        alarmName: "MySimpleAlarm",
+        alarmDescription: "An alarm for any breach (threshold 1) in a single period"
+      },
+      metricStatConfig: {
         namespace: "LambdaLogFilterMetrics",
-        metric: "ErrorCount",
-        description: "Simple alarm"
+        metricName: "ErrorCount"
       },
       slackAlertTopic
     })
@@ -41,7 +43,7 @@ describe("MetricAlarm construct", () => {
       Period: 60,
       EvaluationPeriods: 1,
       TreatMissingData: "notBreaching",
-      AlarmDescription: "Simple alarm",
+      AlarmDescription: "An alarm for any breach (threshold 1) in a single period",
       ActionsEnabled: true
     })
   })
@@ -51,20 +53,28 @@ describe("MetricAlarm construct", () => {
     const stack = new Stack(app, "OverrideStack")
     const slackAlertTopic = Topic.fromTopicArn(stack, "SlackAlertsTopic", importedSlackTopicArn)
 
-    const metricAlarm = new MetricAlarm(stack, "OverrideMetricAlarm", {
+    const metricAlarm = new SnsAlarm(stack, "OverrideMetricAlarm", {
       stackName: "pfp-test-stack",
       enableAlerts: false,
       alarmDefinition: {
-        name: "MyOverrideAlarm",
-        namespace: "CustomNamespace",
-        metric: "Latency",
-        description: "Override alarm",
-        dimensions: {
-          FunctionName: "my-function"
-        },
+        alarmName: "MyOverrideAlarm",
+        alarmDescription: "Override alarm",
         threshold: 250,
         comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
-        unit: Unit.MILLISECONDS
+        evaluationPeriods: 1
+      },
+      metricStatConfig: {
+        namespace: "CustomNamespace",
+        metricName: "Latency",
+        unitFilter: Unit.MILLISECONDS,
+        dimensions: [
+          {
+            name: "FunctionName",
+            value: "my-function"
+          }
+        ],
+        period: Duration.minutes(1),
+        statistic: "Sum"
       },
       slackAlertTopic
     })
