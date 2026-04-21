@@ -56,7 +56,10 @@ export class PfPApiStack extends Stack {
     const stateMachines = new StateMachines(this, "StateMachines", {
       stackName: props.stackName,
       logRetentionInDays: props.logRetentionInDays,
-      functions: functions.functions
+      functions: {
+        getMyPrescriptions: functions.functions.getMyPrescriptions,
+        enrichPrescriptions: functions.functions.enrichPrescriptions
+      }
     })
 
     new Alarms(this, "Alarms", {

@@ -8,7 +8,10 @@ import {GetMyPrescriptions} from "./StateMachineDefinitions/GetMyPrescriptions"
 export interface StateMachinesProps {
   readonly stackName: string
   readonly logRetentionInDays: number
-  functions: {[key: string]: TypescriptLambdaFunction}
+  functions: {
+    getMyPrescriptions: TypescriptLambdaFunction
+    enrichPrescriptions: TypescriptLambdaFunction
+  }
 }
 
 export class StateMachines extends Construct {
