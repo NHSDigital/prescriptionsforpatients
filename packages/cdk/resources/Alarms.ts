@@ -18,7 +18,6 @@ export interface AlarmsProps {
 }
 
 export class Alarms extends Construct {
-  private readonly snsAlarms: Array<SnsAlarm>
 
   public constructor(scope: Construct, id: string, props: AlarmsProps) {
     super(scope, id)
@@ -64,7 +63,7 @@ export class Alarms extends Construct {
       }
     })
 
-    const serviceSearchErrorsAlarm = new SnsAlarm(this, "ServiceSearchErrors", {
+    new SnsAlarm(this, "ServiceSearchErrors", {
       stackName: props.stackName,
       enableAlerts: props.enableAlerts,
       alarmDefinition: {
@@ -78,7 +77,7 @@ export class Alarms extends Construct {
       slackAlertTopic
     })
 
-    const serviceSearchUnhandledErrorsAlarm = new SnsAlarm(this, "ServiceSearchUnhandledErrors", {
+    new SnsAlarm(this, "ServiceSearchUnhandledErrors", {
       stackName: props.stackName,
       enableAlerts: props.enableAlerts,
       alarmDefinition: {
@@ -108,7 +107,7 @@ export class Alarms extends Construct {
       }
     })
 
-    const getMyPrescriptionsErrorsAlarm = new SnsAlarm(this, "GetMyPrescriptionsErrors", {
+    new SnsAlarm(this, "GetMyPrescriptionsErrors", {
       stackName: props.stackName,
       enableAlerts: props.enableAlerts,
       alarmDefinition: {
@@ -132,7 +131,7 @@ export class Alarms extends Construct {
       unit: Unit.COUNT
     })
 
-    const enrichPrescriptionsErrorsAlarm = new SnsAlarm(this, "EnrichPrescriptionsErrors", {
+    new SnsAlarm(this, "EnrichPrescriptionsErrors", {
       stackName: props.stackName,
       enableAlerts: props.enableAlerts,
       alarmDefinition: {
@@ -145,11 +144,5 @@ export class Alarms extends Construct {
       slackAlertTopic
     })
 
-    this.snsAlarms = [
-      serviceSearchErrorsAlarm,
-      serviceSearchUnhandledErrorsAlarm,
-      getMyPrescriptionsErrorsAlarm,
-      enrichPrescriptionsErrorsAlarm
-    ]
   }
 }
