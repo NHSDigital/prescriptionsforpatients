@@ -58,11 +58,11 @@ export const nagSuppressions = (stack: Stack) => {
     [
       {
         id: "AwsSolutions-APIG4",
-        reason: "Suppress error for not implementing authorization. Token endpoint should not have an authorizer"
+        reason: "Suppress error for not implementing authorization. We use TLS mutual auth which is not implemented as an authorizer"
       },
       {
         id: "AwsSolutions-COG4",
-        reason: "Suppress error for not implementing a Cognito user pool authorizer. Token endpoint should not have an authorizer"
+        reason: "Suppress error for not implementing authorization. We use TLS mutual auth which is not implemented as an authorizer"
       }
     ]
   )
