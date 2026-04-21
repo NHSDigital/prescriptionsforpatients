@@ -14,7 +14,6 @@ export interface PfPApiSandboxStackProps extends StandardStackProps {
 }
 
 export class PfPApiSandboxStack extends Stack {
-  private readonly apis: SandboxApis
 
   public constructor(scope: App, id: string, props: PfPApiSandboxStackProps){
     super(scope, id, props)
@@ -29,7 +28,7 @@ export class PfPApiSandboxStack extends Stack {
       logLevel: props.logLevel
     })
 
-    this.apis = new SandboxApis(this, "Apis", {
+    new SandboxApis(this, "Apis", {
       stackName: props.stackName,
       logRetentionInDays: props.logRetentionInDays,
       mutualTlsTrustStoreKey: props.mutualTlsTrustStoreKey,
