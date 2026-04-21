@@ -38,6 +38,24 @@ export class Alarms extends Construct {
       ...metricFilterProps
     })
 
+    const createSnsAlarm = (
+      alarmId: string,
+      alarmDescription: string,
+      metricStatConfig: {
+        namespace: string
+        metricName: string
+        dimensions?: Array<{name: string, value: string}>
+      }
+    ) => new SnsAlarm(this, alarmId, {
+      stackName: props.stackName,
+      enableAlerts: props.enableAlerts,
+      alarmDefinition: {
+        alarmDescription
+      },
+      metricStatConfig,
+      slackAlertTopic
+    })
+
     const slackAlertTopic = Topic.fromTopicArn(
       this,
       "SlackAlertsTopic",
@@ -63,32 +81,16 @@ export class Alarms extends Construct {
       }
     })
 
-    new SnsAlarm(this, "ServiceSearchErrors", {
-      stackName: props.stackName,
-      enableAlerts: props.enableAlerts,
-      alarmDefinition: {
-        alarmDescription: "Count of Service Search errors"
-      },
-      metricStatConfig: {
-        namespace: "LambdaLogFilterMetrics",
-        metricName: "ServiceSearchErrorCount",
-        dimensions: [{name: "FunctionName", value: getMyPrescriptionsFunction.functionName}]
-      },
-      slackAlertTopic
+    createSnsAlarm("ServiceSearchErrors", "Count of Service Search errors", {
+      namespace: "LambdaLogFilterMetrics",
+      metricName: "ServiceSearchErrorCount",
+      dimensions: [{name: "FunctionName", value: getMyPrescriptionsFunction.functionName}]
     })
 
-    new SnsAlarm(this, "ServiceSearchUnhandledErrors", {
-      stackName: props.stackName,
-      enableAlerts: props.enableAlerts,
-      alarmDefinition: {
-        alarmDescription: "Count of Service Search unhandled errors"
-      },
-      metricStatConfig: {
-        namespace: "Lambda",
-        metricName: "ServiceSearchUnhandledErrors",
-        dimensions: [{name: "FunctionName", value: getMyPrescriptionsFunction.functionName}]
-      },
-      slackAlertTopic
+    createSnsAlarm("ServiceSearchUnhandledErrors", "Count of Service Search unhandled errors", {
+      namespace: "Lambda",
+      metricName: "ServiceSearchUnhandledErrors",
+      dimensions: [{name: "FunctionName", value: getMyPrescriptionsFunction.functionName}]
     })
 
     createMetricFilter("GetMyPrescriptionsErrorsLogsMetricFilter", {
@@ -107,18 +109,10 @@ export class Alarms extends Construct {
       }
     })
 
-    new SnsAlarm(this, "GetMyPrescriptionsErrors", {
-      stackName: props.stackName,
-      enableAlerts: props.enableAlerts,
-      alarmDefinition: {
-        alarmDescription: "Count of GetMyPrescriptions errors"
-      },
-      metricStatConfig: {
-        namespace: "LambdaLogFilterMetrics",
-        metricName: "ErrorCount",
-        dimensions: [{name: "FunctionName", value: getMyPrescriptionsFunction.functionName}]
-      },
-      slackAlertTopic
+    createSnsAlarm("GetMyPrescriptionsErrors", "Count of GetMyPrescriptions errors", {
+      namespace: "LambdaLogFilterMetrics",
+      metricName: "ErrorCount",
+      dimensions: [{name: "FunctionName", value: getMyPrescriptionsFunction.functionName}]
     })
 
     createMetricFilter("EnrichPrescriptionsErrorsLogsMetricFilter", {
@@ -131,17 +125,9 @@ export class Alarms extends Construct {
       unit: Unit.COUNT
     })
 
-    new SnsAlarm(this, "EnrichPrescriptionsErrors", {
-      stackName: props.stackName,
-      enableAlerts: props.enableAlerts,
-      alarmDefinition: {
-        alarmDescription: "Count of EnrichPrescriptions errors"
-      },
-      metricStatConfig: {
-        namespace: "LambdaLogFilterMetrics",
-        metricName: `${props.stackName}EnrichPrescriptionsErrorCount`
-      },
-      slackAlertTopic
+    createSnsAlarm("EnrichPrescriptionsErrors", "Count of EnrichPrescriptions errors", {
+      namespace: "LambdaLogFilterMetrics",
+      metricName: `${props.stackName}EnrichPrescriptionsErrorCount`
     })
 
   }
