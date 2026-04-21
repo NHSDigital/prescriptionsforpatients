@@ -67,6 +67,7 @@ const toDimensionsMap = (
 
 /**
  * Constructs a concrete CloudWatch Metric from a MetricStatConfig.
+ * @see {@link import("aws-cdk-lib/aws-cloudwatch").MetricConfig} for alternate concrete metric configs.
  */
 export const metricFromStatConfig = (
   metricStatConfig: MetricStatConfig
@@ -106,16 +107,20 @@ export class SnsAlarm extends Construct {
   alarm: Alarm
 
   /**
+   * Creates a CloudWatch alarm and publishes alarm state changes to the provided SNS topic.
+   *
+   * @param props Alarm configuration including metric settings, threshold settings, and notification topic.
    * @example
-   * new SnsAlarm(this, 'ApiErrorAlarm', {
+   * new SnsAlarm(this, 'MyApiErrorAlarm', {
    *   stackName: 'pfp-prod',
    *   enableAlerts: true,
    *   alarmDefinition: {
-   *     name: 'Api5xx',
-   *     namespace: 'AWS/ApiGateway',
-   *     metric: '5XXError',
-   *     description: 'API 5XX errors detected',
+   *     alarmDescription: 'API errors detected',
    *     threshold: 1
+   *   },
+   *   metricStatConfig: {
+   *     namespace: 'LambdaLogFilterMetrics',
+   *     metricName: 'ErrorCount'
    *   },
    *   slackAlertTopic
    * })
