@@ -1,21 +1,9 @@
 name: deploy_pr
-
 on:
   pull_request:
     branches: [main]
-
 permissions: {}
-
 jobs:
-  dependabot-auto-approve-and-merge:
-    needs: quality_checks
-    uses: NHSDigital/eps-common-workflows/.github/workflows/dependabot-auto-approve-and-merge.yml@e798d5aee897de6f7dc387dd5623fcd9ba4c8929
-    secrets:
-      AUTOMERGE_APP_ID: ${{ secrets.AUTOMERGE_APP_ID }}
-      AUTOMERGE_PEM: ${{ secrets.AUTOMERGE_PEM }}
-    permissions:
-      contents: write
-      pull-requests: write
   get_config_values:
     uses: NHSDigital/eps-common-workflows/.github/workflows/get-repo-config.yml@e798d5aee897de6f7dc387dd5623fcd9ba4c8929
     with:
@@ -24,9 +12,8 @@ jobs:
       attestations: read
       contents: read
       packages: read
-
   quality_checks:
-    uses: NHSDigital/eps-common-workflows/.github/workflows/quality-checks-devcontainer.yml@e798d5aee897de6f7dc387dd5623fcd9ba4c8929
+    uses: NHSDigital/eps-common-workflows/.github/workflows/quality-checks-devcontainer.yml@8399c1f015c1304e40771cbd8ccc24c7ed48fdbc
     needs: [get_config_values]
     with:
       pinned_image: ${{ needs.get_config_values.outputs.pinned_image }}
@@ -45,9 +32,8 @@ jobs:
     needs: quality_checks
     outputs:
       issue_number: ${{steps.get_issue_number.outputs.result}}
-
     steps:
-      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
         name: get issue number
         id: get_issue_number
         with:
@@ -66,7 +52,6 @@ jobs:
               ).data[0].number;
             }
           result-encoding: string
-
   tag_release:
     needs: [get_config_values]
     uses: NHSDigital/eps-common-workflows/.github/workflows/tag-release-devcontainer.yml@e798d5aee897de6f7dc387dd5623fcd9ba4c8929
@@ -79,7 +64,6 @@ jobs:
       pinned_image: ${{ needs.get_config_values.outputs.pinned_image }}
       branch_name: ${{ github.event.pull_request.head.ref }}
       tag_format: ${{ needs.get_config_values.outputs.tag_format }}
-
   get_commit_id:
     runs-on: ubuntu-22.04
     outputs:
@@ -89,7 +73,6 @@ jobs:
         id: commit_id
         run: |
           echo "commit_id=${{ github.sha }}" >> "$GITHUB_OUTPUT"
-
   package_code:
     needs: [get_issue_number, tag_release, get_config_values]
     uses: ./.github/workflows/sam_package_code.yml
@@ -99,7 +82,6 @@ jobs:
       contents: read
       packages: read
       id-token: write
-
   release_code:
     needs: [get_issue_number, package_code, get_commit_id, get_config_values]
     uses: ./.github/workflows/sam_release_code.yml
