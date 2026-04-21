@@ -12,8 +12,12 @@ export interface ApisProps {
   readonly stackName: string
   readonly logRetentionInDays: number
   readonly mutualTlsTrustStoreKey: string | undefined
-  functions: {[key: string]: TypescriptLambdaFunction}
-  stateMachines: {[key: string]: ExpressStateMachine}
+  functions: {
+    status: TypescriptLambdaFunction
+  }
+  stateMachines: {
+    getMyPrescriptions: ExpressStateMachine
+  }
   readonly forwardCsocLogs: boolean
   readonly csocApiGatewayDestination: string
 }

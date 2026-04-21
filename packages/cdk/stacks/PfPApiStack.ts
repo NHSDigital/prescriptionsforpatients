@@ -69,8 +69,12 @@ export class PfPApiStack extends Stack {
       stackName: props.stackName,
       logRetentionInDays: props.logRetentionInDays,
       mutualTlsTrustStoreKey: props.mutualTlsTrustStoreKey,
-      functions: functions.functions,
-      stateMachines: stateMachines.stateMachines,
+      functions: {
+        status: functions.functions.status
+      },
+      stateMachines: {
+        getMyPrescriptions: stateMachines.stateMachine
+      },
       csocApiGatewayDestination: props.csocApiGatewayDestination,
       forwardCsocLogs: props.forwardCsocLogs
     })
