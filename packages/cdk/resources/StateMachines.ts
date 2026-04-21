@@ -12,7 +12,7 @@ export interface StateMachinesProps {
 }
 
 export class StateMachines extends Construct {
-  stateMachines: {[key: string]: ExpressStateMachine}
+  stateMachine: ExpressStateMachine
 
   public constructor(scope: Construct, id: string, props: StateMachinesProps){
     super(scope, id)
@@ -51,8 +51,6 @@ export class StateMachines extends Construct {
       ]
     })
 
-    this.stateMachines = {
-      getMyPrescriptions: getMyPrescriptionsStateMachine
-    }
+    this.stateMachine = getMyPrescriptionsStateMachine
   }
 }
