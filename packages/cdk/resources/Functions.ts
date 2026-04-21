@@ -24,7 +24,11 @@ export interface FunctionsProps {
 const baseDir = resolve(__dirname, "../../..")
 
 export class Functions extends Construct {
-  functions: {[key: string]: TypescriptLambdaFunction}
+  public readonly functions: {
+    getMyPrescriptions: TypescriptLambdaFunction
+    enrichPrescriptions: TypescriptLambdaFunction
+    status: TypescriptLambdaFunction
+  }
 
   public constructor(scope: Construct, id: string, props: FunctionsProps){
     super(scope, id)
