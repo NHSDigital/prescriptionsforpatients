@@ -25,46 +25,51 @@ export class GetMyPrescriptions extends Construct {
 
     const catchAllError = new CatchAllErrorPass(this, "Catch All Error")
 
-    const getMyPrescriptions = LambdaInvoke.jsonata(this, "Get My Prescriptions", {
-      lambdaFunction: props.getMyPrescriptionsFunction,
-      payload: TaskInput.fromText("{% $states.input %}")
-    })
-    getMyPrescriptions.addCatch(catchAllError.state)
+    const createGetMyPrescriptions = () => {
+      const getMyPrescriptions = LambdaInvoke.jsonata(this, "Get My Prescriptions", {
+        lambdaFunction: props.getMyPrescriptionsFunction,
+        payload: TaskInput.fromText("{% $states.input %}")
+      })
+      getMyPrescriptions.addCatch(catchAllError.state)
+      return getMyPrescriptions
+    }
 
-    const failedGetMyPrescriptions = new Pass(this, "Failed Get My Prescriptions")
+    const createEnrichPrescriptions = () => {
+      const enrichPrescriptions = LambdaInvoke.jsonata(this, "Enrich Prescriptions", {
+        lambdaFunction: props.enrichPrescriptionsFunction,
+        payload: TaskInput.fromText("{% $states.input %}")
+      })
+      enrichPrescriptions.addCatch(catchAllError.state)
+      return enrichPrescriptions
+    }
 
-    const parseGetMyPrescriptionsBody = Pass.jsonata(this, "Parse Get My Prescriptions Body", {
-      outputs: "{% $parse($states.input.Payload.body) %}"
-    })
+    const createGetStatusUpdates = (catchTarget: IChainable) => {
+      const getStatusUpdates = LambdaInvoke.jsonata(this, "Get Status Updates", {
+        lambdaFunction: props.getStatusUpdatesFunction,
+        payload: TaskInput.fromText("{% $states.input.statusUpdateData %}"),
+        outputs: "{% $merge([$states.input, {'StatusUpdates': {'Payload': $states.result.Payload}}]) %}"
+      })
+      getStatusUpdates.addCatch(catchTarget, {
+        outputs: "{% $merge([$states.input, {'error': $states.errorOutput}]) %}"
+      })
+      return getStatusUpdates
+    }
 
-    const enrichPrescriptions = LambdaInvoke.jsonata(this, "Enrich Prescriptions", {
-      lambdaFunction: props.enrichPrescriptionsFunction,
-      payload: TaskInput.fromText("{% $states.input %}")
-    })
-    enrichPrescriptions.addCatch(catchAllError.state)
+    const enrichPrescriptions = createEnrichPrescriptions()
 
-    const getStatusUpdates = LambdaInvoke.jsonata(this, "Get Status Updates", {
-      lambdaFunction: props.getStatusUpdatesFunction,
-      payload: TaskInput.fromText("{% $states.input.statusUpdateData %}"),
-      outputs: "{% $merge([$states.input, {'StatusUpdates': {'Payload': $states.result.Payload}}]) %}"
-    })
-    getStatusUpdates.addCatch(enrichPrescriptions, {
-      outputs: "{% $merge([$states.input, {'error': $states.errorOutput}]) %}"
-    })
-
-    const checkGetMyPrescriptionsResult = Choice.jsonata(this, "Get My Prescriptions Result")
-    const evaluateToggleGetStatusUpdates = Choice.jsonata(this, "Evaluate Toggle Get Status Updates Parameter")
-
-    this.definition = Chain
-      .start(getMyPrescriptions)
-      .next(checkGetMyPrescriptionsResult
-        .when(Condition.jsonata("{% $states.input.Payload.statusCode != 200 %}"), failedGetMyPrescriptions)
-        .otherwise(parseGetMyPrescriptionsBody
-          .next(evaluateToggleGetStatusUpdates
-            .when(
-              Condition.jsonata("{% $states.input.getStatusUpdates = true %}"),
-              getStatusUpdates.next(enrichPrescriptions)
-            )
-            .otherwise(enrichPrescriptions))))
+    this.definition = Chain.start(createGetMyPrescriptions())
+      .next(Choice.jsonata(this, "Get My Prescriptions Result")
+        .when(
+          Condition.jsonata("{% $states.input.Payload.statusCode != 200 %}"),
+          new Pass(this, "Failed Get My Prescriptions")
+        )
+        .otherwise(Pass.jsonata(this, "Parse Get My Prescriptions Body", {
+          outputs: "{% $parse($states.input.Payload.body) %}"
+        }).next(Choice.jsonata(this, "Evaluate Toggle Get Status Updates Parameter")
+          .when(
+            Condition.jsonata("{% $states.input.getStatusUpdates = true %}"),
+            createGetStatusUpdates(enrichPrescriptions).next(enrichPrescriptions)
+          )
+          .otherwise(enrichPrescriptions))))
   }
 }
