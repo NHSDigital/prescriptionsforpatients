@@ -61,7 +61,7 @@ describe("CDK stack synthesis", () => {
 
     template.hasResourceProperties("AWS::CloudWatch::Alarm", {
       AlarmDescription: "Count of Service Search errors",
-      AlarmName: "pfp-test-stack-ServiceSearch_Errors",
+      AlarmName: "pfp-test-stack-ServiceSearchErrors",
       ActionsEnabled: true
     })
 
