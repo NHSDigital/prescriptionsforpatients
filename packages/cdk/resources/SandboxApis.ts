@@ -12,8 +12,6 @@ export interface SandboxApisProps {
 }
 
 export class SandboxApis extends Construct {
-  apis: {[key: string]: RestApiGateway}
-  endpoints: {[key: string]: Construct}
 
   public constructor(scope: Construct, id: string, props: SandboxApisProps){
     super(scope, id)
@@ -32,7 +30,7 @@ export class SandboxApis extends Construct {
     })
     const rootResource = apiGateway.api.root
 
-    const bundleEndpoint = new LambdaEndpoint(this, "SandboxBundleEndpoint", {
+    new LambdaEndpoint(this, "SandboxBundleEndpoint", {
       parentResource: rootResource,
       resourceName: "Bundle",
       method: HttpMethod.GET,
@@ -40,7 +38,7 @@ export class SandboxApis extends Construct {
       lambdaFunction: props.functions.sandbox
     })
 
-    const capabilityStatementEndpoint = new LambdaEndpoint(this, "CapabilityStatementEndpoint", {
+    new LambdaEndpoint(this, "CapabilityStatementEndpoint", {
       parentResource: rootResource,
       resourceName: "metadata",
       method: HttpMethod.GET,
@@ -48,7 +46,7 @@ export class SandboxApis extends Construct {
       lambdaFunction: props.functions.capabilityStatement
     })
 
-    const statusEndpoint = new LambdaEndpoint(this, "StatusEndpoint", {
+    new LambdaEndpoint(this, "StatusEndpoint", {
       parentResource: rootResource,
       resourceName: "_status",
       method: HttpMethod.GET,
@@ -56,13 +54,5 @@ export class SandboxApis extends Construct {
       lambdaFunction: props.functions.status
     })
 
-    this.apis = {
-      api: apiGateway
-    }
-    this.endpoints = {
-      sandbox: bundleEndpoint,
-      capabilityStatement: capabilityStatementEndpoint,
-      status: statusEndpoint
-    }
   }
 }

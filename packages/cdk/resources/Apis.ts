@@ -23,8 +23,6 @@ export interface ApisProps {
 }
 
 export class Apis extends Construct {
-  apis: {[key: string]: RestApiGateway}
-  endpoints: {[key: string]: Construct}
 
   public constructor(scope: Construct, id: string, props: ApisProps){
     super(scope, id)
@@ -42,7 +40,7 @@ export class Apis extends Construct {
     })
     const rootResource = apiGateway.api.root
 
-    const getMyPrescriptionsEndpoint = new StateMachineEndpoint(this, "GetMyPrescriptionsEndpoint", {
+    new StateMachineEndpoint(this, "GetMyPrescriptionsEndpoint", {
       parentResource: rootResource,
       resourceName: "Bundle",
       method: HttpMethod.GET,
@@ -50,7 +48,7 @@ export class Apis extends Construct {
       stateMachine: props.stateMachines.getMyPrescriptions
     })
 
-    const statusEndpoint = new LambdaEndpoint(this, "StatusEndpoint", {
+    new LambdaEndpoint(this, "StatusEndpoint", {
       parentResource: rootResource,
       resourceName: "_status",
       method: HttpMethod.GET,
@@ -58,12 +56,5 @@ export class Apis extends Construct {
       lambdaFunction: props.functions.status
     })
 
-    this.apis = {
-      api: apiGateway
-    }
-    this.endpoints = {
-      getMyPrescriptions: getMyPrescriptionsEndpoint,
-      status: statusEndpoint
-    }
   }
 }
