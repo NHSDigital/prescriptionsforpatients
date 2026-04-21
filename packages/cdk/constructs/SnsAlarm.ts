@@ -9,6 +9,7 @@ import {
   TreatMissingData,
   Unit
 } from "aws-cdk-lib/aws-cloudwatch"
+import {SnsAction} from "aws-cdk-lib/aws-cloudwatch-actions"
 import {ITopic} from "aws-cdk-lib/aws-sns"
 
 /**
@@ -141,15 +142,10 @@ export class SnsAlarm extends Construct {
       actionsEnabled: props.enableAlerts
     })
 
-    alarm.addAlarmAction({
-      bind: () => ({alarmActionArn: props.slackAlertTopic.topicArn})
-    })
-    alarm.addOkAction({
-      bind: () => ({alarmActionArn: props.slackAlertTopic.topicArn})
-    })
-    alarm.addInsufficientDataAction({
-      bind: () => ({alarmActionArn: props.slackAlertTopic.topicArn})
-    })
+    const snsAction = new SnsAction(props.slackAlertTopic)
+    alarm.addAlarmAction(snsAction)
+    alarm.addOkAction(snsAction)
+    alarm.addInsufficientDataAction(snsAction)
 
     this.alarm = alarm
   }
