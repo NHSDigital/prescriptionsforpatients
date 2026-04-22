@@ -15,7 +15,11 @@ export interface SandboxFunctionsProps {
 const baseDir = resolve(__dirname, "../../..")
 
 export class SandboxFunctions extends Construct {
-  functions: {[key: string]: TypescriptLambdaFunction}
+  public readonly functions: {
+    sandbox: TypescriptLambdaFunction
+    capabilityStatement: TypescriptLambdaFunction
+    status: TypescriptLambdaFunction
+  }
 
   public constructor(scope: Construct, id: string, props: SandboxFunctionsProps) {
     super(scope, id)

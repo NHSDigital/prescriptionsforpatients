@@ -8,7 +8,11 @@ export interface SandboxApisProps {
   readonly mutualTlsTrustStoreKey: string | undefined
   readonly csocApiGatewayDestination: string
   readonly forwardCsocLogs: boolean
-  functions: {[key: string]: TypescriptLambdaFunction}
+  readonly functions: {
+    sandbox: TypescriptLambdaFunction
+    capabilityStatement: TypescriptLambdaFunction
+    status: TypescriptLambdaFunction
+  }
 }
 
 export class SandboxApis extends Construct {
