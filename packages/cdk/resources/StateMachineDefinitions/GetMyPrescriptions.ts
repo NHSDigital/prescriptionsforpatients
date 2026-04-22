@@ -65,11 +65,15 @@ export class GetMyPrescriptions extends Construct {
         )
         .otherwise(Pass.jsonata(this, "Parse Get My Prescriptions Body", {
           outputs: "{% $parse($states.input.Payload.body) %}"
-        }).next(Choice.jsonata(this, "Evaluate Toggle Get Status Updates Parameter")
-          .when(
-            Condition.jsonata("{% $states.input.getStatusUpdates = true %}"),
-            createGetStatusUpdates(enrichPrescriptions).next(enrichPrescriptions)
+        })
+          .next(Choice.jsonata(this, "Evaluate Toggle Get Status Updates Parameter")
+            .when(
+              Condition.jsonata("{% $states.input.getStatusUpdates = true %}"),
+              createGetStatusUpdates(enrichPrescriptions).next(enrichPrescriptions)
+            )
+            .otherwise(enrichPrescriptions)
           )
-          .otherwise(enrichPrescriptions))))
+        )
+      )
   }
 }
