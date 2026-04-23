@@ -39,15 +39,6 @@ on:
       LOG_RETENTION_DAYS:
         required: true
         type: string
-      CREATE_INT_RELEASE_NOTES:
-        type: boolean
-        default: false
-      CREATE_INT_RC_RELEASE_NOTES:
-        type: boolean
-        default: false
-      CREATE_PROD_RELEASE_NOTES:
-        type: boolean
-        default: false
       MARK_JIRA_RELEASED:
         type: boolean
         default: false
