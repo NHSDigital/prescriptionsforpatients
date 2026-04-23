@@ -63,9 +63,10 @@ export class GetMyPrescriptions extends Construct {
           Condition.jsonata("{% $states.input.Payload.statusCode != 200 %}"),
           new Pass(this, "Failed Get My Prescriptions")
         )
-        .otherwise(Pass.jsonata(this, "Parse Get My Prescriptions Body", {
-          outputs: "{% $parse($states.input.Payload.body) %}"
-        })
+        .otherwise(Pass
+          .jsonata(this, "Parse Get My Prescriptions Body", {
+            outputs: "{% $parse($states.input.Payload.body) %}"
+          })
           .next(Choice.jsonata(this, "Evaluate Toggle Get Status Updates Parameter")
             .when(
               Condition.jsonata("{% $states.input.getStatusUpdates = true %}"),
