@@ -57,8 +57,10 @@ export class GetMyPrescriptions extends Construct {
 
     const enrichPrescriptions = createEnrichPrescriptions()
 
-    this.definition = Chain.start(createGetMyPrescriptions())
-      .next(Choice.jsonata(this, "Get My Prescriptions Result")
+    this.definition = Chain
+      .start(createGetMyPrescriptions())
+      .next(Choice
+        .jsonata(this, "Get My Prescriptions Result")
         .when(
           Condition.jsonata("{% $states.input.Payload.statusCode != 200 %}"),
           new Pass(this, "Failed Get My Prescriptions")
@@ -67,7 +69,8 @@ export class GetMyPrescriptions extends Construct {
           .jsonata(this, "Parse Get My Prescriptions Body", {
             outputs: "{% $parse($states.input.Payload.body) %}"
           })
-          .next(Choice.jsonata(this, "Evaluate Toggle Get Status Updates Parameter")
+          .next(Choice
+            .jsonata(this, "Evaluate Toggle Get Status Updates Parameter")
             .when(
               Condition.jsonata("{% $states.input.getStatusUpdates = true %}"),
               createGetStatusUpdates(enrichPrescriptions).next(enrichPrescriptions)
