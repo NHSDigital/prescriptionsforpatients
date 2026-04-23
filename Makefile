@@ -1,3 +1,20 @@
+SHELL = /bin/bash
+.SHELLFLAGS = -o pipefail -c
+stack_name ?= pfp-api
+export CDK_APP_NAME=PfPApiApp
+export CDK_CONFIG_stackName=${stack_name}
+export CDK_CONFIG_versionNumber=undefined
+export CDK_CONFIG_commitId=undefined
+export CDK_CONFIG_isPullRequest=true # Turns off mTLS and drift detection when true
+export CDK_CONFIG_environment=dev
+export CDK_CONFIG_logRetentionInDays=30
+export CDK_CONFIG_logLevel=DEBUG
+export CDK_CONFIG_targetSpineServer=msg.veit07.devspineservices.nhs.uk
+export CDK_CONFIG_targetServiceSearchServer=int.api.service.nhs.uk
+export CDK_CONFIG_toggleGetStatusUpdates=false
+export CDK_CONFIG_allowNhsNumberOverride=false
+export CDK_CONFIG_forwardCsocLogs=false
+
 .PHONY: install build test publish release clean install-node install-python install-hooks sam-build sam-build-sandbox sam-run-local sam-sync sam-sync-sandbox sam-deploy sam-delete sam-list-endpoints sam-list-resources sam-list-outputs sam-validate sam-validate-sandbox sam-deploy-package compile-node compile compile-specification download-get-secrets-layer lint-node lint test clean deep-clean
 
 install: install-python install-hooks install-node
@@ -104,6 +121,18 @@ sam-deploy-package: guard-artifact_bucket guard-artifact_bucket_prefix guard-sta
 			  EnableAlerts=$$ENABLE_ALERTS \
 			  StateMachineLogLevel=$$STATE_MACHINE_LOG_LEVEL
 
+cdk-deploy: download-get-secrets-layer
+	REQUIRE_APPROVAL="$${REQUIRE_APPROVAL:-any-change}" npm run cdk-deploy --workspace packages/cdk
+
+cdk-synth: download-get-secrets-layer
+	npm run cdk-synth --workspace packages/cdk
+
+cdk-diff:
+	npm run cdk-diff --workspace packages/cdk
+
+cdk-watch: download-get-secrets-layer
+	REQUIRE_APPROVAL="$${REQUIRE_APPROVAL:-any-change}" npm run cdk-watch --workspace packages/cdk
+	
 compile-node:
 	npx tsc --build tsconfig.build.json
 
@@ -128,6 +157,7 @@ download-get-secrets-layer:
 	fi
 
 lint-node: compile-node
+	npm run lint --workspace packages/cdk
 	npm run lint --workspace packages/capabilityStatement
 	npm run lint --workspace packages/getMyPrescriptions
 	npm run lint --workspace packages/enrichPrescriptions
@@ -141,7 +171,8 @@ lint-node: compile-node
 lint: lint-node actionlint shellcheck cfn-lint
 	echo "Linting complete"
 
-test: compile
+test: compile download-get-secrets-layer
+	npm run test --workspace packages/cdk
 	npm run test --workspace packages/capabilityStatement
 	npm run test --workspace packages/getMyPrescriptions
 	npm run test --workspace packages/enrichPrescriptions
@@ -153,6 +184,7 @@ test: compile
 	npm run test --workspace packages/common/testing
 
 clean:
+	rm -rf packages/cdk/coverage
 	rm -rf packages/capabilityStatement/coverage
 	rm -rf packages/getMyPrescriptions/coverage
 	rm -rf packages/enrichPrescriptions/coverage

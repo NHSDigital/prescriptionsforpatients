@@ -51,6 +51,15 @@ repos:
         pass_filenames: false
         always_run: true
 
+      - id: lint-cdk
+        name: Lint CDK
+        entry: npm
+        args: ["run", "--prefix=packages/cdk", "lint"]
+        language: system
+        files: ^packages\/cdk
+        types_or: [ts, tsx, javascript, jsx, json]
+        pass_filenames: false
+
       - id: lint-getMyPrescriptions
         name: Lint getMyPrescriptions
         entry: npm

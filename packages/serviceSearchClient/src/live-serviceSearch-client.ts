@@ -133,14 +133,14 @@ export class LiveServiceSearchClient implements ServiceSearchClient {
 
   private async loadApiKeyFromSecretsManager(): Promise<string | undefined> {
     try {
-      const secretArn = process.env.ServiceSearch3ApiKeyARN
-      if (!secretArn) {
-        this.logger.error("ServiceSearch3ApiKeyARN environment variable is not set")
+      const secretId = process.env.ServiceSearch3ApiKeyName ?? process.env.ServiceSearch3ApiKeyARN
+      if (!secretId) {
+        this.logger.error("ServiceSearch3ApiKeyName or ServiceSearch3ApiKeyARN environment variable is not set")
         return undefined
       }
-      this.logger.info("Loading ServiceSearch API key from Secrets Manager", {secretArn})
+      this.logger.info("Loading ServiceSearch API key from Secrets Manager", {secretId})
 
-      const secret = await getSecret(secretArn, {
+      const secret = await getSecret(secretId, {
         maxAge: 300 // Cache for 5 minutes
       })
 

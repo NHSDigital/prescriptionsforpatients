@@ -60,6 +60,7 @@ describe("live serviceSearch client", () => {
   beforeEach(() => {
     process.env.TargetServiceSearchServer = "live"
     process.env.ServiceSearch3ApiKey = "test-key"
+    delete process.env.ServiceSearch3ApiKeyName
     delete process.env.ServiceSearch3ApiKeyARN
 
     logger = new Logger({serviceName: "svcClientTest"})
@@ -68,8 +69,9 @@ describe("live serviceSearch client", () => {
     vi.restoreAllMocks()
   })
 
-  test("logs error when ServiceSearch3ApiKeyARN is missing", async () => {
+  test("logs error when ServiceSearch3ApiKeyName and ServiceSearch3ApiKeyARN are missing", async () => {
     delete process.env.ServiceSearch3ApiKey
+    delete process.env.ServiceSearch3ApiKeyName
     delete process.env.ServiceSearch3ApiKeyARN
 
     client = new LiveServiceSearchClient(logger)
@@ -90,7 +92,7 @@ describe("live serviceSearch client", () => {
     await client.searchService("ABC123", dummyCorrelationId)
 
     expect(errorSpy).toHaveBeenCalledWith(
-      "ServiceSearch3ApiKeyARN environment variable is not set"
+      "ServiceSearch3ApiKeyName or ServiceSearch3ApiKeyARN environment variable is not set"
     )
   })
 
