@@ -24,7 +24,7 @@ jobs:
       id-token: write
       packages: read
   pr_title_format_check:
-    uses: NHSDigital/eps-common-workflows/.github/workflows/pr_title_check.yml@e798d5aee897de6f7dc387dd5623fcd9ba4c8929
+    uses: NHSDigital/eps-common-workflows/.github/workflows/pr_title_check.yml@bda627e2ce1a32ea56bcc815aec57b06cfa63c9d
     permissions:
       pull-requests: write
   get_issue_number:
