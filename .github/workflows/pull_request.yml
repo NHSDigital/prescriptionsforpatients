@@ -5,7 +5,7 @@ on:
 permissions: {}
 jobs:
   get_config_values:
-    uses: NHSDigital/eps-common-workflows/.github/workflows/get-repo-config.yml@e798d5aee897de6f7dc387dd5623fcd9ba4c8929
+    uses: NHSDigital/eps-common-workflows/.github/workflows/get-repo-config.yml@889349f9d93e4846a642f7973b7c26b180bec5aa
     with:
       verify_published_from_main_image: false
     permissions:
@@ -13,7 +13,7 @@ jobs:
       contents: read
       packages: read
   quality_checks:
-    uses: NHSDigital/eps-common-workflows/.github/workflows/quality-checks-devcontainer.yml@8399c1f015c1304e40771cbd8ccc24c7ed48fdbc
+    uses: NHSDigital/eps-common-workflows/.github/workflows/quality-checks-devcontainer.yml@889349f9d93e4846a642f7973b7c26b180bec5aa
     needs: [get_config_values]
     with:
       pinned_image: ${{ needs.get_config_values.outputs.pinned_image }}
@@ -24,7 +24,7 @@ jobs:
       id-token: write
       packages: read
   pr_title_format_check:
-    uses: NHSDigital/eps-common-workflows/.github/workflows/pr_title_check.yml@e798d5aee897de6f7dc387dd5623fcd9ba4c8929
+    uses: NHSDigital/eps-common-workflows/.github/workflows/pr_title_check.yml@889349f9d93e4846a642f7973b7c26b180bec5aa
     permissions:
       pull-requests: write
   get_issue_number:
@@ -54,7 +54,7 @@ jobs:
           result-encoding: string
   tag_release:
     needs: [get_config_values]
-    uses: NHSDigital/eps-common-workflows/.github/workflows/tag-release-devcontainer.yml@e798d5aee897de6f7dc387dd5623fcd9ba4c8929
+    uses: NHSDigital/eps-common-workflows/.github/workflows/tag-release-devcontainer.yml@889349f9d93e4846a642f7973b7c26b180bec5aa
     permissions:
       id-token: write
       contents: write

@@ -1,72 +1,88 @@
-name: "Delete old cloudformation stacks"
+name: "Delete old pull request deployments"
 
 on:
   workflow_dispatch:
-    inputs:
-      branch_name:
-        description: "Branch to run against, defaults to main"
-        required: false
-        default: "main"
   schedule:
     - cron: "0 0,12 * * *"
-  push:
-    branches: [main]
-permissions: {}
 
+permissions: {}
 jobs:
-  delete-old-cloudformation-stacks:
-    runs-on: ubuntu-22.04
+  get_config_values:
+    uses: NHSDigital/eps-common-workflows/.github/workflows/get-repo-config.yml@889349f9d93e4846a642f7973b7c26b180bec5aa
+    with:
+      verify_published_from_main_image: false
     permissions:
+      attestations: read
+      contents: read
+      packages: read
+  delete-old-cloudformation-stacks:
+    needs: [get_config_values]
+    runs-on: ubuntu-22.04
+    container:
+      image: ${{ needs.get_config_values.outputs.pinned_image }}
+      options: --user 1001:1001 --group-add 128
+    defaults:
+      run:
+        shell: bash
+    permissions: &common_permissions
       id-token: write
       contents: read
+      packages: read
 
     steps:
-      - name: Checkout local github scripts
+      - name: copy .tool-versions
+        run: |
+          cp /home/vscode/.tool-versions "$HOME/.tool-versions"
+      - &checkout
+        name: Checkout local github scripts
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
-          ref: ${{ github.event.inputs.branch_name || github.ref_name }}
+          fetch-depth: 0
           persist-credentials: false
-          sparse-checkout: |
-            .github/scripts
+      - &install_dependencies
+        name: install dependencies
+        uses: ./.github/actions/install_dependencies
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
-          role-session-name: aws-pfp-delete-old-stacks
 
       - name: delete stacks
         shell: bash
-        working-directory: .github/scripts
-        run: ./delete_stacks.sh
+        run: npm run delete-old-pr-stacks --workspace packages/cdk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   delete-old-proxygen-deployments:
+    needs: [get_config_values]
     runs-on: ubuntu-22.04
-    permissions:
-      id-token: write
-      contents: read
+    container:
+      image: ${{ needs.get_config_values.outputs.pinned_image }}
+      options: --user 1001:1001 --group-add 128
+    defaults:
+      run:
+        shell: bash
+    permissions: *common_permissions
 
     steps:
-      - name: Checkout local code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-        with:
-          ref: ${{ github.event.inputs.branch_name || github.ref_name }}
-          persist-credentials: false
-          fetch-depth: 0
+      - name: copy .tool-versions
+        run: |
+          cp /home/vscode/.tool-versions "$HOME/.tool-versions"
+      - *checkout
+      - *install_dependencies
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets.PROXYGEN_PTL_ROLE }}
-          role-session-name: pfp-delete-old-proxygen
 
       - name: delete proxygen deployments
         shell: bash
-        working-directory: .github/scripts
-        run: ./delete_proxygen_deployments.sh
+        run: npm run delete-old-pr-deployments --workspace packages/specification
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -12,7 +12,7 @@
     "test": "vitest run --coverage"
   },
   "dependencies": {
-    "@nhsdigital/eps-cdk-constructs": "^1.6.1",
+    "@nhsdigital/eps-cdk-constructs": "^1.6.2",
     "aws-cdk": "^2.1106.0",
     "aws-cdk-lib": "^2.239.0",
     "cdk-nag": "^2.37.55",

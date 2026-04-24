@@ -13,9 +13,12 @@
   "scripts": {
     "lint": "redocly lint --extends=recommended --config ./redocly.yaml",
     "compile": "node resolve-examples.js && redocly bundle prescriptions-for-patients.preprocessed.yaml -o dist/prescriptions-for-patients.resolved.json",
-    "clean": "rm -rf lib coverage prescriptions-for-patients.preprocessed.yaml"
+    "clean": "rm -rf lib coverage prescriptions-for-patients.preprocessed.yaml",
+    "delete-old-pr-deployments": "tsx ./scripts/deleteProxygenDeployments.ts",
+    "deploy-api": "tsx ./scripts/deploy_api.ts"
   },
   "devDependencies": {
+    "@nhsdigital/eps-deployment-utils": "^1.6.2",
     "@redocly/cli": "^2.28.1",
     "tsx": "4.21.0"
   },

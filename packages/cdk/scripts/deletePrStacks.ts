@@ -1,7 +1,8 @@
 import {deleteUnusedPrStacks} from "@nhsdigital/eps-cdk-constructs"
+import {API_NAME} from "../constants"
 
 deleteUnusedPrStacks(
-  "pfp-api",
+  API_NAME,
   "prescriptionsforpatients",
   "dev.eps.national.nhs.uk."
 ).catch((error) => {
