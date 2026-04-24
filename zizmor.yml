@@ -8,6 +8,8 @@ rules:
       - cdk_package_code.yml:16:18
       - cdk_release_code.yml:113:18
       - cdk_release_code.yml:255:18
+      - delete_old_cloudformation_stacks.yml:22:18
+      - delete_old_cloudformation_stacks.yml:64:18
   secrets-outside-env:
     # these are ignored because they are using known secrets
     ignore:
