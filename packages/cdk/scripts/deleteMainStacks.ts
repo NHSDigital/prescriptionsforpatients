@@ -1,9 +1,10 @@
 import {deleteUnusedMainStacks, getActiveApiVersions, getConfigFromEnvVar} from "@nhsdigital/eps-cdk-constructs"
+import {API_NAME} from "../constants"
 
 const awsEnvironment = getConfigFromEnvVar("AWS_ENVIRONMENT", "")
 deleteUnusedMainStacks(
-  "pfp-api",
-  () => getActiveApiVersions("prescriptions-for-patients"),
+  API_NAME,
+  () => getActiveApiVersions("prescriptions-for-patients-v2"),
   `${awsEnvironment}.eps.national.nhs.uk.`
 ).catch((error) => {
   console.error(error)

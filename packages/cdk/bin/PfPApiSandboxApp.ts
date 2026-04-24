@@ -5,6 +5,7 @@ import {
   getConfigFromEnvVar,
   getNumberConfigFromEnvVar
 } from "@nhsdigital/eps-cdk-constructs"
+import {API_NAME} from "../constants"
 import {PfPApiSandboxStack} from "../stacks/PfPApiSandboxStack"
 
 function main() {
@@ -12,7 +13,7 @@ function main() {
     productName: "Prescriptions for Patients API",
     appName: "PfPApiSandboxApp",
     repoName: "prescriptionsforpatients",
-    driftDetectionGroup: "pfp-api"
+    driftDetectionGroup: API_NAME
   })
 
   return new PfPApiSandboxStack(app, "PfPApiSandboxStack", {
