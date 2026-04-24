@@ -13,8 +13,7 @@ rules:
   secrets-outside-env:
     # these are ignored because they are using known secrets
     ignore:
-      - delete_old_cloudformation_stacks.yml:34:31
-      - delete_old_cloudformation_stacks.yml:61:31
+      - delete_old_cloudformation_stacks.yml:46:31
+      - delete_old_cloudformation_stacks.yml:58:31
+      - delete_old_cloudformation_stacks.yml:88:31
       - run_regression_tests.yml:55:28
-      - delete_old_cloudformation_stacks.yml:64:31
-      - delete_old_cloudformation_stacks.yml:36:31
