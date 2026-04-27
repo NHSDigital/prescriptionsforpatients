@@ -2,13 +2,30 @@
 
 echo "$COMMIT_ID"
 
-artifact_bucket=$(aws cloudformation list-exports --output json | jq -r '.Exports[] | select(.Name == "account-resources:ArtifactsBucket") | .Value' | grep -o '[^:]*$')
-export artifact_bucket
+CF_LONDON_EXPORTS=$(aws cloudformation list-exports --region eu-west-2 --output json)
+# delete this once latest account resources is merged
+artifact_bucket=$(echo "$CF_LONDON_EXPORTS" | \
+    jq \
+    --arg EXPORT_NAME "account-resources:ArtifactsBucket" \
+    -r '.Exports[] | select(.Name == $EXPORT_NAME) | .Value')
 
-cloud_formation_execution_role=$(aws cloudformation list-exports --output json | jq -r '.Exports[] | select(.Name == "ci-resources:CloudFormationExecutionRole") | .Value' )
+# artifact_bucket=$(echo "$CF_LONDON_EXPORTS" | \
+#    jq \
+#    --arg EXPORT_NAME "account-resources-cdk-uk:Bucket:ArtifactsBucket:Arn" \
+#    -r '.Exports[] | select(.Name == $EXPORT_NAME) | .Value')
+
+cloud_formation_execution_role=$(echo "$CF_LONDON_EXPORTS" | \
+    jq \
+    --arg EXPORT_NAME "iam-cdk:IAM:CloudFormationExecutionRole:Arn" \
+    -r '.Exports[] | select(.Name == $EXPORT_NAME) | .Value')
+TRUSTSTORE_BUCKET_ARN=$(echo "$CF_LONDON_EXPORTS" | \
+    jq \
+    --arg EXPORT_NAME "account-resources-cdk-uk:Bucket:TrustStoreBucket:Arn" \
+    -r '.Exports[] | select(.Name == $EXPORT_NAME) | .Value')
+
+export artifact_bucket
 export cloud_formation_execution_role
 
-TRUSTSTORE_BUCKET_ARN=$(aws cloudformation describe-stacks --stack-name account-resources --query "Stacks[0].Outputs[?OutputKey=='TrustStoreBucket'].OutputValue" --output text)
 TRUSTSTORE_BUCKET_NAME=$(echo "${TRUSTSTORE_BUCKET_ARN}" | cut -d ":" -f 6)
 LATEST_TRUSTSTORE_VERSION=$(aws s3api list-object-versions --bucket "${TRUSTSTORE_BUCKET_NAME}" --prefix "${TRUSTSTORE_FILE}" --query 'Versions[?IsLatest].[VersionId]' --output text)
 export LATEST_TRUSTSTORE_VERSION
