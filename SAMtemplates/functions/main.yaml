@@ -17,10 +17,10 @@ Globals:
         TargetSpineServer: !Ref TargetSpineServer
         TargetServiceSearchServer: !Ref TargetServiceSearchServer
         SpinePrivateKeyARN: !ImportValue secrets-cdk:Secrets:SpinePrivateKey:Arn
-        SpinePublicCertificateARN: !ImportValue account-resources-cdk-uk:SpinePublicCertificate:Arn
-        SpineASIDARN: !ImportValue account-resources-cdk-uk:SpineASID:Arn
-        SpinePartyKeyARN: !ImportValue account-resources-cdk-uk:SpinePartyKey:Arn
-        SpineCAChainARN: !ImportValue account-resources-cdk-uk:SpineCAChain:Arn
+        SpinePublicCertificateARN: !ImportValue secrets-cdk:Secrets:SpinePublicCertificate:Arn
+        SpineASIDARN: !ImportValue secrets-cdk:Secrets:SpineASID:Arn
+        SpinePartyKeyARN: !ImportValue secrets-cdk:Secrets:SpinePartyKey:Arn
+        SpineCAChainARN: !ImportValue secrets-cdk:Secrets:SpineCAChain:Arn
         ServiceSearch3ApiKeyARN: !Ref ServiceSearch3ApiKeyARN
     Layers:
       - !Sub arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:52
