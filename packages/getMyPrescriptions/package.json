@@ -18,7 +18,7 @@
     "@aws-lambda-powertools/parameters": "^2.33.0",
     "@aws-sdk/client-secrets-manager": "^3.1024.0",
     "@middy/core": "^7.1.2",
-    "@middy/http-header-normalizer": "^7.2.1",
+    "@middy/http-header-normalizer": "^7.3.1",
     "@middy/input-output-logger": "^7.2.1",
     "@nhs/fhir-middy-error-handler": "^2.1.80",
     "@nhsdigital/eps-spine-client": "^2.1.78",
