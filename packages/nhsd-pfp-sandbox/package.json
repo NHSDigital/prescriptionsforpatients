@@ -14,7 +14,7 @@
   "dependencies": {
     "@aws-lambda-powertools/commons": "^2.33.0",
     "@aws-lambda-powertools/logger": "^2.32.0",
-    "@middy/core": "^7.1.2",
+    "@middy/core": "^7.3.1",
     "@middy/input-output-logger": "^7.2.1",
     "@nhs/fhir-middy-error-handler": "^2.1.80"
   },
