@@ -72,10 +72,10 @@ Resources:
             - Fn::ImportValue: !Sub ${StackName}:functions:${EnrichPrescriptionsFunctionName}:ExecuteLambdaPolicyArn
             - Fn::ImportValue: psu:functions:psu-GetStatusUpdates:ExecuteLambdaPolicyArn
         LogRetentionInDays: !Ref LogRetentionInDays
-        CloudWatchKMSKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
+        CloudWatchKMSKeyId: !ImportValue account-resources-cdk-uk:KMS:CloudwatchLogsKmsKey:Arn
         EnableSplunk: !Ref EnableSplunk
-        SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
-        SplunkDeliveryStreamArn: !ImportValue lambda-resources:SplunkDeliveryStream
+        SplunkSubscriptionFilterRole: !ImportValue account-resources-cdk-uk:IAM:SplunkSubscriptionFilterRole:Arn
+        SplunkDeliveryStreamArn: !ImportValue account-resources-cdk-uk:Firehose:SplunkDeliveryStream:Arn
 
 Outputs:
   GetMyPrescriptionsStateMachineArn:

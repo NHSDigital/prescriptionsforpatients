@@ -53,11 +53,11 @@ Resources:
       TreatMissingData: notBreaching
       ActionsEnabled: !Ref EnableAlerts
       AlarmActions:
-        - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
+        - !ImportValue account-resources-cdk-uk:SNS:SlackAlertsSnsTopicArn:Arn
       InsufficientDataActions:
-        - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
+        - !ImportValue account-resources-cdk-uk:SNS:SlackAlertsSnsTopicArn:Arn
       OKActions:
-        - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
+        - !ImportValue account-resources-cdk-uk:SNS:SlackAlertsSnsTopicArn:Arn
 
   ServiceSearchUnhandledErrorsAlarm:
     Type: AWS::CloudWatch::Alarm
@@ -78,11 +78,11 @@ Resources:
       TreatMissingData: notBreaching
       ActionsEnabled: !Ref EnableAlerts
       AlarmActions:
-        - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
+        - !ImportValue account-resources-cdk-uk:SNS:SlackAlertsSnsTopicArn:Arn
       InsufficientDataActions:
-        - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
+        - !ImportValue account-resources-cdk-uk:SNS:SlackAlertsSnsTopicArn:Arn
       OKActions:
-        - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
+        - !ImportValue account-resources-cdk-uk:SNS:SlackAlertsSnsTopicArn:Arn
 
   GetMyPrescriptionsErrorsLogsMetricFilter:
     Type: AWS::Logs::MetricFilter
@@ -119,11 +119,11 @@ Resources:
       TreatMissingData: notBreaching
       ActionsEnabled: !Ref EnableAlerts
       AlarmActions:
-        - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
+        - !ImportValue account-resources-cdk-uk:SNS:SlackAlertsSnsTopicArn:Arn
       InsufficientDataActions:
-        - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
+        - !ImportValue account-resources-cdk-uk:SNS:SlackAlertsSnsTopicArn:Arn
       OKActions:
-        - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
+        - !ImportValue account-resources-cdk-uk:SNS:SlackAlertsSnsTopicArn:Arn
 
   EnrichPrescriptionsErrorsLogsMetricFilter:
     Type: AWS::Logs::MetricFilter
@@ -154,8 +154,8 @@ Resources:
       TreatMissingData: notBreaching
       ActionsEnabled: !Ref EnableAlerts
       AlarmActions:
-        - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
+        - !ImportValue account-resources-cdk-uk:SNS:SlackAlertsSnsTopicArn:Arn
       InsufficientDataActions:
-        - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
+        - !ImportValue account-resources-cdk-uk:SNS:SlackAlertsSnsTopicArn:Arn
       OKActions:
-        - !ImportValue lambda-resources:SlackAlertsSnsTopicArn
+        - !ImportValue account-resources-cdk-uk:SNS:SlackAlertsSnsTopicArn:Arn

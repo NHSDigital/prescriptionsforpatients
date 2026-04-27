@@ -79,7 +79,7 @@ Resources:
         - !Join
           - ","
           - - !Ref StateMachineManagedPolicy
-            - !ImportValue account-resources:CloudwatchEncryptionKMSPolicyArn
+            - !ImportValue account-resources-cdk-uk:IAM:CloudwatchEncryptionKMSPolicy:Arn
             - !Join
               - ","
               - !Ref AdditionalPolicies
