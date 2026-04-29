@@ -137,7 +137,7 @@ jobs:
           cp /home/vscode/.tool-versions "$HOME/.tool-versions"
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7
+        uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets.CLOUD_FORMATION_DEPLOY_ROLE }}
@@ -201,7 +201,7 @@ jobs:
 
       - name: Configure AWS Credentials for api release
         if: ${{ inputs.DEPLOY_APIGEE == true }}
-        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7
+        uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets.PROXYGEN_ROLE }}
@@ -225,7 +225,7 @@ jobs:
           IS_PULL_REQUEST: ${{ inputs.IS_PULL_REQUEST }}
         run: ./.github/scripts/deploy_api.sh
 
-      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         name: Upload specs
         with:
           name: ${{ inputs.APIGEE_ENVIRONMENT }}-specs

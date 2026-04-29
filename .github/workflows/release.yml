@@ -6,7 +6,7 @@ permissions: {}
 
 jobs:
   get_config_values:
-    uses: NHSDigital/eps-common-workflows/.github/workflows/get-repo-config.yml@e798d5aee897de6f7dc387dd5623fcd9ba4c8929
+    uses: NHSDigital/eps-common-workflows/.github/workflows/get-repo-config.yml@c4efd04c5ff1c7e92e7fe5932b29d0de1a301cdf
     with:
       verify_published_from_main_image: true
     permissions:
@@ -14,7 +14,7 @@ jobs:
       contents: read
       packages: read
   quality_checks:
-    uses: NHSDigital/eps-common-workflows/.github/workflows/quality-checks-devcontainer.yml@8399c1f015c1304e40771cbd8ccc24c7ed48fdbc
+    uses: NHSDigital/eps-common-workflows/.github/workflows/quality-checks-devcontainer.yml@ba4bcd7fa2367cc44c9078adb96a654236d3691a
     needs: [get_config_values]
     with:
       pinned_image: ${{ needs.get_config_values.outputs.pinned_image }}
