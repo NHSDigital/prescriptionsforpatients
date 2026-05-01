@@ -3,16 +3,12 @@
 echo "$COMMIT_ID"
 
 CF_LONDON_EXPORTS=$(aws cloudformation list-exports --region eu-west-2 --output json)
-# delete this once latest account resources is merged
+
 artifact_bucket=$(echo "$CF_LONDON_EXPORTS" | \
     jq \
-    --arg EXPORT_NAME "account-resources:ArtifactsBucket" \
+    --arg EXPORT_NAME "account-resources-cdk-uk:Bucket:ArtifactsBucket:Arn" \
     -r '.Exports[] | select(.Name == $EXPORT_NAME) | .Value')
-
-# artifact_bucket=$(echo "$CF_LONDON_EXPORTS" | \
-#    jq \
-#    --arg EXPORT_NAME "account-resources-cdk-uk:Bucket:ArtifactsBucket:Arn" \
-#    -r '.Exports[] | select(.Name == $EXPORT_NAME) | .Value')
+artifact_bucket_name=$(echo "${artifact_bucket}" | cut -d ":" -f 6)
 
 cloud_formation_execution_role=$(echo "$CF_LONDON_EXPORTS" | \
     jq \
@@ -45,7 +41,7 @@ sam deploy \
   --stack-name "$STACK_NAME" \
   --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND \
   --region eu-west-2 \
-  --s3-bucket "$artifact_bucket" \
+  --s3-bucket "$artifact_bucket_name" \
   --s3-prefix "$ARTIFACT_BUCKET_PREFIX" \
   --config-file samconfig_package_and_deploy.toml \
   --no-fail-on-empty-changeset \
