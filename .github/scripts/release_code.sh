@@ -9,21 +9,37 @@ ARTIFACT_BUCKET_ARN=$(echo "$CF_LONDON_EXPORTS" | \
     --arg EXPORT_NAME "account-resources-cdk-uk:Bucket:ArtifactsBucket:Arn" \
     -r '.Exports[] | select(.Name == $EXPORT_NAME) | .Value')
 ARTIFACT_BUCKET_NAME=$(echo "${ARTIFACT_BUCKET_ARN}" | cut -d ":" -f 6)
+if [ -z "${ARTIFACT_BUCKET_NAME}" ]; then
+    echo "could not retrieve ARTIFACT_BUCKET_NAME from aws cloudformation list-exports"
+    exit 1
+fi
 
 CLOUD_FORMATION_EXECUTION_ROLE=$(echo "$CF_LONDON_EXPORTS" | \
     jq \
     --arg EXPORT_NAME "iam-cdk:IAM:CloudFormationExecutionRole:Arn" \
     -r '.Exports[] | select(.Name == $EXPORT_NAME) | .Value')
+
+if [ -z "${CLOUD_FORMATION_EXECUTION_ROLE}" ]; then
+    echo "could not retrieve CLOUD_FORMATION_EXECUTION_ROLE from aws cloudformation list-exports"
+    exit 1
+fi
+
 TRUSTSTORE_BUCKET_ARN=$(echo "$CF_LONDON_EXPORTS" | \
     jq \
     --arg EXPORT_NAME "account-resources-cdk-uk:Bucket:TrustStoreBucket:Arn" \
     -r '.Exports[] | select(.Name == $EXPORT_NAME) | .Value')
 
+TRUSTSTORE_BUCKET_NAME=$(echo "${TRUSTSTORE_BUCKET_ARN}" | cut -d ":" -f 6)
+
+if [ -z "${TRUSTSTORE_BUCKET_NAME}" ]; then
+    echo "could not retrieve TRUSTSTORE_BUCKET_NAME from aws cloudformation list-exports"
+    exit 1
+fi
+
+LATEST_TRUSTSTORE_VERSION=$(aws s3api list-object-versions --bucket "${TRUSTSTORE_BUCKET_NAME}" --prefix "${TRUSTSTORE_FILE}" --query 'Versions[?IsLatest].[VersionId]' --output text)
+
 export ARTIFACT_BUCKET_NAME
 export CLOUD_FORMATION_EXECUTION_ROLE
-
-TRUSTSTORE_BUCKET_NAME=$(echo "${TRUSTSTORE_BUCKET_ARN}" | cut -d ":" -f 6)
-LATEST_TRUSTSTORE_VERSION=$(aws s3api list-object-versions --bucket "${TRUSTSTORE_BUCKET_NAME}" --prefix "${TRUSTSTORE_FILE}" --query 'Versions[?IsLatest].[VersionId]' --output text)
 export LATEST_TRUSTSTORE_VERSION
 
 cd ../../.aws-sam/build || exit
