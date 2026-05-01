@@ -16,11 +16,11 @@ Globals:
         NODE_OPTIONS: "--enable-source-maps"
         TargetSpineServer: !Ref TargetSpineServer
         TargetServiceSearchServer: !Ref TargetServiceSearchServer
-        SpinePrivateKeyARN: !ImportValue account-resources:SpinePrivateKey
-        SpinePublicCertificateARN: !ImportValue account-resources:SpinePublicCertificate
-        SpineASIDARN: !ImportValue account-resources:SpineASID
-        SpinePartyKeyARN: !ImportValue account-resources:SpinePartyKey
-        SpineCAChainARN: !ImportValue account-resources:SpineCAChain
+        SpinePrivateKeyARN: !ImportValue secrets-cdk:Secrets:SpinePrivateKey:Arn
+        SpinePublicCertificateARN: !ImportValue secrets-cdk:Secrets:SpinePublicCertificate:Arn
+        SpineASIDARN: !ImportValue secrets-cdk:Secrets:SpineASID:Arn
+        SpinePartyKeyARN: !ImportValue secrets-cdk:Secrets:SpinePartyKey:Arn
+        SpineCAChainARN: !ImportValue secrets-cdk:Secrets:SpineCAChain:Arn
         ServiceSearch3ApiKeyARN: !Ref ServiceSearch3ApiKeyARN
     Layers:
       - !Sub arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:52
@@ -145,10 +145,10 @@ Resources:
             - !Ref SecretsPolicy
             - !Ref KMSPolicy
         LogRetentionInDays: !Ref LogRetentionInDays
-        CloudWatchKMSKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
+        CloudWatchKMSKeyId: !ImportValue account-resources-cdk-uk:KMS:CloudwatchLogsKmsKey:Arn
         EnableSplunk: !Ref EnableSplunk
-        SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
-        SplunkDeliveryStreamArn: !ImportValue lambda-resources:SplunkDeliveryStream
+        SplunkSubscriptionFilterRole: !ImportValue account-resources-cdk-uk:IAM:SplunkSubscriptionFilterRole:Arn
+        SplunkDeliveryStreamArn: !ImportValue account-resources-cdk-uk:Firehose:SplunkDeliveryStream:Arn
 
   EnrichPrescriptions:
     Type: AWS::Serverless::Function
@@ -187,10 +187,10 @@ Resources:
         LambdaName: !Sub ${StackName}-EnrichPrescriptions
         LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${StackName}-EnrichPrescriptions
         LogRetentionInDays: !Ref LogRetentionInDays
-        CloudWatchKMSKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
+        CloudWatchKMSKeyId: !ImportValue account-resources-cdk-uk:KMS:CloudwatchLogsKmsKey:Arn
         EnableSplunk: !Ref EnableSplunk
-        SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
-        SplunkDeliveryStreamArn: !ImportValue lambda-resources:SplunkDeliveryStream
+        SplunkSubscriptionFilterRole: !ImportValue account-resources-cdk-uk:IAM:SplunkSubscriptionFilterRole:Arn
+        SplunkDeliveryStreamArn: !ImportValue account-resources-cdk-uk:Firehose:SplunkDeliveryStream:Arn
         IncludeAdditionalPolicies: true
         AdditionalPolicies: !Join
           - ","
@@ -228,10 +228,10 @@ Resources:
         LambdaName: !Sub ${StackName}-CapabilityStatement
         LambdaArn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${StackName}-CapabilityStatement
         LogRetentionInDays: !Ref LogRetentionInDays
-        CloudWatchKMSKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
+        CloudWatchKMSKeyId: !ImportValue account-resources-cdk-uk:KMS:CloudwatchLogsKmsKey:Arn
         EnableSplunk: !Ref EnableSplunk
-        SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
-        SplunkDeliveryStreamArn: !ImportValue lambda-resources:SplunkDeliveryStream
+        SplunkSubscriptionFilterRole: !ImportValue account-resources-cdk-uk:IAM:SplunkSubscriptionFilterRole:Arn
+        SplunkDeliveryStreamArn: !ImportValue account-resources-cdk-uk:Firehose:SplunkDeliveryStream:Arn
 
   Status:
     Type: AWS::Serverless::Function
@@ -276,10 +276,10 @@ Resources:
           - ","
           - - !ImportValue account-resources:LambdaAccessSecretsPolicy
         LogRetentionInDays: !Ref LogRetentionInDays
-        CloudWatchKMSKeyId: !ImportValue account-resources:CloudwatchLogsKmsKeyArn
+        CloudWatchKMSKeyId: !ImportValue account-resources-cdk-uk:KMS:CloudwatchLogsKmsKey:Arn
         EnableSplunk: !Ref EnableSplunk
-        SplunkSubscriptionFilterRole: !ImportValue lambda-resources:SplunkSubscriptionFilterRole
-        SplunkDeliveryStreamArn: !ImportValue lambda-resources:SplunkDeliveryStream
+        SplunkSubscriptionFilterRole: !ImportValue account-resources-cdk-uk:IAM:SplunkSubscriptionFilterRole:Arn
+        SplunkDeliveryStreamArn: !ImportValue account-resources-cdk-uk:Firehose:SplunkDeliveryStream:Arn
 
 Outputs:
   GetMyPrescriptionsFunctionName:

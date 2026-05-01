@@ -80,9 +80,9 @@ Resources:
         - !Join
           - ","
           - - !Ref LambdaManagedPolicy
-            - !ImportValue lambda-resources:LambdaInsightsLogGroupPolicy
-            - !ImportValue account-resources:CloudwatchEncryptionKMSPolicyArn
-            - !ImportValue account-resources:LambdaDecryptSecretsKMSPolicy
+            - !ImportValue account-resources-cdk-uk:IAM:LambdaInsightsLogGroupPolicy:Arn
+            - !ImportValue account-resources-cdk-uk:IAM:CloudwatchEncryptionKMSPolicy:Arn
+            - !ImportValue secrets-cdk:IAM:LambdaDecryptSecretsKMSPolicy:Arn
             - !If
               - ShouldIncludeAdditionalPolicies
               - !Join

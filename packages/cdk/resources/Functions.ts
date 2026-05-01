@@ -2,7 +2,7 @@ import {Fn, RemovalPolicy} from "aws-cdk-lib"
 import {IManagedPolicy, ManagedPolicy} from "aws-cdk-lib/aws-iam"
 import {Construct} from "constructs"
 import {TypescriptLambdaFunction} from "@nhsdigital/eps-cdk-constructs"
-import {ACCOUNT_RESOURCES} from "@nhsdigital/eps-cdk-constructs/lib/src/constants.js"
+import {SECRETS_RESOURCES} from "@nhsdigital/eps-cdk-constructs/lib/src/constants.js"
 import {Code, LayerVersion} from "aws-cdk-lib/aws-lambda"
 import {join, resolve} from "node:path"
 
@@ -35,10 +35,10 @@ export class Functions extends Construct {
 
     // Imports
     const lambdaAccessSecretsPolicy = ManagedPolicy.fromManagedPolicyArn(
-      this, "lambdaAccessSecretsPolicy", ACCOUNT_RESOURCES.LambdaAccessSecretsPolicy)
+      this, "lambdaAccessSecretsPolicy", SECRETS_RESOURCES.LambdaAccessSecretsPolicyArn)
 
     const lambdaDecryptSecretsKMSPolicy = ManagedPolicy.fromManagedPolicyArn(
-      this, "lambdaDecryptSecretsKMSPolicy", ACCOUNT_RESOURCES.LambdaDecryptSecretsKMSPolicy)
+      this, "lambdaDecryptSecretsKMSPolicy", SECRETS_RESOURCES.LambdaDecryptSecretsKMSPolicyArn)
 
     const getPfPSecretPolicy = ManagedPolicy.fromManagedPolicyArn(
       this, "getPfPSecretPolicy", Fn.importValue("pfp-GetPfPSecretPolicy"))
@@ -50,11 +50,11 @@ export class Functions extends Construct {
       STACK_NAME: props.stackName,
       TargetSpineServer: props.targetSpineServer,
       TargetServiceSearchServer: props.targetServiceSearchServer,
-      SpinePrivateKeyARN: ACCOUNT_RESOURCES.SpinePrivateKeyARN,
-      SpinePublicCertificateARN: ACCOUNT_RESOURCES.SpinePublicCertificateARN,
-      SpineASIDARN: ACCOUNT_RESOURCES.SpineASIDARN,
-      SpinePartyKeyARN: ACCOUNT_RESOURCES.SpinePartyKeyARN,
-      SpineCAChainARN: ACCOUNT_RESOURCES.SpineCAChainARN,
+      SpinePrivateKeyARN: SECRETS_RESOURCES.SpinePrivateKeyArn,
+      SpinePublicCertificateARN: SECRETS_RESOURCES.SpinePublicCertificateArn,
+      SpineASIDARN: SECRETS_RESOURCES.SpineASIDArn,
+      SpinePartyKeyARN: SECRETS_RESOURCES.SpinePartyKeyArn,
+      SpineCAChainARN: SECRETS_RESOURCES.SpineCAChainArn,
       ServiceSearch3ApiKeyName: props.serviceSearchApiKeySecretName
     }
 

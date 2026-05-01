@@ -59,7 +59,7 @@ export class Alarms extends Construct {
     const slackAlertTopic = Topic.fromTopicArn(
       this,
       "SlackAlertsTopic",
-      Fn.importValue("lambda-resources:SlackAlertsSnsTopicArn")
+      Fn.importValue("account-resources-cdk-uk:SNS:SlackAlertsSnsTopicArn:Arn")
     )
 
     const getMyPrescriptionsFunction = props.functions.getMyPrescriptions.function
