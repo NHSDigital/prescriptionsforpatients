@@ -140,7 +140,7 @@ Resources:
         IncludeAdditionalPolicies: true
         AdditionalPolicies: !Join
           - ","
-          - - !ImportValue account-resources:LambdaAccessSecretsPolicy
+          - - !ImportValue secrets-cdk:IAM:LambdaAccessSecretsPolicy:Arn
             - !Ref SSMParameterPolicy
             - !Ref SecretsPolicy
             - !Ref KMSPolicy
@@ -274,7 +274,7 @@ Resources:
         IncludeAdditionalPolicies: true
         AdditionalPolicies: !Join
           - ","
-          - - !ImportValue account-resources:LambdaAccessSecretsPolicy
+          - - !ImportValue secrets-cdk:IAM:LambdaAccessSecretsPolicy:Arn
         LogRetentionInDays: !Ref LogRetentionInDays
         CloudWatchKMSKeyId: !ImportValue account-resources-cdk-uk:KMS:CloudwatchLogsKmsKey:Arn
         EnableSplunk: !Ref EnableSplunk

@@ -105,7 +105,7 @@ Resources:
                 - 5
                 - !Split
                   - ":"
-                  - !ImportValue account-resources:TrustStoreBucket
+                  - !ImportValue account-resources-cdk-uk:Bucket:TrustStoreBucket:Arn
               - !Ref TruststoreFile
           - !Ref AWS::NoValue
         TruststoreVersion: !If
