@@ -54,7 +54,7 @@ jobs:
           result-encoding: string
   tag_release:
     needs: [get_config_values]
-    uses: NHSDigital/eps-common-workflows/.github/workflows/tag-release-devcontainer.yml@bda627e2ce1a32ea56bcc815aec57b06cfa63c9d
+    uses: NHSDigital/eps-common-workflows/.github/workflows/tag-release-devcontainer.yml@889349f9d93e4846a642f7973b7c26b180bec5aa
     permissions:
       id-token: write
       contents: write
