@@ -15,7 +15,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Auto approve and enable auto-merge
-        uses: NHSDigital/eps-dependabot-approve@da0503449b218ccd99bc547e242007d5514e4d2f
+        uses: NHSDigital/eps-dependabot-approve@55da79f2effe6726785ad3675e92c6db87f77156
         with:
           AUTOMERGE_APP_ID: ${{ secrets.AUTOMERGE_APP_ID }}
           AUTOMERGE_PEM: ${{ secrets.AUTOMERGE_PEM }}
