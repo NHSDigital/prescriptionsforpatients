@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Update devcontainer version
-        uses: NHSDigital/eps-update-devcontainer@83f4b56f1942635f2c05b7fe569142459b8c3882
+        uses: NHSDigital/eps-update-devcontainer@ae0e408e8caa77010f8f2cae9079ccf65d1e17a9
         with:
           calling_repo_base_branch: main
           CREATE_PULL_REQUEST_APP_ID: ${{ secrets.CREATE_PULL_REQUEST_APP_ID }}
