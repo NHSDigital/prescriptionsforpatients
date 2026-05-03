@@ -2,17 +2,18 @@ rules:
   unpinned-images:
     # these workflows use unpinned images because they are using a full image passed in that contains the tag
     ignore:
-      - sam_release_code.yml:121:18
+      - sam_release_code.yml:112:18
       - sam_package_code.yml:15:18
       - run_regression_tests.yml:31:18
       - cdk_package_code.yml:16:18
-      - cdk_release_code.yml:122:18
-      - cdk_release_code.yml:264:7
+      - cdk_release_code.yml:113:18
+      - cdk_release_code.yml:255:18
+      - delete_old_cloudformation_stacks.yml:22:18
+      - delete_old_cloudformation_stacks.yml:64:18
   secrets-outside-env:
     # these are ignored because they are using known secrets
     ignore:
-      - delete_old_cloudformation_stacks.yml:34:31
-      - delete_old_cloudformation_stacks.yml:61:31
+      - delete_old_cloudformation_stacks.yml:46:31
+      - delete_old_cloudformation_stacks.yml:58:31
+      - delete_old_cloudformation_stacks.yml:88:31
       - run_regression_tests.yml:55:28
-      - delete_old_cloudformation_stacks.yml:64:31
-      - delete_old_cloudformation_stacks.yml:36:31
