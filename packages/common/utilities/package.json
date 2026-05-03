@@ -16,7 +16,7 @@
   "dependencies": {
     "@aws-lambda-powertools/logger": "^2.33.0",
     "@aws-lambda-powertools/parameters": "^2.33.0",
-    "@aws-sdk/client-ssm": "^3.1024.0",
+    "@aws-sdk/client-ssm": "^3.1037.0",
     "@middy/core": "^7.3.3",
     "@types/fhir": "^0.0.41"
   },
